@@ -18,7 +18,7 @@ The platform combines holistic wellness principles with modern software engineer
 
 **Status:** Active Development
 
-**Repository:** Private
+**Repository Visibility:** Public
 
 ---
 
@@ -67,9 +67,9 @@ Project knowledge is organized using the Natural Nation Knowledge System (NN-KS)
 
 # Repository Structure
 
-```
+```text
 app/            Application source code
-assets/         Brand assets, icons, illustrations, media
+resources/      Brand assets, icons, illustrations, media, and reusable project resources
 docs/           Project documentation
 knowledge/      Natural Nation Knowledge System
 ```
@@ -114,8 +114,6 @@ Founder approval is required for permanent adoption.
 ---
 
 # License
-
-Private Repository
 
 Copyright © Natural Nation.
 
