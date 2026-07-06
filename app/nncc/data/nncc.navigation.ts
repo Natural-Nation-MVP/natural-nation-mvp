@@ -25,6 +25,16 @@ export const nnccNavigationItems: NNCCNavigationItem[] = [
     description: 'Live-style summary generated from parsed Knowledge System metadata.',
   },
   {
+    key: 'knowledge',
+    label: 'Knowledge',
+    description: 'Browse and search canonical Natural Nation knowledge by Founder workflow.',
+  },
+  {
+    key: 'timeline',
+    label: 'Founder Timeline',
+    description: 'Chronological history of approvals, decisions, builds, and major project events.',
+  },
+  {
     key: 'build-queue',
     label: 'AI Build Queue',
     description: 'AI-ready work packages for ChatGPT, Codex, Google AI Studio, and review workflows.',
