@@ -1,5 +1,6 @@
 // Exports NNCC pages so the main app shell can import them later.
 export { ExecutiveDashboard } from './pages/Dashboard/ExecutiveDashboard';
+export { FounderBriefView } from './pages/FounderBrief/FounderBriefView';
 export { MilestoneDashboard } from './pages/Milestones/MilestoneDashboard';
 export { ApprovalCenter } from './pages/Approvals/ApprovalCenter';
 export { DecisionRegistryView } from './pages/Decisions/DecisionRegistryView';
@@ -12,7 +13,10 @@ export { NNCCSectionHeader } from './components/NNCCSectionHeader';
 
 // Exports registry services and navigation metadata.
 export * from './services/knowledgeRegistry.service';
+export * from './services/liveKnowledgeParser.service';
+export * from './services/liveRegistry.service';
 export * from './data/nncc.navigation';
 
 // Exports NNCC TypeScript models.
 export * from './types/nncc.types';
+export * from './types/liveKnowledge.types';
