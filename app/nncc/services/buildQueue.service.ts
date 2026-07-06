@@ -1,5 +1,14 @@
+import {
+  nnccAiToolProfiles,
+  nnccBuildHistoryEvents,
+  nnccBuildSessions,
+} from '../data/nncc.aiOperations.seed';
 import { nnccBuildQueueItems } from '../data/nncc.buildQueue.seed';
-import type { NNCCBuildPromptPackage, NNCCBuildQueueItem } from '../types/buildQueue.types';
+import type {
+  NNCCAiOperationsSummary,
+  NNCCBuildPromptPackage,
+  NNCCBuildQueueItem,
+} from '../types/buildQueue.types';
 
 // Returns all current AI build queue items.
 // Future versions can load these from issues, milestones, or a repository-backed registry.
@@ -33,4 +42,36 @@ export function getReadyBuildPromptPackages(): NNCCBuildPromptPackage[] {
   return nnccBuildQueueItems
     .filter((item) => item.status === 'ready_for_prompt')
     .map(createBuildPromptPackage);
+}
+
+// Returns the AI tool profiles supported by the AI Operations Center.
+// Tool profiles explain which tool should handle each package type.
+export function getAiToolProfiles() {
+  return nnccAiToolProfiles;
+}
+
+// Returns current AI build sessions.
+// Sessions create the first traceable layer between prompts and execution.
+export function getBuildSessions() {
+  return nnccBuildSessions;
+}
+
+// Returns build history events in newest-first order.
+// This gives the Founder an audit trail for AI-assisted development.
+export function getBuildHistoryEvents() {
+  return [...nnccBuildHistoryEvents].sort((first, second) => second.date.localeCompare(first.date));
+}
+
+// Returns an operations summary for dashboard metrics.
+// This converts raw queue data into Founder-ready status counts.
+export function getAiOperationsSummary(): NNCCAiOperationsSummary {
+  return {
+    totalBuildItems: nnccBuildQueueItems.length,
+    readyForPrompt: nnccBuildQueueItems.filter((item) => item.status === 'ready_for_prompt').length,
+    inProgress: nnccBuildQueueItems.filter((item) => item.status === 'in_progress').length,
+    blocked: nnccBuildQueueItems.filter((item) => item.status === 'blocked').length,
+    readyForReview: nnccBuildQueueItems.filter((item) => item.status === 'ready_for_review').length,
+    shipped: nnccBuildQueueItems.filter((item) => item.status === 'shipped').length,
+    activeSessions: nnccBuildSessions.length,
+  };
 }
