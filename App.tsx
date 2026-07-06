@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import {
   AiTeamWorkspace,
   ApprovalCenter,
+  BuildQueueView,
   DecisionRegistryView,
   ExecutiveDashboard,
   FounderBriefView,
@@ -15,6 +16,7 @@ import {
 type RouteKey =
   | 'dashboard'
   | 'founder-brief'
+  | 'build-queue'
   | 'milestones'
   | 'approvals'
   | 'decisions'
@@ -74,6 +76,7 @@ export default function App() {
 
 function renderPage(route: RouteKey) {
   if (route === 'founder-brief') return <FounderBriefView />;
+  if (route === 'build-queue') return <BuildQueueView />;
   if (route === 'milestones') return <MilestoneDashboard />;
   if (route === 'approvals') return <ApprovalCenter />;
   if (route === 'decisions') return <DecisionRegistryView />;
