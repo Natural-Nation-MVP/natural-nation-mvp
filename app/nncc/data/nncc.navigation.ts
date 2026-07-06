@@ -25,6 +25,11 @@ export const nnccNavigationItems: NNCCNavigationItem[] = [
     description: 'Live-style summary generated from parsed Knowledge System metadata.',
   },
   {
+    key: 'build-queue',
+    label: 'AI Build Queue',
+    description: 'AI-ready work packages for ChatGPT, Codex, Google AI Studio, and review workflows.',
+  },
+  {
     key: 'milestones',
     label: 'Milestones',
     description: 'Milestone progress, status, ownership, and canonical links.',
