@@ -1,95 +1,106 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { MissionMetric } from '../../components/MissionMetric';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import {
-  getKnowledgeGroups,
-  getKnowledgeWorkspaceCounts,
-  searchKnowledgeItems,
-} from '../../services/knowledgeWorkspace.service';
+  getKnowledgeIntelligenceSummary,
+  getKnowledgeRelationships,
+  getRelationshipsForRecord,
+  searchKnowledgeRecords,
+} from '../../services/knowledgeIntelligence.service';
 
-// Renders the Knowledge Workspace for NNCC.
-// This view gives the Founder grouped browsing and global local search.
+// Renders the Knowledge Intelligence workspace for NNCC.
+// This view adds scored search, canonical records, and relationship visibility.
 export function KnowledgeWorkspaceView() {
   const [query, setQuery] = useState('');
-  const groups = getKnowledgeGroups();
-  const counts = getKnowledgeWorkspaceCounts();
-  const results = searchKnowledgeItems(query);
+  const summary = getKnowledgeIntelligenceSummary();
+  const results = searchKnowledgeRecords(query);
+  const relationships = getKnowledgeRelationships();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
-        title="Knowledge Workspace"
-        description="Browse, search, and trace Natural Nation knowledge by Founder workflow instead of raw repository folders."
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.purple}
+        eyebrow="Knowledge Intelligence"
+        title="Canonical Knowledge Graph"
+        body="Search repository-aware Natural Nation records, inspect canonical homes, and see relationships across decisions, approvals, builds, and operating documents."
+        footer="Current mode: curated repository-aware intelligence records"
       />
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-        <Metric label="Groups" value={counts.groups} />
-        <Metric label="Items" value={counts.items} />
-        <Metric label="Approved" value={counts.approvedItems} />
-        <Metric label="Draft" value={counts.draftItems} />
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+        <MissionMetric accent={missionControlTheme.colors.purple} label="Records" value={summary.totalRecords} />
+        <MissionMetric accent={missionControlTheme.colors.emerald} label="Approved" value={summary.approvedRecords} />
+        <MissionMetric accent={missionControlTheme.colors.amber} label="Draft" value={summary.draftRecords} />
+        <MissionMetric accent={missionControlTheme.colors.cyan} label="Links" value={summary.relationships} />
       </View>
 
       <TextInput
         value={query}
         onChangeText={setQuery}
-        placeholder="Search knowledge, decisions, prompts, Duey, blueprint, wellness score..."
+        placeholder="Search knowledge, decisions, approvals, builds, prompts, Duey, blueprint..."
+        placeholderTextColor={missionControlTheme.colors.textMuted}
         style={{
-          backgroundColor: '#ffffff',
-          borderColor: '#d1d5db',
-          borderRadius: 16,
+          backgroundColor: missionControlTheme.colors.panelStrong,
+          borderColor: missionControlTheme.colors.border,
+          borderRadius: missionControlTheme.radius.md,
           borderWidth: 1,
-          color: '#111827',
+          color: missionControlTheme.colors.textPrimary,
           fontSize: 15,
           marginBottom: 18,
-          padding: 14,
+          padding: 15,
         }}
       />
 
-      <NNCCSectionHeader title="Knowledge Groups" />
+      <MissionPanel
+        accent={missionControlTheme.colors.cyan}
+        eyebrow="Search Results"
+        title={`${results.length} Knowledge Matches`}
+        body="Results are scored by title, tags, related IDs, canonical path, and summary matches."
+      >
+        {results.map((result) => {
+          const itemRelationships = getRelationshipsForRecord(result.record.id);
 
-      {groups.map((group) => (
-        <NNCCCard
-          key={group.id}
-          eyebrow="workspace group"
-          title={group.name}
-          body={group.description}
-          footer={group.paths.join(' • ')}
-        />
-      ))}
+          return (
+            <View key={result.record.id} style={{ borderTopColor: missionControlTheme.colors.border, borderTopWidth: 1, paddingVertical: 14 }}>
+              <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 16, fontWeight: '900' }}>
+                {result.record.title} // SCORE {result.score}
+              </Text>
+              <Text style={{ color: missionControlTheme.colors.purple, fontSize: 12, fontWeight: '900', marginTop: 4 }}>
+                {result.record.recordType.toUpperCase()} • {result.record.status.toUpperCase()}
+              </Text>
+              <Text style={{ color: missionControlTheme.colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 6 }}>
+                {result.record.summary}
+              </Text>
+              <Text style={{ color: missionControlTheme.colors.textMuted, fontSize: 12, lineHeight: 18, marginTop: 6 }}>
+                {result.record.canonicalPath}
+              </Text>
+              <Text style={{ color: missionControlTheme.colors.cyan, fontSize: 12, fontWeight: '800', marginTop: 6 }}>
+                Matches: {result.matchedFields.join(', ')} • Relationships: {itemRelationships.length}
+              </Text>
+            </View>
+          );
+        })}
+      </MissionPanel>
 
-      <NNCCSectionHeader title="Search Results" description={`${results.length} matching knowledge items`} />
-
-      {results.map((item) => (
-        <NNCCCard
-          key={item.id}
-          eyebrow={`${item.status} • ${item.groupId}`}
-          title={item.title}
-          body={item.summary}
-          footer={item.canonicalPath}
-        />
-      ))}
+      <MissionPanel accent={missionControlTheme.colors.emerald} eyebrow="Relationship Map" title="Knowledge Links">
+        {relationships.map((relationship) => (
+          <View key={relationship.id} style={{ borderTopColor: missionControlTheme.colors.border, borderTopWidth: 1, paddingVertical: 12 }}>
+            <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 15, fontWeight: '900' }}>
+              {relationship.sourceId} → {relationship.targetId}
+            </Text>
+            <Text style={{ color: missionControlTheme.colors.emerald, fontSize: 12, fontWeight: '900', marginTop: 4 }}>
+              {relationship.type.toUpperCase()}
+            </Text>
+            <Text style={{ color: missionControlTheme.colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 4 }}>
+              {relationship.summary}
+            </Text>
+          </View>
+        ))}
+      </MissionPanel>
     </ScrollView>
-  );
-}
-
-// Renders compact metric cards for Knowledge Workspace counts.
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <View
-      style={{
-        backgroundColor: '#eef2ff',
-        borderColor: '#c7d2fe',
-        borderRadius: 16,
-        borderWidth: 1,
-        minWidth: 120,
-        padding: 14,
-      }}
-    >
-      <Text style={{ color: '#3730a3', fontSize: 24, fontWeight: '900' }}>{value}</Text>
-      <Text style={{ color: '#4338ca', fontSize: 12, fontWeight: '800', marginTop: 4 }}>
-        {label}
-      </Text>
-    </View>
   );
 }
