@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { ScrollView, View } from 'react-native';
+import { MissionMetric } from '../../components/MissionMetric';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import {
   getActiveMilestone,
   getDashboardCounts,
@@ -9,90 +10,61 @@ import {
   getRepositoryHealth,
 } from '../../services/knowledgeRegistry.service';
 
-// Renders the Founder-facing executive dashboard.
-// This is the first landing view for the Natural Nation Control Center.
+// Renders the Founder-facing Mission Dashboard.
+// This is the primary command surface for the Founder/Developer Control Center.
 export function ExecutiveDashboard() {
-  // Loads the high-level dashboard summary from the registry service.
   const snapshot = getDashboardSnapshot();
-
-  // Loads the active milestone so the Founder can see current execution focus.
   const activeMilestone = getActiveMilestone();
-
-  // Loads counts used for quick executive metrics.
   const counts = getDashboardCounts();
-
-  // Loads repository health items for the dashboard preview.
   const healthItems = getRepositoryHealth();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
-        title="Natural Nation Control Center"
-        description="Founder dashboard for project status, approvals, decisions, repository health, and knowledge traceability."
-      />
-
-      <NNCCCard
-        eyebrow="Project Health"
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.emerald}
+        eyebrow="Mission Status"
         title={snapshot.projectName}
         body={snapshot.executiveSummary}
-        footer={`Health: ${snapshot.healthLevel.toUpperCase()}`}
+        footer={`System Health: ${snapshot.healthLevel.toUpperCase()}`}
       />
 
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 18 }}>
+        <MissionMetric accent={missionControlTheme.colors.emerald} label="Milestones" value={counts.milestones} />
+        <MissionMetric accent={missionControlTheme.colors.amber} label="Approvals" value={counts.approvals} />
+        <MissionMetric accent={missionControlTheme.colors.purple} label="Decisions" value={counts.decisions} />
+        <MissionMetric accent={missionControlTheme.colors.cyan} label="AI Roles" value={counts.teamRoles} />
+      </View>
+
       {activeMilestone ? (
-        <NNCCCard
-          eyebrow="Active Milestone"
+        <MissionPanel
+          accent={missionControlTheme.colors.cyan}
+          eyebrow="Active Operation"
           title={`${activeMilestone.id} — ${activeMilestone.name}`}
           body={activeMilestone.summary}
           footer={`${activeMilestone.progressPercent}% complete • Owner: ${activeMilestone.ownerRole}`}
         />
       ) : null}
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-        <Metric label="Milestones" value={counts.milestones} />
-        <Metric label="Approvals" value={counts.approvals} />
-        <Metric label="Decisions" value={counts.decisions} />
-        <Metric label="Team Roles" value={counts.teamRoles} />
-      </View>
-
-      <NNCCCard
-        eyebrow="Recommended Next Action"
-        title="Founder Review"
+      <MissionPanel
+        accent={missionControlTheme.colors.amber}
+        eyebrow="Founder Command"
+        title="Recommended Next Action"
         body={snapshot.recommendedNextAction}
       />
 
-      <NNCCSectionHeader title="Repository Health Preview" />
-
       {healthItems.map((item) => (
-        <NNCCCard
+        <MissionPanel
           key={item.id}
-          eyebrow={item.level}
+          accent={item.level === 'good' ? missionControlTheme.colors.emerald : missionControlTheme.colors.amber}
+          eyebrow={`Repository Health • ${item.level}`}
           title={item.category}
           body={item.summary}
           footer={item.canonicalHome ? item.canonicalHome.path : undefined}
         />
       ))}
     </ScrollView>
-  );
-}
-
-// Renders a compact dashboard metric tile.
-// Keeping this local prevents over-componentizing the first dashboard pass.
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <View
-      style={{
-        backgroundColor: '#ecfdf5',
-        borderColor: '#d1fae5',
-        borderRadius: 16,
-        borderWidth: 1,
-        minWidth: 140,
-        padding: 16,
-      }}
-    >
-      <Text style={{ color: '#065f46', fontSize: 26, fontWeight: '900' }}>{value}</Text>
-      <Text style={{ color: '#047857', fontSize: 13, fontWeight: '700', marginTop: 4 }}>
-        {label}
-      </Text>
-    </View>
   );
 }
