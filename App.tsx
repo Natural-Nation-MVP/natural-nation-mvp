@@ -12,6 +12,7 @@ import {
   KnowledgeWorkspaceView,
   MilestoneDashboard,
   MissionHeader,
+  OperationsCenterView,
   RepositoryHealthView,
   missionControlTheme,
   nnccWorkspaceNavigation,
@@ -23,6 +24,7 @@ type RouteKey =
   | 'knowledge'
   | 'timeline'
   | 'build-queue'
+  | 'operations'
   | 'milestones'
   | 'approvals'
   | 'decisions'
@@ -127,6 +129,7 @@ function renderPage(route: RouteKey) {
   if (route === 'knowledge') return <KnowledgeWorkspaceView />;
   if (route === 'timeline') return <FounderTimelineView />;
   if (route === 'build-queue') return <BuildQueueView />;
+  if (route === 'operations') return <OperationsCenterView />;
   if (route === 'milestones') return <MilestoneDashboard />;
   if (route === 'approvals') return <ApprovalCenter />;
   if (route === 'decisions') return <DecisionRegistryView />;
