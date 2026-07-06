@@ -11,8 +11,10 @@ import {
   FounderTimelineView,
   KnowledgeWorkspaceView,
   MilestoneDashboard,
+  MissionHeader,
   RepositoryHealthView,
-  nnccNavigationItems,
+  missionControlTheme,
+  nnccWorkspaceNavigation,
 } from './app/nncc';
 
 type RouteKey =
@@ -31,51 +33,93 @@ export default function App() {
   const [activeRoute, setActiveRoute] = useState<RouteKey>('dashboard');
 
   return (
-    <SafeAreaView style={{ backgroundColor: '#ecfdf5', flex: 1 }}>
-      <StatusBar style="dark" />
+    <SafeAreaView style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}>
+      <StatusBar style="light" />
 
-      <View style={{ flex: 1, flexDirection: 'row' }}>
-        <View style={{ backgroundColor: '#064e3b', maxWidth: 320, minWidth: 260, padding: 18 }}>
-          <Text style={{ color: '#ffffff', fontSize: 24, fontWeight: '900', marginBottom: 4 }}>
+      <View style={{ backgroundColor: missionControlTheme.colors.background, flex: 1, flexDirection: 'row' }}>
+        <View
+          style={{
+            backgroundColor: '#06101b',
+            borderRightColor: missionControlTheme.colors.border,
+            borderRightWidth: 1,
+            maxWidth: 340,
+            minWidth: 280,
+            padding: 18,
+          }}
+        >
+          <Text style={{ color: missionControlTheme.colors.emerald, fontSize: 13, fontWeight: '900', letterSpacing: 2 }}>
             NNCC
           </Text>
 
-          <Text style={{ color: '#a7f3d0', fontSize: 13, lineHeight: 19, marginBottom: 18 }}>
-            Natural Nation Control Center
+          <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 25, fontWeight: '900', marginTop: 5 }}>
+            Mission Control
           </Text>
 
-          <ScrollView>
-            {nnccNavigationItems.map((item) => {
-              const isActive = item.key === activeRoute;
+          <Text style={{ color: missionControlTheme.colors.textMuted, fontSize: 12, lineHeight: 18, marginBottom: 18, marginTop: 6 }}>
+            Founder / Developer command interface
+          </Text>
 
-              return (
-                <Pressable
-                  key={item.key}
-                  onPress={() => setActiveRoute(item.key as RouteKey)}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {nnccWorkspaceNavigation.map((group) => (
+              <View key={group.id} style={{ marginBottom: 18 }}>
+                <Text
                   style={{
-                    backgroundColor: isActive ? '#10b981' : 'transparent',
-                    borderRadius: 14,
+                    color: getGroupAccent(group.accent),
+                    fontSize: 11,
+                    fontWeight: '900',
+                    letterSpacing: 1.6,
                     marginBottom: 8,
-                    padding: 12,
                   }}
                 >
-                  <Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '800' }}>
-                    {item.label}
-                  </Text>
+                  {group.label.toUpperCase()}
+                </Text>
 
-                  <Text style={{ color: isActive ? '#ecfdf5' : '#a7f3d0', fontSize: 12, lineHeight: 17, marginTop: 4 }}>
-                    {item.description}
-                  </Text>
-                </Pressable>
-              );
-            })}
+                {group.routes.map((item) => {
+                  const isActive = item.key === activeRoute;
+
+                  return (
+                    <Pressable
+                      key={item.key}
+                      onPress={() => setActiveRoute(item.key as RouteKey)}
+                      style={{
+                        backgroundColor: isActive ? 'rgba(34, 245, 169, 0.14)' : 'transparent',
+                        borderColor: isActive ? missionControlTheme.colors.emerald : 'transparent',
+                        borderRadius: 14,
+                        borderWidth: 1,
+                        marginBottom: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 14, fontWeight: '900' }}>
+                        {item.label}
+                      </Text>
+
+                      <Text style={{ color: missionControlTheme.colors.textMuted, fontSize: 11, lineHeight: 16, marginTop: 4 }}>
+                        {item.description}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
           </ScrollView>
         </View>
 
-        <View style={{ flex: 1 }}>{renderPage(activeRoute)}</View>
+        <View style={{ flex: 1 }}>
+          <MissionHeader />
+          <View style={{ flex: 1 }}>{renderPage(activeRoute)}</View>
+        </View>
       </View>
     </SafeAreaView>
   );
+}
+
+function getGroupAccent(accent: string) {
+  if (accent === 'purple') return missionControlTheme.colors.purple;
+  if (accent === 'cyan') return missionControlTheme.colors.cyan;
+  if (accent === 'amber') return missionControlTheme.colors.amber;
+  if (accent === 'blue') return missionControlTheme.colors.blue;
+  return missionControlTheme.colors.emerald;
 }
 
 function renderPage(route: RouteKey) {
