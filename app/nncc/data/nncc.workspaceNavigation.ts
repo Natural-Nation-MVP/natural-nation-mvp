@@ -90,6 +90,11 @@ export const nnccWorkspaceNavigation: NNCCWorkspaceGroup[] = [
     accent: 'amber',
     routes: [
       {
+        key: 'operations',
+        label: 'Operations Center',
+        description: 'Roadmap, QA, release tracking, and operations metrics.',
+      },
+      {
         key: 'milestones',
         label: 'Milestones',
         description: 'Milestone progress, ownership, and status.',
