@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Natural Nation Control Center",
+    "slug": "natural-nation-control-center",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "naturalnation",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "assetBundlePatterns": ["**/*"]
+  }
+}
