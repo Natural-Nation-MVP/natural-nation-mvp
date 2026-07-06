@@ -8,6 +8,8 @@ import {
   DecisionRegistryView,
   ExecutiveDashboard,
   FounderBriefView,
+  FounderTimelineView,
+  KnowledgeWorkspaceView,
   MilestoneDashboard,
   RepositoryHealthView,
   nnccNavigationItems,
@@ -16,6 +18,8 @@ import {
 type RouteKey =
   | 'dashboard'
   | 'founder-brief'
+  | 'knowledge'
+  | 'timeline'
   | 'build-queue'
   | 'milestones'
   | 'approvals'
@@ -76,6 +80,8 @@ export default function App() {
 
 function renderPage(route: RouteKey) {
   if (route === 'founder-brief') return <FounderBriefView />;
+  if (route === 'knowledge') return <KnowledgeWorkspaceView />;
+  if (route === 'timeline') return <FounderTimelineView />;
   if (route === 'build-queue') return <BuildQueueView />;
   if (route === 'milestones') return <MilestoneDashboard />;
   if (route === 'approvals') return <ApprovalCenter />;
