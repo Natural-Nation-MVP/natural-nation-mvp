@@ -64,3 +64,50 @@ export interface NNCCBuildPromptPackage {
   // Full prompt text to copy into the selected tool.
   prompt: string;
 }
+
+// Defines an AI tool profile shown inside the AI Operations Center.
+// Tool profiles explain which AI surface should handle which kind of work.
+export interface NNCCAiToolProfile {
+  id: NNCCBuildSurface;
+  name: string;
+  status: 'online' | 'manual' | 'planned';
+  bestFor: string[];
+  outputType: string;
+  usageRule: string;
+}
+
+// Defines one AI build session record.
+// Sessions track when a build package is prepared, executed, or reviewed.
+export interface NNCCBuildSession {
+  id: string;
+  buildItemId: string;
+  surface: NNCCBuildSurface;
+  status: 'prepared' | 'sent_to_tool' | 'awaiting_result' | 'result_received' | 'reviewed';
+  startedAt: string;
+  summary: string;
+  outputReference?: string;
+}
+
+// Defines one build history event.
+// History events preserve the audit trail from prompt package to Founder review.
+export interface NNCCBuildHistoryEvent {
+  id: string;
+  buildItemId: string;
+  date: string;
+  title: string;
+  status: NNCCBuildQueueStatus;
+  summary: string;
+  relatedPaths: string[];
+}
+
+// Defines a top-level AI Operations summary.
+// This powers the Mission Control metrics for Build Queue completion.
+export interface NNCCAiOperationsSummary {
+  totalBuildItems: number;
+  readyForPrompt: number;
+  inProgress: number;
+  blocked: number;
+  readyForReview: number;
+  shipped: number;
+  activeSessions: number;
+}
