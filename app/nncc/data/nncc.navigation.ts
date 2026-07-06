@@ -20,6 +20,11 @@ export const nnccNavigationItems: NNCCNavigationItem[] = [
     description: 'Founder executive summary, active milestone, metrics, and repository health preview.',
   },
   {
+    key: 'founder-brief',
+    label: 'Founder Brief',
+    description: 'Live-style summary generated from parsed Knowledge System metadata.',
+  },
+  {
     key: 'milestones',
     label: 'Milestones',
     description: 'Milestone progress, status, ownership, and canonical links.',
