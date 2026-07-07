@@ -2,8 +2,8 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { missionControlTheme } from '../theme/missionControl.theme';
 
-// Renders the persistent Mission Control header.
-// This gives the Founder clear system status at the top of every workspace.
+// Renders the persistent Founder OS header.
+// This presents NNCC as the Founder-facing interface powered by NNOS.
 export function MissionHeader() {
   return (
     <View
@@ -24,13 +24,18 @@ export function MissionHeader() {
           marginBottom: 6,
         }}
       >
-        NATURAL NATION // FOUNDER-DEVELOPER MISSION CONTROL
+        NATURAL NATION // FOUNDER OS
       </Text>
 
       <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 28, fontWeight: '900' }}>
-          NNCC Command Interface
-        </Text>
+        <View>
+          <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 28, fontWeight: '900' }}>
+            Executive Operating Environment
+          </Text>
+          <Text style={{ color: missionControlTheme.colors.textMuted, fontSize: 12, fontWeight: '800', marginTop: 6 }}>
+            Powered by the Natural Nation Operating System (NNOS)
+          </Text>
+        </View>
 
         <View
           style={{
@@ -53,7 +58,7 @@ export function MissionHeader() {
             }}
           />
           <Text style={{ color: missionControlTheme.colors.emerald, fontSize: 12, fontWeight: '900' }}>
-            SYSTEM ONLINE
+            FOUNDER OS ONLINE
           </Text>
         </View>
       </View>
