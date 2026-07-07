@@ -7,32 +7,32 @@ import type {
   NNCCRepositoryHealthItem,
 } from '../types/nncc.types';
 
-// Defines the top-level Founder dashboard snapshot.
-// This object gives NNCC a single source for the executive summary card.
+// Defines the top-level Founder OS dashboard snapshot.
+// This object gives the Founder a single source for the executive summary card.
 export const nnccDashboardSnapshot: NNCCDashboardSnapshot = {
-  projectName: 'Natural Nation MVP',
+  projectName: 'Natural Nation Founder OS',
   activeMilestoneId: 'NNCC-001',
   healthLevel: 'good',
   executiveSummary:
-    'The Knowledge System foundation is approved. NNCC-001 is now creating the first Founder-facing Control Center module.',
+    'Founder OS is active. NNOS now powers the executive interface, project intelligence layer, AI operations, and implementation verification workflow.',
   recommendedNextAction:
-    'Review the first NNCC dashboard implementation, then connect it to the main app shell when routing is ready.',
+    'Polish the remaining Founder OS pages and align legacy views with the approved action-oriented interface standard.',
 };
 
 // Defines the current milestone set shown in the Milestones view.
-// These records mirror the approved knowledge system progression.
+// These records mirror the approved NNOS progression while preserving existing IDs.
 export const nnccMilestones: NNCCMilestone[] = [
   {
     id: 'NN-KS-001',
-    name: 'Knowledge System Foundation',
+    name: 'NNOS Foundation',
     status: 'approved',
     progressPercent: 100,
     ownerRole: 'Atlas',
     canonicalHome: {
-      label: 'Knowledge System README',
+      label: 'NNOS Repository Root',
       path: 'knowledge/README.md',
     },
-    summary: 'Established the Knowledge System as Natural Nation institutional memory.',
+    summary: 'Established the Natural Nation Operating System as the project source of truth.',
   },
   {
     id: 'NN-KS-002',
@@ -48,27 +48,27 @@ export const nnccMilestones: NNCCMilestone[] = [
   },
   {
     id: 'NN-KS-003',
-    name: 'Founder Knowledge Intelligence',
+    name: 'Project Intelligence Layer',
     status: 'approved',
     progressPercent: 100,
     ownerRole: 'Atlas',
     canonicalHome: {
-      label: 'Founder Knowledge Intelligence',
+      label: 'Project Intelligence Layer',
       path: 'knowledge/12-founder-knowledge-intelligence/',
     },
-    summary: 'Created the registry layer for decisions, approvals, assets, prompts, team ownership, and NNCC metadata.',
+    summary: 'Created the registry layer for decisions, approvals, assets, prompts, team ownership, and Founder OS metadata.',
   },
   {
     id: 'NNCC-001',
-    name: 'Natural Nation Control Center v1',
+    name: 'Natural Nation Founder OS v1',
     status: 'draft_implementation',
-    progressPercent: 35,
+    progressPercent: 65,
     ownerRole: 'Art',
     canonicalHome: {
-      label: 'NNCC Module',
+      label: 'Founder OS Module',
       path: 'app/nncc/',
     },
-    summary: 'Builds the first self-contained Founder dashboard module inside the repository.',
+    summary: 'Builds the first self-contained Founder OS module inside the repository.',
   },
 ];
 
@@ -77,17 +77,17 @@ export const nnccMilestones: NNCCMilestone[] = [
 export const nnccDecisions: NNCCDecision[] = [
   {
     id: 'DEC-NN-KS-001',
-    decision: 'Natural Nation uses a numbered Knowledge System as institutional memory.',
+    decision: 'Natural Nation uses NNOS as the canonical operating system and institutional memory.',
     status: 'approved',
     milestoneId: 'NN-KS-001',
     canonicalHome: {
-      label: 'Knowledge System README',
+      label: 'NNOS Repository Root',
       path: 'knowledge/README.md',
     },
   },
   {
     id: 'DEC-NN-KS-002',
-    decision: 'Founder Operating System is section 11 of the Knowledge System.',
+    decision: 'Founder Operating System is section 11 of the NNOS repository structure.',
     status: 'approved',
     milestoneId: 'NN-KS-002',
     canonicalHome: {
@@ -97,11 +97,11 @@ export const nnccDecisions: NNCCDecision[] = [
   },
   {
     id: 'DEC-NN-KS-003',
-    decision: 'Founder Knowledge Intelligence Layer is section 12 of the Knowledge System.',
+    decision: 'Project Intelligence Layer is section 12 of the NNOS repository structure.',
     status: 'approved',
     milestoneId: 'NN-KS-003',
     canonicalHome: {
-      label: 'Founder Knowledge Intelligence',
+      label: 'Project Intelligence Layer',
       path: 'knowledge/12-founder-knowledge-intelligence/',
     },
   },
@@ -124,39 +124,39 @@ export const nnccApprovalItems: NNCCApprovalItem[] = [
   },
   {
     id: 'APR-NN-KS-003',
-    title: 'NN-KS-003 Founder Knowledge Intelligence',
+    title: 'NN-KS-003 Project Intelligence Layer',
     status: 'approved',
     date: '2026-07-06',
     relatedDecisionId: 'DEC-NN-KS-003',
     canonicalHome: {
-      label: 'Founder Knowledge Intelligence',
+      label: 'Project Intelligence Layer',
       path: 'knowledge/12-founder-knowledge-intelligence/',
     },
     note: 'Approved by Founder after section 12 implementation.',
   },
   {
     id: 'APR-NNCC-001',
-    title: 'NNCC-001 Control Center v1',
+    title: 'NNCC-001 Founder OS v1',
     status: 'draft_implementation',
     date: '2026-07-06',
     canonicalHome: {
-      label: 'NNCC Module',
+      label: 'Founder OS Module',
       path: 'app/nncc/',
     },
-    note: 'Implementation started after Founder requested the Control Center build.',
+    note: 'Implementation is active after Founder approved the Founder OS rebrand and action-oriented interface standard.',
   },
 ];
 
-// Defines repository health records displayed in NNCC.
+// Defines repository health records displayed in Founder OS.
 // This gives the Founder a quick view of implementation readiness.
 export const nnccRepositoryHealth: NNCCRepositoryHealthItem[] = [
   {
     id: 'repo-branch-health',
     category: 'Branch Health',
     level: 'good',
-    summary: 'NNCC-001 is isolated on a feature branch for safe review.',
+    summary: 'Founder OS work is isolated on a feature branch for safe review.',
     canonicalHome: {
-      label: 'NNCC Module',
+      label: 'Founder OS Module',
       path: 'app/nncc/',
     },
   },
@@ -164,17 +164,17 @@ export const nnccRepositoryHealth: NNCCRepositoryHealthItem[] = [
     id: 'repo-documentation-coverage',
     category: 'Documentation Coverage',
     level: 'good',
-    summary: 'Knowledge System sections 11 and 12 exist and are linked from the Knowledge index.',
+    summary: 'NNOS standards, Founder OS rebrand guidance, and action-oriented interface rules are documented.',
     canonicalHome: {
-      label: 'Knowledge System README',
-      path: 'knowledge/README.md',
+      label: 'NNOS-001 Founder OS Rebrand',
+      path: 'docs/NNOS-001_FOUNDER_OS_REBRAND.md',
     },
   },
   {
     id: 'repo-traceability',
     category: 'Traceability',
     level: 'watch',
-    summary: 'First NNCC data objects link to canonical homes. Future work should automate validation.',
+    summary: 'Founder OS data objects link to canonical homes. Future work should automate validation.',
     canonicalHome: {
       label: 'Cross-Reference Index',
       path: 'knowledge/12-founder-knowledge-intelligence/cross-reference-index.md',
@@ -183,13 +183,13 @@ export const nnccRepositoryHealth: NNCCRepositoryHealthItem[] = [
 ];
 
 // Defines AI team roles shown in the first team workspace.
-// These records map project roles to their knowledge domains.
+// These records map project roles to their NNOS domains.
 export const nnccAiTeam: NNCCAiTeamMember[] = [
   {
     role: 'Atlas',
-    domain: 'Knowledge Stewardship',
-    responsibilities: 'Organizes and connects Natural Nation project knowledge.',
-    canonicalHome: { label: 'Knowledge System', path: 'knowledge/README.md' },
+    domain: 'NNOS Stewardship',
+    responsibilities: 'Organizes and connects Natural Nation operating records.',
+    canonicalHome: { label: 'NNOS Repository Root', path: 'knowledge/README.md' },
   },
   {
     role: 'Art',
