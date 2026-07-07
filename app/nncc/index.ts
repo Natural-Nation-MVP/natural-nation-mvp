@@ -4,6 +4,7 @@ export { KnowledgeWorkspaceView } from './pages/Knowledge/KnowledgeWorkspaceView
 export { FounderTimelineView } from './pages/Timeline/FounderTimelineView';
 export { BuildQueueView } from './pages/BuildQueue/BuildQueueView';
 export { OperationsCenterView } from './pages/Operations/OperationsCenterView';
+export { ImplementationVerificationView } from './pages/Verification/ImplementationVerificationView';
 export { MilestoneDashboard } from './pages/Milestones/MilestoneDashboard';
 export { ApprovalCenter } from './pages/Approvals/ApprovalCenter';
 export { DecisionRegistryView } from './pages/Decisions/DecisionRegistryView';
@@ -23,6 +24,7 @@ export * from './services/liveKnowledgeParser.service';
 export * from './services/liveRegistry.service';
 export * from './services/buildQueue.service';
 export * from './services/operations.service';
+export * from './services/implementationVerification.service';
 export * from './data/nncc.navigation';
 export * from './data/nncc.workspaceNavigation';
 
@@ -34,3 +36,4 @@ export * from './types/buildQueue.types';
 export * from './types/knowledgeWorkspace.types';
 export * from './types/knowledgeIntelligence.types';
 export * from './types/operations.types';
+export * from './types/implementationVerification.types';
