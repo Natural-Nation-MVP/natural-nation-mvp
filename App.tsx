@@ -9,6 +9,7 @@ import {
   ExecutiveDashboard,
   FounderBriefView,
   FounderTimelineView,
+  ImplementationVerificationView,
   KnowledgeWorkspaceView,
   MilestoneDashboard,
   MissionHeader,
@@ -25,6 +26,7 @@ type RouteKey =
   | 'timeline'
   | 'build-queue'
   | 'operations'
+  | 'verification'
   | 'milestones'
   | 'approvals'
   | 'decisions'
@@ -130,6 +132,7 @@ function renderPage(route: RouteKey) {
   if (route === 'timeline') return <FounderTimelineView />;
   if (route === 'build-queue') return <BuildQueueView />;
   if (route === 'operations') return <OperationsCenterView />;
+  if (route === 'verification') return <ImplementationVerificationView />;
   if (route === 'milestones') return <MilestoneDashboard />;
   if (route === 'approvals') return <ApprovalCenter />;
   if (route === 'decisions') return <DecisionRegistryView />;
