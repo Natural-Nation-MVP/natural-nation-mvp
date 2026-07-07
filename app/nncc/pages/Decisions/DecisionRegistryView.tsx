@@ -1,25 +1,32 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import { getDecisions } from '../../services/knowledgeRegistry.service';
 
-// Renders the decision registry inside NNCC.
+// Renders the Founder OS decision review page.
 // This gives the Founder a clear view of approved and draft project decisions.
 export function DecisionRegistryView() {
   // Loads decision records from the registry service.
   const decisions = getDecisions();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.purple}
+        eyebrow="Review Decisions"
         title="Decision Registry"
-        description="Browse Founder decisions and trace each one back to its canonical Knowledge System home."
+        body="Trace Founder decisions, approval status, and canonical NNOS references."
+        footer="Decision history remains linked to stable IDs and repository paths."
       />
 
       {decisions.map((decision) => (
-        <NNCCCard
+        <MissionPanel
           key={decision.id}
+          accent={decision.status === 'approved' ? missionControlTheme.colors.emerald : missionControlTheme.colors.amber}
           eyebrow={`${decision.status} • ${decision.milestoneId}`}
           title={decision.id}
           body={decision.decision}
