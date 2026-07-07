@@ -1,25 +1,32 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import { getApprovalItems } from '../../services/knowledgeRegistry.service';
 
-// Renders the Founder approval center.
-// This view separates approval state from milestone implementation state.
+// Renders the Founder OS approval workflow.
+// This view separates approval state from implementation progress so Founder decisions stay clear.
 export function ApprovalCenter() {
   // Loads approval records from the registry service.
   const approvalItems = getApprovalItems();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
-        title="Approval Center"
-        description="Review Founder approvals, draft implementation items, and canonical approval evidence."
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.amber}
+        eyebrow="Approve Changes"
+        title="Founder Approval Queue"
+        body="Review approvals, draft implementation items, and canonical evidence before project decisions become locked."
+        footer="Founder approval remains required before permanent project decisions change status."
       />
 
       {approvalItems.map((item) => (
-        <NNCCCard
+        <MissionPanel
           key={item.id}
+          accent={item.status === 'approved' ? missionControlTheme.colors.emerald : missionControlTheme.colors.amber}
           eyebrow={`${item.status} • ${item.date}`}
           title={item.title}
           body={item.note}
