@@ -1,0 +1,142 @@
+import type {
+  NNCCRouteVerificationItem,
+  NNCCSystemVerificationItem,
+} from '../types/implementationVerification.types';
+
+// Defines route verification based on Founder-confirmed iPad testing.
+export const nnccRouteVerificationItems: NNCCRouteVerificationItem[] = [
+  {
+    id: 'VERIFY-ROUTE-001',
+    label: 'Mission Dashboard',
+    routeKey: 'dashboard',
+    workspace: 'Founder',
+    status: 'operational',
+    evidence: 'Founder confirmed all 11 sidebar routes render in Codespaces on iPad.',
+  },
+  {
+    id: 'VERIFY-ROUTE-002',
+    label: 'Founder Brief',
+    routeKey: 'founder-brief',
+    workspace: 'Founder',
+    status: 'operational',
+    evidence: 'Route is wired in App.tsx and rendered during Founder iPad verification.',
+  },
+  {
+    id: 'VERIFY-ROUTE-003',
+    label: 'Approval Center',
+    routeKey: 'approvals',
+    workspace: 'Founder',
+    status: 'operational',
+    evidence: 'Route is wired and included in grouped Founder navigation.',
+  },
+  {
+    id: 'VERIFY-ROUTE-004',
+    label: 'Founder Timeline',
+    routeKey: 'timeline',
+    workspace: 'Founder',
+    status: 'operational',
+    evidence: 'Route was visually confirmed in the sidebar and rendered.',
+  },
+  {
+    id: 'VERIFY-ROUTE-005',
+    label: 'Knowledge Browser',
+    routeKey: 'knowledge',
+    workspace: 'Knowledge',
+    status: 'operational',
+    evidence: 'Route renders upgraded Knowledge Intelligence workspace.',
+  },
+  {
+    id: 'VERIFY-ROUTE-006',
+    label: 'Decision Registry',
+    routeKey: 'decisions',
+    workspace: 'Knowledge',
+    status: 'operational',
+    evidence: 'Route is wired and rendered during iPad route check.',
+  },
+  {
+    id: 'VERIFY-ROUTE-007',
+    label: 'AI Team Map',
+    routeKey: 'ai-team',
+    workspace: 'Knowledge',
+    status: 'operational',
+    evidence: 'Route is wired and rendered during iPad route check.',
+  },
+  {
+    id: 'VERIFY-ROUTE-008',
+    label: 'AI Build Queue',
+    routeKey: 'build-queue',
+    workspace: 'Build',
+    status: 'operational',
+    evidence: 'Route renders AI Operations Center with prompt packages, sessions, and history.',
+  },
+  {
+    id: 'VERIFY-ROUTE-009',
+    label: 'Repository Status',
+    routeKey: 'repository',
+    workspace: 'Build',
+    status: 'operational',
+    evidence: 'Route is wired and rendered during iPad route check.',
+  },
+  {
+    id: 'VERIFY-ROUTE-010',
+    label: 'Operations Center',
+    routeKey: 'operations',
+    workspace: 'Operations',
+    status: 'operational',
+    evidence: 'Route is wired into grouped Operations navigation.',
+  },
+  {
+    id: 'VERIFY-ROUTE-011',
+    label: 'Milestones',
+    routeKey: 'milestones',
+    workspace: 'Operations',
+    status: 'operational',
+    evidence: 'Route is wired and rendered during iPad route check.',
+  },
+];
+
+// Defines system-level verification for the current Mission Control foundation.
+export const nnccSystemVerificationItems: NNCCSystemVerificationItem[] = [
+  {
+    id: 'VERIFY-SYS-001',
+    label: 'Mission Control Theme',
+    category: 'theme',
+    status: 'operational',
+    evidence: 'Theme tokens are exported and used by App shell, dashboard, Knowledge, Build, and Operations pages.',
+  },
+  {
+    id: 'VERIFY-SYS-002',
+    label: 'Grouped Workspace Navigation',
+    category: 'navigation',
+    status: 'operational',
+    evidence: 'Founder, Knowledge, Build, and Operations groups are wired through nnccWorkspaceNavigation.',
+  },
+  {
+    id: 'VERIFY-SYS-003',
+    label: 'Knowledge Intelligence Service',
+    category: 'service',
+    status: 'operational',
+    evidence: 'Knowledge page uses scored search, relationship lookup, and summary counts.',
+  },
+  {
+    id: 'VERIFY-SYS-004',
+    label: 'AI Operations Service',
+    category: 'service',
+    status: 'operational',
+    evidence: 'Build Queue page uses tool profiles, prompt packages, sessions, history, and summary metrics.',
+  },
+  {
+    id: 'VERIFY-SYS-005',
+    label: 'Operations Service',
+    category: 'service',
+    status: 'operational',
+    evidence: 'Operations page uses metrics, roadmap, QA checkpoints, and release tracks.',
+  },
+  {
+    id: 'VERIFY-SYS-006',
+    label: 'Live Runtime Data',
+    category: 'data',
+    status: 'watch',
+    evidence: 'Current implementation is seed-backed; live GitHub runtime data remains Release 2 scope.',
+  },
+];
