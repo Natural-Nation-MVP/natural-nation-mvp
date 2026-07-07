@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import { getRepositoryHealth } from '../../services/knowledgeRegistry.service';
 
 // Renders repository health information for Founder review.
@@ -11,15 +11,22 @@ export function RepositoryHealthView() {
   const healthItems = getRepositoryHealth();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
-        title="Repository Health"
-        description="Review branch safety, documentation coverage, and traceability readiness."
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.emerald}
+        eyebrow="Monitor Repository"
+        title="Repository Status"
+        body="Review branch safety, documentation coverage, traceability readiness, and implementation health."
+        footer="Repository checks currently use curated Founder OS records."
       />
 
       {healthItems.map((item) => (
-        <NNCCCard
+        <MissionPanel
           key={item.id}
+          accent={item.level === 'good' ? missionControlTheme.colors.emerald : missionControlTheme.colors.amber}
           eyebrow={item.level}
           title={item.category}
           body={item.summary}
