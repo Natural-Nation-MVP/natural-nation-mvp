@@ -94,6 +94,11 @@ export const nnccWorkspaceNavigation: NNCCWorkspaceGroup[] = [
         description: 'Confirm route, service, data, and readiness status.',
       },
       {
+        key: 'readiness',
+        label: 'Review Release Readiness',
+        description: 'Review Release 1 completion, watch items, and final Founder review status.',
+      },
+      {
         key: 'milestones',
         label: 'Review Milestones',
         description: 'Review milestone progress, ownership, and status.',
