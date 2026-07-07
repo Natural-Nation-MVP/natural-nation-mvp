@@ -1,25 +1,32 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { NNCCCard } from '../../components/NNCCCard';
-import { NNCCSectionHeader } from '../../components/NNCCSectionHeader';
+import { MissionPanel } from '../../components/MissionPanel';
+import { missionControlTheme } from '../../theme/missionControl.theme';
 import { getAiTeam } from '../../services/knowledgeRegistry.service';
 
-// Renders the AI team workspace for Founder visibility.
-// This maps project roles to ownership domains and canonical knowledge links.
+// Renders the Founder OS AI team coordination page.
+// This maps project roles to ownership domains and canonical NNOS links.
 export function AiTeamWorkspace() {
   // Loads AI team role records from the registry service.
   const team = getAiTeam();
 
   return (
-    <ScrollView style={{ backgroundColor: '#f8fafc', flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-      <NNCCSectionHeader
-        title="AI Team Workspace"
-        description="See role ownership, knowledge domains, and canonical references for the Natural Nation AI team."
+    <ScrollView
+      style={{ backgroundColor: missionControlTheme.colors.background, flex: 1 }}
+      contentContainerStyle={{ padding: missionControlTheme.spacing.xl }}
+    >
+      <MissionPanel
+        accent={missionControlTheme.colors.cyan}
+        eyebrow="Coordinate AI Team"
+        title="AI Team Map"
+        body="Review AI roles, ownership domains, handoffs, and canonical NNOS references."
+        footer="AI work should stay aligned with Founder-approved operating records."
       />
 
       {team.map((member) => (
-        <NNCCCard
+        <MissionPanel
           key={member.role}
+          accent={missionControlTheme.colors.blue}
           eyebrow={member.domain}
           title={member.role}
           body={member.responsibilities}
