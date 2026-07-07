@@ -1,13 +1,9 @@
-// Defines one route inside a Mission Control workspace group.
-// Grouped navigation replaces the old flat sidebar as NNCC grows.
 export interface NNCCWorkspaceRoute {
   key: string;
   label: string;
   description: string;
 }
 
-// Defines a grouped workspace section for the Founder/Developer Mission Control UI.
-// These groups match the approved NNCC operating structure.
 export interface NNCCWorkspaceGroup {
   id: string;
   label: string;
@@ -15,8 +11,6 @@ export interface NNCCWorkspaceGroup {
   routes: NNCCWorkspaceRoute[];
 }
 
-// Defines the approved workspace navigation model for NNCC Mission Control.
-// The Natural Nation consumer app does not inherit this structure or visual style.
 export const nnccWorkspaceNavigation: NNCCWorkspaceGroup[] = [
   {
     id: 'founder',
@@ -93,6 +87,11 @@ export const nnccWorkspaceNavigation: NNCCWorkspaceGroup[] = [
         key: 'operations',
         label: 'Operations Center',
         description: 'Roadmap, QA, release tracking, and operations metrics.',
+      },
+      {
+        key: 'verification',
+        label: 'Verification',
+        description: 'Implementation status for routes, services, data, and system readiness.',
       },
       {
         key: 'milestones',
