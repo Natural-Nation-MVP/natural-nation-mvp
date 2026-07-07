@@ -56,11 +56,11 @@ export default function App() {
           </Text>
 
           <Text style={{ color: missionControlTheme.colors.textPrimary, fontSize: 25, fontWeight: '900', marginTop: 5 }}>
-            Mission Control
+            Founder OS
           </Text>
 
           <Text style={{ color: missionControlTheme.colors.textMuted, fontSize: 12, lineHeight: 18, marginBottom: 18, marginTop: 6 }}>
-            Founder / Developer command interface
+            Powered by NNOS
           </Text>
 
           <ScrollView showsVerticalScrollIndicator={false}>
