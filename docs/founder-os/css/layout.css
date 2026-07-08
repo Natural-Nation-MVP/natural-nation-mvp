@@ -1,29 +1,36 @@
 .app-shell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 220px minmax(0, 1fr);
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #07170f, #0e2116 64%, #06100b);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #07170f;
   color: #fff;
-  padding: 24px 18px;
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
+  border-right: 1px solid rgba(255,255,255,0.08);
 }
 
 .brand {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
   align-items: center;
+  padding: 4px 2px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .brand-mark {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border: 1px solid rgba(148, 211, 91, 0.75);
   border-radius: 50%;
   display: grid;
@@ -32,106 +39,126 @@
 }
 
 .brand-title {
-  letter-spacing: 4px;
+  letter-spacing: 2px;
   color: #d7f36f;
   font-weight: 950;
   line-height: 1.05;
+  font-size: 12px;
 }
 
 .nav {
   display: grid;
-  gap: 7px;
+  gap: 4px;
 }
 
 .nav-link {
+  width: 100%;
   display: flex;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.86);
+  align-items: center;
+  justify-content: flex-start;
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  padding: 12px;
-  border-radius: 6px;
+  padding: 10px 10px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: left;
+  box-shadow: none;
 }
 
 .nav-link.active {
-  background: linear-gradient(135deg, rgba(111, 175, 69, 0.55), rgba(47, 125, 50, 0.35));
-  border: 1px solid rgba(176, 230, 102, 0.42);
+  background: rgba(47, 125, 50, 0.2);
+  border-color: rgba(148, 211, 91, 0.26);
+  color: #eaf6df;
 }
 
 .sidebar-note {
   margin-top: auto;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 14px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
 }
 
 .main {
-  padding: 24px 24px 92px;
+  padding: 22px 24px 88px;
+  max-width: 1440px;
+  width: 100%;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--nn-line);
 }
 
 .hero h1 {
-  font-size: clamp(30px, 4vw, 48px);
-  margin: 6px 0 4px;
-  letter-spacing: -0.05em;
+  font-size: clamp(30px, 4vw, 52px);
+  margin: 4px 0 6px;
+  letter-spacing: -0.065em;
+  line-height: 0.95;
 }
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(120px, 1fr));
-  gap: 14px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(6, minmax(100px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 12px;
+  align-items: start;
 }
 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 12px;
 }
 
 .modules-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .steps-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .bottom-bar {
   position: fixed;
-  left: 260px;
+  left: 220px;
   right: 0;
   bottom: 0;
-  background: rgba(255, 252, 244, 0.86);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 252, 244, 0.92);
   border-top: 1px solid var(--nn-line);
   display: grid;
-  grid-template-columns: 230px 1fr 230px 240px;
-  gap: 14px;
-  padding: 14px 24px;
+  grid-template-columns: 180px 1fr 180px 200px;
+  gap: 12px;
+  padding: 10px 24px;
+  z-index: 5;
 }
 
 @media (max-width: 1100px) {
-  .app-shell { grid-template-columns: 86px 1fr; }
-  .sidebar { padding: 18px 12px; }
-  .brand-title, .nav-label { display: none; }
+  .app-shell { grid-template-columns: 96px 1fr; }
+  .sidebar { padding: 14px 8px; }
+  .brand { grid-template-columns: 1fr; justify-items: center; }
+  .brand-title { display: none; }
+  .nav-link { justify-content: center; text-align: center; font-size: 11px; padding: 10px 6px; }
   .workspace-grid, .grid-2, .modules-grid, .steps-grid, .bottom-bar { grid-template-columns: 1fr; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-  .bottom-bar { left: 86px; }
+  .bottom-bar { left: 96px; }
 }
