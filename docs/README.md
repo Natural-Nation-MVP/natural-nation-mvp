@@ -5,7 +5,7 @@ This folder now serves two approved purposes:
 1. Official Natural Nation documentation and project records.
 2. Clean GitHub Pages source for the public Founder OS runtime.
 
-## Recommended GitHub Pages Setting
+## GitHub Pages Setting
 
 ```text
 Source: Deploy from a branch
@@ -13,7 +13,7 @@ Branch: main
 Folder: /docs
 ```
 
-## Live Routes After Switching Pages Source
+## Live Routes
 
 Repository home:
 
@@ -21,10 +21,10 @@ Repository home:
 https://natural-nation-mvp.github.io/natural-nation-mvp/
 ```
 
-Founder OS:
+Canonical Founder OS:
 
 ```text
-https://natural-nation-mvp.github.io/natural-nation-mvp/apps/founder-os/
+https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/
 ```
 
 ## Preserved Founder OS Functionality
@@ -44,10 +44,12 @@ The clean Founder OS page preserves the current Release 2 functionality:
 
 ## Reset Strategy
 
-The older GitHub Pages source was publishing from a feature branch and kept serving an older Control Center page. The `/docs` folder is now the fresh Pages source so the site can be reset without deleting functional app code.
+The older GitHub Pages source was publishing from a feature branch and kept serving an older Control Center page. The `/docs` folder is now the fresh Pages source so the site can reset without deleting functional app code.
 
 ## Rule Going Forward
 
 Use `/docs` for the public static GitHub Pages site and formal documentation.
+
+Use `docs/founder-os/` as the only public Founder OS runtime.
 
 Keep application/source development in the app folders.
