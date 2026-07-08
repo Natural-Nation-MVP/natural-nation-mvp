@@ -10,45 +10,46 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  background: #07170f;
+  background:
+    linear-gradient(180deg, rgba(6,20,13,.97), rgba(7,23,15,.96)),
+    radial-gradient(circle at 50% 95%, rgba(92, 130, 58, .18), transparent 32%);
   color: #fff;
-  padding: 18px 14px;
+  padding: 22px 16px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
   border-right: 1px solid rgba(255,255,255,0.08);
 }
 
 .brand {
   display: grid;
-  grid-template-columns: 36px 1fr;
+  grid-template-columns: 40px 1fr;
   gap: 10px;
   align-items: center;
-  padding: 4px 2px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 2px 18px;
 }
 
 .brand-mark {
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(148, 211, 91, 0.75);
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(214, 194, 92, 0.72);
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #b8e75a;
+  color: #d6c25c;
 }
 
 .brand-title {
-  letter-spacing: 2px;
-  color: #d7f36f;
+  letter-spacing: 4px;
+  color: #e8d66f;
   font-weight: 950;
   line-height: 1.05;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .nav {
   display: grid;
-  gap: 4px;
+  gap: 7px;
 }
 
 .nav-link {
@@ -56,10 +57,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.84);
   text-decoration: none;
-  padding: 10px 10px;
-  border-radius: 3px;
+  padding: 11px 12px;
+  border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
   font-size: 13px;
@@ -69,23 +70,23 @@
 }
 
 .nav-link.active {
-  background: rgba(47, 125, 50, 0.2);
-  border-color: rgba(148, 211, 91, 0.26);
-  color: #eaf6df;
+  background: linear-gradient(135deg, rgba(77, 119, 42, 0.62), rgba(47, 125, 50, 0.24));
+  border-color: rgba(186, 211, 112, 0.28);
+  color: #fff;
 }
 
 .sidebar-note {
   margin-top: auto;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 10px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
   font-size: 12px;
 }
 
 .main {
-  padding: 22px 24px 88px;
-  max-width: 1440px;
+  padding: 22px 24px 92px;
+  max-width: 1500px;
   width: 100%;
 }
 
@@ -94,48 +95,46 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--nn-line);
+  margin-bottom: 18px;
 }
 
 .hero h1 {
-  font-size: clamp(30px, 4vw, 52px);
-  margin: 4px 0 6px;
-  letter-spacing: -0.065em;
-  line-height: 0.95;
+  font-size: clamp(28px, 3.5vw, 42px);
+  margin: 8px 0 8px;
+  letter-spacing: -0.055em;
+  line-height: 0.96;
 }
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(100px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(5, minmax(130px, 1fr)) 190px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 14px;
   align-items: start;
 }
 
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 16px;
 }
 
 .modules-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .steps-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .bottom-bar {
@@ -143,13 +142,14 @@
   left: 220px;
   right: 0;
   bottom: 0;
-  background: rgba(255, 252, 244, 0.92);
+  background: rgba(255, 250, 240, 0.9);
   border-top: 1px solid var(--nn-line);
   display: grid;
-  grid-template-columns: 180px 1fr 180px 200px;
-  gap: 12px;
-  padding: 10px 24px;
+  grid-template-columns: 280px 1fr 320px 280px;
+  gap: 10px;
+  padding: 12px 24px;
   z-index: 5;
+  backdrop-filter: blur(12px);
 }
 
 @media (max-width: 1100px) {
