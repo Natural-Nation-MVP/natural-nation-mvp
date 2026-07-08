@@ -32,6 +32,16 @@ GitHub Pages
 /founder-os/
 ```
 
+## Active GitHub Pages Mode
+
+```text
+Source: Deploy from a branch
+Branch: main
+Folder: /docs
+```
+
+This is the active deployment mode for NN-INFRA-001. Custom Pages workflows are not the deployment authority unless Founder approval changes the standard.
+
 ## Repository Layout
 
 ```text
