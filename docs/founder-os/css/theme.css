@@ -1,33 +1,32 @@
 :root {
-  --nn-stone: #efe7d8;
-  --nn-stone-light: #fbf6ec;
+  --nn-stone: #f2eadc;
+  --nn-stone-light: #fbf7ee;
   --nn-ink: #111814;
-  --nn-muted: #64705f;
-  --nn-green-dark: #07170f;
+  --nn-muted: #657064;
+  --nn-green-dark: #06140d;
   --nn-green: #2f7d32;
-  --nn-green-soft: rgba(47, 125, 50, 0.12);
+  --nn-green-soft: rgba(47, 125, 50, 0.08);
   --nn-purple: #6f4cff;
   --nn-gold: #b98724;
   --nn-red: #c7493d;
-  --nn-glass: rgba(255, 252, 244, 0.76);
-  --nn-glass-strong: rgba(255, 252, 244, 0.9);
-  --nn-line: rgba(47, 80, 54, 0.22);
-  --nn-shadow: 0 16px 45px rgba(25, 31, 24, 0.12);
-  --nn-radius-panel: 12px;
-  --nn-radius-button: 4px;
+  --nn-panel: rgba(255, 252, 244, 0.58);
+  --nn-panel-strong: rgba(255, 252, 244, 0.82);
+  --nn-line: rgba(31, 49, 35, 0.16);
+  --nn-shadow: none;
+  --nn-radius-panel: 6px;
+  --nn-radius-button: 3px;
 }
 
 * { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--nn-ink);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background:
-    radial-gradient(circle at 80% 10%, rgba(47, 125, 50, 0.16), transparent 24%),
-    radial-gradient(circle at 20% 90%, rgba(185, 135, 36, 0.14), transparent 24%),
-    var(--nn-stone);
+  background: linear-gradient(135deg, #efe7d8 0%, #f7f0e4 52%, #e9eddc 100%);
 }
 
 body::before {
@@ -35,9 +34,9 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.36;
-  background-image: linear-gradient(120deg, rgba(91, 70, 44, 0.07) 0 1px, transparent 1px 34px);
-  background-size: 170px 170px;
+  opacity: 0.22;
+  background-image: linear-gradient(120deg, rgba(91, 70, 44, 0.055) 0 1px, transparent 1px 42px);
+  background-size: 180px 180px;
 }
 
 a { color: inherit; }
