@@ -39,6 +39,14 @@ details {
   font-size: 28px;
 }
 
+.workspace-view {
+  display: none;
+}
+
+.workspace-view.active {
+  display: block;
+}
+
 .glass-panel {
   border-radius: var(--nn-radius-panel);
   padding: 18px;
@@ -142,7 +150,12 @@ button.generate {
 }
 
 .queue-item {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border: 0;
   border-bottom: 1px solid var(--nn-line);
+  background: transparent;
   padding: 13px 10px;
 }
 
