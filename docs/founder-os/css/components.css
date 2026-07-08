@@ -6,12 +6,12 @@
 
 .badge,
 .pill {
-  background: transparent;
-  border: 1px solid rgba(47, 125, 50, 0.24);
+  background: rgba(47, 125, 50, 0.08);
+  border: 1px solid rgba(47, 125, 50, 0.18);
   color: var(--nn-green);
   font-weight: 850;
-  border-radius: 3px;
-  padding: 5px 9px;
+  border-radius: 999px;
+  padding: 5px 10px;
   display: inline-flex;
   font-size: 12px;
 }
@@ -21,14 +21,14 @@
 details {
   background: var(--nn-panel);
   border: 1px solid var(--nn-line);
-  box-shadow: none;
-  backdrop-filter: none;
+  box-shadow: var(--nn-shadow);
+  backdrop-filter: blur(10px);
 }
 
 .metric {
-  border-radius: 4px;
-  padding: 10px 12px;
-  min-height: 70px;
+  border-radius: 8px;
+  padding: 14px 16px;
+  min-height: 82px;
 }
 
 .metric span,
@@ -39,41 +39,41 @@ details {
 
 .metric strong {
   display: block;
-  font-size: 24px;
-  line-height: 1.1;
-  margin-top: 4px;
+  font-size: 30px;
+  line-height: 1;
+  margin-top: 8px;
 }
 
 .workspace-view { display: none; }
 .workspace-view.active { display: block; }
 
 .glass-panel {
-  border-radius: 5px;
-  padding: 14px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 14px;
 }
 
 .eyebrow {
   color: var(--nn-green);
-  font-weight: 900;
+  font-weight: 950;
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 900;
-  margin: 3px 0 8px;
-  letter-spacing: -0.02em;
+  font-size: 20px;
+  font-weight: 950;
+  margin: 4px 0 10px;
+  letter-spacing: -0.03em;
 }
 
 .module-card {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.34);
   border: 1px solid var(--nn-line);
-  border-radius: 4px;
-  padding: 11px;
-  min-height: 86px;
+  border-radius: 7px;
+  padding: 13px;
+  min-height: 92px;
 }
 
 .module-card strong,
@@ -83,56 +83,56 @@ details {
 }
 
 .step-card {
-  padding: 9px;
+  padding: 11px;
   border: 1px solid var(--nn-line);
-  background: rgba(255, 255, 255, 0.22);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.24);
+  border-radius: 7px;
 }
 
 .selected-build {
-  background: rgba(255, 252, 244, 0.72);
-  border-color: rgba(47, 125, 50, 0.22);
+  background: rgba(255, 252, 244, 0.74);
+  border-color: rgba(47, 125, 50, 0.2);
 }
 
 .button-grid,
 .action-stack {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 7px;
+  gap: 9px;
 }
 
 .action-stack { grid-template-columns: 1fr; margin-top: 10px; }
 
 button {
-  border-radius: 3px;
-  border: 1px solid rgba(47, 80, 54, 0.22);
-  background: rgba(255, 255, 255, 0.26);
+  border-radius: 5px;
+  border: 1px solid rgba(47, 80, 54, 0.18);
+  background: rgba(255, 255, 255, 0.36);
   color: var(--nn-ink);
-  font-weight: 800;
-  padding: 9px 10px;
+  font-weight: 850;
+  padding: 11px 12px;
   cursor: pointer;
   box-shadow: none;
 }
 
 button.active {
-  background: rgba(47, 125, 50, 0.12);
+  background: rgba(47, 125, 50, 0.1);
   border-color: rgba(47, 125, 50, 0.36);
   color: #174d1c;
 }
 
 button.generate {
-  background: #1f6b29;
+  background: linear-gradient(135deg, #245f25, #0f4d18);
   color: #fff;
-  border-color: #1f6b29;
+  border-color: #245f25;
 }
 
 .plan-grid {
   border-top: 1px solid var(--nn-line);
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
   display: grid;
   grid-template-columns: 0.8fr 1.15fr 1fr;
-  gap: 14px;
+  gap: 20px;
 }
 
 .role-row,
@@ -140,24 +140,24 @@ button.generate {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 7px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(47, 80, 54, 0.12);
   font-size: 12px;
 }
 
 .delivery-box {
-  margin-top: 12px;
+  margin-top: 16px;
   border: 1px solid rgba(47, 125, 50, 0.18);
   background: rgba(47, 125, 50, 0.06);
-  border-radius: 4px;
-  padding: 10px;
+  border-radius: 6px;
+  padding: 11px 12px;
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
 
 .queue-panel {
-  max-height: 70vh;
+  max-height: 68vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -175,13 +175,13 @@ button.generate {
   border: 0;
   border-bottom: 1px solid var(--nn-line);
   background: transparent;
-  padding: 10px 8px;
+  padding: 12px 8px;
 }
 
 .queue-item.active {
   outline: 1px solid rgba(47, 125, 50, 0.35);
   background: rgba(47, 125, 50, 0.08);
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 .queue-top {
@@ -193,8 +193,8 @@ button.generate {
 .status {
   font-size: 11px;
   font-weight: 850;
-  padding: 3px 7px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 999px;
   background: rgba(47, 125, 50, 0.1);
   color: var(--nn-green);
   white-space: nowrap;
@@ -203,11 +203,11 @@ button.generate {
 .search-input {
   width: 100%;
   border: 1px solid var(--nn-line);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.44);
   color: var(--nn-ink);
   font-size: 14px;
-  padding: 11px;
+  padding: 12px;
   margin-top: 10px;
 }
 
@@ -217,15 +217,15 @@ button.generate {
   overflow: auto;
   background: #0b160f;
   color: #e8f4df;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 12px;
   font-size: 12px;
   line-height: 1.5;
 }
 
 details {
-  border-radius: 4px;
-  padding: 11px;
+  border-radius: 7px;
+  padding: 12px;
   margin-bottom: 8px;
 }
 
