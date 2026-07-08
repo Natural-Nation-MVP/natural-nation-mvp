@@ -17,17 +17,17 @@
       </div>
 
       <nav class="nav">
-        <a class="nav-link" href="#overview"><span class="nav-label">Mission Control</span></a>
-        <a class="nav-link" href="#knowledge"><span class="nav-label">Knowledge Graph</span></a>
-        <a class="nav-link active" href="#build"><span class="nav-label">Build Studio</span></a>
-        <a class="nav-link" href="#repo"><span class="nav-label">Repository Intel</span></a>
-        <a class="nav-link" href="#ai"><span class="nav-label">AI Operations</span></a>
+        <button class="nav-link active" type="button" data-workspace-button="mission">Mission Control</button>
+        <button class="nav-link" type="button" data-workspace-button="knowledge">Knowledge Graph</button>
+        <button class="nav-link" type="button" data-workspace-button="build">Build Studio</button>
+        <button class="nav-link" type="button" data-workspace-button="repo">Repository Intel</button>
+        <button class="nav-link" type="button" data-workspace-button="ai">AI Operations</button>
       </nav>
 
       <div class="sidebar-note">
         <small>Founder OS</small><br />
         <strong>NNOS Release 2</strong><br />
-        <small>Modular interface runtime</small>
+        <small>Workspace runtime restored</small>
       </div>
     </aside>
 
@@ -35,10 +35,10 @@
       <section class="hero">
         <div>
           <div class="crumb">Natural Nation › Founder OS › Release 2</div>
-          <h1>AI Build Orchestrator <span class="badge">OP-002</span></h1>
-          <p class="muted">Modular GitHub Pages runtime with preserved Founder OS functionality.</p>
+          <h1 data-workspace-title>Mission Control</h1>
+          <p class="muted" data-workspace-subtitle>Founder dashboard, release state, health indicators, and command priorities.</p>
         </div>
-        <div class="pill">Target: Codex</div>
+        <div class="pill" data-workspace-badge>Founder OS Online</div>
       </section>
 
       <section class="metrics-grid">
@@ -50,94 +50,138 @@
         <div class="metric"><span>Status</span><strong>Modular</strong></div>
       </section>
 
-      <section id="overview" class="glass-panel">
-        <div class="eyebrow">Founder OS Overview</div>
-        <div class="section-title">Release 2 Operating Modules</div>
-        <div class="modules-grid">
-          <div class="module-card"><strong>Monitor Project</strong><p class="muted">Dashboard, brief, milestones, and release health.</p></div>
-          <div class="module-card"><strong>Explore Project Intelligence</strong><p class="muted">Knowledge graph and decision records.</p></div>
-          <div class="module-card"><strong>Generate Build Packages</strong><p class="muted">AI-ready packages and execution plans.</p></div>
-          <div class="module-card"><strong>Monitor Repository</strong><p class="muted">Branch, PR, and live-provider readiness.</p></div>
-          <div class="module-card"><strong>Verify Implementation</strong><p class="muted">Routes, systems, and release checks.</p></div>
-          <div class="module-card"><strong>Coordinate AI Team</strong><p class="muted">Art, Codex, Gemini, GPose, Duey, Founder.</p></div>
+      <section class="workspace-view active" data-workspace="mission">
+        <article class="glass-panel">
+          <div class="eyebrow">Mission Control</div>
+          <div class="section-title">Founder OS Operating Overview</div>
+          <p>Mission Control summarizes the state of Natural Nation, release readiness, active operations, risks, and next Founder actions.</p>
+          <div class="modules-grid">
+            <div class="module-card"><strong>Project Health</strong><p class="muted">Release 2 is active with GitHub Pages foundation complete.</p></div>
+            <div class="module-card"><strong>Current Priority</strong><p class="muted">Restore Founder OS workspace navigation and module structure.</p></div>
+            <div class="module-card"><strong>Next Action</strong><p class="muted">Validate navigation, then continue Build Studio refinement.</p></div>
+          </div>
+        </article>
+        <article class="glass-panel">
+          <div class="eyebrow">Release State</div>
+          <div class="section-title">NN-INFRA-001 Complete</div>
+          <p class="muted">GitHub Pages is now configured from main / docs with the canonical public runtime at /founder-os/.</p>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="knowledge">
+        <article class="glass-panel">
+          <div class="eyebrow">Knowledge Graph</div>
+          <div class="section-title">Canonical Knowledge System</div>
+          <p>Search and inspect canonical records, decisions, approvals, build packages, architecture standards, and Founder directives.</p>
+          <div class="modules-grid">
+            <div class="module-card"><strong>NN-ARCH-001</strong><p class="muted">Founder OS Architecture Standard.</p></div>
+            <div class="module-card"><strong>NNDS-002</strong><p class="muted">Natural Nation Glass design standard.</p></div>
+            <div class="module-card"><strong>NN-INFRA-001</strong><p class="muted">GitHub Pages Foundation.</p></div>
+          </div>
+        </article>
+        <article class="glass-panel">
+          <div class="eyebrow">Search Results</div>
+          <div class="section-title">Knowledge Matches</div>
+          <p class="muted">Future live search will map records across docs, builds, decisions, approvals, and repository paths.</p>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="build">
+        <div class="workspace-grid">
+          <div>
+            <article class="glass-panel">
+              <div class="eyebrow">1 · Action Explanation</div>
+              <div class="section-title">What happens when you generate this package?</div>
+              <div class="steps-grid">
+                <div class="step-card"><strong>Analyze Build</strong><p class="muted">Review selected item and context.</p></div>
+                <div class="step-card"><strong>Assign AI Team</strong><p class="muted">Choose builder and reviewers.</p></div>
+                <div class="step-card"><strong>Create Package</strong><p class="muted">Generate markdown and JSON.</p></div>
+                <div class="step-card"><strong>Founder Approval</strong><p class="muted">Return final output for approval.</p></div>
+              </div>
+            </article>
+
+            <article class="glass-panel">
+              <div class="grid-2">
+                <div>
+                  <div class="eyebrow">2 · Plain English</div>
+                  <div class="section-title">What this build does</div>
+                  <p>This build turns a Founder OS work item into an AI-ready implementation package with delivery instructions, review ownership, and approval path.</p>
+                </div>
+                <div>
+                  <span class="pill">Outcome: AI-ready package</span><br /><br />
+                  <span class="pill">Users: Founder / AI Team</span><br /><br />
+                  <span class="pill">Value: High</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="glass-panel selected-build">
+              <div class="grid-2">
+                <div>
+                  <div class="eyebrow">3 · Selected Build Item</div>
+                  <div class="section-title" data-selected-id>BUILD-NNCC-002</div>
+                  <div data-selected-title>Create Google AI Studio app build package</div>
+                  <p class="muted">Owner: Art • Type: Package • Priority: High • Status: Ready</p>
+                </div>
+                <div>
+                  <div class="eyebrow">Package Target</div>
+                  <div class="button-grid">
+                    <button type="button">ChatGPT</button>
+                    <button class="active" type="button">Codex</button>
+                    <button type="button">Google AI Studio</button>
+                    <button type="button">Gemini</button>
+                    <button type="button">Manual Review</button>
+                  </div>
+                </div>
+              </div>
+              <div class="plan-grid">
+                <div><div class="eyebrow">Complexity</div><p>Medium</p><span class="pill">Founder Approval Required</span></div>
+                <div><div class="eyebrow">Assigned AI Roles</div><div class="role-row"><span>Lead Builder</span><strong>Codex</strong></div><div class="role-row"><span>Architecture</span><strong>Art</strong></div><div class="role-row"><span>Review</span><strong>Gemini</strong></div><div class="role-row"><span>Documentation</span><strong>GPose</strong></div></div>
+                <div><div class="eyebrow">Execution Order</div><p>Art → Codex → Gemini → GPose → Founder</p></div>
+              </div>
+              <div class="delivery-box"><strong>Recommended Delivery</strong><span data-delivery>Codex Implementation Agent</span></div>
+            </article>
+          </div>
+          <aside>
+            <article class="glass-panel queue-panel">
+              <div class="eyebrow">Queue</div>
+              <div class="section-title">Build Queue</div>
+              <div class="queue-scroll" data-build-queue></div>
+            </article>
+            <details><summary>Quick Actions</summary><p><button class="generate" type="button">Generate Package</button></p></details>
+            <details><summary>Recent Packages</summary><p class="muted">OP-001C generator, OP-002 orchestrator, NNDS-002 glass theme.</p></details>
+            <details><summary>AI Notes</summary><p class="muted">Recommended order: Art → Codex → Gemini → GPose → Founder.</p></details>
+          </aside>
         </div>
       </section>
 
-      <section id="build" class="workspace-grid">
-        <div>
-          <article class="glass-panel">
-            <div class="eyebrow">1 · Action Explanation</div>
-            <div class="section-title">What happens when you generate this package?</div>
-            <div class="steps-grid">
-              <div class="step-card"><strong>Analyze Build</strong><p class="muted">Review selected item and context.</p></div>
-              <div class="step-card"><strong>Assign AI Team</strong><p class="muted">Choose builder and reviewers.</p></div>
-              <div class="step-card"><strong>Create Package</strong><p class="muted">Generate markdown and JSON.</p></div>
-              <div class="step-card"><strong>Founder Approval</strong><p class="muted">Return final output for approval.</p></div>
-            </div>
-          </article>
+      <section class="workspace-view" data-workspace="repo">
+        <article class="glass-panel">
+          <div class="eyebrow">Repository Intelligence</div>
+          <div class="section-title">Repository Signal</div>
+          <p>Review branch status, deployment health, canonical folders, legacy paths, and repository cleanup state.</p>
+          <div class="modules-grid">
+            <div class="module-card"><strong>Pages Source</strong><p class="muted">main / docs</p></div>
+            <div class="module-card"><strong>Canonical Runtime</strong><p class="muted">docs/founder-os/</p></div>
+            <div class="module-card"><strong>Legacy Paths</strong><p class="muted">apps/founder-os and docs/apps/founder-os are no longer public runtimes.</p></div>
+          </div>
+        </article>
+      </section>
 
-          <article class="glass-panel">
-            <div class="grid-2">
-              <div>
-                <div class="eyebrow">2 · Plain English</div>
-                <div class="section-title">What this build does</div>
-                <p>This build turns a Founder OS work item into an AI-ready implementation package with delivery instructions, review ownership, and approval path.</p>
-              </div>
-              <div>
-                <span class="pill">Outcome: AI-ready package</span><br /><br />
-                <span class="pill">Users: Founder / AI Team</span><br /><br />
-                <span class="pill">Value: High</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="glass-panel selected-build">
-            <div class="grid-2">
-              <div>
-                <div class="eyebrow">3 · Selected Build Item</div>
-                <div class="section-title" data-selected-id>BUILD-NNCC-002</div>
-                <div data-selected-title>Create Google AI Studio app build package</div>
-                <p class="muted">Owner: Art • Type: Package • Priority: High • Status: Ready</p>
-              </div>
-              <div>
-                <div class="eyebrow">Package Target</div>
-                <div class="button-grid">
-                  <button type="button">ChatGPT</button>
-                  <button class="active" type="button">Codex</button>
-                  <button type="button">Google AI Studio</button>
-                  <button type="button">Gemini</button>
-                  <button type="button">Manual Review</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="plan-grid">
-              <div><div class="eyebrow">Complexity</div><p>Medium</p><span class="pill">Founder Approval Required</span></div>
-              <div>
-                <div class="eyebrow">Assigned AI Roles</div>
-                <div class="role-row"><span>Lead Builder</span><strong>Codex</strong></div>
-                <div class="role-row"><span>Architecture</span><strong>Art</strong></div>
-                <div class="role-row"><span>Review</span><strong>Gemini</strong></div>
-                <div class="role-row"><span>Documentation</span><strong>GPose</strong></div>
-              </div>
-              <div><div class="eyebrow">Execution Order</div><p>Art → Codex → Gemini → GPose → Founder</p></div>
-            </div>
-
-            <div class="delivery-box"><strong>Recommended Delivery</strong><span data-delivery>Codex Implementation Agent</span></div>
-          </article>
-        </div>
-
-        <aside>
-          <article class="glass-panel queue-panel">
-            <div class="eyebrow">Queue</div>
-            <div class="section-title">Build Queue</div>
-            <div class="queue-scroll" data-build-queue></div>
-          </article>
-
-          <details><summary>Quick Actions</summary><p><button class="generate" type="button">Generate Package</button></p></details>
-          <details><summary>Recent Packages</summary><p class="muted">OP-001C generator, OP-002 orchestrator, NNDS-002 glass theme.</p></details>
-          <details><summary>AI Notes</summary><p class="muted">Recommended order: Art → Codex → Gemini → GPose → Founder.</p></details>
-        </aside>
+      <section class="workspace-view" data-workspace="ai">
+        <article class="glass-panel">
+          <div class="eyebrow">AI Operations</div>
+          <div class="section-title">Coordinate AI Team</div>
+          <p>Manage AI roles, build handoffs, delivery targets, and Founder approval workflows.</p>
+          <div class="modules-grid">
+            <div class="module-card"><strong>Art</strong><p class="muted">Architecture and systems lead.</p></div>
+            <div class="module-card"><strong>Codex</strong><p class="muted">Implementation and code execution.</p></div>
+            <div class="module-card"><strong>Gemini</strong><p class="muted">Design and review support.</p></div>
+            <div class="module-card"><strong>GPose</strong><p class="muted">Prompting, documentation, and strategy.</p></div>
+            <div class="module-card"><strong>Duey</strong><p class="muted">Wellness intelligence and mentor logic.</p></div>
+            <div class="module-card"><strong>Founder</strong><p class="muted">Approval and final direction.</p></div>
+          </div>
+        </article>
       </section>
     </main>
 
