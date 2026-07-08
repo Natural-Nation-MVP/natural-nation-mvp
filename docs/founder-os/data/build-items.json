@@ -1,0 +1,29 @@
+[
+  {
+    "id": "BUILD-NNCC-002",
+    "title": "Create Google AI Studio app build package",
+    "owner": "Art",
+    "status": "Ready",
+    "target": "Codex",
+    "delivery": "Codex Implementation Agent",
+    "approval": "Founder Required"
+  },
+  {
+    "id": "BUILD-NNCC-003",
+    "title": "Codex implementation package",
+    "owner": "Codex",
+    "status": "Ready",
+    "target": "Codex",
+    "delivery": "Codex Implementation Agent",
+    "approval": "Founder Required"
+  },
+  {
+    "id": "BUILD-NNCC-004",
+    "title": "Founder OS design system package",
+    "owner": "Gemini",
+    "status": "In Progress",
+    "target": "Gemini",
+    "delivery": "Design Review Agent",
+    "approval": "Founder Review"
+  }
+]
