@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Repository Intelligence and enhanced Knowledge Graph on live GitHub Pages, then continue Mission Control implementation.
+Current priority: validate Mission Control, Repository Intelligence, and enhanced Knowledge Graph on live GitHub Pages.
 
 Canonical runtime: docs/founder-os/
 
@@ -38,6 +38,7 @@ Migrated knowledge records:
 
 - docs/knowledge/founder-os/architecture.md
 - docs/knowledge/founder-os/repository-intelligence.md
+- docs/knowledge/founder-os/mission-control.md
 - docs/knowledge/product/mvp-principles.md
 - docs/knowledge/product/onboarding.md
 - docs/knowledge/product/feature-registry-v1.md
@@ -54,7 +55,8 @@ Founder OS implementation:
 
 - docs/founder-os/js/knowledge-engine.js
 - docs/founder-os/js/repository-intelligence.js
-- docs/founder-os/js/build-studio-polish.js loads the Knowledge Engine and Repository Intelligence helpers
+- docs/founder-os/js/mission-control.js
+- docs/founder-os/js/build-studio-polish.js loads Knowledge Engine, Repository Intelligence, and Mission Control helpers
 
 Active milestone briefs:
 
@@ -63,4 +65,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Repository Intelligence, validate enhanced Knowledge Graph, and continue Mission Control implementation.
+Next: validate Mission Control, Repository Intelligence, enhanced Knowledge Graph, and workspace-aware bottom action bar behavior.
