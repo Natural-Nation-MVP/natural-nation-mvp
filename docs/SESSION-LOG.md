@@ -18,6 +18,7 @@ Completed:
 - GitHub Pages retained as Founder OS UI host
 - Phase 4 Platform Decisions record created
 - Phase 4 Repository Strategy approved
+- Phase 4 Foundation Approval recorded
 - Phase 4 Roadmap updated
 - Project State updated
 - Decision Ledger updated
@@ -36,4 +37,4 @@ Repository strategy:
 - Automation sync lane: automation/founder-os-sync
 
 Next:
-- 4.1.6 Founder approval
+- 4.2 Repository Foundation
