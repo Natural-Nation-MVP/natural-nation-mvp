@@ -32,6 +32,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-013 | Repository strategy approved with Founder OS managing automation and Natural Nation App shipping app and branding page lanes | R4 | Repository | Approved | docs/releases/PHASE-4-REPOSITORY-STRATEGY.md |
 | DL-014 | Phase 4.1 platform and repository foundation approved | R4 | Foundation | Approved | docs/releases/PHASE-4-FOUNDATION-APPROVAL.md |
 | DL-015 | Founder OS repository foundation validated | R4 | Repository | Approved | docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md |
+| DL-016 | Natural Nation App repository foundation recorded as pending external repository creation | R4 | Repository | Pending | docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md |
 
 ## Related Records
 
@@ -44,5 +45,6 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
 - docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
+- docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
 - docs/governance/SYNC-STANDARD.md
 - docs/governance/PHASE-COMPLETION-STANDARD.md
