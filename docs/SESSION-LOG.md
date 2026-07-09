@@ -18,8 +18,10 @@ Completed:
 - build package records
 - readiness report update
 - workflow list
+- R3 production workspace shell update
 
 Next:
-- Founder OS module docs
-- Release 3 production workspace restoration
-- documentation sync dashboard
+- Validate live R3 Founder OS layout
+- Confirm iPad portrait and landscape behavior
+- Continue Founder OS module docs
+- Build documentation sync dashboard
