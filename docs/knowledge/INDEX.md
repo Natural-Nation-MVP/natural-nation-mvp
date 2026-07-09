@@ -31,6 +31,9 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 - [Mission Control](./founder-os/mission-control.md) — KB-FOUNDER-004
 - [Founder OS Operating Model v1](./founder-os/operating-model-v1.md) — KB-FOUNDER-005
 - [AI Operations](./founder-os/ai-operations.md) — KB-FOUNDER-006
+- [Founder OS Single Source of Truth Standard](./founder-os/source-of-truth.md) — KB-FOUNDER-007
+- [Decision Ledger](../decisions/DECISION-LEDGER.md) — KB-DECISION-002
+- [Validation Center](../releases/VALIDATION-CENTER.md) — KB-RELEASE-002
 - [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
 - [Onboarding](./product/onboarding.md) — KB-PRODUCT-003
 - [Feature Registry v1](./product/feature-registry-v1.md) — KB-PRODUCT-004
@@ -54,7 +57,8 @@ The Knowledge Graph should surface repository-backed records from this index and
 - Project state, roadmap, governance, and session tracking must stay synchronized.
 - Locked decisions must be traceable to governance records or ADRs.
 - Every workspace should answer one primary Founder question and enable a clear decision or action.
+- Founder OS should store references to canonical records instead of duplicating project content.
 
 ## Current Priority
 
-Validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
+Validate Single Source of Truth references, Validation Center foundation, and Decision Ledger foundation.
