@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Phase 4.2.2 Natural Nation App repository foundation.
+Current priority: create and connect Natural-Nation-App repository.
 
 Canonical runtime: docs/founder-os/
 
@@ -28,6 +28,8 @@ Phase 4 foundation approval: docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
 
 Founder OS repository foundation: docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
 
+Natural Nation App repository foundation: docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -44,4 +46,8 @@ Repository strategy: Founder OS manages automation; Natural Nation App ships pro
 
 Completed: Phase 4.1 foundation approval and 4.2.1 Founder OS repository foundation.
 
-Next: 4.2.2 Natural Nation App repository foundation.
+Pending: 4.2.2 Natural Nation App repository foundation.
+
+Blocked by: Natural-Nation-App repository does not yet exist or is not accessible to the connected GitHub tooling.
+
+Next: create and connect Natural-Nation-App repository, then resume validation.
