@@ -1,24 +1,35 @@
 # Founder OS Phase 4 Roadmap
 
-Status: Reset to Automation Foundation
+Status: Automation Environment Foundation
 
 ## Phase
 
-Phase 4 — Automation Foundation
+Phase 4 — Automation Environment Foundation
 
 ## Founder Direction
 
-The prior static workspace architecture is denied.
+Founder OS must be built as an automated command center.
 
-Founder OS must be built for automation.
-
-## Active Record
+## Active Records
 
 - docs/releases/PHASE-4-AUTOMATION-RESET.md
+- docs/releases/PHASE-4-TARGET-ARCHITECTURE.md
+
+## Completed
+
+- 4.1.1 Validate current environment
+- 4.1.2 Define target architecture
 
 ## Current Step
 
-Create revised automation-first architecture.
+4.1.3 Select execution platform
+
+## Upcoming
+
+- 4.1.3 Select execution platform
+- 4.1.4 Select hosting platform
+- 4.1.5 Define repository strategy
+- 4.1.6 Founder approval
 
 ## Rule
 
