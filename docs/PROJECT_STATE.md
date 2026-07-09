@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Phase 4.2 Repository Foundation.
+Current priority: Phase 4.2.2 Natural Nation App repository foundation.
 
 Canonical runtime: docs/founder-os/
 
@@ -26,6 +26,8 @@ Phase 4 repository strategy: docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 
 Phase 4 foundation approval: docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
 
+Founder OS repository foundation: docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -40,6 +42,6 @@ Selected stack: GitHub Pages, Cloudflare Workers, GitHub Actions, GitHub reposit
 
 Repository strategy: Founder OS manages automation; Natural Nation App ships product with feature/app and feature/branding-page lanes.
 
-Completed: Phase 4.1 platform and repository foundation approval.
+Completed: Phase 4.1 foundation approval and 4.2.1 Founder OS repository foundation.
 
-Next: 4.2 Repository Foundation.
+Next: 4.2.2 Natural Nation App repository foundation.
