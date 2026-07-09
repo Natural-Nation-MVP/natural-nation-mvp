@@ -20,6 +20,10 @@ function loadRepositoryIntelligence() {
   loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-1', 'data-repository-intelligence-loader');
 }
 
+function loadMissionControl() {
+  loadScriptOnce('./js/mission-control.js?v=r3-mission-1', 'data-mission-control-loader');
+}
+
 function activeWorkspaceName() {
   return document.querySelector('.workspace-view.active')?.dataset.workspace || 'build';
 }
@@ -45,10 +49,12 @@ function watchWorkspaceChanges() {
 polishBuildStudioMetrics();
 loadKnowledgeEngine();
 loadRepositoryIntelligence();
+loadMissionControl();
 updateBottomActionBar();
 watchWorkspaceChanges();
 setTimeout(polishBuildStudioMetrics, 250);
 setTimeout(polishBuildStudioMetrics, 900);
 setTimeout(loadKnowledgeEngine, 300);
 setTimeout(loadRepositoryIntelligence, 300);
+setTimeout(loadMissionControl, 300);
 setTimeout(updateBottomActionBar, 300);
