@@ -4,7 +4,7 @@ const missionSignals = [
   ['Validation Progress', 'Final Gate', 'Executive Review is now actionable inside Mission Control.'],
   ['Repository Sync', 'Synchronized', 'Project State, Session Log, validation events, Decision Ledger, and Validation Center are aligned.'],
   ['Current Initiative', 'Executive Review', 'Review release readiness and use the supporting links before closeout.'],
-  ['Next Up', 'Release 3 Closeout', 'After Executive Review passes, perform final synchronized release closeout.'],
+  ['Next Up', 'Release 3 Closeout', 'After Executive Review passes, prepare the synchronized release closeout package.'],
 ];
 
 const executiveReview = [
@@ -14,15 +14,17 @@ const executiveReview = [
   ['Knowledge Base Sync', 'PASS', 'Founder OS knowledge records reference canonical source-of-truth documents.', '#knowledge', 'Open Knowledge Graph'],
   ['Decision Ledger', 'READY', 'Final release approval can be recorded during closeout.', '../decisions/DECISION-LEDGER.md', 'Open Decision Ledger'],
   ['Validation Center', 'READY', 'Final validation result can be recorded during closeout.', '../releases/VALIDATION-CENTER.md', 'Open Validation Center'],
-  ['Blockers', 'None Known', 'No blocking issues are currently reported.', '../releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-UI.md', 'View Finding Record'],
+  ['Blockers', 'None Known', 'No blocking issues are currently reported.', '../releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-ACTIONS.md', 'View Finding Record'],
 ];
 
 const closeoutActions = [
-  ['Complete Release 3', 'Ready After PASS', 'Use after Founder marks Executive Review PASS. Closeout will synchronize roadmap, validation records, Decision Ledger, Project State, and Session Log.', '../releases/EXECUTIVE-REVIEW-RELEASE-3.md', 'Review Before Closeout'],
+  ['Run Closeout Readiness Check', 'Action', 'Check visible release readiness conditions before closeout.', 'NNOSActions.runCloseoutCheck()'],
+  ['Prepare Release 3 Closeout', 'Action', 'Prepare the final closeout sequence for repository synchronization.', 'NNOSActions.prepareReleaseCloseout()'],
+  ['Review Repository Sync', 'Action', 'Jump to Repository Intelligence before closeout.', "NNOSActions.switchWorkspace('repo')"],
 ];
 
 const attentionItems = [
-  ['Validate Executive Review actions', 'Founder', 'Confirm the review panel includes active supporting links.'],
+  ['Validate Executive Review actions', 'Founder', 'Confirm the review panel includes active supporting links and action controls.'],
   ['Approve Release 3 Closeout', 'Founder', 'After Executive Review passes, approve the final synchronized closeout.'],
 ];
 
@@ -30,16 +32,16 @@ const recentChanges = [
   ['Workspace Navigation', 'PASS', 'Founder validated switching across core workspaces.'],
   ['Bottom Action Bar', 'PASS', 'Founder validated Generate Package appears only in Build Studio.'],
   ['iPad Layout', 'PASS', 'Founder validated portrait and landscape layouts.'],
-  ['Executive Review Actions', 'RETEST', 'Executive Review now includes active supporting links.'],
+  ['Founder Action Layer', 'RETEST', 'Mission Control now includes closeout action controls.'],
 ];
 
 const pendingDecisions = [
-  ['Executive Review approval', 'Pending', 'Awaiting Founder validation of visible panel and active links.'],
+  ['Executive Review approval', 'Pending', 'Awaiting Founder validation of visible panel, active links, and actions.'],
   ['Release 3 closeout approval', 'Pending', 'Requires Executive Review PASS before final closeout.'],
 ];
 
 const activeRisks = [
-  ['Executive Review actions', 'Fixed', 'Supporting links were added to the Mission Control Executive Review panel.'],
+  ['Executive Review actions', 'Fixed', 'Supporting links and action controls were added to Mission Control.'],
   ['Release Closeout', 'Pending', 'Final records still need to be synchronized after Executive Review passes.'],
   ['Duplicate Data Risk', 'Low', 'SSOT standard and reference-based records reduce duplication risk.'],
 ];
@@ -54,6 +56,10 @@ function missionRow(title, status, detail) {
 
 function missionLinkedRow(title, status, detail, href, label) {
   return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span class="status">${status}</span><a class="status" href="${href}">${label}</a></div>`;
+}
+
+function missionControlAction(title, status, detail, action) {
+  return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span class="status">${status}</span><button class="btn small" onclick="${action}">Run</button></div>`;
 }
 
 function missionAction(title, owner, detail) {
@@ -73,7 +79,7 @@ function renderMissionControlRuntime() {
   if (!cards || !queue) return;
 
   cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
-  queue.innerHTML = `<div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, href, label]) => missionLinkedRow(title, status, detail, href, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, href, label]) => missionLinkedRow(title, status, detail, href, label)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+  queue.innerHTML = `<div data-mission-action-output></div><div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, href, label]) => missionLinkedRow(title, status, detail, href, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, action]) => missionControlAction(title, status, detail, action)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
 }
 
 function activateMissionControlRuntime() {
