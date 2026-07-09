@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Mission Control, Repository Intelligence, enhanced Knowledge Graph, and the Founder OS operating loop on live GitHub Pages.
+Current priority: validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
 
 Canonical runtime: docs/founder-os/
 
@@ -40,6 +40,7 @@ Migrated knowledge records:
 - docs/knowledge/founder-os/repository-intelligence.md
 - docs/knowledge/founder-os/mission-control.md
 - docs/knowledge/founder-os/operating-model-v1.md
+- docs/knowledge/founder-os/ai-operations.md
 - docs/knowledge/product/mvp-principles.md
 - docs/knowledge/product/onboarding.md
 - docs/knowledge/product/feature-registry-v1.md
@@ -57,7 +58,8 @@ Founder OS implementation:
 - docs/founder-os/js/knowledge-engine.js
 - docs/founder-os/js/repository-intelligence.js
 - docs/founder-os/js/mission-control.js
-- docs/founder-os/js/build-studio-polish.js loads Knowledge Engine, Repository Intelligence, and Mission Control helpers
+- docs/founder-os/js/ai-operations.js
+- docs/founder-os/js/build-studio-polish.js loads Knowledge Engine, Repository Intelligence, Mission Control, and AI Operations helpers
 
 Founder OS operating loop:
 
@@ -70,4 +72,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Mission Control, Repository Intelligence, enhanced Knowledge Graph, workspace-aware bottom action bar behavior, and proceed toward AI Operations.
+Next: validate AI Operations, Mission Control, Repository Intelligence, enhanced Knowledge Graph, and workspace-aware bottom action bar behavior.
