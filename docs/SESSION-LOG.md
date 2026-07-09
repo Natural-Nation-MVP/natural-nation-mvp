@@ -68,11 +68,16 @@ Completed:
 - Bottom action bar made workspace-aware
 - Generate Package sticky action bar now hides outside Build Studio
 - Repository Intelligence knowledge record updated with action bar rule
+- Mission Control runtime helper added
+- Existing polish helper now bootstraps Mission Control
+- Mission Control knowledge record added
+- Knowledge index updated with Mission Control record
+- Project state updated with Mission Control implementation status
 
 Next:
+- Validate Mission Control on live GitHub Pages
 - Validate bottom action bar behavior on live GitHub Pages
 - Validate Repository Intelligence on live GitHub Pages
 - Validate enhanced Knowledge Graph on live GitHub Pages
-- Continue Mission Control milestone after Repository Intelligence validation
 - Continue AI Operations milestone
 - Continue refining docs/knowledge records as implementation expands
