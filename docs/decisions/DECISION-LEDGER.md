@@ -30,6 +30,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-011 | Cloudflare Workers selected as secure command gateway | R4 | Automation | Approved | docs/releases/PHASE-4-PLATFORM-DECISIONS.md |
 | DL-012 | GitHub Pages retained as Founder OS UI host | R4 | Hosting | Approved | docs/releases/PHASE-4-PLATFORM-DECISIONS.md |
 | DL-013 | Repository strategy approved with Founder OS managing automation and Natural Nation App shipping app and branding page lanes | R4 | Repository | Approved | docs/releases/PHASE-4-REPOSITORY-STRATEGY.md |
+| DL-014 | Phase 4.1 platform and repository foundation approved | R4 | Foundation | Approved | docs/releases/PHASE-4-FOUNDATION-APPROVAL.md |
 
 ## Related Records
 
@@ -40,5 +41,6 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-ROADMAP.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
+- docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
 - docs/governance/SYNC-STANDARD.md
 - docs/governance/PHASE-COMPLETION-STANDARD.md
