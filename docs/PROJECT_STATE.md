@@ -4,13 +4,17 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: re-validate Knowledge Graph navigation and Related Records on live GitHub Pages.
+Current priority: validate Single Source of Truth references, Validation Center foundation, and Decision Ledger foundation.
 
 Canonical runtime: docs/founder-os/
 
 Canonical knowledge base: docs/knowledge/INDEX.md
 
 Release validation checklist: docs/releases/RELEASE-3-VALIDATION.md
+
+Validation Center: docs/releases/VALIDATION-CENTER.md
+
+Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
 GitHub issue: #2 Natural Nation Documentation Sync Backlog
 
@@ -43,6 +47,9 @@ Migrated knowledge records:
 - docs/knowledge/founder-os/mission-control.md
 - docs/knowledge/founder-os/operating-model-v1.md
 - docs/knowledge/founder-os/ai-operations.md
+- docs/knowledge/founder-os/source-of-truth.md
+- docs/decisions/DECISION-LEDGER.md
+- docs/releases/VALIDATION-CENTER.md
 - docs/knowledge/product/mvp-principles.md
 - docs/knowledge/product/onboarding.md
 - docs/knowledge/product/feature-registry-v1.md
@@ -71,6 +78,13 @@ Validation finding:
 
 - Step 3 found Knowledge Graph buttons were not functional and Related Tasks were not visible.
 - Fix implemented: Open Document, Open on GitHub, and Related Records are now rendered by the Knowledge Graph helper.
+- Founder revalidated Step 3 and confirmed it works.
+
+Single Source of Truth foundation:
+
+- Founder OS stores references to canonical records instead of duplicating project content.
+- Validation Center records validation events.
+- Decision Ledger records approval events.
 
 Active milestone briefs:
 
@@ -79,4 +93,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: re-validate Step 3, then continue validating all five core Founder OS workspaces and the workspace-aware action bar behavior.
+Next: validate Single Source of Truth records in Knowledge Graph, then continue Release 3 workspace validation.
