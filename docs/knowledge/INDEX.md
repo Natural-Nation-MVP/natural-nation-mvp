@@ -28,9 +28,20 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 
 - [Founder OS Architecture Reference](./founder-os/architecture.md) — KB-FOUNDER-002
 - [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
+- [Onboarding](./product/onboarding.md) — KB-PRODUCT-003
+- [Feature Registry v1](./product/feature-registry-v1.md) — KB-PRODUCT-004
 - [Duey Personality Standard](./duey/personality.md) — KB-DUEY-002
 - [Protocol Library v1](./protocols/library-v1.md) — KB-PROTOCOL-002
 - [Protocol Assignment Matrix v1](./protocols/assignment-matrix-v1.md) — KB-PROTOCOL-003
+- [Design System v1](./design/system-v1.md) — KB-DESIGN-002
+- [Design Assets](./design/assets.md) — KB-DESIGN-003
+- [AI Context Loading Standard](./ai/context-loading-standard.md) — KB-AI-002
+- [API Catalog v1](./api/catalog-v1.md) — KB-API-002
+- [QA Standard v1](./testing/qa-standard-v1.md) — KB-QA-002
+
+## Founder OS Integration
+
+The Knowledge Graph should surface repository-backed records from this index and related domain records.
 
 ## Operating Rules
 
@@ -41,4 +52,4 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 
 ## Current Priority
 
-Migrate approved Natural Nation knowledge into this Knowledge Base and connect Founder OS Knowledge Graph to repository-backed records.
+Validate the repository-backed Knowledge Graph helper and continue Mission Control implementation.
