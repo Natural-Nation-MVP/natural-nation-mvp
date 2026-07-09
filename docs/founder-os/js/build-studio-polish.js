@@ -12,6 +12,10 @@ function loadScriptOnce(src, marker) {
   document.body.appendChild(script);
 }
 
+function loadFounderActions() {
+  loadScriptOnce('./js/founder-actions.js?v=r3-actions-1', 'data-founder-actions-loader');
+}
+
 function loadKnowledgeEngine() {
   loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-4', 'data-knowledge-engine-loader');
 }
@@ -51,6 +55,7 @@ function watchWorkspaceChanges() {
 }
 
 polishBuildStudioMetrics();
+loadFounderActions();
 loadKnowledgeEngine();
 loadRepositoryIntelligence();
 loadMissionControl();
@@ -59,6 +64,7 @@ updateBottomActionBar();
 watchWorkspaceChanges();
 setTimeout(polishBuildStudioMetrics, 250);
 setTimeout(polishBuildStudioMetrics, 900);
+setTimeout(loadFounderActions, 200);
 setTimeout(loadKnowledgeEngine, 300);
 setTimeout(loadRepositoryIntelligence, 300);
 setTimeout(loadMissionControl, 300);
