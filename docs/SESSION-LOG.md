@@ -36,14 +36,16 @@ Completed:
 - Release 3 validation status record created
 - Workspace Navigation passed Founder validation
 - Bottom Action Bar behavior passed Founder validation
+- iPad portrait and landscape layout passed Founder validation
 
 Validation:
 - Core workspaces passed: Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, and AI Operations.
 - Workspace Navigation passed.
 - Bottom Action Bar behavior passed.
-- Remaining: iPad layout, executive review, and Release 3 closeout.
+- iPad portrait and landscape layout passed.
+- Remaining: executive review and Release 3 closeout.
 
 Next:
-- Validate iPad portrait and landscape behavior
 - Complete executive review
 - Record final Founder validation results
+- Perform Release 3 closeout
