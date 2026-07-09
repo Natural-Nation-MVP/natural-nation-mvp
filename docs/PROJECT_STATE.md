@@ -14,6 +14,8 @@ Release validation checklist: docs/releases/RELEASE-3-VALIDATION.md
 
 Release validation status: docs/releases/RELEASE-3-VALIDATION-STATUS.md
 
+Executive review: docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
+
 Validation events:
 
 - docs/releases/VALIDATION-EVENT-WORKSPACE-NAVIGATION.md
