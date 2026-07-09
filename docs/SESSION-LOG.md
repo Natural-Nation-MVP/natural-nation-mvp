@@ -60,10 +60,15 @@ Completed:
 - R3 Repository Intelligence brief created
 - Release 3 roadmap updated to prioritize Repository Intelligence
 - Project state updated with active milestone briefs
+- Repository Intelligence runtime helper added
+- Existing polish helper now bootstraps Repository Intelligence
+- Repository Intelligence knowledge record added
+- Knowledge index updated with Repository Intelligence record
+- Project state updated with Repository Intelligence implementation status
 
 Next:
+- Validate Repository Intelligence on live GitHub Pages
 - Validate enhanced Knowledge Graph on live GitHub Pages
-- Implement Repository Intelligence workspace
-- Continue Mission Control milestone after Repository Intelligence foundation
+- Continue Mission Control milestone after Repository Intelligence validation
 - Continue AI Operations milestone
 - Continue refining docs/knowledge records as implementation expands
