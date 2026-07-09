@@ -24,6 +24,10 @@ function loadMissionControl() {
   loadScriptOnce('./js/mission-control.js?v=r3-mission-1', 'data-mission-control-loader');
 }
 
+function loadAiOperations() {
+  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-1', 'data-ai-operations-loader');
+}
+
 function activeWorkspaceName() {
   return document.querySelector('.workspace-view.active')?.dataset.workspace || 'build';
 }
@@ -50,6 +54,7 @@ polishBuildStudioMetrics();
 loadKnowledgeEngine();
 loadRepositoryIntelligence();
 loadMissionControl();
+loadAiOperations();
 updateBottomActionBar();
 watchWorkspaceChanges();
 setTimeout(polishBuildStudioMetrics, 250);
@@ -57,4 +62,5 @@ setTimeout(polishBuildStudioMetrics, 900);
 setTimeout(loadKnowledgeEngine, 300);
 setTimeout(loadRepositoryIntelligence, 300);
 setTimeout(loadMissionControl, 300);
+setTimeout(loadAiOperations, 300);
 setTimeout(updateBottomActionBar, 300);
