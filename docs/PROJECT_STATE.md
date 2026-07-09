@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Repository Intelligence 2.0 SSOT health, synchronization checks, and repository risk snapshot.
+Current priority: validate Mission Control 2.0 executive dashboard on live GitHub Pages.
 
 Canonical runtime: docs/founder-os/
 
@@ -79,6 +79,7 @@ Validation finding:
 - Step 3 found Knowledge Graph buttons were not functional and Related Tasks were not visible.
 - Fix implemented: Open Document, Open on GitHub, and Related Records are now rendered by the Knowledge Graph helper.
 - Founder revalidated Step 3 and confirmed it works.
+- Repository Intelligence 2.0 passed Founder validation.
 
 Single Source of Truth foundation:
 
@@ -95,6 +96,15 @@ Repository Intelligence 2.0:
 - Repository risk snapshot surfaced.
 - Next Founder actions updated.
 
+Mission Control 2.0:
+
+- Executive command center updated.
+- Validation progress surfaced.
+- Recent changes surfaced.
+- Pending Founder decisions surfaced.
+- Active risks surfaced.
+- Next actions surfaced.
+
 Active milestone briefs:
 
 - docs/founder-os/R3-MISSION-CONTROL.md
@@ -102,4 +112,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Repository Intelligence 2.0, then continue Release 3 workspace validation.
+Next: validate Mission Control 2.0, then continue Release 3 workspace validation.
