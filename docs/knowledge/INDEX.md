@@ -24,6 +24,14 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 - [Releases](./releases/README.md) — KB-RELEASE-001
 - [Decisions](./decisions/README.md) — KB-DECISION-001
 
+## Migrated Canonical Records
+
+- [Founder OS Architecture Reference](./founder-os/architecture.md) — KB-FOUNDER-002
+- [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
+- [Duey Personality Standard](./duey/personality.md) — KB-DUEY-002
+- [Protocol Library v1](./protocols/library-v1.md) — KB-PROTOCOL-002
+- [Protocol Assignment Matrix v1](./protocols/assignment-matrix-v1.md) — KB-PROTOCOL-003
+
 ## Operating Rules
 
 - Every approved change must update the affected knowledge records.
@@ -33,4 +41,4 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 
 ## Current Priority
 
-Build the Knowledge Base foundation, migrate approved Natural Nation knowledge, and connect Founder OS Knowledge Graph to repository-backed records.
+Migrate approved Natural Nation knowledge into this Knowledge Base and connect Founder OS Knowledge Graph to repository-backed records.
