@@ -1,33 +1,36 @@
-const queueMetadata = {
-  'BUILD-NNCC-002': { owner: 'Art', priority: 'High', progress: '0/5', target: 'Codex' },
-  'BUILD-NNCC-003': { owner: 'Codex', priority: 'High', progress: '0/5', target: 'Codex' },
-  'BUILD-NNCC-004': { owner: 'Gemini', priority: 'Medium', progress: '3/5', target: 'Gemini' },
+const queueData = {
+  'BUILD-NNCC-002': ['Art', 'High', '0/5', 'Codex'],
+  'BUILD-NNCC-003': ['Codex', 'High', '0/5', 'Codex'],
+  'BUILD-NNCC-004': ['Gemini', 'Medium', '3/5', 'Gemini'],
 };
 
-function enhanceQueueItem(button) {
-  const buildId = button.dataset.buildId;
-  const meta = queueMetadata[buildId];
-  if (!meta || button.dataset.metaEnhanced === 'true') return;
-
-  const existingSmall = button.querySelector('small');
-  if (existingSmall) existingSmall.remove();
-
-  const title = button.querySelector('.queue-title') || button.querySelector('span:not(.queue-top)');
-  if (title) title.classList.add('queue-title');
-
-  const metaRow = document.createElement('span');
-  metaRow.className = 'queue-meta';
-  metaRow.innerHTML = `<small>${meta.owner}</small><small>${meta.priority}</small><small>${meta.progress}</small><small>${meta.target}</small>`;
-  button.appendChild(metaRow);
-  button.dataset.metaEnhanced = 'true';
+function addTag(row, value) {
+  const tag = document.createElement('small');
+  tag.textContent = value;
+  row.appendChild(tag);
 }
 
-function enhanceQueue() {
-  document.querySelectorAll('[data-build-id]').forEach(enhanceQueueItem);
+function updateQueueCard(card) {
+  const values = queueData[card.dataset.buildId];
+  if (!values) return;
+
+  card.querySelectorAll('.queue-meta').forEach((row) => row.remove());
+  card.querySelectorAll('small').forEach((tag) => tag.remove());
+
+  const row = document.createElement('span');
+  row.className = 'queue-meta';
+  values.forEach((value) => addTag(row, value));
+  card.appendChild(row);
+}
+
+function updateQueue() {
+  document.querySelectorAll('[data-build-id]').forEach(updateQueueCard);
 }
 
 const queueRoot = document.querySelector('[data-build-queue]');
 if (queueRoot) {
-  enhanceQueue();
-  new MutationObserver(enhanceQueue).observe(queueRoot, { childList: true, subtree: true });
+  updateQueue();
+  setTimeout(updateQueue, 250);
+  setTimeout(updateQueue, 900);
+  new MutationObserver(updateQueue).observe(queueRoot, { childList: true });
 }
