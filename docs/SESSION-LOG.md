@@ -21,6 +21,9 @@ Completed:
 - R3 production workspace shell update
 - R3 layout responsiveness tuning
 - R3 compact component tuning
+- Build Studio selected item moved above impact explanation
+- Target impact explanation added
+- Top metrics condensed
 
 Next:
 - Validate live R3 Founder OS layout
