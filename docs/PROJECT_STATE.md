@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: revalidate Executive Review action links inside Mission Control.
+Current priority: revalidate Founder Action Layer v1 across the Founder OS control center.
 
 Canonical runtime: docs/founder-os/
 
@@ -20,6 +20,7 @@ Validation findings:
 
 - docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-UI.md
 - docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-ACTIONS.md
+- docs/releases/VALIDATION-FINDING-FOUNDER-OS-FUNCTIONALITY.md
 
 Validation events:
 
@@ -51,13 +52,25 @@ Current validation findings:
 - Fix implemented: Executive Review is now surfaced inside Mission Control.
 - Executive Review was visible but lacked active supporting links.
 - Fix implemented: Executive Review now includes action links to supporting records and workspaces.
+- Founder OS workspaces were too informational and lacked meaningful actions.
+- Fix implemented: Founder Action Layer v1 adds visible operational actions and action results.
 - Founder revalidation is required.
+
+Founder Action Layer v1 implementation:
+
+- docs/founder-os/js/founder-actions.js
+- docs/founder-os/js/mission-control.js
+- docs/founder-os/js/knowledge-engine.js
+- docs/founder-os/js/repository-intelligence.js
+- docs/founder-os/js/ai-operations.js
+- docs/founder-os/js/build-studio-polish.js
 
 Remaining validation:
 
-- Executive Review action-link revalidation in Mission Control
+- Founder Action Layer v1 revalidation
+- Executive Review final pass
 - Release 3 closeout
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: open Mission Control and confirm the Executive Review panel has active links.
+Next: test Mission Control, Knowledge Graph, Repository Intelligence, and AI Operations for meaningful Founder actions.
