@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Bottom Action Bar behavior.
+Current priority: validate iPad portrait and landscape layout.
 
 Canonical runtime: docs/founder-os/
 
@@ -14,7 +14,10 @@ Release validation checklist: docs/releases/RELEASE-3-VALIDATION.md
 
 Release validation status: docs/releases/RELEASE-3-VALIDATION-STATUS.md
 
-Validation event: docs/releases/VALIDATION-EVENT-WORKSPACE-NAVIGATION.md
+Validation events:
+
+- docs/releases/VALIDATION-EVENT-WORKSPACE-NAVIGATION.md
+- docs/releases/VALIDATION-EVENT-BOTTOM-ACTION-BAR.md
 
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
@@ -28,17 +31,17 @@ Passed validation:
 - Mission Control 2.0
 - AI Operations 2.0
 - Workspace Navigation
+- Bottom Action Bar behavior
 - Single Source of Truth foundation
 - Decision Ledger foundation
 - Validation Center foundation
 
 Remaining validation:
 
-- Bottom Action Bar behavior
 - iPad portrait and landscape layout
 - Executive Review
 - Release 3 closeout
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate that the bottom action bar appears only in Build Studio and hides in all other core workspaces.
+Next: validate Founder OS on iPad portrait and landscape layouts.
