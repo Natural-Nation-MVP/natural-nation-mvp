@@ -41,10 +41,15 @@ button.generate { background: linear-gradient(135deg, #245f25, #0f4d18); color: 
 .record-row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid rgba(47, 80, 54, 0.12); font-size: 12px; }
 .delivery-box { margin-top: 14px; border: 1px solid rgba(47, 125, 50, 0.18); background: rgba(47, 125, 50, 0.06); border-radius: 6px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 12px; }
 .queue-panel { max-height: 62vh; overflow: hidden; display: flex; flex-direction: column; }
-.queue-scroll { overflow: auto; min-height: 260px; }
-.queue-item { width: 100%; display: block; text-align: left; border: 0; border-bottom: 1px solid var(--nn-line); background: transparent; padding: 11px 8px; }
-.queue-item.active { outline: 1px solid rgba(47, 125, 50, 0.35); background: rgba(47, 125, 50, 0.08); border-radius: 5px; }
-.queue-top { display: flex; justify-content: space-between; gap: 10px; }
+.queue-scroll { overflow: auto; min-height: 260px; padding-right: 2px; }
+.queue-item { width: 100%; display: grid; gap: 5px; text-align: left; border: 1px solid transparent; border-bottom: 1px solid var(--nn-line); background: transparent; padding: 10px 8px; border-radius: 6px; }
+.queue-item:hover { background: rgba(255,255,255,.32); border-color: rgba(47,125,50,.14); }
+.queue-item.active { outline: 1px solid rgba(47, 125, 50, 0.35); background: rgba(47, 125, 50, 0.08); border-radius: 6px; }
+.queue-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.queue-title { display: block; font-size: 12px; line-height: 1.25; color: var(--nn-ink); }
+.queue-item small { color: var(--nn-muted); font-size: 11px; }
+.queue-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.queue-meta small { border: 1px solid rgba(47,80,54,.12); border-radius: 999px; padding: 2px 7px; background: rgba(255,255,255,.32); }
 .status { font-size: 11px; font-weight: 850; padding: 3px 8px; border-radius: 999px; background: rgba(47, 125, 50, 0.1); color: var(--nn-green); white-space: nowrap; }
 .search-input { width: 100%; border: 1px solid var(--nn-line); border-radius: 6px; background: rgba(255, 255, 255, 0.44); color: var(--nn-ink); font-size: 14px; padding: 12px; margin-top: 10px; }
 .output-box { min-height: 160px; white-space: pre-wrap; overflow: auto; background: #0b160f; color: #e8f4df; border-radius: 6px; padding: 12px; font-size: 12px; line-height: 1.5; }
