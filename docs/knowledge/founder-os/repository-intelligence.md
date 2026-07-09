@@ -19,6 +19,14 @@ Repository Intelligence currently surfaces:
 - synchronization checklist
 - next Founder actions
 
+## Workspace Action Rule
+
+The Generate Package sticky bottom bar belongs to Build Studio only.
+
+For non-build workspaces, the Build Studio action bar should be hidden or replaced with a workspace-specific action model.
+
+Current implementation hides the bottom action bar outside Build Studio.
+
 ## Canonical Inputs
 
 - docs/PROJECT_STATE.md
@@ -28,9 +36,10 @@ Repository Intelligence currently surfaces:
 - docs/governance/SYNC-STANDARD.md
 - docs/founder-os/R3-REPOSITORY-INTELLIGENCE.md
 
-## Runtime Helper
+## Runtime Helpers
 
 - docs/founder-os/js/repository-intelligence.js
+- docs/founder-os/js/build-studio-polish.js
 
 ## Related
 
