@@ -8,9 +8,9 @@ const workspaceMeta = {
 
 const targets = ['ChatGPT', 'Codex', 'Google AI Studio', 'Gemini', 'Manual Review'];
 const buildItems = [
-  { id: 'BUILD-NNCC-002', title: 'Create Google AI Studio app build package', owner: 'Art', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates an AI-ready package for the Google AI Studio version of Natural Nation using Founder OS context and approval rules.', outcome: 'Outcome: AI Studio package' },
-  { id: 'BUILD-NNCC-003', title: 'Codex implementation package', owner: 'Codex', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates a Codex-ready implementation task with repository context, acceptance criteria, and verification steps.', outcome: 'Outcome: Codex implementation' },
-  { id: 'BUILD-NNCC-004', title: 'Founder OS design system package', owner: 'Gemini', status: 'In Progress', target: 'Gemini', delivery: 'Design Review Agent', approval: 'Founder Review', plain: 'Prepares a design review package for Founder OS visual standards, spacing, glass panels, icons, and iPad usability.', outcome: 'Outcome: Design review' },
+  { id: 'BUILD-NNCC-002', title: 'Create Google AI Studio app build package', owner: 'Art', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates an AI-ready package for the Google AI Studio version of Natural Nation using Founder OS context and approval rules.', outcome: 'Outcome: AI Studio package', system: 'Google AI Studio app build path and Founder OS package routing.' },
+  { id: 'BUILD-NNCC-003', title: 'Codex implementation package', owner: 'Codex', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates a Codex-ready implementation task with repository context, acceptance criteria, and verification steps.', outcome: 'Outcome: Codex implementation', system: 'Repository implementation workflow and code handoff process.' },
+  { id: 'BUILD-NNCC-004', title: 'Founder OS design system package', owner: 'Gemini', status: 'In Progress', target: 'Gemini', delivery: 'Design Review Agent', approval: 'Founder Review', plain: 'Prepares a design review package for Founder OS visual standards, spacing, glass panels, icons, and iPad usability.', outcome: 'Outcome: Design review', system: 'Founder OS visual system, iPad layout, and production interface rules.' },
 ];
 const knowledgeRecords = [
   { id: 'PROJECT_STATE', title: 'Natural Nation Project State', type: 'State', path: 'docs/PROJECT_STATE.md', summary: 'Current release, priority, runtime, and GitHub issue.' },
@@ -46,49 +46,48 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
 function renderMetrics() {
-  const metrics = [
-    ['Total Queue', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['In Progress', buildItems.filter((i) => i.status === 'In Progress').length], ['Completed', 0], ['Blocked', 0], ['Release', 3],
-  ];
+  const metrics = [['Queue', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['Active', buildItems.filter((i) => i.status === 'In Progress').length], ['Done', 0], ['Blocked', 0], ['R', 3]];
   $('[data-system-metrics]').innerHTML = metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join('');
   $('[data-system-status]').textContent = 'R3 production shell active';
 }
-
 function renderMission() {
-  $('[data-mission-cards]').innerHTML = [
-    ['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'],
-    ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'],
-    ['Readiness', 'Active', 'Founder validation pending after shell restoration.'],
-  ].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join('');
-  $('[data-action-queue]').innerHTML = ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape']
-    .map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join('');
+  $('[data-mission-cards]').innerHTML = [['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'], ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'], ['Readiness', 'Active', 'Founder validation pending after shell restoration.']].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join('');
+  $('[data-action-queue]').innerHTML = ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape'].map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join('');
 }
-
 function renderKnowledge(query = '') {
   const q = query.toLowerCase();
   const matches = knowledgeRecords.filter((r) => `${r.id} ${r.title} ${r.type} ${r.path} ${r.summary}`.toLowerCase().includes(q));
   $('[data-knowledge-count]').textContent = `${matches.length} Knowledge Matches`;
   $('[data-knowledge-results]').innerHTML = matches.map((r) => `<div class="module-card"><strong>${r.id} — ${r.title}</strong><p class="muted">${r.summary}</p><div class="record-row"><span>${r.type}</span><span>${r.path}</span></div></div>`).join('') || '<p class="muted">No records matched.</p>';
 }
-
 function renderRepo() {
   $('[data-repo-status]').innerHTML = repoStatus.map((item) => `<div class="module-card"><strong>${item.label}</strong><div class="section-title">${item.value}</div><p class="muted">${item.detail}</p></div>`).join('');
-  $('[data-repo-checklist]').innerHTML = ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active']
-    .map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join('');
+  $('[data-repo-checklist]').innerHTML = ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active'].map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join('');
 }
-
 function renderAi() {
   $('[data-ai-roles]').innerHTML = aiRoles.map((r) => `<div class="module-card"><strong>${r.role}</strong><p class="muted">${r.duty}</p><div class="record-row"><span>Handoff</span><span>${r.handoff}</span></div></div>`).join('');
   $('[data-ai-handoffs]').innerHTML = buildItems.map((item) => `<div class="record-row"><span>${item.id} → ${item.target}</span><span>${item.delivery}</span></div>`).join('');
 }
-
 function renderQueue() {
   $('[data-build-queue]').innerHTML = buildItems.map((item) => `<button class="queue-item${item.id === selectedBuild.id ? ' active' : ''}" data-build-id="${item.id}" type="button"><span class="queue-top"><strong>${item.id}</strong><span class="status">${item.status}</span></span><span>${item.title}</span><small>Owner: ${item.owner}</small></button>`).join('');
 }
-
 function renderTargets() {
   $('[data-target-buttons]').innerHTML = targets.map((target) => `<button class="${target === selectedTarget ? 'active' : ''}" type="button" data-target="${target}">${target}</button>`).join('');
 }
-
+function deliveryFor(target) {
+  if (target === 'Google AI Studio') return 'Google AI Studio Builder';
+  if (target === 'Gemini') return 'Design Review Agent';
+  if (target === 'ChatGPT') return 'Strategy and Prompt Review';
+  if (target === 'Manual Review') return 'Founder Manual Review';
+  return 'Codex Implementation Agent';
+}
+function renderImpact() {
+  const delivery = deliveryFor(selectedTarget);
+  $('[data-impact-statement]').textContent = `${selectedBuild.id} prepares ${selectedTarget} to work on ${selectedBuild.system} without drifting into unrelated parts of Natural Nation.`;
+  $('[data-impact-system]').textContent = selectedBuild.system;
+  $('[data-impact-why]').textContent = `It gives ${selectedTarget} the right context, boundaries, acceptance criteria, and approval path so the work stays aligned with Release 3.`;
+  $('[data-impact-result]').textContent = `The expected result is a ${delivery} handoff that is ready for review, validation, and Founder approval.`;
+}
 function renderBuild() {
   $('[data-selected-id]').textContent = selectedBuild.id;
   $('[data-selected-title]').textContent = selectedBuild.title;
@@ -103,35 +102,21 @@ function renderBuild() {
   $('[data-role-plan]').innerHTML = aiRoles.slice(0, 4).map((r) => `<div class="role-row"><span>${r.role}</span><strong>${r.duty}</strong></div>`).join('');
   $('[data-execution-order]').textContent = selectedTarget === 'Gemini' ? 'Art → Gemini → GPose → Founder' : 'Art → Codex → Gemini → GPose → Founder';
   $('[data-ai-notes]').textContent = `Recommended order: ${$('[data-execution-order]').textContent}.`;
-  renderQueue();
-  renderTargets();
+  renderImpact(); renderQueue(); renderTargets();
 }
-
-function deliveryFor(target) {
-  if (target === 'Google AI Studio') return 'Google AI Studio Builder';
-  if (target === 'Gemini') return 'Design Review Agent';
-  if (target === 'ChatGPT') return 'Strategy and Prompt Review';
-  if (target === 'Manual Review') return 'Founder Manual Review';
-  return 'Codex Implementation Agent';
-}
-
 function generatePackage(format = 'markdown') {
   const data = { itemId: selectedBuild.id, title: selectedBuild.title, target: selectedTarget, delivery: deliveryFor(selectedTarget), approval: selectedBuild.approval, executionOrder: $('[data-execution-order]').textContent, acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved'] };
   const markdown = `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
-  const output = format === 'json' ? JSON.stringify(data, null, 2) : markdown;
-  $('[data-package-preview]').textContent = output;
+  $('[data-package-preview]').textContent = format === 'json' ? JSON.stringify(data, null, 2) : markdown;
   packageHistory.unshift(`${data.itemId} package generated for ${data.target}`);
   renderHistory();
 }
-
 function renderHistory() {
   $('[data-package-history]').innerHTML = packageHistory.length ? packageHistory.map((item) => `<div class="record-row"><span>${item}</span><span class="status">Done</span></div>`).join('') : '<p class="muted">No packages generated this session.</p>';
 }
-
 function validatePackage() {
   $('[data-package-preview]').textContent = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nResult: Ready for Founder review.`;
 }
-
 function setWorkspace(workspace) {
   const meta = workspaceMeta[workspace] || workspaceMeta.build;
   $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === workspace));
@@ -140,7 +125,6 @@ function setWorkspace(workspace) {
   $('[data-workspace-subtitle]').textContent = meta.subtitle;
   $('[data-workspace-badge]').textContent = meta.badge;
 }
-
 function init() {
   renderMetrics(); renderMission(); renderKnowledge(); renderRepo(); renderAi(); renderBuild(); renderHistory(); setWorkspace('build');
   $('[data-knowledge-search]').addEventListener('input', (event) => renderKnowledge(event.target.value));
@@ -158,5 +142,4 @@ function init() {
     if (action === 'export-json') generatePackage('json');
   });
 }
-
 init();
