@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate final Build Studio polish, begin Mission Control milestone, and migrate approved knowledge into the GitHub Knowledge Base.
+Current priority: validate final Build Studio polish, begin Mission Control milestone, and continue migrating approved knowledge into the GitHub Knowledge Base.
 
 Canonical runtime: docs/founder-os/
 
@@ -34,6 +34,14 @@ Knowledge base foundation:
 - docs/knowledge/releases/README.md
 - docs/knowledge/decisions/README.md
 
+Migrated knowledge records:
+
+- docs/knowledge/founder-os/architecture.md
+- docs/knowledge/product/mvp-principles.md
+- docs/knowledge/duey/personality.md
+- docs/knowledge/protocols/library-v1.md
+- docs/knowledge/protocols/assignment-matrix-v1.md
+
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate final Build Studio polish, build Mission Control, and migrate the highest-value approved project knowledge into docs/knowledge.
+Next: validate final Build Studio polish, build Mission Control, and continue migrating design, onboarding, API, and testing knowledge into docs/knowledge.
