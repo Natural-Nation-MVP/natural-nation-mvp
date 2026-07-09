@@ -76,12 +76,18 @@ Completed:
 - Founder OS Operating Model v1 approved and published
 - Knowledge index updated with operating model record
 - Project state updated with operating loop
+- AI Operations runtime helper added
+- Existing polish helper now bootstraps AI Operations
+- AI Operations knowledge record added
+- Knowledge index updated with AI Operations record
+- Project state updated with AI Operations implementation status
+- Release 3 roadmap updated with AI Operations validation status
 
 Next:
+- Validate AI Operations on live GitHub Pages
 - Validate Founder OS operating loop on live GitHub Pages
 - Validate Mission Control on live GitHub Pages
 - Validate bottom action bar behavior on live GitHub Pages
 - Validate Repository Intelligence on live GitHub Pages
 - Validate enhanced Knowledge Graph on live GitHub Pages
-- Continue AI Operations milestone
 - Continue refining docs/knowledge records as implementation expands
