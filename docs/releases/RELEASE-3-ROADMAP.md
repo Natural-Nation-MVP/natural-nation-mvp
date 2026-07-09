@@ -8,7 +8,7 @@ Release 3 restores the approved production workspace layout and completes Founde
 
 ## Current Priority
 
-Restore the production Build Studio layout while preserving Release 2 functionality.
+Continue Build Studio production polish after Founder validation of package preview synchronization.
 
 ## Milestones
 
@@ -16,13 +16,21 @@ Restore the production Build Studio layout while preserving Release 2 functional
 
 Status: In Progress
 
-Create project state, governance, roadmap, decision records, and build package standards.
+Created project state, governance, roadmap, decision records, AI handoff standard, build package records, session log, and workflow list.
 
 ### R3.2 Production Workspace Restoration
 
-Status: Pending
+Status: In Progress
 
-Restore left navigation, top KPI strip, right queue, utility panels, bottom command bar, and iPad responsive layout.
+Restored Build Studio as the primary workspace, production shell structure, right rail, bottom command bar, compact metrics, and target impact explanation.
+
+Validated:
+
+- Build Studio opens first
+- Selected Build Item appears above Target Impact Explanation
+- Package Preview generates output
+- Package Preview syncs with selected build and target
+- Cache-busting added for app.js and CSS assets
 
 ### R3.3 Functional Module Completion
 
