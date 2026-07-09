@@ -29,10 +29,14 @@ Completed:
 - Cache-busting added for app.js and CSS assets
 - Right rail queue visual polish
 - Queue metadata enhancer added as separate script
+- Live validation confirmed queue metadata is partially rendering
 
 Next:
-- Validate queue metadata rendering on live GitHub Pages
+- Patch queue metadata to show full tags: owner, priority, progress, target
 - Continue Build Studio layout polish
 - Confirm iPad portrait and landscape behavior after preview sync
 - Continue Founder OS module docs
 - Build documentation sync dashboard
+
+Blocked:
+- Two automated JavaScript patch attempts for full queue metadata rendering were blocked by connector safety checks.
