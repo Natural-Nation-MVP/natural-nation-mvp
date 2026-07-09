@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Mission Control 2.0 executive dashboard on live GitHub Pages.
+Current priority: validate AI Operations 2.0 command center on live GitHub Pages.
 
 Canonical runtime: docs/founder-os/
 
@@ -80,6 +80,7 @@ Validation finding:
 - Fix implemented: Open Document, Open on GitHub, and Related Records are now rendered by the Knowledge Graph helper.
 - Founder revalidated Step 3 and confirmed it works.
 - Repository Intelligence 2.0 passed Founder validation.
+- Mission Control 2.0 passed Founder validation.
 
 Single Source of Truth foundation:
 
@@ -105,6 +106,15 @@ Mission Control 2.0:
 - Active risks surfaced.
 - Next actions surfaced.
 
+AI Operations 2.0:
+
+- AI command center updated.
+- Agent statuses surfaced.
+- Active initiatives surfaced.
+- AI handoff queue surfaced.
+- Founder approval queue surfaced.
+- Operating standards surfaced.
+
 Active milestone briefs:
 
 - docs/founder-os/R3-MISSION-CONTROL.md
@@ -112,4 +122,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Mission Control 2.0, then continue Release 3 workspace validation.
+Next: validate AI Operations 2.0, then continue Release 3 workspace navigation, action bar, and iPad validation.
