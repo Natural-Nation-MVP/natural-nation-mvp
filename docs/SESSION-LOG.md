@@ -28,9 +28,10 @@ Completed:
 - Package preview sync validated by Founder
 - Cache-busting added for app.js and CSS assets
 - Right rail queue visual polish
+- Queue metadata enhancer added as separate script
 
 Next:
-- Add queue metadata rendering when connector allows the JavaScript update
+- Validate queue metadata rendering on live GitHub Pages
 - Continue Build Studio layout polish
 - Confirm iPad portrait and landscape behavior after preview sync
 - Continue Founder OS module docs
