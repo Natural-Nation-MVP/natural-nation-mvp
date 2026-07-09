@@ -25,6 +25,8 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-006 | Single Source of Truth standard approved | R3 | Founder OS | Approved | docs/knowledge/founder-os/source-of-truth.md |
 | DL-007 | Founder Action Layer v1 approved | R3 | Founder OS | Approved | docs/releases/VALIDATION-EVENT-FOUNDER-ACTION-LAYER.md |
 | DL-008 | Release 3 Foundation approved as current production baseline | R3 | Release | Approved | docs/releases/RELEASE-3-VALIDATION-STATUS.md |
+| DL-009 | Phase Completion Standard approved | R4 | Governance | Approved | docs/governance/PHASE-COMPLETION-STANDARD.md |
+| DL-010 | Phase 4 begins as the next active phase after Release 3 closeout | R4 | Roadmap | Approved | docs/releases/PHASE-4-ROADMAP.md |
 
 ## Related Records
 
@@ -32,4 +34,6 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/knowledge/founder-os/operating-model-v1.md
 - docs/releases/VALIDATION-CENTER.md
 - docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
+- docs/releases/PHASE-4-ROADMAP.md
 - docs/governance/SYNC-STANDARD.md
+- docs/governance/PHASE-COMPLETION-STANDARD.md
