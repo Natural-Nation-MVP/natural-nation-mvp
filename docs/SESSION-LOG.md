@@ -19,6 +19,8 @@ Completed:
 - readiness report update
 - workflow list
 - R3 production workspace shell update
+- R3 layout responsiveness tuning
+- R3 compact component tuning
 
 Next:
 - Validate live R3 Founder OS layout
