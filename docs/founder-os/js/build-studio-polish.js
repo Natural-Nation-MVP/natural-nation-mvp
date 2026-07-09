@@ -17,7 +17,7 @@ function loadKnowledgeEngine() {
 }
 
 function loadRepositoryIntelligence() {
-  loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-1', 'data-repository-intelligence-loader');
+  loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-2', 'data-repository-intelligence-loader');
 }
 
 function loadMissionControl() {
