@@ -1,6 +1,6 @@
 # Founder OS Release 3 Roadmap
 
-Status: In Progress
+Status: Founder Validation
 
 ## Purpose
 
@@ -8,13 +8,13 @@ Release 3 restores the approved production workspace layout and completes Founde
 
 ## Current Priority
 
-Validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
+Validate AI Operations and the complete Founder OS operating loop on live GitHub Pages using `docs/releases/RELEASE-3-VALIDATION.md`.
 
 ## Milestones
 
 ### R3.1 Documentation Foundation
 
-Status: In Progress
+Status: Founder Validation
 
 Created project state, governance, roadmap, decision records, AI handoff standard, build package records, session log, workflow list, continuous synchronization standard, and Knowledge Base foundation.
 
@@ -77,9 +77,13 @@ Use GitHub documents as the required startup context for major AI work.
 
 ### R3.6 Founder Validation
 
-Status: Pending
+Status: Active
 
 Validate Release 3 with the Founder before marking complete.
+
+## Active Validation
+
+- docs/releases/RELEASE-3-VALIDATION.md
 
 ## Active Milestone Briefs
 
