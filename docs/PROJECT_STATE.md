@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: complete Founder validation using the Release 3 validation checklist.
+Current priority: re-validate Knowledge Graph navigation and Related Records on live GitHub Pages.
 
 Canonical runtime: docs/founder-os/
 
@@ -67,6 +67,11 @@ Founder OS operating loop:
 
 Mission Control -> Knowledge Graph -> Repository Intelligence -> Build Studio -> AI Operations -> GitHub and Knowledge Base -> Mission Control
 
+Validation finding:
+
+- Step 3 found Knowledge Graph buttons were not functional and Related Tasks were not visible.
+- Fix implemented: Open Document, Open on GitHub, and Related Records are now rendered by the Knowledge Graph helper.
+
 Active milestone briefs:
 
 - docs/founder-os/R3-MISSION-CONTROL.md
@@ -74,4 +79,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate all five core Founder OS workspaces and the workspace-aware action bar behavior.
+Next: re-validate Step 3, then continue validating all five core Founder OS workspaces and the workspace-aware action bar behavior.
