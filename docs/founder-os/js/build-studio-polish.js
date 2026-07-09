@@ -13,7 +13,7 @@ function loadScriptOnce(src, marker) {
 }
 
 function loadKnowledgeEngine() {
-  loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-3', 'data-knowledge-engine-loader');
+  loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-4', 'data-knowledge-engine-loader');
 }
 
 function loadRepositoryIntelligence() {
