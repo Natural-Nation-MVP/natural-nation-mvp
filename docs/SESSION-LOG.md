@@ -27,8 +27,10 @@ Completed:
 - Package preview generation fixed
 - Package preview sync validated by Founder
 - Cache-busting added for app.js and CSS assets
+- Right rail queue visual polish
 
 Next:
+- Add queue metadata rendering when connector allows the JavaScript update
 - Continue Build Studio layout polish
 - Confirm iPad portrait and landscape behavior after preview sync
 - Continue Founder OS module docs
