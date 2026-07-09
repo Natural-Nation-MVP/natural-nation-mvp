@@ -29,6 +29,7 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 - [Founder OS Architecture Reference](./founder-os/architecture.md) — KB-FOUNDER-002
 - [Repository Intelligence](./founder-os/repository-intelligence.md) — KB-FOUNDER-003
 - [Mission Control](./founder-os/mission-control.md) — KB-FOUNDER-004
+- [Founder OS Operating Model v1](./founder-os/operating-model-v1.md) — KB-FOUNDER-005
 - [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
 - [Onboarding](./product/onboarding.md) — KB-PRODUCT-003
 - [Feature Registry v1](./product/feature-registry-v1.md) — KB-PRODUCT-004
@@ -51,7 +52,8 @@ The Knowledge Graph should surface repository-backed records from this index and
 - Every major AI workflow should load this index before execution.
 - Project state, roadmap, governance, and session tracking must stay synchronized.
 - Locked decisions must be traceable to governance records or ADRs.
+- Every workspace should answer one primary Founder question and enable a clear decision or action.
 
 ## Current Priority
 
-Validate Mission Control, Repository Intelligence, and enhanced Knowledge Graph on live GitHub Pages.
+Validate Mission Control, Repository Intelligence, enhanced Knowledge Graph, and the Founder OS operating loop on live GitHub Pages.
