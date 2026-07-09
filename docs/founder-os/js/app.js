@@ -41,6 +41,8 @@ const aiRoles = [
 let selectedBuild = buildItems[0];
 let selectedTarget = selectedBuild.target;
 let packageHistory = [];
+let previewGenerated = false;
+let lastPreviewFormat = 'markdown';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
@@ -105,32 +107,49 @@ function renderBuild() {
   safeHtml('[data-role-plan]', aiRoles.slice(0, 4).map((r) => `<div class="role-row"><span>${r.role}</span><strong>${r.duty}</strong></div>`).join(''));
   safeText('[data-execution-order]', selectedTarget === 'Gemini' ? 'Art → Gemini → GPose → Founder' : 'Art → Codex → Gemini → GPose → Founder');
   safeText('[data-ai-notes]', `Recommended order: ${$('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder'}.`);
-  renderImpact(); renderQueue(); renderTargets();
+  renderImpact();
+  renderQueue();
+  renderTargets();
+  syncPreviewToSelection();
 }
-function packageMarkdown(data) {
-  return `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## System Impact\n${data.system}\n\n## Why This Matters\nThis package gives ${data.target} the context and boundaries needed to work safely inside the selected system.\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
-}
-function generatePackage(format = 'markdown') {
-  const executionOrder = $('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder';
-  const data = {
+function packageData() {
+  return {
     itemId: selectedBuild.id,
     title: selectedBuild.title,
     target: selectedTarget,
     delivery: deliveryFor(selectedTarget),
     approval: selectedBuild.approval,
-    executionOrder,
+    executionOrder: $('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder',
     system: selectedBuild.system,
     acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved', 'Package preview generated successfully']
   };
-  const output = format === 'json' ? JSON.stringify(data, null, 2) : packageMarkdown(data);
+}
+function packageMarkdown(data) {
+  return `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## System Impact\n${data.system}\n\n## Why This Matters\nThis package gives ${data.target} the context and boundaries needed to work safely inside the selected system.\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
+}
+function previewOutput(format = lastPreviewFormat) {
+  const data = packageData();
+  return format === 'json' ? JSON.stringify(data, null, 2) : packageMarkdown(data);
+}
+function setPreviewOutput(format = lastPreviewFormat, shouldScroll = false) {
   const preview = $('[data-package-preview]');
-  if (preview) {
-    preview.textContent = output;
-    preview.dataset.generated = 'true';
-    preview.closest('.output-panel')?.classList.add('generated');
-    setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
-  }
-  safeText('[data-validation-status]', `Generated ${format.toUpperCase()} package for ${selectedTarget}.`);
+  if (!preview) return;
+  preview.textContent = previewOutput(format);
+  preview.dataset.generated = 'true';
+  preview.closest('.output-panel')?.classList.add('generated');
+  if (shouldScroll) setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+}
+function syncPreviewToSelection() {
+  if (!previewGenerated) return;
+  setPreviewOutput(lastPreviewFormat, false);
+  safeText('[data-validation-status]', `Preview synced to ${selectedBuild.id} for ${selectedTarget}.`);
+}
+function generatePackage(format = 'markdown') {
+  previewGenerated = true;
+  lastPreviewFormat = format;
+  setPreviewOutput(format, true);
+  const data = packageData();
+  safeText('[data-validation-status]', `Generated ${format.toUpperCase()} package for ${selectedBuild.id}.`);
   packageHistory.unshift(`${data.itemId} ${format.toUpperCase()} package generated for ${data.target}`);
   renderHistory();
 }
@@ -138,7 +157,9 @@ function renderHistory() {
   safeHtml('[data-package-history]', packageHistory.length ? packageHistory.map((item) => `<div class="record-row"><span>${item}</span><span class="status">Done</span></div>`).join('') : '<p class="muted">No packages generated this session.</p>');
 }
 function validatePackage() {
-  const message = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nPreview: Ready\nResult: Ready for Founder review.`;
+  previewGenerated = true;
+  lastPreviewFormat = 'validation';
+  const message = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nPreview: Synced\nResult: Ready for Founder review.`;
   const preview = $('[data-package-preview]');
   if (preview) {
     preview.textContent = message;
