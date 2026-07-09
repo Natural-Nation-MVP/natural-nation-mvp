@@ -31,7 +31,7 @@ function categorySummary(records) {
     acc[item.category] = (acc[item.category] || 0) + 1;
     return acc;
   }, {});
-  return Object.entries(counts).map(([name, count]) => `<span class="pill">${name}: ${count}</span>`).join('');
+  return Object.entries(counts).map(([name, count]) => `<button class="pill" onclick="NNOSActions.startKnowledgeReview('${name}')">${name}: ${count}</button>`).join('');
 }
 
 function documentUrl(path) {
@@ -51,12 +51,12 @@ function relationMatches(source, candidate) {
 function relatedRecords(item) {
   const matches = repositoryKnowledge.filter((candidate) => relationMatches(item, candidate)).slice(0, 4);
   if (!matches.length) return '<small>No related records mapped yet</small>';
-  return matches.map((record) => `<a class="pill" href="${documentUrl(record.path)}" target="_blank" rel="noopener">${record.title}</a>`).join('');
+  return matches.map((record) => `<button class="pill" onclick="NNOSActions.startKnowledgeReview('${record.title.replace(/'/g, '')}')">${record.title}</button>`).join('');
 }
 
 function renderKnowledgeCard(item) {
   const related = item.related.map((tag) => `<small>${tag}</small>`).join('');
-  return `<div class="module-card"><strong>${item.id} — ${item.title}</strong><p class="muted">${item.summary}</p><div class="record-row"><span>${item.category}</span><span>${item.path}</span></div><div class="queue-meta">${related}</div><div class="section-title">Related Records</div><div class="summary-pills">${relatedRecords(item)}</div><div class="record-row"><a class="btn small" href="${documentUrl(item.path)}" target="_blank" rel="noopener">Open Document</a><a class="btn small secondary" href="${githubUrl(item.path)}" target="_blank" rel="noopener">Open on GitHub</a></div></div>`;
+  return `<div class="module-card"><strong>${item.id} — ${item.title}</strong><p class="muted">${item.summary}</p><div class="record-row"><span>${item.category}</span><span>${item.path}</span></div><div class="queue-meta">${related}</div><div class="section-title">Related Records</div><div class="summary-pills">${relatedRecords(item)}</div><div class="record-row"><a class="btn small" href="${documentUrl(item.path)}" target="_blank" rel="noopener">Open Document</a><a class="btn small secondary" href="${githubUrl(item.path)}" target="_blank" rel="noopener">Open on GitHub</a><button class="btn small secondary" onclick="NNOSActions.startKnowledgeReview('${item.title.replace(/'/g, '')}')">Review Record</button></div></div>`;
 }
 
 function renderRepositoryKnowledge() {
@@ -68,7 +68,7 @@ function renderRepositoryKnowledge() {
   const q = (search?.value || '').toLowerCase();
   const matches = repositoryKnowledge.filter((item) => `${item.id} ${item.title} ${item.category} ${item.path} ${item.summary} ${item.related.join(' ')}`.toLowerCase().includes(q));
   count.textContent = `${matches.length} Knowledge Records Loaded`;
-  results.innerHTML = `<div class="module-card"><strong>Repository Status: Synchronized ✓</strong><p class="muted">GitHub Canonical Knowledge Base is active for Founder OS.</p><div class="summary-pills">${categorySummary(matches)}</div></div>${matches.map(renderKnowledgeCard).join('') || '<p class="muted">No repository knowledge records matched.</p>'}`;
+  results.innerHTML = `<div data-knowledge-action-output></div><div class="module-card"><strong>Knowledge Actions</strong><p class="muted">Use these controls to operate on the Knowledge Graph instead of only opening documents.</p><div class="record-row"><button class="btn small" onclick="NNOSActions.runKnowledgeAudit()">Run Knowledge Audit</button><button class="btn small secondary" onclick="NNOSActions.startKnowledgeReview('Single Source')">Review SSOT Records</button><button class="btn small secondary" onclick="NNOSActions.startKnowledgeReview('Validation')">Review Validation Records</button></div></div><div class="module-card"><strong>Repository Status: Synchronized ✓</strong><p class="muted">GitHub Canonical Knowledge Base is active for Founder OS.</p><div class="summary-pills">${categorySummary(matches)}</div></div>${matches.map(renderKnowledgeCard).join('') || '<p class="muted">No repository knowledge records matched.</p>'}`;
 }
 
 function activateKnowledgeEngine() {
