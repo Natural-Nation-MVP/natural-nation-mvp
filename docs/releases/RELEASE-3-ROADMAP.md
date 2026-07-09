@@ -31,6 +31,13 @@ Validated:
 - Package Preview generates output
 - Package Preview syncs with selected build and target
 - Cache-busting added for app.js and CSS assets
+- Right rail queue visual polish applied
+
+Pending R3.2 polish:
+
+- Retry JavaScript queue metadata rendering using a smaller patch strategy
+- Confirm iPad portrait and landscape behavior after latest queue styling
+- Continue tightening selected build card spacing
 
 ### R3.3 Functional Module Completion
 
