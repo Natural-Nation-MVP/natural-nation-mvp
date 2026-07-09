@@ -26,7 +26,9 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-007 | Founder Action Layer v1 approved | R3 | Founder OS | Approved | docs/releases/VALIDATION-EVENT-FOUNDER-ACTION-LAYER.md |
 | DL-008 | Release 3 Foundation approved as current production baseline | R3 | Release | Approved | docs/releases/RELEASE-3-VALIDATION-STATUS.md |
 | DL-009 | Phase Completion Standard approved | R4 | Governance | Approved | docs/governance/PHASE-COMPLETION-STANDARD.md |
-| DL-010 | Phase 4 begins as the next active phase after Release 3 closeout | R4 | Roadmap | Approved | docs/releases/PHASE-4-ROADMAP.md |
+| DL-010 | Phase 4 begins as Automation Environment Foundation | R4 | Roadmap | Approved | docs/releases/PHASE-4-ROADMAP.md |
+| DL-011 | Cloudflare Workers selected as secure command gateway | R4 | Automation | Approved | docs/releases/PHASE-4-PLATFORM-DECISIONS.md |
+| DL-012 | GitHub Pages retained as Founder OS UI host | R4 | Hosting | Approved | docs/releases/PHASE-4-PLATFORM-DECISIONS.md |
 
 ## Related Records
 
@@ -35,5 +37,6 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/VALIDATION-CENTER.md
 - docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
 - docs/releases/PHASE-4-ROADMAP.md
+- docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/governance/SYNC-STANDARD.md
 - docs/governance/PHASE-COMPLETION-STANDARD.md
