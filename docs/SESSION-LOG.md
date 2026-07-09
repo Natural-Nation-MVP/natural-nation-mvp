@@ -37,6 +37,13 @@ Completed:
 - KB-001 Knowledge Base master index created
 - Founder OS, Product, Governance, Design, Duey, Protocols, AI, API, Testing, Releases, and Decisions knowledge records created
 - Project state updated with canonical Knowledge Base path
+- Duey personality standard migrated
+- Protocol Library v1 summary migrated
+- Protocol Assignment Matrix v1 migrated
+- Founder OS architecture reference migrated
+- Natural Nation MVP principles migrated
+- Knowledge index updated with migrated records
+- Project state updated with migrated knowledge records
 
 Next:
 - Founder validates final Build Studio polish on live GitHub Pages
@@ -44,4 +51,4 @@ Next:
 - Continue Repository Intelligence milestone
 - Continue Knowledge Graph milestone
 - Continue AI Operations milestone
-- Migrate highest-value approved Natural Nation knowledge into docs/knowledge
+- Continue migrating design, onboarding, API, and testing knowledge into docs/knowledge
