@@ -8,7 +8,7 @@ Release 3 restores the approved production workspace layout and completes Founde
 
 ## Current Priority
 
-Validate final Build Studio polish on live GitHub Pages, then begin Mission Control live dashboard implementation.
+Validate enhanced Knowledge Graph on live GitHub Pages, then implement Repository Intelligence as the next major Founder OS milestone.
 
 ## Milestones
 
@@ -16,7 +16,7 @@ Validate final Build Studio polish on live GitHub Pages, then begin Mission Cont
 
 Status: In Progress
 
-Created project state, governance, roadmap, decision records, AI handoff standard, build package records, session log, and workflow list.
+Created project state, governance, roadmap, decision records, AI handoff standard, build package records, session log, workflow list, continuous synchronization standard, and Knowledge Base foundation.
 
 ### R3.2 Production Workspace Restoration
 
@@ -35,23 +35,24 @@ Validated:
 - Full queue metadata tags render: owner, priority, progress, target
 - Final polish pass applied to metrics, queue chips, active state, buttons, and spacing
 - Release metric helper added
+- Knowledge Graph loads repository-backed knowledge records
 
 Pending R3.2 validation:
 
-- Founder validates final polish on live GitHub Pages
+- Validate enhanced Knowledge Graph status, categories, and related tags on live GitHub Pages
 - Confirm iPad portrait and landscape behavior after final polish
 
 ### R3.3 Functional Module Completion
 
 Status: Starting
 
-Complete Build Studio, Mission Control, Knowledge Graph, Repository Intelligence, and AI Operations.
+Complete Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, and AI Operations.
 
 Execution order:
 
-1. Mission Control live dashboard
+1. Knowledge Graph repository-backed validation
 2. Repository Intelligence
-3. Knowledge Graph
+3. Mission Control
 4. AI Operations
 5. Founder OS runtime helpers
 
@@ -72,3 +73,8 @@ Use GitHub documents as the required startup context for major AI work.
 Status: Pending
 
 Validate Release 3 with the Founder before marking complete.
+
+## Active Milestone Briefs
+
+- docs/founder-os/R3-MISSION-CONTROL.md
+- docs/founder-os/R3-REPOSITORY-INTELLIGENCE.md
