@@ -21,7 +21,7 @@ function loadRepositoryIntelligence() {
 }
 
 function loadMissionControl() {
-  loadScriptOnce('./js/mission-control.js?v=r3-mission-1', 'data-mission-control-loader');
+  loadScriptOnce('./js/mission-control.js?v=r3-mission-2', 'data-mission-control-loader');
 }
 
 function loadAiOperations() {
