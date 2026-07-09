@@ -13,19 +13,21 @@ const buildItems = [
   { id: 'BUILD-NNCC-004', title: 'Founder OS design system package', owner: 'Gemini', status: 'In Progress', target: 'Gemini', delivery: 'Design Review Agent', approval: 'Founder Review', plain: 'Prepares a design review package for Founder OS visual standards, spacing, glass panels, icons, and iPad usability.', outcome: 'Outcome: Design review' },
 ];
 const knowledgeRecords = [
+  { id: 'PROJECT_STATE', title: 'Natural Nation Project State', type: 'State', path: 'docs/PROJECT_STATE.md', summary: 'Current release, priority, runtime, and GitHub issue.' },
   { id: 'NN-ARCH-001', title: 'Founder OS Architecture Standard', type: 'Architecture', path: 'docs/founder-os/ARCHITECTURE.md', summary: 'Defines runtime, workspace model, deployment, and governance.' },
-  { id: 'NN-INFRA-001', title: 'GitHub Pages Foundation', type: 'Infrastructure', path: 'docs/founder-os/', summary: 'Locks Pages to main / docs and canonical /founder-os/ route.' },
-  { id: 'NNDS-002', title: 'Natural Nation Glass', type: 'Design', path: 'docs/founder-os/css/', summary: 'Stone background, glass panels, green accents, square buttons.' },
-  { id: 'OP-002', title: 'AI Build Orchestrator', type: 'Operations', path: 'docs/founder-os/index.html', summary: 'Generates build packages and routes AI team handoffs.' },
-  { id: 'READINESS', title: 'Founder OS Readiness Check', type: 'QA', path: 'docs/founder-os/READINESS_REPORT.md', summary: 'Tracks readiness findings and release blockers.' },
+  { id: 'NNOS-GOV-001', title: 'GitHub Governance Sync Standard', type: 'Governance', path: 'docs/governance/NNOS-GOV-001.md', summary: 'Defines GitHub as the source of truth.' },
+  { id: 'R3', title: 'Release 3 Roadmap', type: 'Release', path: 'docs/releases/RELEASE-3-ROADMAP.md', summary: 'Tracks Release 3 restoration and module completion.' },
+  { id: 'ADR-001', title: 'Production Workspace Layout', type: 'Decision', path: 'docs/decisions/ADR-001-production-workspace-layout.md', summary: 'Approves production workspace layout.' },
+  { id: 'ADR-002', title: 'GitHub Project Intelligence', type: 'Decision', path: 'docs/decisions/ADR-002-github-project-intelligence.md', summary: 'Approves GitHub as project intelligence platform.' },
+  { id: 'READINESS', title: 'Founder OS Readiness Check', type: 'QA', path: 'docs/founder-os/READINESS_REPORT.md', summary: 'Tracks readiness findings and release state.' },
 ];
 const repoStatus = [
   { label: 'Pages Source', value: 'main / docs', detail: 'Active GitHub Pages publishing source.' },
   { label: 'Canonical Runtime', value: 'docs/founder-os/', detail: 'Only public Founder OS runtime.' },
-  { label: 'Legacy Path', value: 'Archived', detail: 'apps/founder-os is no longer public runtime.' },
+  { label: 'Release', value: 'R3', detail: 'Production workspace restoration in progress.' },
   { label: 'Deployment', value: 'Ready', detail: 'Branch deploy is active and stable.' },
-  { label: 'Architecture', value: 'Locked', detail: 'NN-ARCH-001 is active.' },
-  { label: 'Readiness', value: 'Functional', detail: 'Static OS tools are wired.' },
+  { label: 'Architecture', value: 'Active', detail: 'NN-ARCH-001 is active.' },
+  { label: 'Docs Sync', value: 'Active', detail: 'Issue #2 tracks documentation synchronization.' },
 ];
 const aiRoles = [
   { role: 'Art', duty: 'Architecture and system planning', handoff: 'Defines standards and scope.' },
@@ -45,19 +47,19 @@ const $$ = (selector) => document.querySelectorAll(selector);
 
 function renderMetrics() {
   const metrics = [
-    ['Modules', 12], ['Build Items', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['Systems', '7/7'], ['Release', 2], ['Status', 'Ready'],
+    ['Total Queue', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['In Progress', buildItems.filter((i) => i.status === 'In Progress').length], ['Completed', 0], ['Blocked', 0], ['Release', 3],
   ];
   $('[data-system-metrics]').innerHTML = metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join('');
-  $('[data-system-status]').textContent = 'All systems ready';
+  $('[data-system-status]').textContent = 'R3 production shell active';
 }
 
 function renderMission() {
   $('[data-mission-cards]').innerHTML = [
     ['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'],
-    ['Current Priority', 'Release 2', 'Founder OS Build Studio functional completion.'],
-    ['Readiness', '7/7', 'Mission, Knowledge, Build, Repo, AI, Pages, Docs.'],
+    ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'],
+    ['Readiness', 'Active', 'Founder validation pending after shell restoration.'],
   ].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join('');
-  $('[data-action-queue]').innerHTML = ['Verify live route', 'Test Build Studio Generate Package', 'Search Knowledge Graph', 'Review Repository Intel', 'Confirm AI handoff queue']
+  $('[data-action-queue]').innerHTML = ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape']
     .map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join('');
 }
 
@@ -70,7 +72,7 @@ function renderKnowledge(query = '') {
 
 function renderRepo() {
   $('[data-repo-status]').innerHTML = repoStatus.map((item) => `<div class="module-card"><strong>${item.label}</strong><div class="section-title">${item.value}</div><p class="muted">${item.detail}</p></div>`).join('');
-  $('[data-repo-checklist]').innerHTML = ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'legacy runtime removed or archived', 'modular assets created', 'readiness report created']
+  $('[data-repo-checklist]').innerHTML = ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active']
     .map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join('');
 }
 
@@ -114,7 +116,7 @@ function deliveryFor(target) {
 }
 
 function generatePackage(format = 'markdown') {
-  const data = { itemId: selectedBuild.id, title: selectedBuild.title, target: selectedTarget, delivery: deliveryFor(selectedTarget), approval: selectedBuild.approval, executionOrder: $('[data-execution-order]').textContent, acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'No legacy runtime used'] };
+  const data = { itemId: selectedBuild.id, title: selectedBuild.title, target: selectedTarget, delivery: deliveryFor(selectedTarget), approval: selectedBuild.approval, executionOrder: $('[data-execution-order]').textContent, acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved'] };
   const markdown = `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
   const output = format === 'json' ? JSON.stringify(data, null, 2) : markdown;
   $('[data-package-preview]').textContent = output;
@@ -127,11 +129,11 @@ function renderHistory() {
 }
 
 function validatePackage() {
-  $('[data-package-preview]').textContent = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nResult: Ready for Founder review.`;
+  $('[data-package-preview]').textContent = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nResult: Ready for Founder review.`;
 }
 
 function setWorkspace(workspace) {
-  const meta = workspaceMeta[workspace] || workspaceMeta.mission;
+  const meta = workspaceMeta[workspace] || workspaceMeta.build;
   $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === workspace));
   $$('[data-workspace-button]').forEach((button) => button.classList.toggle('active', button.dataset.workspaceButton === workspace));
   $('[data-workspace-title]').textContent = meta.title;
@@ -140,7 +142,7 @@ function setWorkspace(workspace) {
 }
 
 function init() {
-  renderMetrics(); renderMission(); renderKnowledge(); renderRepo(); renderAi(); renderBuild(); renderHistory(); setWorkspace('mission');
+  renderMetrics(); renderMission(); renderKnowledge(); renderRepo(); renderAi(); renderBuild(); renderHistory(); setWorkspace('build');
   $('[data-knowledge-search]').addEventListener('input', (event) => renderKnowledge(event.target.value));
   document.addEventListener('click', (event) => {
     const workspaceTarget = event.target.closest('[data-workspace-button]');
