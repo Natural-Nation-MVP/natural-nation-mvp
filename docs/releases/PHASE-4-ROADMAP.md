@@ -1,6 +1,6 @@
 # Founder OS Phase 4 Roadmap
 
-Status: Pending Architecture
+Status: Architecture Ready for Founder Review
 
 ## Phase
 
@@ -9,6 +9,10 @@ Phase 4 — Operational Workspaces
 ## Rule
 
 Phase 4 must be completed in its entirety before Phase 5 begins.
+
+## Architecture Package
+
+- docs/releases/PHASE-4-ARCHITECTURE.md
 
 ## Phase 4 Scope
 
@@ -71,19 +75,19 @@ Phase 4 must be completed in its entirety before Phase 5 begins.
 
 ## Phase 4 Lifecycle
 
-- Architecture
-- Implementation
-- Internal QA
-- Founder Review
-- Founder Validation
-- Corrections
-- Phase Closeout
-- Phase Lock
-
-## Current Step
-
-Architecture
+- Architecture: Ready for Founder Review
+- Implementation: Not Started
+- Internal QA: Not Started
+- Founder Review: Pending
+- Founder Validation: Pending
+- Corrections: Pending if needed
+- Phase Closeout: Pending
+- Phase Lock: Pending
 
 ## Completion Standard
 
 Phase 4 is complete only when every listed subphase is implemented, reviewed, validated, corrected if needed, synchronized, and locked.
+
+## Current Step
+
+Founder Review of Phase 4 Architecture Package.
