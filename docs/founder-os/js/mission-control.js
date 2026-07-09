@@ -1,35 +1,42 @@
 const missionSignals = [
-  ['Project Health', 'Healthy', 'Core Founder OS pillars are implemented and active for Release 3 validation.'],
-  ['Release 3', 'Founder Validation', 'Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, and AI Operations foundations are in place.'],
-  ['Validation Progress', '4 Passed', 'Build Studio, Knowledge Graph, SSOT foundations, and Repository Intelligence have passed Founder validation.'],
-  ['Repository Sync', 'Synchronized', 'Project State, Knowledge Index, Roadmap, Session Log, Decision Ledger, and Validation Center are aligned.'],
-  ['Current Initiative', 'Mission Control 2.0', 'Executive command center now summarizes what needs attention, what changed, and what to do next.'],
-  ['Next Up', 'AI Operations Validation', 'After Mission Control passes, validate AI Operations and cross-workspace behavior.'],
+  ['Project Health', 'Healthy', 'Release 3 foundation is implemented and in final validation.'],
+  ['Release 3', 'Executive Review', 'All planned workspaces and cross-workspace checks have passed Founder validation.'],
+  ['Validation Progress', 'Final Gate', 'Executive Review is now surfaced inside Mission Control for Founder validation.'],
+  ['Repository Sync', 'Synchronized', 'Project State, Session Log, validation events, Decision Ledger, and Validation Center are aligned.'],
+  ['Current Initiative', 'Executive Review', 'Review release readiness and confirm there are no blockers before closeout.'],
+  ['Next Up', 'Release 3 Closeout', 'After Executive Review passes, perform final synchronized release closeout.'],
+];
+
+const executiveReview = [
+  ['Release Status', 'Ready for Review', 'Release 3 Foundation has passed all implementation and layout validations.'],
+  ['Validation Summary', 'PASS', 'Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, AI Operations, Navigation, Action Bar, and iPad Layout passed.'],
+  ['Repository Sync', 'PASS', 'Project State, Session Log, validation events, and release records are synchronized.'],
+  ['Knowledge Base Sync', 'PASS', 'Founder OS knowledge records reference canonical source-of-truth documents.'],
+  ['Decision Ledger', 'READY', 'Final release approval can be recorded during closeout.'],
+  ['Validation Center', 'READY', 'Final validation result can be recorded during closeout.'],
+  ['Blockers', 'None Known', 'No blocking issues are currently reported.'],
 ];
 
 const attentionItems = [
-  ['Validate Mission Control 2.0', 'Founder', 'Confirm executive questions, status cards, priorities, decisions, and risks are clear.'],
-  ['Validate AI Operations', 'Founder', 'Confirm AI roles, handoff queue, and operating standards are readable.'],
-  ['Validate Navigation + Action Bar', 'Founder', 'Confirm workspace switching works and Generate Package only appears in Build Studio.'],
-  ['Validate iPad Layout', 'Founder', 'Confirm portrait and landscape usability.'],
+  ['Validate Executive Review in Mission Control', 'Founder', 'Confirm the review panel is visible and answers the final release questions.'],
+  ['Approve Release 3 Closeout', 'Founder', 'After Executive Review passes, approve the final synchronized closeout.'],
 ];
 
 const recentChanges = [
-  ['Knowledge Graph', 'PASS', 'Open Document, Open on GitHub, and Related Records were fixed and revalidated.'],
-  ['SSOT Foundation', 'PASS', 'Single Source of Truth, Decision Ledger, and Validation Center foundations were added and validated.'],
-  ['Repository Intelligence', 'PASS', 'SSOT health, synchronization checks, and repository risk snapshot were added and validated.'],
-  ['Mission Control', 'RETEST', 'Executive dashboard has been upgraded for validation.'],
+  ['Workspace Navigation', 'PASS', 'Founder validated switching across core workspaces.'],
+  ['Bottom Action Bar', 'PASS', 'Founder validated Generate Package appears only in Build Studio.'],
+  ['iPad Layout', 'PASS', 'Founder validated portrait and landscape layouts.'],
+  ['Executive Review UI', 'RETEST', 'Executive Review is now accessible inside Mission Control.'],
 ];
 
 const pendingDecisions = [
-  ['Mission Control 2.0 approval', 'Pending', 'Awaiting Founder validation on live GitHub Pages.'],
-  ['Release 3 completion approval', 'Pending', 'Requires remaining workspace, navigation, action bar, iPad, and executive review validation.'],
-  ['Validation Center runtime build', 'Future', 'Foundation exists; runtime UI can be built after Release 3 foundation validation.'],
+  ['Executive Review approval', 'Pending', 'Awaiting Founder validation in Mission Control.'],
+  ['Release 3 closeout approval', 'Pending', 'Requires Executive Review PASS before final closeout.'],
 ];
 
 const activeRisks = [
-  ['Runtime Cache', 'Medium', 'Use cache-busting when JavaScript helpers change.'],
-  ['Pending Validation', 'Medium', 'Mission Control, AI Operations, navigation, action bar, and iPad layout still need final validation.'],
+  ['Executive Review accessibility', 'Fixed', 'Executive Review is now surfaced inside Mission Control instead of only as a Markdown file.'],
+  ['Release Closeout', 'Pending', 'Final records still need to be synchronized after Executive Review passes.'],
   ['Duplicate Data Risk', 'Low', 'SSOT standard and reference-based records reduce duplication risk.'],
 ];
 
@@ -51,7 +58,7 @@ function renderMissionControlRuntime() {
   if (!cards || !queue) return;
 
   cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
-  queue.innerHTML = `<div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+  queue.innerHTML = `<div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
 }
 
 function activateMissionControlRuntime() {
