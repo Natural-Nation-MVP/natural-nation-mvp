@@ -25,7 +25,7 @@ function loadMissionControl() {
 }
 
 function loadAiOperations() {
-  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-1', 'data-ai-operations-loader');
+  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-2', 'data-ai-operations-loader');
 }
 
 function activeWorkspaceName() {
