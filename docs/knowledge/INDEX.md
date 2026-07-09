@@ -30,6 +30,7 @@ GitHub is the canonical source of truth. ChatGPT supports planning, drafting, re
 - [Repository Intelligence](./founder-os/repository-intelligence.md) — KB-FOUNDER-003
 - [Mission Control](./founder-os/mission-control.md) — KB-FOUNDER-004
 - [Founder OS Operating Model v1](./founder-os/operating-model-v1.md) — KB-FOUNDER-005
+- [AI Operations](./founder-os/ai-operations.md) — KB-FOUNDER-006
 - [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
 - [Onboarding](./product/onboarding.md) — KB-PRODUCT-003
 - [Feature Registry v1](./product/feature-registry-v1.md) — KB-PRODUCT-004
@@ -56,4 +57,4 @@ The Knowledge Graph should surface repository-backed records from this index and
 
 ## Current Priority
 
-Validate Mission Control, Repository Intelligence, enhanced Knowledge Graph, and the Founder OS operating loop on live GitHub Pages.
+Validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
