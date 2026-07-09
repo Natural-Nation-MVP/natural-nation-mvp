@@ -1,21 +1,34 @@
 const repositoryKnowledge = [
-  ['KB-INDEX-001', 'Knowledge Base Index', 'docs/knowledge/INDEX.md', 'Master entry point for canonical project knowledge.'],
-  ['KB-FOUNDER-001', 'Founder OS', 'docs/knowledge/founder-os/README.md', 'Operating layer for project state, releases, AI handoffs, and repository intelligence.'],
-  ['KB-FOUNDER-002', 'Founder OS Architecture', 'docs/knowledge/founder-os/architecture.md', 'Approved runtime, workspace model, and production layout standard.'],
-  ['KB-PRODUCT-001', 'Natural Nation Product', 'docs/knowledge/product/README.md', 'Product vision, MVP areas, and approved product principles.'],
-  ['KB-PRODUCT-002', 'MVP Principles', 'docs/knowledge/product/mvp-principles.md', 'Natural Nation MVP rules, value focus, and locked product principles.'],
-  ['KB-PRODUCT-003', 'Onboarding', 'docs/knowledge/product/onboarding.md', 'Approved onboarding flow areas and first-session goal.'],
-  ['KB-PRODUCT-004', 'Feature Registry', 'docs/knowledge/product/feature-registry-v1.md', 'Natural Nation and Founder OS feature areas.'],
-  ['KB-DUEY-001', 'Duey Mentor System', 'docs/knowledge/duey/README.md', 'Duey identity, role, and mentor behavior.'],
-  ['KB-DUEY-002', 'Duey Personality', 'docs/knowledge/duey/personality.md', 'Approved Duey tone, response priorities, and safety boundaries.'],
-  ['KB-PROTOCOL-002', 'Protocol Library v1', 'docs/knowledge/protocols/library-v1.md', 'Approved Natural Nation wellness protocol categories.'],
-  ['KB-PROTOCOL-003', 'Assignment Matrix v1', 'docs/knowledge/protocols/assignment-matrix-v1.md', 'Deterministic protocol assignment rules and priority hierarchy.'],
-  ['KB-DESIGN-002', 'Design System v1', 'docs/knowledge/design/system-v1.md', 'Natural Nation and Founder OS UI direction.'],
-  ['KB-DESIGN-003', 'Design Assets', 'docs/knowledge/design/assets.md', 'Approved asset areas and Duey asset rules.'],
-  ['KB-AI-002', 'AI Context Loading', 'docs/knowledge/ai/context-loading-standard.md', 'Required startup context for major AI work.'],
-  ['KB-API-002', 'API Catalog v1', 'docs/knowledge/api/catalog-v1.md', 'API groups, auth context, and isolation standard.'],
-  ['KB-QA-002', 'QA Standard v1', 'docs/knowledge/testing/qa-standard-v1.md', 'Validation and definition of done checks.'],
+  { id: 'KB-INDEX-001', title: 'Knowledge Base Index', category: 'Core', path: 'docs/knowledge/INDEX.md', summary: 'Master entry point for canonical project knowledge.', related: ['PROJECT_STATE', 'SYNC-STANDARD', 'AI Context'] },
+  { id: 'KB-FOUNDER-001', title: 'Founder OS', category: 'Founder OS', path: 'docs/knowledge/founder-os/README.md', summary: 'Operating layer for project state, releases, AI handoffs, and repository intelligence.', related: ['Release 3', 'Build Studio', 'Mission Control'] },
+  { id: 'KB-FOUNDER-002', title: 'Founder OS Architecture', category: 'Founder OS', path: 'docs/knowledge/founder-os/architecture.md', summary: 'Approved runtime, workspace model, and production layout standard.', related: ['ADR-001', 'Release 3', 'Knowledge Graph'] },
+  { id: 'KB-PRODUCT-001', title: 'Natural Nation Product', category: 'Product', path: 'docs/knowledge/product/README.md', summary: 'Product vision, MVP areas, and approved product principles.', related: ['Duey', 'Protocols', 'MVP'] },
+  { id: 'KB-PRODUCT-002', title: 'MVP Principles', category: 'Product', path: 'docs/knowledge/product/mvp-principles.md', summary: 'Natural Nation MVP rules, value focus, and locked product principles.', related: ['Guest First', 'Duey', 'Scores'] },
+  { id: 'KB-PRODUCT-003', title: 'Onboarding', category: 'Product', path: 'docs/knowledge/product/onboarding.md', summary: 'Approved onboarding flow areas and first-session goal.', related: ['Duey Summary', 'Blueprint', 'Day 1'] },
+  { id: 'KB-PRODUCT-004', title: 'Feature Registry', category: 'Product', path: 'docs/knowledge/product/feature-registry-v1.md', summary: 'Natural Nation and Founder OS feature areas.', related: ['MVP', 'Phase 2', 'Release 3'] },
+  { id: 'KB-DUEY-001', title: 'Duey Mentor System', category: 'Duey', path: 'docs/knowledge/duey/README.md', summary: 'Duey identity, role, and mentor behavior.', related: ['Personality', 'Protocols', 'Product'] },
+  { id: 'KB-DUEY-002', title: 'Duey Personality', category: 'Duey', path: 'docs/knowledge/duey/personality.md', summary: 'Approved Duey tone, response priorities, and safety boundaries.', related: ['Mentor', 'Safety', 'Recognition'] },
+  { id: 'KB-PROTOCOL-002', title: 'Protocol Library v1', category: 'Protocols', path: 'docs/knowledge/protocols/library-v1.md', summary: 'Approved Natural Nation wellness protocol categories.', related: ['Daily Foundations', 'Duey', 'Matrix'] },
+  { id: 'KB-PROTOCOL-003', title: 'Assignment Matrix v1', category: 'Protocols', path: 'docs/knowledge/protocols/assignment-matrix-v1.md', summary: 'Deterministic protocol assignment rules and priority hierarchy.', related: ['Safety', 'Sleep', 'Recovery'] },
+  { id: 'KB-DESIGN-002', title: 'Design System v1', category: 'Design', path: 'docs/knowledge/design/system-v1.md', summary: 'Natural Nation and Founder OS UI direction.', related: ['Build Studio', 'iPad', 'Components'] },
+  { id: 'KB-DESIGN-003', title: 'Design Assets', category: 'Design', path: 'docs/knowledge/design/assets.md', summary: 'Approved asset areas and Duey asset rules.', related: ['Duey Robot', 'Icons', 'Images'] },
+  { id: 'KB-AI-002', title: 'AI Context Loading', category: 'AI', path: 'docs/knowledge/ai/context-loading-standard.md', summary: 'Required startup context for major AI work.', related: ['Art', 'Codex', 'Gemini'] },
+  { id: 'KB-API-002', title: 'API Catalog v1', category: 'API', path: 'docs/knowledge/api/catalog-v1.md', summary: 'API groups, auth context, and isolation standard.', related: ['Auth', 'Protocols', 'Dashboard'] },
+  { id: 'KB-QA-002', title: 'QA Standard v1', category: 'Testing', path: 'docs/knowledge/testing/qa-standard-v1.md', summary: 'Validation and definition of done checks.', related: ['Definition of Done', 'Validation', 'Sync'] },
 ];
+
+function categorySummary(records) {
+  const counts = records.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] || 0) + 1;
+    return acc;
+  }, {});
+  return Object.entries(counts).map(([name, count]) => `<span class="pill">${name}: ${count}</span>`).join('');
+}
+
+function renderKnowledgeCard(item) {
+  const related = item.related.map((tag) => `<small>${tag}</small>`).join('');
+  return `<div class="module-card"><strong>${item.id} — ${item.title}</strong><p class="muted">${item.summary}</p><div class="record-row"><span>${item.category}</span><span>${item.path}</span></div><div class="queue-meta">${related}</div><div class="record-row"><span>Open Document</span><span>GitHub Canonical</span></div></div>`;
+}
 
 function renderRepositoryKnowledge() {
   const results = document.querySelector('[data-knowledge-results]');
@@ -24,9 +37,9 @@ function renderRepositoryKnowledge() {
   if (!results || !count) return;
 
   const q = (search?.value || '').toLowerCase();
-  const matches = repositoryKnowledge.filter((item) => item.join(' ').toLowerCase().includes(q));
-  count.textContent = `${matches.length} Repository Knowledge Records`;
-  results.innerHTML = matches.map(([id, title, path, summary]) => `<div class="module-card"><strong>${id} — ${title}</strong><p class="muted">${summary}</p><div class="record-row"><span>GitHub</span><span>${path}</span></div></div>`).join('') || '<p class="muted">No repository knowledge records matched.</p>';
+  const matches = repositoryKnowledge.filter((item) => `${item.id} ${item.title} ${item.category} ${item.path} ${item.summary} ${item.related.join(' ')}`.toLowerCase().includes(q));
+  count.textContent = `${matches.length} Knowledge Records Loaded`;
+  results.innerHTML = `<div class="module-card"><strong>Repository Status: Synchronized ✓</strong><p class="muted">GitHub Canonical Knowledge Base is active for Founder OS.</p><div class="summary-pills">${categorySummary(matches)}</div></div>${matches.map(renderKnowledgeCard).join('') || '<p class="muted">No repository knowledge records matched.</p>'}`;
 }
 
 function activateKnowledgeEngine() {
