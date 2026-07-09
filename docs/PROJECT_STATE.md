@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate Single Source of Truth references, Validation Center foundation, and Decision Ledger foundation.
+Current priority: validate Repository Intelligence 2.0 SSOT health, synchronization checks, and repository risk snapshot.
 
 Canonical runtime: docs/founder-os/
 
@@ -86,6 +86,15 @@ Single Source of Truth foundation:
 - Validation Center records validation events.
 - Decision Ledger records approval events.
 
+Repository Intelligence 2.0:
+
+- SSOT health surfaced.
+- Decision Ledger status surfaced.
+- Validation Center status surfaced.
+- Synchronization health checks surfaced.
+- Repository risk snapshot surfaced.
+- Next Founder actions updated.
+
 Active milestone briefs:
 
 - docs/founder-os/R3-MISSION-CONTROL.md
@@ -93,4 +102,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Single Source of Truth records in Knowledge Graph, then continue Release 3 workspace validation.
+Next: validate Repository Intelligence 2.0, then continue Release 3 workspace validation.
