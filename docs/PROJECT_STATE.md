@@ -2,9 +2,9 @@
 
 Status: Active
 
-Current release: Phase 4 — Operational Workspaces
+Current release: Phase 4 — Automation Foundation
 
-Current priority: Founder Review of Phase 4 Architecture Package.
+Current priority: revised automation-first architecture.
 
 Canonical runtime: docs/founder-os/
 
@@ -16,7 +16,7 @@ Phase completion standard: docs/governance/PHASE-COMPLETION-STANDARD.md
 
 Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 
-Phase 4 architecture: docs/releases/PHASE-4-ARCHITECTURE.md
+Phase 4 reset: docs/releases/PHASE-4-AUTOMATION-RESET.md
 
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
@@ -24,12 +24,8 @@ Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
 Release 3 Foundation: COMPLETE — LOCKED BASELINE
 
-Phase 4 current step: Architecture ready for Founder Review.
+Phase 4 previous static workspace architecture: DENIED
 
-Phase 4 implementation: Not started.
+Phase 4 current direction: Automation Foundation
 
-Rule: Phase 4 must be completed in its entirety before Phase 5 begins.
-
-Boundary: Founder OS remains a static operational control center until a later approved secure operations phase.
-
-Next: Founder Review of docs/releases/PHASE-4-ARCHITECTURE.md.
+Next: create revised automation-first architecture package.
