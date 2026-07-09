@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate the repository-backed Knowledge Graph helper, begin Mission Control milestone, and continue synchronizing approved knowledge into GitHub.
+Current priority: validate the enhanced repository-backed Knowledge Graph, then implement Repository Intelligence as the next major Founder OS milestone.
 
 Canonical runtime: docs/founder-os/
 
@@ -54,6 +54,11 @@ Founder OS implementation:
 - docs/founder-os/js/knowledge-engine.js
 - docs/founder-os/js/build-studio-polish.js loads the Knowledge Engine helper
 
+Active milestone briefs:
+
+- docs/founder-os/R3-MISSION-CONTROL.md
+- docs/founder-os/R3-REPOSITORY-INTELLIGENCE.md
+
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Knowledge Graph search, build Mission Control, and continue repository intelligence implementation.
+Next: validate enhanced Knowledge Graph and implement Repository Intelligence.
