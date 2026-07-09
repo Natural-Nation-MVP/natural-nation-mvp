@@ -121,7 +121,7 @@ function packageData() {
     approval: selectedBuild.approval,
     executionOrder: $('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder',
     system: selectedBuild.system,
-    acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved', 'Package preview generated successfully']
+    acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved', 'Package preview synced to active selection']
   };
 }
 function packageMarkdown(data) {
@@ -134,15 +134,15 @@ function previewOutput(format = lastPreviewFormat) {
 function setPreviewOutput(format = lastPreviewFormat, shouldScroll = false) {
   const preview = $('[data-package-preview]');
   if (!preview) return;
-  preview.textContent = previewOutput(format);
-  preview.dataset.generated = 'true';
-  preview.closest('.output-panel')?.classList.add('generated');
+  preview.textContent = previewOutput(format === 'json' ? 'json' : 'markdown');
+  preview.dataset.generated = previewGenerated ? 'true' : 'draft';
+  preview.closest('.output-panel')?.classList.toggle('generated', previewGenerated);
   if (shouldScroll) setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
 }
 function syncPreviewToSelection() {
-  if (!previewGenerated) return;
-  setPreviewOutput(lastPreviewFormat, false);
-  safeText('[data-validation-status]', `Preview synced to ${selectedBuild.id} for ${selectedTarget}.`);
+  const syncFormat = lastPreviewFormat === 'json' ? 'json' : 'markdown';
+  setPreviewOutput(syncFormat, false);
+  safeText('[data-validation-status]', previewGenerated ? `Preview synced to ${selectedBuild.id} for ${selectedTarget}.` : `Preview ready for ${selectedBuild.id}.`);
 }
 function generatePackage(format = 'markdown') {
   previewGenerated = true;
@@ -158,16 +158,9 @@ function renderHistory() {
 }
 function validatePackage() {
   previewGenerated = true;
-  lastPreviewFormat = 'validation';
-  const message = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nPreview: Synced\nResult: Ready for Founder review.`;
-  const preview = $('[data-package-preview]');
-  if (preview) {
-    preview.textContent = message;
-    preview.dataset.generated = 'true';
-    preview.closest('.output-panel')?.classList.add('generated');
-    setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
-  }
-  safeText('[data-validation-status]', 'Validation pass. Preview updated.');
+  lastPreviewFormat = 'markdown';
+  setPreviewOutput('markdown', true);
+  safeText('[data-validation-status]', `Validation pass. Preview synced to ${selectedBuild.id}.`);
 }
 function setWorkspace(workspace) {
   const meta = workspaceMeta[workspace] || workspaceMeta.build;
