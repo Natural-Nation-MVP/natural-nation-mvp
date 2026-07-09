@@ -8,7 +8,7 @@ Release 3 restores the approved production workspace layout and completes Founde
 
 ## Current Priority
 
-Validate enhanced Knowledge Graph on live GitHub Pages, then implement Repository Intelligence as the next major Founder OS milestone.
+Validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
 
 ## Milestones
 
@@ -36,24 +36,31 @@ Validated:
 - Final polish pass applied to metrics, queue chips, active state, buttons, and spacing
 - Release metric helper added
 - Knowledge Graph loads repository-backed knowledge records
+- Repository Intelligence helper added
+- Mission Control helper added
+- AI Operations helper added
+- Workspace-aware bottom action bar added
 
 Pending R3.2 validation:
 
 - Validate enhanced Knowledge Graph status, categories, and related tags on live GitHub Pages
+- Validate Repository Intelligence on live GitHub Pages
+- Validate Mission Control on live GitHub Pages
+- Validate AI Operations on live GitHub Pages
 - Confirm iPad portrait and landscape behavior after final polish
 
 ### R3.3 Functional Module Completion
 
-Status: Starting
+Status: Founder Validation
 
-Complete Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, and AI Operations.
+Core workspace foundations are now implemented for Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, and AI Operations.
 
 Execution order:
 
 1. Knowledge Graph repository-backed validation
-2. Repository Intelligence
-3. Mission Control
-4. AI Operations
+2. Repository Intelligence validation
+3. Mission Control validation
+4. AI Operations validation
 5. Founder OS runtime helpers
 
 ### R3.4 Documentation Engine
