@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate final Build Studio polish, begin Mission Control milestone, and continue migrating approved knowledge into the GitHub Knowledge Base.
+Current priority: validate the repository-backed Knowledge Graph helper, begin Mission Control milestone, and continue synchronizing approved knowledge into GitHub.
 
 Canonical runtime: docs/founder-os/
 
@@ -38,10 +38,22 @@ Migrated knowledge records:
 
 - docs/knowledge/founder-os/architecture.md
 - docs/knowledge/product/mvp-principles.md
+- docs/knowledge/product/onboarding.md
+- docs/knowledge/product/feature-registry-v1.md
 - docs/knowledge/duey/personality.md
 - docs/knowledge/protocols/library-v1.md
 - docs/knowledge/protocols/assignment-matrix-v1.md
+- docs/knowledge/design/system-v1.md
+- docs/knowledge/design/assets.md
+- docs/knowledge/ai/context-loading-standard.md
+- docs/knowledge/api/catalog-v1.md
+- docs/knowledge/testing/qa-standard-v1.md
+
+Founder OS implementation:
+
+- docs/founder-os/js/knowledge-engine.js
+- docs/founder-os/js/build-studio-polish.js loads the Knowledge Engine helper
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate final Build Studio polish, build Mission Control, and continue migrating design, onboarding, API, and testing knowledge into docs/knowledge.
+Next: validate Knowledge Graph search, build Mission Control, and continue repository intelligence implementation.
