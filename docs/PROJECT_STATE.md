@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate iPad portrait and landscape layout.
+Current priority: complete Executive Review for Release 3 Foundation.
 
 Canonical runtime: docs/founder-os/
 
@@ -18,6 +18,7 @@ Validation events:
 
 - docs/releases/VALIDATION-EVENT-WORKSPACE-NAVIGATION.md
 - docs/releases/VALIDATION-EVENT-BOTTOM-ACTION-BAR.md
+- docs/releases/VALIDATION-EVENT-IPAD-LAYOUT.md
 
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
@@ -32,16 +33,16 @@ Passed validation:
 - AI Operations 2.0
 - Workspace Navigation
 - Bottom Action Bar behavior
+- iPad portrait and landscape layout
 - Single Source of Truth foundation
 - Decision Ledger foundation
 - Validation Center foundation
 
 Remaining validation:
 
-- iPad portrait and landscape layout
 - Executive Review
 - Release 3 closeout
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate Founder OS on iPad portrait and landscape layouts.
+Next: complete Executive Review, then perform Release 3 closeout.
