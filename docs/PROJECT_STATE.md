@@ -4,11 +4,13 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: validate AI Operations and the complete Founder OS operating loop on live GitHub Pages.
+Current priority: complete Founder validation using the Release 3 validation checklist.
 
 Canonical runtime: docs/founder-os/
 
 Canonical knowledge base: docs/knowledge/INDEX.md
+
+Release validation checklist: docs/releases/RELEASE-3-VALIDATION.md
 
 GitHub issue: #2 Natural Nation Documentation Sync Backlog
 
@@ -72,4 +74,4 @@ Active milestone briefs:
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: validate AI Operations, Mission Control, Repository Intelligence, enhanced Knowledge Graph, and workspace-aware bottom action bar behavior.
+Next: validate all five core Founder OS workspaces and the workspace-aware action bar behavior.
