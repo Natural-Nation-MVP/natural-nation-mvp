@@ -24,9 +24,12 @@ Completed:
 - Build Studio selected item moved above impact explanation
 - Target impact explanation added
 - Top metrics condensed
+- Package preview generation fixed
+- Package preview sync validated by Founder
+- Cache-busting added for app.js and CSS assets
 
 Next:
-- Validate live R3 Founder OS layout
-- Confirm iPad portrait and landscape behavior
+- Continue Build Studio layout polish
+- Confirm iPad portrait and landscape behavior after preview sync
 - Continue Founder OS module docs
 - Build documentation sync dashboard
