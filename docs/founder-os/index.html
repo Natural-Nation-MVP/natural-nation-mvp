@@ -28,7 +28,7 @@
         <div class="pill" data-workspace-badge>Target: Codex</div>
       </section>
 
-      <section class="metrics-grid" data-system-metrics></section>
+      <section class="metrics-grid compact-metrics" data-system-metrics></section>
 
       <section class="workspace-view" data-workspace="mission">
         <article class="glass-panel"><div class="eyebrow">Mission Control</div><div class="section-title">Founder OS Operating Overview</div><p>Mission Control summarizes project health, release readiness, active operations, risks, and next Founder actions.</p><div class="modules-grid" data-mission-cards></div></article>
@@ -43,29 +43,9 @@
       <section class="workspace-view active" data-workspace="build">
         <div class="workspace-grid production-build-grid">
           <div>
-            <article class="glass-panel action-explainer">
-              <div class="eyebrow">1 · Action Explanation</div>
-              <div class="section-title">What happens when you generate this package?</div>
-              <div class="steps-grid">
-                <div class="step-card"><strong>Analyze</strong><p class="muted">Review selected build, target, context, dependencies, and acceptance criteria.</p></div>
-                <div class="step-card"><strong>Assign</strong><p class="muted">Route work to the correct AI team roles.</p></div>
-                <div class="step-card"><strong>Create</strong><p class="muted">Generate Markdown and JSON package output.</p></div>
-                <div class="step-card"><strong>Deliver</strong><p class="muted">Prepare the package for the selected target.</p></div>
-                <div class="step-card"><strong>Review</strong><p class="muted">Hold for validation and review notes.</p></div>
-                <div class="step-card"><strong>Approve</strong><p class="muted">Return final output for Founder approval.</p></div>
-              </div>
-            </article>
-
-            <article class="glass-panel build-summary-panel">
-              <div class="grid-2">
-                <div><div class="eyebrow">2 · Plain English</div><div class="section-title">What this build does</div><p data-build-plain>This build turns a Founder OS work item into an AI-ready implementation package with delivery instructions, review ownership, and approval path.</p></div>
-                <div class="summary-pills"><span class="pill" data-build-outcome>Outcome: AI-ready package</span><span class="pill">Users: Founder / AI Team</span><span class="pill">Value: High</span></div>
-              </div>
-            </article>
-
             <article class="glass-panel selected-build production-selected-build">
               <div class="grid-2">
-                <div><div class="eyebrow">3 · Selected Build Item</div><div class="section-title" data-selected-id>BUILD-NNCC-002</div><div data-selected-title>Create Google AI Studio app build package</div><p class="muted" data-selected-meta>Owner: Art • Type: Package • Priority: High • Status: Ready</p></div>
+                <div><div class="eyebrow">1 · Selected Build Item</div><div class="section-title" data-selected-id>BUILD-NNCC-002</div><div data-selected-title>Create Google AI Studio app build package</div><p class="muted" data-selected-meta>Owner: Art • Type: Package • Priority: High • Status: Ready</p></div>
                 <div><div class="eyebrow">Package Target</div><div class="button-grid" data-target-buttons></div></div>
               </div>
               <div class="plan-grid">
@@ -74,6 +54,24 @@
                 <div><div class="eyebrow">Execution Order</div><p data-execution-order>Art → Codex → Gemini → GPose → Founder</p></div>
               </div>
               <div class="delivery-box"><strong>Recommended Delivery</strong><span data-delivery>Codex Implementation Agent</span></div>
+            </article>
+
+            <article class="glass-panel action-explainer target-impact-panel">
+              <div class="eyebrow">2 · Target Impact Explanation</div>
+              <div class="section-title">How this build affects the selected target</div>
+              <p class="impact-lead" data-impact-statement>This package gives Codex the exact implementation context it needs to update the selected system without changing unrelated Founder OS areas.</p>
+              <div class="impact-grid">
+                <div class="step-card"><strong>Affected System</strong><p class="muted" data-impact-system>Founder OS Build Studio and related documentation records.</p></div>
+                <div class="step-card"><strong>Why It Matters</strong><p class="muted" data-impact-why>It keeps the AI implementation focused, traceable, and aligned with Founder-approved Release 3 decisions.</p></div>
+                <div class="step-card"><strong>Expected Result</strong><p class="muted" data-impact-result>A build-ready package that can be reviewed, delivered, validated, and documented.</p></div>
+              </div>
+            </article>
+
+            <article class="glass-panel build-summary-panel">
+              <div class="grid-2">
+                <div><div class="eyebrow">3 · Plain English</div><div class="section-title">What this build does</div><p data-build-plain>This build turns a Founder OS work item into an AI-ready implementation package with delivery instructions, review ownership, and approval path.</p></div>
+                <div class="summary-pills"><span class="pill" data-build-outcome>Outcome: AI-ready package</span><span class="pill">Users: Founder / AI Team</span><span class="pill">Value: High</span></div>
+              </div>
             </article>
 
             <article class="glass-panel output-panel">
