@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: complete Executive Review for Release 3 Foundation.
+Current priority: revalidate Executive Review inside Mission Control.
 
 Canonical runtime: docs/founder-os/
 
@@ -15,6 +15,8 @@ Release validation checklist: docs/releases/RELEASE-3-VALIDATION.md
 Release validation status: docs/releases/RELEASE-3-VALIDATION-STATUS.md
 
 Executive review: docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
+
+Validation finding: docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-UI.md
 
 Validation events:
 
@@ -40,11 +42,17 @@ Passed validation:
 - Decision Ledger foundation
 - Validation Center foundation
 
+Current validation finding:
+
+- Executive Review existed as a repository document but was not accessible inside Founder OS UI.
+- Fix implemented: Executive Review is now surfaced inside Mission Control.
+- Founder revalidation is required.
+
 Remaining validation:
 
-- Executive Review
+- Executive Review revalidation in Mission Control
 - Release 3 closeout
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: complete Executive Review, then perform Release 3 closeout.
+Next: open Mission Control and confirm the Executive Review panel is visible and clear.
