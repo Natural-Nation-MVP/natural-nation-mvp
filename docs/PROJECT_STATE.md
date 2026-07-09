@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Release 3
 
-Current priority: revalidate Executive Review inside Mission Control.
+Current priority: revalidate Executive Review action links inside Mission Control.
 
 Canonical runtime: docs/founder-os/
 
@@ -16,7 +16,10 @@ Release validation status: docs/releases/RELEASE-3-VALIDATION-STATUS.md
 
 Executive review: docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
 
-Validation finding: docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-UI.md
+Validation findings:
+
+- docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-UI.md
+- docs/releases/VALIDATION-FINDING-EXECUTIVE-REVIEW-ACTIONS.md
 
 Validation events:
 
@@ -42,17 +45,19 @@ Passed validation:
 - Decision Ledger foundation
 - Validation Center foundation
 
-Current validation finding:
+Current validation findings:
 
 - Executive Review existed as a repository document but was not accessible inside Founder OS UI.
 - Fix implemented: Executive Review is now surfaced inside Mission Control.
+- Executive Review was visible but lacked active supporting links.
+- Fix implemented: Executive Review now includes action links to supporting records and workspaces.
 - Founder revalidation is required.
 
 Remaining validation:
 
-- Executive Review revalidation in Mission Control
+- Executive Review action-link revalidation in Mission Control
 - Release 3 closeout
 
 Current operating rule: approved work is not complete until the repository, knowledge base, roadmap, and session tracking are synchronized.
 
-Next: open Mission Control and confirm the Executive Review panel is visible and clear.
+Next: open Mission Control and confirm the Executive Review panel has active links.
