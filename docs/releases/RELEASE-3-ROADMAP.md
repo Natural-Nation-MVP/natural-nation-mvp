@@ -8,7 +8,7 @@ Release 3 restores the approved production workspace layout and completes Founde
 
 ## Current Priority
 
-Continue Build Studio production polish after Founder validation of package preview synchronization.
+Validate final Build Studio polish on live GitHub Pages, then begin Mission Control live dashboard implementation.
 
 ## Milestones
 
@@ -20,7 +20,7 @@ Created project state, governance, roadmap, decision records, AI handoff standar
 
 ### R3.2 Production Workspace Restoration
 
-Status: In Progress
+Status: Founder Validation
 
 Restored Build Studio as the primary workspace, production shell structure, right rail, bottom command bar, compact metrics, and target impact explanation.
 
@@ -32,18 +32,28 @@ Validated:
 - Package Preview syncs with selected build and target
 - Cache-busting added for app.js and CSS assets
 - Right rail queue visual polish applied
+- Full queue metadata tags render: owner, priority, progress, target
+- Final polish pass applied to metrics, queue chips, active state, buttons, and spacing
+- Release metric helper added
 
-Pending R3.2 polish:
+Pending R3.2 validation:
 
-- Retry JavaScript queue metadata rendering using a smaller patch strategy
-- Confirm iPad portrait and landscape behavior after latest queue styling
-- Continue tightening selected build card spacing
+- Founder validates final polish on live GitHub Pages
+- Confirm iPad portrait and landscape behavior after final polish
 
 ### R3.3 Functional Module Completion
 
-Status: Pending
+Status: Starting
 
 Complete Build Studio, Mission Control, Knowledge Graph, Repository Intelligence, and AI Operations.
+
+Execution order:
+
+1. Mission Control live dashboard
+2. Repository Intelligence
+3. Knowledge Graph
+4. AI Operations
+5. Founder OS runtime helpers
 
 ### R3.4 Documentation Engine
 
