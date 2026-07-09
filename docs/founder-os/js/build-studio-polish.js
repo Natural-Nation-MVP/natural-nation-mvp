@@ -17,19 +17,19 @@ function loadFounderActions() {
 }
 
 function loadKnowledgeEngine() {
-  loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-4', 'data-knowledge-engine-loader');
+  loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-5', 'data-knowledge-engine-loader');
 }
 
 function loadRepositoryIntelligence() {
-  loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-2', 'data-repository-intelligence-loader');
+  loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
 }
 
 function loadMissionControl() {
-  loadScriptOnce('./js/mission-control.js?v=r3-mission-4', 'data-mission-control-loader');
+  loadScriptOnce('./js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
 }
 
 function loadAiOperations() {
-  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-2', 'data-ai-operations-loader');
+  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-3', 'data-ai-operations-loader');
 }
 
 function activeWorkspaceName() {
