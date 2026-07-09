@@ -65,8 +65,12 @@ Completed:
 - Repository Intelligence knowledge record added
 - Knowledge index updated with Repository Intelligence record
 - Project state updated with Repository Intelligence implementation status
+- Bottom action bar made workspace-aware
+- Generate Package sticky action bar now hides outside Build Studio
+- Repository Intelligence knowledge record updated with action bar rule
 
 Next:
+- Validate bottom action bar behavior on live GitHub Pages
 - Validate Repository Intelligence on live GitHub Pages
 - Validate enhanced Knowledge Graph on live GitHub Pages
 - Continue Mission Control milestone after Repository Intelligence validation
