@@ -45,34 +45,37 @@ let packageHistory = [];
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
+function safeText(selector, value) { const node = $(selector); if (node) node.textContent = value; }
+function safeHtml(selector, value) { const node = $(selector); if (node) node.innerHTML = value; }
+
 function renderMetrics() {
   const metrics = [['Queue', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['Active', buildItems.filter((i) => i.status === 'In Progress').length], ['Done', 0], ['Blocked', 0], ['R', 3]];
-  $('[data-system-metrics]').innerHTML = metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join('');
-  $('[data-system-status]').textContent = 'R3 production shell active';
+  safeHtml('[data-system-metrics]', metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join(''));
+  safeText('[data-system-status]', 'R3 production shell active');
 }
 function renderMission() {
-  $('[data-mission-cards]').innerHTML = [['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'], ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'], ['Readiness', 'Active', 'Founder validation pending after shell restoration.']].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join('');
-  $('[data-action-queue]').innerHTML = ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape'].map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join('');
+  safeHtml('[data-mission-cards]', [['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'], ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'], ['Readiness', 'Active', 'Founder validation pending after shell restoration.']].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join(''));
+  safeHtml('[data-action-queue]', ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape'].map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join(''));
 }
 function renderKnowledge(query = '') {
   const q = query.toLowerCase();
   const matches = knowledgeRecords.filter((r) => `${r.id} ${r.title} ${r.type} ${r.path} ${r.summary}`.toLowerCase().includes(q));
-  $('[data-knowledge-count]').textContent = `${matches.length} Knowledge Matches`;
-  $('[data-knowledge-results]').innerHTML = matches.map((r) => `<div class="module-card"><strong>${r.id} — ${r.title}</strong><p class="muted">${r.summary}</p><div class="record-row"><span>${r.type}</span><span>${r.path}</span></div></div>`).join('') || '<p class="muted">No records matched.</p>';
+  safeText('[data-knowledge-count]', `${matches.length} Knowledge Matches`);
+  safeHtml('[data-knowledge-results]', matches.map((r) => `<div class="module-card"><strong>${r.id} — ${r.title}</strong><p class="muted">${r.summary}</p><div class="record-row"><span>${r.type}</span><span>${r.path}</span></div></div>`).join('') || '<p class="muted">No records matched.</p>');
 }
 function renderRepo() {
-  $('[data-repo-status]').innerHTML = repoStatus.map((item) => `<div class="module-card"><strong>${item.label}</strong><div class="section-title">${item.value}</div><p class="muted">${item.detail}</p></div>`).join('');
-  $('[data-repo-checklist]').innerHTML = ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active'].map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join('');
+  safeHtml('[data-repo-status]', repoStatus.map((item) => `<div class="module-card"><strong>${item.label}</strong><div class="section-title">${item.value}</div><p class="muted">${item.detail}</p></div>`).join(''));
+  safeHtml('[data-repo-checklist]', ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active'].map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join(''));
 }
 function renderAi() {
-  $('[data-ai-roles]').innerHTML = aiRoles.map((r) => `<div class="module-card"><strong>${r.role}</strong><p class="muted">${r.duty}</p><div class="record-row"><span>Handoff</span><span>${r.handoff}</span></div></div>`).join('');
-  $('[data-ai-handoffs]').innerHTML = buildItems.map((item) => `<div class="record-row"><span>${item.id} → ${item.target}</span><span>${item.delivery}</span></div>`).join('');
+  safeHtml('[data-ai-roles]', aiRoles.map((r) => `<div class="module-card"><strong>${r.role}</strong><p class="muted">${r.duty}</p><div class="record-row"><span>Handoff</span><span>${r.handoff}</span></div></div>`).join(''));
+  safeHtml('[data-ai-handoffs]', buildItems.map((item) => `<div class="record-row"><span>${item.id} → ${item.target}</span><span>${item.delivery}</span></div>`).join(''));
 }
 function renderQueue() {
-  $('[data-build-queue]').innerHTML = buildItems.map((item) => `<button class="queue-item${item.id === selectedBuild.id ? ' active' : ''}" data-build-id="${item.id}" type="button"><span class="queue-top"><strong>${item.id}</strong><span class="status">${item.status}</span></span><span>${item.title}</span><small>Owner: ${item.owner}</small></button>`).join('');
+  safeHtml('[data-build-queue]', buildItems.map((item) => `<button class="queue-item${item.id === selectedBuild.id ? ' active' : ''}" data-build-id="${item.id}" type="button"><span class="queue-top"><strong>${item.id}</strong><span class="status">${item.status}</span></span><span>${item.title}</span><small>Owner: ${item.owner}</small></button>`).join(''));
 }
 function renderTargets() {
-  $('[data-target-buttons]').innerHTML = targets.map((target) => `<button class="${target === selectedTarget ? 'active' : ''}" type="button" data-target="${target}">${target}</button>`).join('');
+  safeHtml('[data-target-buttons]', targets.map((target) => `<button class="${target === selectedTarget ? 'active' : ''}" type="button" data-target="${target}">${target}</button>`).join(''));
 }
 function deliveryFor(target) {
   if (target === 'Google AI Studio') return 'Google AI Studio Builder';
@@ -83,51 +86,79 @@ function deliveryFor(target) {
 }
 function renderImpact() {
   const delivery = deliveryFor(selectedTarget);
-  $('[data-impact-statement]').textContent = `${selectedBuild.id} prepares ${selectedTarget} to work on ${selectedBuild.system} without drifting into unrelated parts of Natural Nation.`;
-  $('[data-impact-system]').textContent = selectedBuild.system;
-  $('[data-impact-why]').textContent = `It gives ${selectedTarget} the right context, boundaries, acceptance criteria, and approval path so the work stays aligned with Release 3.`;
-  $('[data-impact-result]').textContent = `The expected result is a ${delivery} handoff that is ready for review, validation, and Founder approval.`;
+  safeText('[data-impact-statement]', `${selectedBuild.id} prepares ${selectedTarget} to work on ${selectedBuild.system} without drifting into unrelated parts of Natural Nation.`);
+  safeText('[data-impact-system]', selectedBuild.system);
+  safeText('[data-impact-why]', `It gives ${selectedTarget} the right context, boundaries, acceptance criteria, and approval path so the work stays aligned with Release 3.`);
+  safeText('[data-impact-result]', `The expected result is a ${delivery} handoff that is ready for review, validation, and Founder approval.`);
 }
 function renderBuild() {
-  $('[data-selected-id]').textContent = selectedBuild.id;
-  $('[data-selected-title]').textContent = selectedBuild.title;
-  $('[data-selected-meta]').textContent = `Owner: ${selectedBuild.owner} • Target: ${selectedTarget} • Status: ${selectedBuild.status}`;
-  $('[data-build-plain]').textContent = selectedBuild.plain;
-  $('[data-build-outcome]').textContent = selectedBuild.outcome;
-  $('[data-build-approval]').textContent = selectedBuild.approval;
-  $('[data-validation-status]').textContent = selectedBuild.status === 'Ready' ? 'Validated: ready to package.' : 'Watch: still in progress.';
+  safeText('[data-selected-id]', selectedBuild.id);
+  safeText('[data-selected-title]', selectedBuild.title);
+  safeText('[data-selected-meta]', `Owner: ${selectedBuild.owner} • Target: ${selectedTarget} • Status: ${selectedBuild.status}`);
+  safeText('[data-build-plain]', selectedBuild.plain);
+  safeText('[data-build-outcome]', selectedBuild.outcome);
+  safeText('[data-build-approval]', selectedBuild.approval);
+  safeText('[data-validation-status]', selectedBuild.status === 'Ready' ? 'Validated: ready to package.' : 'Watch: still in progress.');
   $$('[data-delivery]').forEach((node) => node.textContent = deliveryFor(selectedTarget));
-  $('[data-approval]').textContent = selectedBuild.approval;
-  $('[data-bottom-target]').textContent = selectedTarget;
-  $('[data-role-plan]').innerHTML = aiRoles.slice(0, 4).map((r) => `<div class="role-row"><span>${r.role}</span><strong>${r.duty}</strong></div>`).join('');
-  $('[data-execution-order]').textContent = selectedTarget === 'Gemini' ? 'Art → Gemini → GPose → Founder' : 'Art → Codex → Gemini → GPose → Founder';
-  $('[data-ai-notes]').textContent = `Recommended order: ${$('[data-execution-order]').textContent}.`;
+  safeText('[data-approval]', selectedBuild.approval);
+  safeText('[data-bottom-target]', selectedTarget);
+  safeHtml('[data-role-plan]', aiRoles.slice(0, 4).map((r) => `<div class="role-row"><span>${r.role}</span><strong>${r.duty}</strong></div>`).join(''));
+  safeText('[data-execution-order]', selectedTarget === 'Gemini' ? 'Art → Gemini → GPose → Founder' : 'Art → Codex → Gemini → GPose → Founder');
+  safeText('[data-ai-notes]', `Recommended order: ${$('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder'}.`);
   renderImpact(); renderQueue(); renderTargets();
 }
+function packageMarkdown(data) {
+  return `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## System Impact\n${data.system}\n\n## Why This Matters\nThis package gives ${data.target} the context and boundaries needed to work safely inside the selected system.\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
+}
 function generatePackage(format = 'markdown') {
-  const data = { itemId: selectedBuild.id, title: selectedBuild.title, target: selectedTarget, delivery: deliveryFor(selectedTarget), approval: selectedBuild.approval, executionOrder: $('[data-execution-order]').textContent, acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved'] };
-  const markdown = `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
-  $('[data-package-preview]').textContent = format === 'json' ? JSON.stringify(data, null, 2) : markdown;
-  packageHistory.unshift(`${data.itemId} package generated for ${data.target}`);
+  const executionOrder = $('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder';
+  const data = {
+    itemId: selectedBuild.id,
+    title: selectedBuild.title,
+    target: selectedTarget,
+    delivery: deliveryFor(selectedTarget),
+    approval: selectedBuild.approval,
+    executionOrder,
+    system: selectedBuild.system,
+    acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved', 'Package preview generated successfully']
+  };
+  const output = format === 'json' ? JSON.stringify(data, null, 2) : packageMarkdown(data);
+  const preview = $('[data-package-preview]');
+  if (preview) {
+    preview.textContent = output;
+    preview.dataset.generated = 'true';
+    preview.closest('.output-panel')?.classList.add('generated');
+    setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  }
+  safeText('[data-validation-status]', `Generated ${format.toUpperCase()} package for ${selectedTarget}.`);
+  packageHistory.unshift(`${data.itemId} ${format.toUpperCase()} package generated for ${data.target}`);
   renderHistory();
 }
 function renderHistory() {
-  $('[data-package-history]').innerHTML = packageHistory.length ? packageHistory.map((item) => `<div class="record-row"><span>${item}</span><span class="status">Done</span></div>`).join('') : '<p class="muted">No packages generated this session.</p>';
+  safeHtml('[data-package-history]', packageHistory.length ? packageHistory.map((item) => `<div class="record-row"><span>${item}</span><span class="status">Done</span></div>`).join('') : '<p class="muted">No packages generated this session.</p>');
 }
 function validatePackage() {
-  $('[data-package-preview]').textContent = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nResult: Ready for Founder review.`;
+  const message = `VALIDATION PASS\n\n${selectedBuild.id}\nTarget: ${selectedTarget}\nDelivery: ${deliveryFor(selectedTarget)}\nApproval: ${selectedBuild.approval}\nCanonical runtime: docs/founder-os/\nRelease: R3\nPreview: Ready\nResult: Ready for Founder review.`;
+  const preview = $('[data-package-preview]');
+  if (preview) {
+    preview.textContent = message;
+    preview.dataset.generated = 'true';
+    preview.closest('.output-panel')?.classList.add('generated');
+    setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  }
+  safeText('[data-validation-status]', 'Validation pass. Preview updated.');
 }
 function setWorkspace(workspace) {
   const meta = workspaceMeta[workspace] || workspaceMeta.build;
   $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === workspace));
   $$('[data-workspace-button]').forEach((button) => button.classList.toggle('active', button.dataset.workspaceButton === workspace));
-  $('[data-workspace-title]').textContent = meta.title;
-  $('[data-workspace-subtitle]').textContent = meta.subtitle;
-  $('[data-workspace-badge]').textContent = meta.badge;
+  safeText('[data-workspace-title]', meta.title);
+  safeText('[data-workspace-subtitle]', meta.subtitle);
+  safeText('[data-workspace-badge]', meta.badge);
 }
 function init() {
   renderMetrics(); renderMission(); renderKnowledge(); renderRepo(); renderAi(); renderBuild(); renderHistory(); setWorkspace('build');
-  $('[data-knowledge-search]').addEventListener('input', (event) => renderKnowledge(event.target.value));
+  $('[data-knowledge-search]')?.addEventListener('input', (event) => renderKnowledge(event.target.value));
   document.addEventListener('click', (event) => {
     const workspaceTarget = event.target.closest('[data-workspace-button]');
     if (workspaceTarget) return setWorkspace(workspaceTarget.dataset.workspaceButton);
