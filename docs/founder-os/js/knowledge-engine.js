@@ -2,6 +2,10 @@ const repositoryKnowledge = [
   { id: 'KB-INDEX-001', title: 'Knowledge Base Index', category: 'Core', path: 'docs/knowledge/INDEX.md', summary: 'Master entry point for canonical project knowledge.', related: ['PROJECT_STATE', 'SYNC-STANDARD', 'AI Context'] },
   { id: 'KB-FOUNDER-001', title: 'Founder OS', category: 'Founder OS', path: 'docs/knowledge/founder-os/README.md', summary: 'Operating layer for project state, releases, AI handoffs, and repository intelligence.', related: ['Release 3', 'Build Studio', 'Mission Control'] },
   { id: 'KB-FOUNDER-002', title: 'Founder OS Architecture', category: 'Founder OS', path: 'docs/knowledge/founder-os/architecture.md', summary: 'Approved runtime, workspace model, and production layout standard.', related: ['ADR-001', 'Release 3', 'Knowledge Graph'] },
+  { id: 'KB-FOUNDER-003', title: 'Repository Intelligence', category: 'Founder OS', path: 'docs/knowledge/founder-os/repository-intelligence.md', summary: 'Repository health, synchronization, and canonical implementation awareness.', related: ['GitHub', 'Sync', 'Mission Control'] },
+  { id: 'KB-FOUNDER-004', title: 'Mission Control', category: 'Founder OS', path: 'docs/knowledge/founder-os/mission-control.md', summary: 'Executive dashboard for founder priorities, project health, risks, and current initiative.', related: ['Founder OS', 'Repository Intelligence', 'AI Operations'] },
+  { id: 'KB-FOUNDER-005', title: 'Founder OS Operating Model', category: 'Founder OS', path: 'docs/knowledge/founder-os/operating-model-v1.md', summary: 'Approved operating loop connecting Mission Control, Knowledge Graph, Repository Intelligence, Build Studio, AI Operations, GitHub, and the Knowledge Base.', related: ['Mission Control', 'Build Studio', 'AI Operations'] },
+  { id: 'KB-FOUNDER-006', title: 'AI Operations', category: 'Founder OS', path: 'docs/knowledge/founder-os/ai-operations.md', summary: 'AI workforce coordination view for roles, handoffs, approval, and synchronization standards.', related: ['Art', 'Codex', 'Gemini', 'GPose', 'Duey'] },
   { id: 'KB-PRODUCT-001', title: 'Natural Nation Product', category: 'Product', path: 'docs/knowledge/product/README.md', summary: 'Product vision, MVP areas, and approved product principles.', related: ['Duey', 'Protocols', 'MVP'] },
   { id: 'KB-PRODUCT-002', title: 'MVP Principles', category: 'Product', path: 'docs/knowledge/product/mvp-principles.md', summary: 'Natural Nation MVP rules, value focus, and locked product principles.', related: ['Guest First', 'Duey', 'Scores'] },
   { id: 'KB-PRODUCT-003', title: 'Onboarding', category: 'Product', path: 'docs/knowledge/product/onboarding.md', summary: 'Approved onboarding flow areas and first-session goal.', related: ['Duey Summary', 'Blueprint', 'Day 1'] },
@@ -17,6 +21,8 @@ const repositoryKnowledge = [
   { id: 'KB-QA-002', title: 'QA Standard v1', category: 'Testing', path: 'docs/knowledge/testing/qa-standard-v1.md', summary: 'Validation and definition of done checks.', related: ['Definition of Done', 'Validation', 'Sync'] },
 ];
 
+const repositoryRoot = 'https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/';
+
 function categorySummary(records) {
   const counts = records.reduce((acc, item) => {
     acc[item.category] = (acc[item.category] || 0) + 1;
@@ -25,9 +31,29 @@ function categorySummary(records) {
   return Object.entries(counts).map(([name, count]) => `<span class="pill">${name}: ${count}</span>`).join('');
 }
 
+function documentUrl(path) {
+  return `../${path.replace('docs/', '')}`;
+}
+
+function githubUrl(path) {
+  return `${repositoryRoot}${path}`;
+}
+
+function relationMatches(source, candidate) {
+  if (source.id === candidate.id) return false;
+  const haystack = `${candidate.id} ${candidate.title} ${candidate.category} ${candidate.summary} ${candidate.related.join(' ')}`.toLowerCase();
+  return source.related.some((tag) => haystack.includes(tag.toLowerCase())) || candidate.related.some((tag) => source.title.toLowerCase().includes(tag.toLowerCase()));
+}
+
+function relatedRecords(item) {
+  const matches = repositoryKnowledge.filter((candidate) => relationMatches(item, candidate)).slice(0, 4);
+  if (!matches.length) return '<small>No related records mapped yet</small>';
+  return matches.map((record) => `<a class="pill" href="${documentUrl(record.path)}" target="_blank" rel="noopener">${record.title}</a>`).join('');
+}
+
 function renderKnowledgeCard(item) {
   const related = item.related.map((tag) => `<small>${tag}</small>`).join('');
-  return `<div class="module-card"><strong>${item.id} — ${item.title}</strong><p class="muted">${item.summary}</p><div class="record-row"><span>${item.category}</span><span>${item.path}</span></div><div class="queue-meta">${related}</div><div class="record-row"><span>Open Document</span><span>GitHub Canonical</span></div></div>`;
+  return `<div class="module-card"><strong>${item.id} — ${item.title}</strong><p class="muted">${item.summary}</p><div class="record-row"><span>${item.category}</span><span>${item.path}</span></div><div class="queue-meta">${related}</div><div class="section-title">Related Records</div><div class="summary-pills">${relatedRecords(item)}</div><div class="record-row"><a class="btn small" href="${documentUrl(item.path)}" target="_blank" rel="noopener">Open Document</a><a class="btn small secondary" href="${githubUrl(item.path)}" target="_blank" rel="noopener">Open on GitHub</a></div></div>`;
 }
 
 function renderRepositoryKnowledge() {
