@@ -14,13 +14,18 @@ Completed:
 - Phase 4 Automation Reset record created
 - Current environment validation completed
 - Phase 4 Target Architecture created
+- Cloudflare Workers selected as secure command gateway
+- GitHub Pages retained as Founder OS UI host
+- Phase 4 Platform Decisions record created
 - Phase 4 Roadmap updated
 - Project State updated
+- Decision Ledger updated
 
-Current direction:
-- Build Founder OS as an automated command center
-- Use GitHub as source of truth and workflow backbone
-- Select the secure execution platform next
+Current stack:
+- Founder OS UI: GitHub Pages
+- Secure command gateway: Cloudflare Workers
+- Automation runner: GitHub Actions
+- Source of truth: GitHub repositories
 
 Next:
-- 4.1.3 Select execution platform
+- 4.1.5 Define repository strategy
