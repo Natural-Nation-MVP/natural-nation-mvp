@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: select secure execution platform.
+Current priority: define repository strategy.
 
 Canonical runtime: docs/founder-os/
 
@@ -20,6 +20,8 @@ Phase 4 reset: docs/releases/PHASE-4-AUTOMATION-RESET.md
 
 Phase 4 target architecture: docs/releases/PHASE-4-TARGET-ARCHITECTURE.md
 
+Phase 4 platform decisions: docs/releases/PHASE-4-PLATFORM-DECISIONS.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -30,6 +32,8 @@ Phase 4 previous static workspace architecture: DENIED
 
 Phase 4 current direction: Automation Environment Foundation
 
-Completed: 4.1.1 current environment validation and 4.1.2 target architecture.
+Selected stack: GitHub Pages, Cloudflare Workers, GitHub Actions, GitHub repositories.
 
-Next: 4.1.3 select execution platform.
+Completed: 4.1.1 current environment validation, 4.1.2 target architecture, 4.1.3 execution platform selection, and 4.1.4 hosting platform selection.
+
+Next: 4.1.5 define repository strategy.
