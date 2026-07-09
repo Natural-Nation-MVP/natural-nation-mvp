@@ -29,7 +29,17 @@ Expected:
 - Knowledge records render from repository-backed data.
 - Categories render.
 - Related tags render.
+- Related Records render.
 - Search filters records correctly.
+- Open Document buttons open repository-backed documents.
+- Open on GitHub buttons open canonical GitHub files.
+
+Validation Notes:
+
+- Founder reported Open Document buttons did not work.
+- Founder reported Related Tasks were not visible.
+- Fix implemented: Knowledge Graph now includes functional document links, GitHub links, and first-pass Related Records.
+- Pending Founder re-validation on live GitHub Pages.
 
 ### Repository Intelligence
 
