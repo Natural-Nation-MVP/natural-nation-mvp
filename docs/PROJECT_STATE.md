@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Operational Workspaces
 
-Current priority: Phase 4 architecture.
+Current priority: Founder Review of Phase 4 Architecture Package.
 
 Canonical runtime: docs/founder-os/
 
@@ -16,49 +16,20 @@ Phase completion standard: docs/governance/PHASE-COMPLETION-STANDARD.md
 
 Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 
+Phase 4 architecture: docs/releases/PHASE-4-ARCHITECTURE.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
-## Release 3 Foundation Status
+Release 3 Foundation: COMPLETE — LOCKED BASELINE
 
-Status: COMPLETE — LOCKED BASELINE
+Phase 4 current step: Architecture ready for Founder Review.
 
-## Current Phase
+Phase 4 implementation: Not started.
 
-Phase 4 — Operational Workspaces
+Rule: Phase 4 must be completed in its entirety before Phase 5 begins.
 
-## Phase 4 Rule
+Boundary: Founder OS remains a static operational control center until a later approved secure operations phase.
 
-Phase 4 must be completed in its entirety before Phase 5 begins.
-
-## Phase 4 Lifecycle
-
-- Architecture
-- Implementation
-- Internal QA
-- Founder Review
-- Founder Validation
-- Corrections
-- Phase Closeout
-- Phase Lock
-
-## Phase 4 Workspaces
-
-- Mission Control
-- Build Studio
-- Knowledge Graph
-- Repository Intelligence
-- AI Operations
-
-## Current Boundary
-
-Founder OS remains a static operational control center until a later approved secure operations phase.
-
-## Current Operating Rule
-
-Approved work is not complete until the repository, knowledge base, roadmap, validation records, decision records, project state, and session tracking are synchronized.
-
-## Next
-
-Complete Phase 4 architecture package before implementation begins.
+Next: Founder Review of docs/releases/PHASE-4-ARCHITECTURE.md.
