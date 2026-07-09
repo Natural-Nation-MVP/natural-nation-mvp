@@ -2,9 +2,9 @@
 
 Status: Active
 
-Current release: Phase 4 — Automation Foundation
+Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: revised automation-first architecture.
+Current priority: select secure execution platform.
 
 Canonical runtime: docs/founder-os/
 
@@ -18,6 +18,8 @@ Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 
 Phase 4 reset: docs/releases/PHASE-4-AUTOMATION-RESET.md
 
+Phase 4 target architecture: docs/releases/PHASE-4-TARGET-ARCHITECTURE.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -26,6 +28,8 @@ Release 3 Foundation: COMPLETE — LOCKED BASELINE
 
 Phase 4 previous static workspace architecture: DENIED
 
-Phase 4 current direction: Automation Foundation
+Phase 4 current direction: Automation Environment Foundation
 
-Next: create revised automation-first architecture package.
+Completed: 4.1.1 current environment validation and 4.1.2 target architecture.
+
+Next: 4.1.3 select execution platform.
