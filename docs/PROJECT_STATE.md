@@ -9,3 +9,7 @@ Current priority: Restore the Founder OS production workspace layout and keep Gi
 Canonical runtime: docs/founder-os/
 
 GitHub issue: #2 Natural Nation Documentation Sync Backlog
+
+Release 3 modules: Mission Control, Knowledge Graph, Build Studio, Repository Intelligence, AI Operations, Reports, Settings.
+
+Next: finish module documentation and begin production workspace restoration.
