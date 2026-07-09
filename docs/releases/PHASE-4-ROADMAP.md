@@ -17,6 +17,7 @@ Founder OS must be built as an automated command center.
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
+- docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
 
 ## Completed
 
@@ -26,14 +27,14 @@ Founder OS must be built as an automated command center.
 - 4.1.4 Select hosting platform: GitHub Pages
 - 4.1.5 Define repository strategy
 - 4.1.6 Founder approval
+- 4.2.1 Founder OS repository foundation
 
 ## Current Step
 
-4.2 Repository Foundation
+4.2.2 Natural Nation App repository foundation
 
 ## Upcoming
 
-- 4.2.1 Founder OS repository foundation
 - 4.2.2 Natural Nation App repository foundation
 - 4.2.3 Shared standards
 - 4.2.4 Branch strategy
