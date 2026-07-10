@@ -30,6 +30,8 @@ Founder OS repository foundation: docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FO
 
 Natural Nation App repository foundation: docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
 
+Command Registry MVP: docs/releases/PHASE-4-COMMAND-REGISTRY-MVP.md
+
 Validation Center: docs/releases/VALIDATION-CENTER.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -43,6 +45,8 @@ Phase 4 current direction: Automation Environment Foundation
 Selected stack: GitHub Pages, Cloudflare Workers, GitHub Actions, GitHub repositories.
 
 Repository strategy: Founder OS manages automation; Natural Nation App ships product with feature/app and feature/branding-page lanes.
+
+Implemented: Command Registry MVP in preview mode with CMD-001, CMD-002, and CMD-003.
 
 Completed: Phase 4.1 foundation approval and 4.2.1 Founder OS repository foundation.
 
