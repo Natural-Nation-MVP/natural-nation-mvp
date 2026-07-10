@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: create the first Cloudflare Worker and prove a safe request-response connection.
+Current priority: validate live Founder OS gateway status inside the GitHub Pages interface.
 
 Canonical runtime: docs/founder-os/
 
@@ -15,6 +15,8 @@ Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 Founder OS Vision v2: docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 
 Cloudflare security foundation: docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
+
+Gateway API v1: docs/releases/PHASE-4-GATEWAY-API-V1.md
 
 Command Registry MVP: docs/releases/PHASE-4-COMMAND-REGISTRY-MVP.md
 
@@ -41,15 +43,22 @@ The Founder OS platform, Natural Nation branding website, and Natural Nation app
 - Phase 4 architecture foundation
 - Command Registry MVP in preview mode
 - Cloudflare account security with verified two-factor authentication
+- Founder OS Gateway Worker deployed
+- GET / live
+- GET /health live
+- GET /version live
+- Gateway API v1 architecture approved
+- Read-only gateway status script added to Founder OS source
 
 ## Pending
 
-- first Cloudflare Worker
-- Founder OS to Worker test connection
+- confirm live gateway status displays in Founder OS
+- authentication foundation
+- approval and audit foundations
 - Worker secrets
 - GitHub Actions connection
 - Natural Nation App repository foundation
 
 ## Next
 
-Create the first Cloudflare Worker without adding credentials or repository-changing capabilities.
+Validate the live GET /health connection in the Founder OS interface before adding protected execution routes.
