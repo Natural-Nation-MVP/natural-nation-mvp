@@ -13,7 +13,13 @@ Completed:
 - Founder OS, Natural Nation branding website, and Natural Nation app with Duey confirmed as separate but connected products
 - Cloudflare account created
 - Cloudflare two-factor authentication enabled and verified
-- Cloudflare security foundation recorded
+- Founder OS Gateway Worker created and deployed
+- Gateway root endpoint validated
+- Gateway health endpoint validated
+- Gateway version endpoint validated
+- CORS restricted to the approved GitHub Pages origin
+- Gateway API v1 structure approved
+- Founder OS read-only gateway status script added in GitHub
 - Phase 4 Roadmap updated
 - Project State updated
 - Decision Ledger updated
@@ -25,14 +31,14 @@ Current stack:
 - Source of truth: GitHub repositories
 
 Current priority:
-- Create the first Cloudflare Worker
-- Prove a safe request-response connection
+- Validate live GET /health status inside Founder OS
 
 Not yet configured:
+- authentication for protected routes
 - Worker secrets
-- GitHub connection
-- Founder OS connection
+- approval and audit enforcement
+- GitHub Actions connection
 - repository-changing commands
 
 Next:
-- Create the first Cloudflare Worker without adding credentials
+- confirm the live gateway status appears in Founder OS before adding protected execution routes
