@@ -23,6 +23,7 @@ Natural Nation is Project #1 built and managed by Founder OS.
 - docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
 - docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
+- docs/releases/PHASE-4-GATEWAY-API-V1.md
 
 ## Completed
 
@@ -31,6 +32,11 @@ Natural Nation is Project #1 built and managed by Founder OS.
 - Command Registry MVP in preview mode
 - Cloudflare account created
 - Cloudflare two-factor authentication enabled and verified
+- Founder OS Gateway Worker deployed
+- GET / confirmed
+- GET /health confirmed
+- GET /version confirmed
+- Gateway API v1 architecture approved
 
 ## Pending
 
@@ -38,14 +44,14 @@ Natural Nation is Project #1 built and managed by Founder OS.
 
 ## Current Step
 
-Create the first Cloudflare Worker and prove a safe request-response connection.
+Connect the Founder OS interface to the live GET /health endpoint and validate the displayed status.
 
 ## Upcoming
 
-- Create first Cloudflare Worker
-- Connect Founder OS test request
-- Validate Worker response
-- Configure secrets only after the safe connection passes
+- Validate live gateway status in Founder OS
+- Add authentication foundation
+- Add approval and audit foundations
+- Configure secrets only after security validation
 - Connect GitHub Actions later
 - Resume Natural Nation App repository foundation
 
@@ -58,4 +64,4 @@ Create the first Cloudflare Worker and prove a safe request-response connection.
 
 ## Rule
 
-Do not begin Phase 5 until Phase 4 is complete and validated.
+Implement and validate one gateway capability at a time. Do not enable repository-changing routes before authentication, approvals, validation, and audit logging are ready.
