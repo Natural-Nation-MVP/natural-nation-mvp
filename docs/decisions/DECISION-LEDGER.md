@@ -36,12 +36,15 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-017 | Founder OS Vision v2 approved as a reusable AI-powered product creation platform | R4 | Product Strategy | Approved | docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md |
 | DL-018 | Natural Nation designated as Project #1 of Founder OS | R4 | Product Strategy | Approved | docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md |
 | DL-019 | Cloudflare account security foundation completed with verified two-factor authentication | R4 | Security | Complete | docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md |
+| DL-020 | Founder OS Gateway API v1 structure approved | R4 | Gateway | Approved | docs/releases/PHASE-4-GATEWAY-API-V1.md |
+| DL-021 | Public gateway routes GET /, GET /health, and GET /version validated | R4 | Gateway | Complete | docs/releases/PHASE-4-GATEWAY-API-V1.md |
 
 ## Related Records
 
 - docs/releases/PHASE-4-ROADMAP.md
 - docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
+- docs/releases/PHASE-4-GATEWAY-API-V1.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
