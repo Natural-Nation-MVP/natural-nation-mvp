@@ -33,18 +33,16 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-014 | Phase 4.1 platform and repository foundation approved | R4 | Foundation | Approved | docs/releases/PHASE-4-FOUNDATION-APPROVAL.md |
 | DL-015 | Founder OS repository foundation validated | R4 | Repository | Approved | docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md |
 | DL-016 | Natural Nation App repository foundation recorded as pending external repository creation | R4 | Repository | Pending | docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md |
+| DL-017 | Founder OS Vision v2 approved as a reusable AI-powered product creation platform | R4 | Product Strategy | Approved | docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md |
+| DL-018 | Natural Nation designated as Project #1 of Founder OS | R4 | Product Strategy | Approved | docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md |
+| DL-019 | Cloudflare account security foundation completed with verified two-factor authentication | R4 | Security | Complete | docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md |
 
 ## Related Records
 
-- docs/knowledge/founder-os/source-of-truth.md
-- docs/knowledge/founder-os/operating-model-v1.md
-- docs/releases/VALIDATION-CENTER.md
-- docs/releases/EXECUTIVE-REVIEW-RELEASE-3.md
 - docs/releases/PHASE-4-ROADMAP.md
+- docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
+- docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
-- docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
-- docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
-- docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
 - docs/governance/SYNC-STANDARD.md
 - docs/governance/PHASE-COMPLETION-STANDARD.md
