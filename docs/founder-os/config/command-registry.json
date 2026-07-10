@@ -1,0 +1,69 @@
+{
+  "registryVersion": "1.0.0",
+  "mode": "preview",
+  "commands": [
+    {
+      "id": "CMD-001",
+      "name": "Build Branding Page",
+      "description": "Prepare an approved branding-page build command.",
+      "category": "build",
+      "status": "active",
+      "target": {
+        "repository": "Natural-Nation-MVP/Natural-Nation-App",
+        "branch": "feature/branding-page",
+        "workflow": "build-branding-page.yml"
+      },
+      "approval": {
+        "required": true,
+        "role": "Founder"
+      },
+      "execution": {
+        "gateway": "cloudflare-worker",
+        "runner": "github-actions",
+        "method": "workflow_dispatch"
+      }
+    },
+    {
+      "id": "CMD-002",
+      "name": "Build App Feature",
+      "description": "Prepare an approved Natural Nation app feature command.",
+      "category": "build",
+      "status": "active",
+      "target": {
+        "repository": "Natural-Nation-MVP/Natural-Nation-App",
+        "branch": "feature/app",
+        "workflow": "build-app-feature.yml"
+      },
+      "approval": {
+        "required": true,
+        "role": "Founder"
+      },
+      "execution": {
+        "gateway": "cloudflare-worker",
+        "runner": "github-actions",
+        "method": "workflow_dispatch"
+      }
+    },
+    {
+      "id": "CMD-003",
+      "name": "Validate Repository",
+      "description": "Prepare a repository validation command and execution payload.",
+      "category": "validation",
+      "status": "active",
+      "target": {
+        "repository": "Natural-Nation-MVP/natural-nation-mvp",
+        "branch": "main",
+        "workflow": "validate-repository.yml"
+      },
+      "approval": {
+        "required": false,
+        "role": "System"
+      },
+      "execution": {
+        "gateway": "cloudflare-worker",
+        "runner": "github-actions",
+        "method": "workflow_dispatch"
+      }
+    }
+  ]
+}
