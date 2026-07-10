@@ -4,54 +4,52 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: create and connect Natural-Nation-App repository.
+Current priority: create the first Cloudflare Worker and prove a safe request-response connection.
 
 Canonical runtime: docs/founder-os/
 
 Canonical knowledge base: docs/knowledge/INDEX.md
 
-Release 3 closeout: docs/releases/RELEASE-3-CLOSEOUT.md
-
-Phase completion standard: docs/governance/PHASE-COMPLETION-STANDARD.md
-
 Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 
-Phase 4 reset: docs/releases/PHASE-4-AUTOMATION-RESET.md
+Founder OS Vision v2: docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 
-Phase 4 target architecture: docs/releases/PHASE-4-TARGET-ARCHITECTURE.md
-
-Phase 4 platform decisions: docs/releases/PHASE-4-PLATFORM-DECISIONS.md
-
-Phase 4 repository strategy: docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
-
-Phase 4 foundation approval: docs/releases/PHASE-4-FOUNDATION-APPROVAL.md
-
-Founder OS repository foundation: docs/releases/PHASE-4-FOUNDER-OS-REPOSITORY-FOUNDATION.md
-
-Natural Nation App repository foundation: docs/releases/PHASE-4-NATURAL-NATION-APP-REPOSITORY-FOUNDATION.md
+Cloudflare security foundation: docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 
 Command Registry MVP: docs/releases/PHASE-4-COMMAND-REGISTRY-MVP.md
 
-Validation Center: docs/releases/VALIDATION-CENTER.md
-
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
-Release 3 Foundation: COMPLETE — LOCKED BASELINE
+## Current Direction
 
-Phase 4 previous static workspace architecture: DENIED
+Founder OS is the reusable AI-powered platform for creating applications and websites.
 
-Phase 4 current direction: Automation Environment Foundation
+Natural Nation is Project #1.
 
-Selected stack: GitHub Pages, Cloudflare Workers, GitHub Actions, GitHub repositories.
+The Founder OS platform, Natural Nation branding website, and Natural Nation application with Duey remain separate but connected products.
 
-Repository strategy: Founder OS manages automation; Natural Nation App ships product with feature/app and feature/branding-page lanes.
+## Selected Stack
 
-Implemented: Command Registry MVP in preview mode with CMD-001, CMD-002, and CMD-003.
+- Founder OS UI: GitHub Pages
+- Secure command gateway: Cloudflare Workers
+- Automation runner: GitHub Actions
+- Source of truth: GitHub repositories
 
-Completed: Phase 4.1 foundation approval and 4.2.1 Founder OS repository foundation.
+## Implemented
 
-Pending: 4.2.2 Natural Nation App repository foundation.
+- Release 3 Founder OS baseline
+- Phase 4 architecture foundation
+- Command Registry MVP in preview mode
+- Cloudflare account security with verified two-factor authentication
 
-Blocked by: Natural-Nation-App repository does not yet exist or is not accessible to the connected GitHub tooling.
+## Pending
 
-Next: create and connect Natural-Nation-App repository, then resume validation.
+- first Cloudflare Worker
+- Founder OS to Worker test connection
+- Worker secrets
+- GitHub Actions connection
+- Natural Nation App repository foundation
+
+## Next
+
+Create the first Cloudflare Worker without adding credentials or repository-changing capabilities.
