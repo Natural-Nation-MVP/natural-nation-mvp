@@ -1,9 +1,12 @@
 /**
- * Founder OS Gateway Worker v0.1.0
+ * Founder OS Gateway Worker v0.2.0
  *
- * Canonical source for the currently deployed Cloudflare Worker.
- * This preserves the live public behavior for /, /health, and /version.
+ * Canonical source for the Cloudflare Worker.
+ * v0.2.0 marks the transition to GitHub-managed Cloudflare deployment.
+ * Public behavior remains unchanged for /, /health, and /version.
  */
+
+const VERSION = "0.2.0";
 
 export default {
   async fetch(request, env, ctx) {
@@ -19,7 +22,7 @@ export default {
         JSON.stringify({
           service: "Founder OS Gateway",
           status: "online",
-          version: "0.1.0",
+          version: VERSION,
           time: new Date().toISOString()
         }),
         { headers }
@@ -30,8 +33,9 @@ export default {
       return new Response(
         JSON.stringify({
           service: "Founder OS Gateway",
-          version: "0.1.0",
-          environment: "development"
+          version: VERSION,
+          environment: "development",
+          deployment: "github-managed"
         }),
         { headers }
       );
@@ -41,7 +45,7 @@ export default {
       JSON.stringify({
         service: "Founder OS Gateway",
         status: "online",
-        version: "0.1.0",
+        version: VERSION,
         message: "Founder OS secure execution gateway is running."
       }),
       { headers }
