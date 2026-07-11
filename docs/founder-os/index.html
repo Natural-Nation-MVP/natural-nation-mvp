@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./css/components.css?v=r3-final-polish-1" />
   <link rel="stylesheet" href="./css/command-center.css?v=1.1.0" />
   <link rel="stylesheet" href="./css/workspace-discovery.css?v=1.2.0" />
-  <link rel="stylesheet" href="./css/workspace-blueprint.css?v=0.1.0" />
+  <link rel="stylesheet" href="./css/workspace-blueprint.css?v=0.2.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -56,30 +56,65 @@
           </div>
         </article>
 
+        <article class="glass-panel">
+          <div class="eyebrow">Our Mission</div>
+          <p class="mission-statement" data-blueprint-mission></p>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Blueprint Snapshot</div>
+          <div class="section-title">Executive Overview</div>
+          <div class="snapshot-layout">
+            <div class="snapshot-grid" data-blueprint-snapshot></div>
+            <div class="component-chart-wrap">
+              <div class="component-chart" data-component-chart role="img">
+                <div class="component-chart-center"><strong>12</strong><span>Total Components</span></div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-required">Required</span>
+                <span class="legend-recommended">Recommended</span>
+                <span class="legend-decision">Decision</span>
+                <span class="legend-later">Later</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">What We’re Building</div>
+          <div class="section-title">Natural Nation Experience System</div>
+          <div class="build-stream-grid" data-blueprint-build-streams></div>
+        </article>
+
         <div class="blueprint-grid">
-          <article class="glass-panel"><div class="eyebrow">Problem</div><div class="section-title">What Natural Nation Solves</div><p data-blueprint-problem></p></article>
-          <article class="glass-panel"><div class="eyebrow">Users</div><div class="section-title">Who It Serves</div><ul class="blueprint-list" data-blueprint-users></ul></article>
+          <article class="glass-panel"><div class="eyebrow">Who We Serve</div><div class="section-title">Natural Nation Members</div><div class="experience-stack" data-blueprint-users></div></article>
+          <article class="glass-panel"><div class="eyebrow">Core User Experience</div><div class="section-title">From First Visit to Daily Guidance</div><div class="experience-stack" data-blueprint-experience></div></article>
         </div>
 
-        <article class="glass-panel"><div class="eyebrow">Products</div><div class="section-title">What the Workspace Must Deliver</div><div class="blueprint-grid" data-blueprint-products></div></article>
+        <article class="glass-panel">
+          <div class="eyebrow">Deployment Phases</div>
+          <div class="section-title">How Natural Nation Will Grow</div>
+          <div class="phase-stack" data-blueprint-phases></div>
+        </article>
 
-        <article class="glass-panel"><div class="eyebrow">Core Journeys</div><div class="section-title">Essential User Experience</div><ul class="blueprint-list" data-blueprint-journeys></ul></article>
-
-        <div class="blueprint-grid">
-          <article class="glass-panel"><div class="eyebrow">MVP Included</div><div class="section-title">First Working Release</div><ul class="blueprint-list" data-blueprint-included></ul></article>
-          <article class="glass-panel"><div class="eyebrow">Later or Excluded</div><div class="section-title">Protected MVP Boundary</div><ul class="blueprint-list" data-blueprint-later></ul></article>
-        </div>
-
-        <article class="glass-panel"><div class="eyebrow">Capabilities</div><div class="section-title">What the Workspace Needs</div><div class="blueprint-stack" data-blueprint-capabilities></div></article>
-
-        <article class="glass-panel"><div class="eyebrow">Applications</div><div class="section-title">Recommended Founder OS Applications</div><div class="blueprint-stack" data-blueprint-applications></div></article>
+        <article class="glass-panel">
+          <div class="eyebrow">Required Components & Recommendations</div>
+          <div class="section-title">What Founder OS Needs to Support the Blueprint</div>
+          <div class="component-groups">
+            <section class="component-group"><h3>Required Components</h3><div class="component-group" data-components-required></div></section>
+            <section class="component-group"><h3>Recommended Components</h3><div class="component-group" data-components-recommended></div><h3>Founder Decision</h3><div class="component-group" data-components-decision></div><h3>Later</h3><div class="component-group" data-components-later></div></section>
+          </div>
+        </article>
 
         <article class="glass-panel"><div class="eyebrow">Open Decisions</div><div class="section-title">Required Before Final Approval</div><div data-blueprint-decisions></div></article>
 
-        <article class="glass-panel blueprint-actions">
-          <div><div class="eyebrow">Approval Effect</div><strong data-blueprint-approval-effect></strong><p class="muted" data-blueprint-action-status>No protected changes will occur during review.</p></div>
+        <div class="blueprint-sticky-bar">
+          <div class="blueprint-sticky-copy"><small>Approval Effect</small><strong data-blueprint-approval-effect></strong><span class="muted" data-blueprint-action-status>No protected changes will occur during review.</span></div>
+          <div class="blueprint-sticky-metric"><span>Readiness</span><strong data-sticky-confidence>Loading</strong></div>
+          <div class="blueprint-sticky-metric"><span>Components</span><strong data-sticky-components>Loading</strong></div>
+          <div class="blueprint-sticky-metric"><span>Decisions</span><strong data-sticky-decisions>Loading</strong></div>
           <button class="generate" type="button" data-approve-blueprint>Approve Blueprint</button>
-        </article>
+        </div>
       </section>
 
       <section class="workspace-view" data-workspace="mission">
@@ -122,7 +157,7 @@
   <script src="./js/command-engine.js?v=1.0.0"></script>
   <script src="./js/gateway-status.js?v=0.1.0"></script>
   <script src="./js/workspace-discovery.js?v=1.2.0"></script>
-  <script src="./js/workspace-blueprint.js?v=0.1.0"></script>
+  <script src="./js/workspace-blueprint.js?v=0.2.0"></script>
   <script src="./js/workspace-registry.js?v=1.3.0"></script>
 </body>
 </html>
