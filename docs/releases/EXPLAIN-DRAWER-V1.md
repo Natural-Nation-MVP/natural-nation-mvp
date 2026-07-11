@@ -1,39 +1,48 @@
 # Explain Drawer v1
 
-Status: Implemented for Founder Review
+Status: Revised for Founder Review
 
 ## Purpose
 
-Implement NNOS-UX-001 — Explainability First without adding another primary page or overloading Workspace Discovery.
+Implement NNOS-UX-001 — Explainability First without adding another primary page, overloading Workspace Discovery, or sending the Founder to an outside platform.
 
 ## Experience
 
-The unresolved Natural Nation MVP billing recommendation now includes an **Explain** link.
+The unresolved Natural Nation MVP billing recommendation includes an **Explain** link.
 
-Selecting Explain opens a contextual side drawer with three tabs:
+Selecting Explain opens a contextual side drawer with three tabs.
 
 ### Explain
 
-- recommendation
-- plain-language reasoning
-- confidence
-- expected impact
-- estimated effort
+The reasoning is compact and explains:
+
+- the discussion that led to the recommendation
+- the road from the original product definition to the current decision
+- why the decision is needed now
+- how the decision affects scope, applications, security, and launch planning
+- confidence and estimated effort
 
 ### Sources
 
+Each source shows:
+
 - canonical document title
 - source authority
-- explanation of how the source informed the recommendation
-- direct link to the canonical GitHub document
+- what the source contributed
+- an **Open document** action
+
+Open document keeps the Founder inside the Explain drawer and displays a readable text summary of the relevant canonical document. No GitHub or other outside platform is opened.
 
 ### History
 
-- completed prerequisite stages
-- current recommendation
-- explanation of how the recommendation evolved
+History summarizes the decision path:
 
-## Canonical Sources Linked
+1. core product defined
+2. MVP scope organized
+3. monetization discussed but left unresolved
+4. billing decision recommended because it changes project scope
+
+## Canonical Sources Available Internally
 
 - Workspace Discovery and Blueprint Engine
 - Natural Nation Project State
@@ -42,7 +51,7 @@ Selecting Explain opens a contextual side drawer with three tabs:
 
 ## Progressive Disclosure
 
-The intelligence drawer is injected only when needed. It is not a sidebar application and does not add permanent page content.
+The intelligence drawer is injected only when needed. The internal document reader appears only after Open document is selected and returns to the source list without leaving Founder OS.
 
 ## Accessibility and Behavior
 
@@ -51,7 +60,8 @@ The intelligence drawer is injected only when needed. It is not a sidebar applic
 - Escape-key close
 - reduced-motion support
 - mobile-responsive drawer
-- external source links open safely in a new tab
+- internal source reader
+- back-to-sources control
 
 ## Files
 
@@ -65,4 +75,4 @@ The drawer explains recommendations only. It does not approve decisions, persist
 
 ## Next
 
-Founder reviews the live Explain drawer and reports PASS, PASS WITH FINDINGS, or FAIL.
+Founder reviews the compact reasoning and internal document reader and reports PASS, PASS WITH FINDINGS, or FAIL.
