@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Complete Slice #1 — the Natural Nation approval and execution workflow from Blueprint approval through validated repository and workspace-state updates.
+Current priority: Complete Slice #1 by moving the Blueprint approval transaction from browser-local persistence to authenticated canonical gateway persistence.
 
 Canonical runtime: docs/founder-os/
 
@@ -28,85 +28,40 @@ Execution Action Bar Standard: docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.
 
 End-to-End Vertical Slice: docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
 
-Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
-
-Natural Nation Workspace Blueprint v0.3: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
-
-Blueprint Execution Bar Validation: docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md
+Blueprint Approval Transaction v0.1: docs/releases/BLUEPRINT-APPROVAL-TRANSACTION-V0.1.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
-## Current Direction
-
-Founder OS is the reusable AI-powered platform for creating applications, websites, and future digital companies.
-
-Natural Nation is Project #1 and the first real validation workspace.
-
-Discovery determines understanding. Explain establishes trust. Blueprint defines the execution contract. Approval begins verified execution.
-
 ## Active Slice
 
-The canonical Natural Nation slice is:
+1. Workspace Registry — implemented
+2. Workspace Discovery — implemented
+3. Workspace Blueprint — implemented
+4. Founder Review — implemented
+5. Founder Approval — browser transaction implemented
+6. Execution Package Generation — browser transaction implemented
+7. AI Assignment — Build Studio handoff implemented
+8. GitHub Implementation — pending gateway support
+9. Validation — pending protected execution
+10. Repository Update — pending gateway support
+11. Workspace Status Update — browser state implemented; canonical update pending
 
-1. Workspace Registry
-2. Workspace Discovery
-3. Workspace Blueprint
-4. Founder Review
-5. Founder Approval
-6. Execution Package Generation
-7. AI Assignment
-8. GitHub Implementation
-9. Validation
-10. Repository Update
-11. Workspace Status Update
+## Newly Implemented
 
-Command Center expansion is paused until this workflow works end to end or the Founder explicitly reprioritizes it.
+- compact Blueprint approval dialog
+- required billing decision before approval
+- explicit Founder confirmation
+- browser-persisted approval transaction
+- browser-persisted audit event
+- execution package `NN-BUILD-001`
+- Blueprint state update after approval
+- automatic Build Studio handoff with the generated package loaded
+- clear pending status for canonical GitHub synchronization
 
-## Implemented and Approved
+## Truthfulness Boundary
 
-- Cloudflare Gateway with GET /, GET /health, and GET /version
-- Workspace Registry as Command Center home
-- Command Center UX v1.1 Founder validated PASS
-- Workspace Discovery and Blueprint Engine architecture approved
-- Natural Nation Workspace Discovery screen
-- Explain drawer with compact reasoning, internal source summaries, and history
-- Natural Nation Workspace Blueprint v0.3 UI direction
-- Our Mission using the standard tag, title, and text hierarchy
-- Blueprint Snapshot metrics and component-distribution chart
-- What We’re Building with Website, Mobile App, and Duey build streams
-- Core User Experience section
-- compact Deployment Phases
-- unified Required Components and Recommendations
-- Community terminology for future member relationship capabilities
-- Blueprint execution controls using the shared Build Studio bottom-bar layer
-- hidden action bars on non-execution pages
-- compact Blueprint action-bar text and height
-- compact Blueprint card spacing
-- NNOS-FLOW-001 end-to-end vertical slice governance
-
-## Current Blueprint Result
-
-- blueprint confidence: 87%
-- build streams: Website, Mobile Application, and Duey AI Mentor
-- required components: Website Builder, App Builder, Authentication, Database, AI Team, Knowledge, Assets, and Deployments
-- recommended components: Analytics and Notifications
-- future component: Community
-- unresolved component: Billing
-- deployment phases: MVP Launch, Integrations, Community & Growth
-
-## Pending Slice Work
-
-- resolve the MVP billing decision
-- implement Blueprint validation
-- implement compact Founder confirmation
-- record Blueprint approval and audit event
-- generate and save the execution package
-- create the initial AI assignment queue
-- open Build Studio with the generated package selected
-- implement package approval and protected execution handoff
-- run validation and record results
-- update repository and workspace status automatically
+The live interface does not claim that GitHub synchronization completed. The transaction remains `approved-local` until the secure gateway confirms canonical writes.
 
 ## Next
 
-Implement the first real Blueprint approval transaction: validation, confirmation, approval record, audit event, execution package creation, workspace-state update, and Build Studio handoff.
+Implement the authenticated gateway approval endpoint that writes the approval record, audit event, execution package, and workspace state to the canonical repository, then return a verified transaction result to Founder OS.
