@@ -60,6 +60,8 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-041 | Blueprint execution-bar visibility, compact height, and cache-busted production fix passed Founder validation | R4 | Founder OS | Approved | docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md |
 | DL-042 | NNOS-FLOW-001 establishes the Natural Nation end-to-end vertical slice as the active implementation priority | R4 | Founder OS | Approved | docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md |
 | DL-043 | Command Center expansion is paused until Blueprint approval through validated repository and workspace updates works end to end | R4 | Founder OS | Approved | docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md |
+| DL-044 | Blueprint Validation Engine is the next implementation milestone in Slice #1 | R4 | Founder OS | Approved | docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md |
+| DL-045 | Blueprint approval must stop and explain blockers when required validation checks fail | R4 | Founder OS | Approved | docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md |
 
 ## Related Records
 
@@ -72,6 +74,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
 - docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
 - docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md
+- docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md
 - docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 - docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
 - docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
