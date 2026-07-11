@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Founder review of Natural Nation Workspace Blueprint v0.2.
+Current priority: Founder review of Natural Nation Workspace Blueprint v0.3.
 
 Canonical runtime: docs/founder-os/
 
@@ -24,9 +24,11 @@ Natural Nation Workspace Discovery v1: docs/releases/NATURAL-NATION-WORKSPACE-DI
 
 Explainability First: docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 
+Execution Action Bar Standard: docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
+
 Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
 
-Natural Nation Workspace Blueprint v0.2: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
+Natural Nation Workspace Blueprint v0.3: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
@@ -38,6 +40,12 @@ Natural Nation is Project #1 and the first real validation workspace.
 
 Discovery determines understanding. Explain establishes trust. Blueprint defines the execution contract.
 
+## Approved Execution Pattern
+
+NNOS-UX-002 requires every current and future page with a page-level execution action to use the exact Build Studio bottom action-bar component and application-shell layer.
+
+Pages without execution actions do not display an action bar. Only the active execution page displays its bar.
+
 ## Implemented
 
 - Cloudflare Gateway with GET /, GET /health, and GET /version
@@ -46,15 +54,16 @@ Discovery determines understanding. Explain establishes trust. Blueprint defines
 - Workspace Discovery and Blueprint Engine architecture approved
 - Natural Nation Workspace Discovery screen
 - Explain drawer with compact reasoning, internal source summaries, and history
-- Natural Nation Workspace Blueprint v0.2 executive review experience
-- Our Mission purpose-led language
-- What We’re Building with Website, Mobile App, and Duey build streams
+- Natural Nation Workspace Blueprint v0.3
+- Our Mission using the standard tag, title, and text hierarchy
 - Blueprint Snapshot metrics and component-distribution chart
+- What We’re Building with Website, Mobile App, and Duey build streams
 - Core User Experience section
 - compact Deployment Phases
 - unified Required Components and Recommendations
 - Community terminology for future member relationship capabilities
-- sticky Build Studio-style approval bar
+- Blueprint execution controls moved to the exact shared Build Studio bottom-bar layer
+- compact Blueprint card spacing
 
 ## Current Blueprint Result
 
@@ -68,7 +77,7 @@ Discovery determines understanding. Explain establishes trust. Blueprint defines
 
 ## Pending
 
-- Founder validation of Workspace Blueprint v0.2
+- Founder validation of Workspace Blueprint v0.3
 - Founder answer on MVP subscription billing
 - blueprint corrections, if any
 - final blueprint approval
@@ -81,4 +90,4 @@ Discovery determines understanding. Explain establishes trust. Blueprint defines
 
 ## Next
 
-Founder reviews the redesigned Blueprint experience and confirms findings plus the MVP billing decision.
+Founder reviews the compact Blueprint cards and confirms that the Blueprint bottom action bar now matches Build Studio exactly.
