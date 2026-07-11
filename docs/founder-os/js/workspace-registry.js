@@ -27,6 +27,14 @@
     }, 170);
   }
 
+  function showExecutionBar(target) {
+    $$('[data-execution-bar]').forEach((bar) => {
+      bar.hidden = bar.dataset.executionBar !== target;
+    });
+  }
+
+  window.NNOSShowExecutionBar = showExecutionBar;
+
   function renderCommandCenterMetrics() {
     const metrics = registry?.commandCenterMetrics;
     const container = $('[data-system-metrics]');
@@ -72,7 +80,7 @@
 
     if (target === 'blueprint') {
       if (title) title.textContent = 'Workspace Blueprint';
-      if (subtitle) subtitle.textContent = 'Review the products, users, capabilities, applications, and MVP boundaries that will guide execution.';
+      if (subtitle) subtitle.textContent = 'Review the products, users, components, deployment phases, and open decisions that will guide execution.';
       if (badge) badge.textContent = `${workspace.name} · Draft`;
       return;
     }
@@ -89,11 +97,10 @@
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
-    const bottomBar = $('.bottom-bar');
     if (title) title.textContent = `${greeting()}, Dewane`;
     if (subtitle) subtitle.textContent = 'Your workspaces are ready. Continue the recommended next step or begin a new product.';
     if (badge) badge.textContent = 'Command Center';
-    if (bottomBar) bottomBar.hidden = true;
+    showExecutionBar('none');
     window.NNOSActiveWorkspace = null;
   }
 
@@ -101,8 +108,7 @@
     window.NNOSActiveWorkspace = workspace;
     renderWorkspaceNavigation(workspace);
     const target = workspace.resumeWorkspace || 'mission';
-    const bottomBar = $('.bottom-bar');
-    if (bottomBar) bottomBar.hidden = target !== 'build';
+    showExecutionBar(target);
     if (typeof window.setWorkspace === 'function') {
       window.setWorkspace(target);
     } else {
@@ -159,8 +165,7 @@
         if (typeof window.setWorkspace === 'function') window.setWorkspace(target);
         $$('[data-context-module]').forEach((button) => button.classList.toggle('active', button.dataset.contextModule === target));
         if (window.NNOSActiveWorkspace) applyWorkspaceHeader(window.NNOSActiveWorkspace, target);
-        const bottomBar = $('.bottom-bar');
-        if (bottomBar) bottomBar.hidden = target !== 'build';
+        showExecutionBar(target);
       });
       return;
     }
