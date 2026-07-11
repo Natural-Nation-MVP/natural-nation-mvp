@@ -1,14 +1,14 @@
 /**
- * Founder OS Gateway Worker v0.3.0
+ * Founder OS Gateway Worker v0.4.0
  *
  * Canonical source for the Cloudflare Worker.
- * v0.3.0 introduces the protected Blueprint approval route foundation.
+ * v0.4.0 enables authenticated canonical Blueprint approval commits.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 
 export default {
   async fetch(request, env, ctx) {
@@ -37,7 +37,7 @@ export default {
         environment: "development",
         deployment: "github-managed",
         capabilities: {
-          blueprintApproval: "validation-foundation"
+          blueprintApproval: "canonical-commit-enabled"
         }
       });
     }
