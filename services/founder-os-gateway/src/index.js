@@ -1,54 +1,66 @@
 /**
- * Founder OS Gateway Worker v0.2.0
+ * Founder OS Gateway Worker v0.3.0
  *
  * Canonical source for the Cloudflare Worker.
- * v0.2.0 marks the transition to GitHub-managed Cloudflare deployment.
- * Public behavior remains unchanged for /, /health, and /version.
+ * v0.3.0 introduces the protected Blueprint approval route foundation.
  */
 
-const VERSION = "0.2.0";
+import { json } from "./lib/http.js";
+import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
+
+const VERSION = "0.3.0";
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    const headers = {
-      "content-type": "application/json",
-      "access-control-allow-origin": "https://natural-nation-mvp.github.io"
-    };
+    if (request.method === "OPTIONS") {
+      return json(request, { ok: true }, 204);
+    }
+
+    const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
+    if (approvalResponse) return approvalResponse;
 
     if (url.pathname === "/health") {
-      return new Response(
-        JSON.stringify({
-          service: "Founder OS Gateway",
-          status: "online",
-          version: VERSION,
-          time: new Date().toISOString()
-        }),
-        { headers }
-      );
+      return json(request, {
+        service: "Founder OS Gateway",
+        status: "online",
+        version: VERSION,
+        time: new Date().toISOString()
+      });
     }
 
     if (url.pathname === "/version") {
-      return new Response(
-        JSON.stringify({
-          service: "Founder OS Gateway",
-          version: VERSION,
-          environment: "development",
-          deployment: "github-managed"
-        }),
-        { headers }
-      );
+      return json(request, {
+        service: "Founder OS Gateway",
+        version: VERSION,
+        environment: "development",
+        deployment: "github-managed",
+        capabilities: {
+          blueprintApproval: "validation-foundation"
+        }
+      });
     }
 
-    return new Response(
-      JSON.stringify({
+    if (url.pathname === "/") {
+      return json(request, {
         service: "Founder OS Gateway",
         status: "online",
         version: VERSION,
         message: "Founder OS secure execution gateway is running."
-      }),
-      { headers }
+      });
+    }
+
+    return json(
+      request,
+      {
+        ok: false,
+        error: {
+          code: "NOT_FOUND",
+          message: "The requested Gateway route does not exist."
+        }
+      },
+      404
     );
   }
 };
