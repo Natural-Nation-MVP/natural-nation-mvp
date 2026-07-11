@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Founder review of Natural Nation Workspace Blueprint v0.3.
+Current priority: Resolve the Natural Nation MVP billing decision before final Blueprint approval.
 
 Canonical runtime: docs/founder-os/
 
@@ -30,6 +30,8 @@ Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
 
 Natural Nation Workspace Blueprint v0.3: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
 
+Blueprint Execution Bar Validation: docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md
+
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
 ## Current Direction
@@ -46,7 +48,9 @@ NNOS-UX-002 requires every current and future page with a page-level execution a
 
 Pages without execution actions do not display an action bar. Only the active execution page displays its bar.
 
-## Implemented
+The Blueprint execution-bar visibility and compact-height correction passed Founder validation on 2026-07-11.
+
+## Implemented and Approved
 
 - Cloudflare Gateway with GET /, GET /health, and GET /version
 - Workspace Registry as Command Center home
@@ -54,7 +58,7 @@ Pages without execution actions do not display an action bar. Only the active ex
 - Workspace Discovery and Blueprint Engine architecture approved
 - Natural Nation Workspace Discovery screen
 - Explain drawer with compact reasoning, internal source summaries, and history
-- Natural Nation Workspace Blueprint v0.3
+- Natural Nation Workspace Blueprint v0.3 UI direction
 - Our Mission using the standard tag, title, and text hierarchy
 - Blueprint Snapshot metrics and component-distribution chart
 - What We’re Building with Website, Mobile App, and Duey build streams
@@ -62,7 +66,9 @@ Pages without execution actions do not display an action bar. Only the active ex
 - compact Deployment Phases
 - unified Required Components and Recommendations
 - Community terminology for future member relationship capabilities
-- Blueprint execution controls moved to the exact shared Build Studio bottom-bar layer
+- Blueprint execution controls using the shared Build Studio bottom-bar layer
+- hidden action bars on non-execution pages
+- compact Blueprint action-bar text and height
 - compact Blueprint card spacing
 
 ## Current Blueprint Result
@@ -77,10 +83,8 @@ Pages without execution actions do not display an action bar. Only the active ex
 
 ## Pending
 
-- Founder validation of Workspace Blueprint v0.3
 - Founder answer on MVP subscription billing
-- blueprint corrections, if any
-- final blueprint approval
+- final Blueprint approval
 - Application Registry foundation
 - capability-to-application rule catalog
 - authentication foundation
@@ -90,4 +94,4 @@ Pages without execution actions do not display an action bar. Only the active ex
 
 ## Next
 
-Founder reviews the compact Blueprint cards and confirms that the Blueprint bottom action bar now matches Build Studio exactly.
+Resolve whether subscription billing is included in the first Natural Nation MVP release, then prepare the Blueprint for final approval.
