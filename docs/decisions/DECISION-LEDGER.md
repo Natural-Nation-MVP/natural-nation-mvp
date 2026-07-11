@@ -58,6 +58,8 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-039 | Execution action bars must live at the application-shell layer outside page main content | R4 | Architecture | Approved | docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md |
 | DL-040 | Blueprint cards use compact spacing and the standard tag, title, and text hierarchy | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md |
 | DL-041 | Blueprint execution-bar visibility, compact height, and cache-busted production fix passed Founder validation | R4 | Founder OS | Approved | docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md |
+| DL-042 | NNOS-FLOW-001 establishes the Natural Nation end-to-end vertical slice as the active implementation priority | R4 | Founder OS | Approved | docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md |
+| DL-043 | Command Center expansion is paused until Blueprint approval through validated repository and workspace updates works end to end | R4 | Founder OS | Approved | docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md |
 
 ## Related Records
 
@@ -72,6 +74,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md
 - docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 - docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
+- docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
