@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: validate live Founder OS gateway status inside the GitHub Pages interface.
+Current priority: Founder review of Command Center UX v1.1.
 
 Canonical runtime: docs/founder-os/
 
@@ -18,7 +18,7 @@ Cloudflare security foundation: docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDA
 
 Gateway API v1: docs/releases/PHASE-4-GATEWAY-API-V1.md
 
-Command Registry MVP: docs/releases/PHASE-4-COMMAND-REGISTRY-MVP.md
+Command Center UX v1.1: docs/releases/COMMAND-CENTER-UX-V1.1.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
@@ -39,20 +39,21 @@ The Founder OS platform, Natural Nation branding website, and Natural Nation app
 
 ## Implemented
 
-- Release 3 Founder OS baseline
-- Phase 4 architecture foundation
-- Command Registry MVP in preview mode
-- Cloudflare account security with verified two-factor authentication
-- Founder OS Gateway Worker deployed
-- GET / live
-- GET /health live
-- GET /version live
-- Gateway API v1 architecture approved
-- Read-only gateway status script added to Founder OS source
+- Cloudflare Gateway with GET /, GET /health, and GET /version
+- Workspace Registry as Command Center home
+- Workspace #0 Founder OS
+- Workspace #1 Natural Nation
+- Founder-focused Command Center metrics
+- Living workspace cards
+- Resume buttons named by workspace
+- Context-aware workspace navigation
+- Page, card, progress, and status motion
+- Reduced-motion accessibility support
 
 ## Pending
 
-- confirm live gateway status displays in Founder OS
+- Founder validation of Command Center UX v1.1
+- Create Workspace workflow
 - authentication foundation
 - approval and audit foundations
 - Worker secrets
@@ -61,4 +62,4 @@ The Founder OS platform, Natural Nation branding website, and Natural Nation app
 
 ## Next
 
-Validate the live GET /health connection in the Founder OS interface before adding protected execution routes.
+Founder reviews the live Command Center and reports PASS, PASS WITH FINDINGS, or FAIL.
