@@ -1,0 +1,33 @@
+{
+  "workspaceId": "natural-nation",
+  "workspaceName": "Natural Nation",
+  "overallConfidence": 87,
+  "summary": "Founder OS has reviewed the approved Natural Nation architecture, product decisions, Duey specifications, onboarding flow, design system, and MVP governance records.",
+  "known": [
+    { "label": "Business", "value": "AI-guided holistic wellness platform", "confidence": 96, "evidence": "Founder vision, approved product strategy, and project state" },
+    { "label": "Products", "value": "Brand website and mobile-first application", "confidence": 100, "evidence": "Founder-approved separate product structure" },
+    { "label": "Audience", "value": "Adults seeking practical holistic wellness support", "confidence": 90, "evidence": "Approved product positioning and age-floor decision" },
+    { "label": "Primary AI", "value": "Duey, a friendly wellness mentor", "confidence": 100, "evidence": "DUEY-SPEC-001 and approved personality framework" },
+    { "label": "Current Phase", "value": "MVP foundation and automation environment", "confidence": 94, "evidence": "Phase 4 roadmap and project state" },
+    { "label": "Core Experience", "value": "Personalized blueprint, daily protocol, progress, and Duey guidance", "confidence": 96, "evidence": "Approved onboarding flow and dashboard architecture" }
+  ],
+  "uncertainties": [
+    {
+      "id": "billing-mvp",
+      "question": "Should paid subscription billing be included in the first Natural Nation MVP release?",
+      "confidence": 42,
+      "reason": "Monetization has been discussed, but billing is not locked as an MVP requirement.",
+      "options": ["Yes", "No", "Decide Later"]
+    }
+  ],
+  "blueprintReadiness": [
+    { "section": "Business", "confidence": 96 },
+    { "section": "Products", "confidence": 100 },
+    { "section": "Users", "confidence": 90 },
+    { "section": "Technology", "confidence": 82 },
+    { "section": "AI", "confidence": 100 },
+    { "section": "Security", "confidence": 68 },
+    { "section": "Revenue", "confidence": 42 },
+    { "section": "Deployment", "confidence": 76 }
+  ]
+}
