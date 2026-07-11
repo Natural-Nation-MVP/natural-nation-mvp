@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.1.0",
+  "registryVersion": "1.2.0",
   "defaultWorkspaceId": "founder-os",
   "commandCenterMetrics": {
     "activeWorkspaces": 2,
@@ -23,7 +23,7 @@
       "progress": 46,
       "lastActivity": "Today",
       "pendingApprovals": 0,
-      "nextAction": "Complete Command Center UX v1.1",
+      "nextAction": "Build Workspace Discovery vertical slice",
       "resumeWorkspace": "mission",
       "modules": [
         { "target": "mission", "label": "Overview" },
@@ -39,16 +39,17 @@
       "name": "Natural Nation",
       "description": "Project #1: the Natural Nation brand website and wellness application with Duey.",
       "type": "Website + Application",
-      "stage": "Build",
+      "stage": "Discovery",
       "status": "active",
-      "health": "Needs repository setup",
+      "health": "Blueprint review ready",
       "version": "MVP",
-      "progress": 38,
+      "progress": 41,
       "lastActivity": "Today",
       "pendingApprovals": 1,
-      "nextAction": "Create Natural-Nation-App repository",
-      "resumeWorkspace": "mission",
+      "nextAction": "Review Workspace Discovery",
+      "resumeWorkspace": "discovery",
       "modules": [
+        { "target": "discovery", "label": "Discovery" },
         { "target": "mission", "label": "Overview" },
         { "target": "build", "label": "Build Studio" },
         { "target": "knowledge", "label": "Knowledge" },
