@@ -25,6 +25,7 @@ Natural Nation is Project #1 built and managed by Founder OS.
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
+- docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
 
 ## Completed
 
@@ -35,32 +36,32 @@ Natural Nation is Project #1 built and managed by Founder OS.
 - GET /, GET /health, and GET /version validated
 - Gateway API v1 architecture approved
 - Workspace Registry home implemented
-- Command Center UX v1.1 implemented for Founder review
+- Command Center UX v1.1 implemented and Founder validated PASS
+- Workspace Discovery and Blueprint Engine architecture approved
 
 ## Current Step
 
-Founder validation of Command Center UX v1.1.
+Build the first working Workspace Discovery and Blueprint vertical slice using Natural Nation as the validation workspace.
 
 ## Validation Scope
 
-- Daily briefing
-- Founder-focused metrics
-- Living workspace cards
-- Resume workspace actions
-- Context-aware navigation
-- Page and card motion
-- Reduced-motion support
+- understand the Founder outcome
+- reuse existing Natural Nation intelligence
+- identify required capabilities
+- recommend applications
+- classify applications as Required, Recommended, or Later
+- explain every recommendation
+- produce an approvable Workspace Blueprint
 
 ## Upcoming
 
-- Correct findings from Founder review
-- Lock Command Center UX v1.1
-- Implement Create Workspace workflow
-- Add authentication foundation
-- Add approval and audit foundations
-- Configure secrets after security validation
-- Connect GitHub Actions
-- Resume Natural Nation App repository foundation
+- create Natural Nation draft Workspace Blueprint
+- create initial Application Registry
+- define capability-to-application rules
+- build blueprint review experience
+- validate recommendations against approved Natural Nation architecture
+- implement Create Workspace only after the discovery engine is proven
+- add authentication, approval, and audit foundations before protected execution
 
 ## Selected Stack
 
@@ -71,4 +72,4 @@ Founder validation of Command Center UX v1.1.
 
 ## Rule
 
-Do not enable repository-changing routes before authentication, approvals, validation, and audit logging are ready.
+Founder OS must determine workspace needs before installing applications or creating repository-changing automation.
