@@ -13,6 +13,11 @@
       .replaceAll("'", '&#039;');
   }
 
+  function setText(selector, value) {
+    const node = $(selector);
+    if (node) node.textContent = value;
+  }
+
   function badgeClass(classification) {
     const key = classification.toLowerCase();
     if (key.includes('required') && !key.includes('decision')) return 'required';
@@ -135,15 +140,14 @@
   function renderBlueprint() {
     if (!blueprint) return;
 
-    $('[data-blueprint-version]').textContent = blueprint.blueprintVersion;
-    $('[data-blueprint-status]').textContent = blueprint.status;
-    $('[data-blueprint-confidence]').textContent = `${blueprint.confidence}%`;
-    $('[data-blueprint-summary]').textContent = blueprint.summary;
-    $('[data-blueprint-mission]').textContent = blueprint.mission;
-    $('[data-blueprint-approval-effect]').textContent = blueprint.approvalEffect;
-    $('[data-sticky-confidence]').textContent = `${blueprint.confidence}% confidence`;
-    $('[data-sticky-components]').textContent = `${blueprint.snapshot.requiredComponents} required`;
-    $('[data-sticky-decisions]').textContent = `${blueprint.snapshot.openDecisions} pending`;
+    setText('[data-blueprint-version]', blueprint.blueprintVersion);
+    setText('[data-blueprint-status]', blueprint.status);
+    setText('[data-blueprint-confidence]', `${blueprint.confidence}%`);
+    setText('[data-blueprint-summary]', blueprint.summary);
+    setText('[data-blueprint-mission]', blueprint.mission);
+    setText('[data-blueprint-approval-effect]', blueprint.approvalEffect);
+    setText('[data-sticky-confidence]', `${blueprint.confidence}% confidence`);
+    setText('[data-sticky-decisions]', `${blueprint.snapshot.openDecisions} pending`);
 
     renderList('[data-blueprint-users]', blueprint.users);
     renderList('[data-blueprint-experience]', blueprint.coreUserExperience);
@@ -173,6 +177,7 @@
     if (review) {
       event.preventDefault();
       if (typeof window.setWorkspace === 'function') window.setWorkspace('blueprint');
+      if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('blueprint');
       document.querySelectorAll('[data-context-module]').forEach((button) => {
         button.classList.toggle('active', button.dataset.contextModule === 'blueprint');
       });
@@ -184,6 +189,7 @@
       event.preventDefault();
       const status = $('[data-blueprint-action-status]');
       if (status) status.textContent = 'Resolve the MVP billing decision before final Blueprint approval can be recorded.';
+      approve.textContent = 'Billing Decision Required';
     }
   });
 
