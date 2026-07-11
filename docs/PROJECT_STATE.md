@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Resolve the Natural Nation MVP billing decision before final Blueprint approval.
+Current priority: Complete Slice #1 — the Natural Nation approval and execution workflow from Blueprint approval through validated repository and workspace-state updates.
 
 Canonical runtime: docs/founder-os/
 
@@ -26,6 +26,8 @@ Explainability First: docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 
 Execution Action Bar Standard: docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
 
+End-to-End Vertical Slice: docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
+
 Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
 
 Natural Nation Workspace Blueprint v0.3: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
@@ -40,15 +42,25 @@ Founder OS is the reusable AI-powered platform for creating applications, websit
 
 Natural Nation is Project #1 and the first real validation workspace.
 
-Discovery determines understanding. Explain establishes trust. Blueprint defines the execution contract.
+Discovery determines understanding. Explain establishes trust. Blueprint defines the execution contract. Approval begins verified execution.
 
-## Approved Execution Pattern
+## Active Slice
 
-NNOS-UX-002 requires every current and future page with a page-level execution action to use the exact Build Studio bottom action-bar component and application-shell layer.
+The canonical Natural Nation slice is:
 
-Pages without execution actions do not display an action bar. Only the active execution page displays its bar.
+1. Workspace Registry
+2. Workspace Discovery
+3. Workspace Blueprint
+4. Founder Review
+5. Founder Approval
+6. Execution Package Generation
+7. AI Assignment
+8. GitHub Implementation
+9. Validation
+10. Repository Update
+11. Workspace Status Update
 
-The Blueprint execution-bar visibility and compact-height correction passed Founder validation on 2026-07-11.
+Command Center expansion is paused until this workflow works end to end or the Founder explicitly reprioritizes it.
 
 ## Implemented and Approved
 
@@ -70,6 +82,7 @@ The Blueprint execution-bar visibility and compact-height correction passed Foun
 - hidden action bars on non-execution pages
 - compact Blueprint action-bar text and height
 - compact Blueprint card spacing
+- NNOS-FLOW-001 end-to-end vertical slice governance
 
 ## Current Blueprint Result
 
@@ -81,17 +94,19 @@ The Blueprint execution-bar visibility and compact-height correction passed Foun
 - unresolved component: Billing
 - deployment phases: MVP Launch, Integrations, Community & Growth
 
-## Pending
+## Pending Slice Work
 
-- Founder answer on MVP subscription billing
-- final Blueprint approval
-- Application Registry foundation
-- capability-to-application rule catalog
-- authentication foundation
-- approval and audit foundations
-- GitHub Actions connection
-- Natural Nation App repository foundation
+- resolve the MVP billing decision
+- implement Blueprint validation
+- implement compact Founder confirmation
+- record Blueprint approval and audit event
+- generate and save the execution package
+- create the initial AI assignment queue
+- open Build Studio with the generated package selected
+- implement package approval and protected execution handoff
+- run validation and record results
+- update repository and workspace status automatically
 
 ## Next
 
-Resolve whether subscription billing is included in the first Natural Nation MVP release, then prepare the Blueprint for final approval.
+Implement the first real Blueprint approval transaction: validation, confirmation, approval record, audit event, execution package creation, workspace-state update, and Build Studio handoff.
