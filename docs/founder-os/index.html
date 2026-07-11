@@ -3,44 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Natural Nation Founder OS — Release 3</title>
+  <title>Founder OS Command Center</title>
   <link rel="stylesheet" href="./css/theme.css?v=r3-preview-sync" />
   <link rel="stylesheet" href="./css/layout.css?v=r3-preview-sync" />
   <link rel="stylesheet" href="./css/components.css?v=r3-final-polish-1" />
+  <link rel="stylesheet" href="./css/command-center.css?v=1.0.0" />
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">☘</div><strong class="brand-title">NATURAL<br />NATION</strong></div>
+      <div class="brand"><div class="brand-mark">☘</div><strong class="brand-title">FOUNDER<br />OS</strong></div>
       <nav class="nav">
-        <button class="nav-link" type="button" data-workspace-button="mission">Mission Control</button>
-        <button class="nav-link" type="button" data-workspace-button="knowledge">Knowledge Graph</button>
-        <button class="nav-link active" type="button" data-workspace-button="build">Build Studio</button>
-        <button class="nav-link" type="button" data-workspace-button="repo">Repository Intel</button>
-        <button class="nav-link" type="button" data-workspace-button="ai">AI Operations</button>
+        <button class="nav-link active" type="button" data-workspace-button="registry">Workspaces</button>
+        <button class="nav-link" type="button" data-workspace-button="mission">Overview</button>
+        <button class="nav-link" type="button" data-workspace-button="knowledge">Knowledge</button>
+        <button class="nav-link" type="button" data-workspace-button="build">Build Studio</button>
+        <button class="nav-link" type="button" data-workspace-button="repo">Repository</button>
+        <button class="nav-link" type="button" data-workspace-button="ai">AI Team</button>
       </nav>
-      <div class="sidebar-note"><small>Founder OS</small><br /><strong>NNOS Release 3</strong><br /><small data-system-status>Production shell active</small></div>
+      <div class="sidebar-note"><small>Command Center</small><br /><strong>Workspace Platform</strong><br /><small data-system-status>Checking gateway...</small></div>
     </aside>
 
     <main class="main">
       <section class="hero">
-        <div><div class="crumb">Natural Nation › Founder OS › Release 3</div><h1 data-workspace-title>AI Build Orchestrator OP-002</h1><p class="muted" data-workspace-subtitle>Generate AI-ready implementation packages with delivery targets and Founder approval.</p></div>
-        <div class="pill" data-workspace-badge>Target: Codex</div>
+        <div><div class="crumb">Founder OS › Command Center</div><h1 data-workspace-title>Command Center</h1><p class="muted" data-workspace-subtitle>Choose a workspace, resume progress, or begin a new product.</p></div>
+        <div class="pill" data-workspace-badge>Workspace Registry</div>
       </section>
 
       <section class="metrics-grid compact-metrics" data-system-metrics></section>
 
+      <section class="workspace-view active" data-workspace="registry">
+        <article class="glass-panel command-center-hero">
+          <div>
+            <div class="eyebrow">Workspace Registry</div>
+            <h2>What are we building today?</h2>
+            <p class="muted">Resume an active workspace or begin a guided product-creation process.</p>
+            <p class="muted" data-workspace-registry-status>Loading Workspace Registry...</p>
+          </div>
+          <div class="command-center-actions">
+            <span class="pill" data-workspace-registry-count>Loading workspaces</span>
+            <button class="generate" type="button" data-create-workspace>Create Workspace</button>
+          </div>
+        </article>
+        <div class="workspace-registry-grid" data-workspace-registry-list></div>
+      </section>
+
       <section class="workspace-view" data-workspace="mission">
-        <article class="glass-panel"><div class="eyebrow">Mission Control</div><div class="section-title">Founder OS Operating Overview</div><p>Mission Control summarizes project health, release readiness, active operations, risks, and next Founder actions.</p><div class="modules-grid" data-mission-cards></div></article>
+        <article class="glass-panel"><div class="eyebrow">Overview</div><div class="section-title">Workspace Operating Overview</div><p>Review health, current phase, active operations, risks, and next Founder actions for the selected workspace.</p><div class="modules-grid" data-mission-cards></div></article>
         <article class="glass-panel"><div class="eyebrow">Founder Action Queue</div><div class="section-title">Next Actions</div><div data-action-queue></div></article>
       </section>
 
       <section class="workspace-view" data-workspace="knowledge">
-        <article class="glass-panel"><div class="eyebrow">Knowledge Graph</div><div class="section-title">Canonical Knowledge System</div><p>Search canonical records, decisions, approvals, build packages, architecture standards, and Founder directives.</p><input class="search-input" type="search" placeholder="Search knowledge, decisions, approvals, builds, prompts..." data-knowledge-search /></article>
+        <article class="glass-panel"><div class="eyebrow">Knowledge</div><div class="section-title">Canonical Knowledge System</div><p>Search canonical records, decisions, approvals, architecture standards, and workspace intelligence.</p><input class="search-input" type="search" placeholder="Search knowledge, decisions, approvals, builds, prompts..." data-knowledge-search /></article>
         <article class="glass-panel"><div class="eyebrow">Search Results</div><div class="section-title" data-knowledge-count>Knowledge Matches</div><div class="modules-grid" data-knowledge-results></div></article>
       </section>
 
-      <section class="workspace-view active" data-workspace="build">
+      <section class="workspace-view" data-workspace="build">
         <div class="workspace-grid production-build-grid">
           <div>
             <article class="glass-panel selected-build production-selected-build">
@@ -62,8 +80,8 @@
               <p class="impact-lead" data-impact-statement>This package gives Codex the exact implementation context it needs to update the selected system without changing unrelated Founder OS areas.</p>
               <div class="impact-grid">
                 <div class="step-card"><strong>Affected System</strong><p class="muted" data-impact-system>Founder OS Build Studio and related documentation records.</p></div>
-                <div class="step-card"><strong>Why It Matters</strong><p class="muted" data-impact-why>It keeps the AI implementation focused, traceable, and aligned with Founder-approved Release 3 decisions.</p></div>
-                <div class="step-card"><strong>Expected Result</strong><p class="muted" data-impact-result>A build-ready package that can be reviewed, delivered, validated, and documented.</p></div>
+                <div class="step-card"><strong>Why It Matters</strong><p class="muted" data-impact-why>It keeps the AI implementation focused, traceable, and aligned with Founder-approved decisions.</p></div>
+                <div class="step-card"><strong>Expected Result</strong><p class="muted" data-impact-result>A build-ready package that can be reviewed, validated, and approved.</p></div>
               </div>
             </article>
 
@@ -75,7 +93,7 @@
             </article>
 
             <article class="glass-panel">
-              <div class="eyebrow">4 · Command Registry</div>
+              <div class="eyebrow">4 · Execution Catalog</div>
               <div class="section-title">Founder Commands</div>
               <p class="muted" data-command-status>Loading command registry...</p>
               <div class="modules-grid" data-command-list></div>
@@ -96,24 +114,22 @@
             <details><summary>Quick Actions</summary><div class="action-stack"><button class="generate" type="button" data-action="generate">Generate Package</button><button type="button" data-action="validate">Validate</button><button type="button" data-action="export-md">Export Markdown</button><button type="button" data-action="export-json">Export JSON</button></div></details>
             <details><summary>Recent Packages</summary><div data-package-history><p class="muted">No packages generated this session.</p></div></details>
             <details><summary>AI Notes</summary><p class="muted" data-ai-notes>Recommended order: Art → Codex → Gemini → GPose → Founder.</p></details>
-            <details><summary>Package History</summary><p class="muted">Session package history appears after generation.</p></details>
-            <details><summary>Related Builds</summary><p class="muted">BUILD-NNCC-003, BUILD-NNCC-004, Release 3 shell restoration.</p></details>
           </aside>
         </div>
       </section>
 
       <section class="workspace-view" data-workspace="repo">
-        <article class="glass-panel"><div class="eyebrow">Repository Intelligence</div><div class="section-title">Repository Signal</div><p>Review branch status, deployment health, canonical folders, legacy paths, and repository cleanup state.</p><div class="modules-grid" data-repo-status></div></article>
+        <article class="glass-panel"><div class="eyebrow">Repository</div><div class="section-title">Repository Signal</div><p>Review branches, deployment health, canonical folders, workflows, and source-of-truth status.</p><div class="modules-grid" data-repo-status></div></article>
         <article class="glass-panel"><div class="eyebrow">Pathway Health</div><div class="section-title">Source of Truth Checklist</div><div data-repo-checklist></div></article>
       </section>
 
       <section class="workspace-view" data-workspace="ai">
-        <article class="glass-panel"><div class="eyebrow">AI Operations</div><div class="section-title">Coordinate AI Team</div><p>Manage AI roles, build handoffs, delivery targets, and Founder approval workflows.</p><div class="modules-grid" data-ai-roles></div></article>
+        <article class="glass-panel"><div class="eyebrow">AI Team</div><div class="section-title">Coordinate AI Roles</div><p>Manage AI roles, handoffs, execution order, and review ownership.</p><div class="modules-grid" data-ai-roles></div></article>
         <article class="glass-panel"><div class="eyebrow">Active Handoffs</div><div class="section-title">Execution Queue</div><div data-ai-handoffs></div></article>
       </section>
     </main>
 
-    <div class="bottom-bar">
+    <div class="bottom-bar" hidden>
       <div><span class="muted">Package Target</span><br /><strong data-bottom-target>Codex</strong></div>
       <div><span class="muted">Delivery</span><br /><strong data-delivery>Codex Implementation Agent</strong></div>
       <div><span class="muted">Approval</span><br /><strong data-approval>Founder Required</strong></div>
@@ -125,5 +141,6 @@
   <script src="./js/build-studio-polish.js?v=r3-final-polish-1"></script>
   <script src="./js/command-engine.js?v=1.0.0"></script>
   <script src="./js/gateway-status.js?v=0.1.0"></script>
+  <script src="./js/workspace-registry.js?v=1.0.0"></script>
 </body>
 </html>
