@@ -4,7 +4,9 @@ Canonical source for the Cloudflare Worker deployed as `founder-os-gateway`.
 
 ## Current version
 
-`0.1.0`
+`0.2.0`
+
+Version `0.2.0` marks the transition from a manually managed Cloudflare Worker to a GitHub-managed canonical deployment.
 
 ## Live routes
 
@@ -32,7 +34,14 @@ npm run check
 npm run deploy
 ```
 
-Deployment requires Cloudflare authentication through Wrangler or Cloudflare Builds.
+Cloudflare Builds is connected to:
+
+- repository: `Natural-Nation-MVP/natural-nation-mvp`
+- production branch: `main`
+- root directory: `services/founder-os-gateway`
+- deploy command: `npx wrangler deploy`
+
+Pushing a commit that changes this directory triggers the repository-driven Cloudflare build and deployment flow.
 
 ## Secrets
 
