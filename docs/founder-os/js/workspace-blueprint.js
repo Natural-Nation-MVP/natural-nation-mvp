@@ -1,5 +1,5 @@
 (() => {
-  const blueprintPath = './config/natural-nation-blueprint.json?v=0.2.0';
+  const blueprintPath = './config/natural-nation-blueprint.json?v=0.2.1';
   let blueprint = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -145,7 +145,7 @@
     setText('[data-blueprint-confidence]', `${blueprint.confidence}%`);
     setText('[data-blueprint-summary]', blueprint.summary);
     setText('[data-blueprint-mission]', blueprint.mission);
-    setText('[data-blueprint-approval-effect]', blueprint.approvalEffect);
+    setText('[data-blueprint-approval-effect]', blueprint.actionBarEffect || blueprint.approvalEffect);
     setText('[data-sticky-confidence]', `${blueprint.confidence}% confidence`);
     setText('[data-sticky-decisions]', `${blueprint.snapshot.openDecisions} pending`);
 
@@ -187,8 +187,6 @@
     const approve = event.target.closest('[data-approve-blueprint]');
     if (approve) {
       event.preventDefault();
-      const status = $('[data-blueprint-action-status]');
-      if (status) status.textContent = 'Resolve the MVP billing decision before final Blueprint approval can be recorded.';
       approve.textContent = 'Billing Decision Required';
     }
   });
