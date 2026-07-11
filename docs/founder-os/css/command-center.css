@@ -1,0 +1,100 @@
+.command-center-hero {
+  display: grid;
+  grid-template-columns: 1.4fr auto;
+  gap: 18px;
+  align-items: end;
+}
+
+.command-center-hero h2 {
+  margin: 4px 0 8px;
+  font-size: clamp(24px, 4vw, 42px);
+  letter-spacing: -0.05em;
+}
+
+.command-center-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.workspace-registry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workspace-card {
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid var(--nn-line);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: var(--nn-shadow);
+}
+
+.workspace-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.workspace-card h2 {
+  margin: 4px 0 0;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.workspace-card > p {
+  color: var(--nn-muted);
+  line-height: 1.5;
+  min-height: 44px;
+}
+
+.workspace-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.workspace-meta-grid div {
+  border: 1px solid rgba(47, 80, 54, 0.12);
+  border-radius: 7px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.workspace-meta-grid span,
+.workspace-meta-grid strong {
+  display: block;
+}
+
+.workspace-meta-grid span {
+  color: var(--nn-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.workspace-meta-grid strong {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.workspace-card button {
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .command-center-hero,
+  .workspace-registry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .command-center-actions {
+    justify-content: flex-start;
+  }
+}
