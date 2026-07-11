@@ -1,5 +1,5 @@
 (() => {
-  const discoveryPath = './config/natural-nation-discovery.json?v=1.1.0';
+  const discoveryPath = './config/natural-nation-discovery.json?v=1.2.0';
   let discovery = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -33,17 +33,32 @@
           <button type="button" data-explain-tab="history">History</button>
         </div>
         <section data-explain-panel="explain">
-          <div class="eyebrow">Reasoning</div>
+          <div class="eyebrow">Road to this decision</div>
           <p data-explain-reasoning></p>
+          <div class="discussion-summary">
+            <span>Discussion summary</span>
+            <p data-discussion-summary></p>
+          </div>
           <div class="explain-summary-grid">
             <div class="explain-summary-card"><span>Confidence</span><strong data-explain-confidence></strong></div>
             <div class="explain-summary-card"><span>Estimated effort</span><strong data-explain-effort></strong></div>
           </div>
-          <div class="explain-summary-card" style="margin-top:10px"><span>Expected impact</span><strong data-explain-impact></strong></div>
+          <div class="explain-summary-card" style="margin-top:10px"><span>Project impact</span><strong data-explain-impact></strong></div>
         </section>
         <section data-explain-panel="sources" hidden>
           <div class="eyebrow">Canonical Sources Used</div>
           <div data-explain-sources></div>
+          <article class="document-reader" data-document-reader hidden>
+            <div class="document-reader-head">
+              <div>
+                <span data-document-authority></span>
+                <h3 data-document-title></h3>
+              </div>
+              <button type="button" data-close-document>Back to sources</button>
+            </div>
+            <p class="document-purpose" data-document-purpose></p>
+            <div class="document-text" data-document-text></div>
+          </article>
         </section>
         <section data-explain-panel="history" hidden>
           <div class="eyebrow">Recommendation History</div>
@@ -108,27 +123,47 @@
     `).join('');
   }
 
+  function closeDocumentReader() {
+    const reader = $('[data-document-reader]');
+    const sources = $('[data-explain-sources]');
+    if (reader) reader.hidden = true;
+    if (sources) sources.hidden = false;
+  }
+
+  function openDocumentReader(sourceId) {
+    const source = discovery?.recommendation?.sources?.find((item) => item.id === sourceId);
+    if (!source) return;
+
+    const reader = $('[data-document-reader]');
+    const sources = $('[data-explain-sources]');
+    if (!reader || !sources) return;
+
+    $('[data-document-title]').textContent = source.title;
+    $('[data-document-authority]').textContent = source.authority;
+    $('[data-document-purpose]').textContent = `Used for: ${source.usedFor}`;
+    $('[data-document-text]').textContent = source.documentText;
+
+    sources.hidden = true;
+    reader.hidden = false;
+    reader.scrollIntoView({ block: 'start' });
+  }
+
   function renderExplainDrawer() {
     const recommendation = discovery?.recommendation;
     if (!recommendation) return;
 
     ensureExplainDrawer();
 
-    const title = $('[data-explain-title]');
-    const reasoning = $('[data-explain-reasoning]');
-    const confidence = $('[data-explain-confidence]');
-    const impact = $('[data-explain-impact]');
-    const effort = $('[data-explain-effort]');
+    $('[data-explain-title]').textContent = recommendation.title;
+    $('[data-explain-reasoning]').textContent = recommendation.reasoning;
+    $('[data-discussion-summary]').textContent = recommendation.discussionSummary;
+    $('[data-explain-confidence]').textContent = `${recommendation.confidence}%`;
+    $('[data-explain-impact]').textContent = recommendation.impact;
+    $('[data-explain-effort]').textContent = recommendation.effort;
+
     const sources = $('[data-explain-sources]');
-    const history = $('[data-explain-history]');
-
-    if (title) title.textContent = recommendation.title;
-    if (reasoning) reasoning.textContent = recommendation.reasoning;
-    if (confidence) confidence.textContent = `${recommendation.confidence}%`;
-    if (impact) impact.textContent = recommendation.impact;
-    if (effort) effort.textContent = recommendation.effort;
-
     if (sources) {
+      sources.hidden = false;
       sources.innerHTML = recommendation.sources.map((source) => `
         <article class="source-card">
           <div class="source-card-head">
@@ -136,13 +171,16 @@
               <strong>${escapeHtml(source.title)}</strong>
               <span>${escapeHtml(source.authority)}</span>
             </div>
-            <a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">Open document →</a>
+            <button type="button" data-view-source="${escapeHtml(source.id)}">Open document</button>
           </div>
           <p><strong>Used for:</strong> ${escapeHtml(source.usedFor)}</p>
         </article>
       `).join('');
     }
 
+    closeDocumentReader();
+
+    const history = $('[data-explain-history]');
     if (history) {
       history.innerHTML = recommendation.history.map((item) => `
         <article class="history-item ${item.status === 'Current' ? 'current' : ''}">
@@ -161,6 +199,7 @@
     $$('[data-explain-panel]').forEach((panel) => {
       panel.hidden = panel.dataset.explainPanel !== tabName;
     });
+    if (tabName === 'sources') closeDocumentReader();
   }
 
   function openExplainDrawer() {
@@ -237,6 +276,19 @@
     if (event.target.closest('[data-open-explain]')) {
       event.preventDefault();
       openExplainDrawer();
+      return;
+    }
+
+    const sourceButton = event.target.closest('[data-view-source]');
+    if (sourceButton) {
+      event.preventDefault();
+      openDocumentReader(sourceButton.dataset.viewSource);
+      return;
+    }
+
+    if (event.target.closest('[data-close-document]')) {
+      event.preventDefault();
+      closeDocumentReader();
       return;
     }
 
