@@ -1,0 +1,32 @@
+{
+  "registryVersion": "1.0.0",
+  "defaultWorkspaceId": "founder-os",
+  "workspaces": [
+    {
+      "number": 0,
+      "id": "founder-os",
+      "name": "Founder OS",
+      "description": "The AI-guided product development operating system and Command Center platform.",
+      "type": "Platform",
+      "stage": "Build",
+      "status": "active",
+      "health": "Gateway online",
+      "version": "0.1.0",
+      "nextAction": "Build Command Center v1",
+      "resumeWorkspace": "mission"
+    },
+    {
+      "number": 1,
+      "id": "natural-nation",
+      "name": "Natural Nation",
+      "description": "Project #1: the Natural Nation brand website and wellness application with Duey.",
+      "type": "Website + Application",
+      "stage": "Build",
+      "status": "active",
+      "health": "Repository foundation pending",
+      "version": "MVP",
+      "nextAction": "Create Natural-Nation-App repository",
+      "resumeWorkspace": "mission"
+    }
+  ]
+}
