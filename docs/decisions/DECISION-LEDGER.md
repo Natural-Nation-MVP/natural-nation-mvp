@@ -38,6 +38,9 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-019 | Cloudflare account security foundation completed with verified two-factor authentication | R4 | Security | Complete | docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md |
 | DL-020 | Founder OS Gateway API v1 structure approved | R4 | Gateway | Approved | docs/releases/PHASE-4-GATEWAY-API-V1.md |
 | DL-021 | Public gateway routes GET /, GET /health, and GET /version validated | R4 | Gateway | Complete | docs/releases/PHASE-4-GATEWAY-API-V1.md |
+| DL-022 | Workspace Registry approved as the default Command Center landing experience | R4 | Command Center | Approved | docs/releases/COMMAND-CENTER-UX-V1.1.md |
+| DL-023 | Command Center UX v1.1 approved with Founder metrics, living cards, contextual navigation, and motion | R4 | Command Center | Approved | docs/releases/COMMAND-CENTER-UX-V1.1.md |
+| DL-024 | AI-guided product development operating system positioning deferred for future marketing | R4 | Marketing Backlog | Deferred | docs/releases/COMMAND-CENTER-UX-V1.1.md |
 
 ## Related Records
 
@@ -45,6 +48,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
+- docs/releases/COMMAND-CENTER-UX-V1.1.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
