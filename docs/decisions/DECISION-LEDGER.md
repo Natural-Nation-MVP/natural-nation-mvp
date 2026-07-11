@@ -53,7 +53,10 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-034 | Blueprint uses What We’re Building, Core User Experience, and Deployment Phases terminology | R4 | Natural Nation | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
 | DL-035 | Components and recommendations are unified with visual executive metrics | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
 | DL-036 | CRM terminology replaced with Community for Natural Nation | R4 | Natural Nation | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
-| DL-037 | Blueprint approval controls use a sticky Build Studio-style action bar | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
+| DL-037 | Blueprint approval controls use a sticky Build Studio-style action bar | R4 | Founder OS | Superseded | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md |
+| DL-038 | NNOS-UX-002 standardizes the exact Build Studio bottom action bar for every execution-style page | R4 | Founder OS | Approved | docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md |
+| DL-039 | Execution action bars must live at the application-shell layer outside page main content | R4 | Architecture | Approved | docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md |
+| DL-040 | Blueprint cards use compact spacing and the standard tag, title, and text hierarchy | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md |
 
 ## Related Records
 
@@ -64,7 +67,9 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
 - docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
 - docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
+- docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
 - docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
+- docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
