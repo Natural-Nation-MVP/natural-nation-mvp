@@ -89,5 +89,6 @@
       "impact": "This determines whether payment security, subscription access, receipts, and billing operations are included in Phase 1."
     }
   ],
-  "approvalEffect": "Approval establishes this Blueprint as the execution contract for future AI planning and implementation. Protected changes remain unavailable until authentication, approval, and audit controls are ready."
+  "approvalEffect": "Approval establishes this Blueprint as the execution contract for future AI planning and implementation. Protected changes remain unavailable until authentication, approval, and audit controls are ready.",
+  "actionBarEffect": "Sets this Blueprint as the approved execution contract."
 }
