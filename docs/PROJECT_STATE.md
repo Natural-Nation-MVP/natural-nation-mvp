@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Founder review of Natural Nation Workspace Blueprint v0.1.
+Current priority: Founder review of Natural Nation Workspace Blueprint v0.2.
 
 Canonical runtime: docs/founder-os/
 
@@ -26,7 +26,7 @@ Explainability First: docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 
 Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
 
-Natural Nation Workspace Blueprint v0.1: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.1.md
+Natural Nation Workspace Blueprint v0.2: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
@@ -46,24 +46,29 @@ Discovery determines understanding. Explain establishes trust. Blueprint defines
 - Workspace Discovery and Blueprint Engine architecture approved
 - Natural Nation Workspace Discovery screen
 - Explain drawer with compact reasoning, internal source summaries, and history
-- Natural Nation Workspace Blueprint v0.1 review screen
-- products, users, core journeys, and MVP boundaries
-- capability classification
-- application recommendations classified as Required, Recommended, Founder Decision Required, or Later
-- approval safety boundary
+- Natural Nation Workspace Blueprint v0.2 executive review experience
+- Our Mission purpose-led language
+- What We’re Building with Website, Mobile App, and Duey build streams
+- Blueprint Snapshot metrics and component-distribution chart
+- Core User Experience section
+- compact Deployment Phases
+- unified Required Components and Recommendations
+- Community terminology for future member relationship capabilities
+- sticky Build Studio-style approval bar
 
 ## Current Blueprint Result
 
 - blueprint confidence: 87%
-- core products: website, mobile application, and Duey AI mentor
-- required applications: Website Builder, App Builder, Authentication, Database, AI Team, Knowledge, Assets, and Deployments
-- recommended applications: Analytics and Notifications
-- later application: CRM
-- unresolved application: Billing
+- build streams: Website, Mobile Application, and Duey AI Mentor
+- required components: Website Builder, App Builder, Authentication, Database, AI Team, Knowledge, Assets, and Deployments
+- recommended components: Analytics and Notifications
+- future component: Community
+- unresolved component: Billing
+- deployment phases: MVP Launch, Integrations, Community & Growth
 
 ## Pending
 
-- Founder validation of Workspace Blueprint v0.1
+- Founder validation of Workspace Blueprint v0.2
 - Founder answer on MVP subscription billing
 - blueprint corrections, if any
 - final blueprint approval
@@ -76,4 +81,4 @@ Discovery determines understanding. Explain establishes trust. Blueprint defines
 
 ## Next
 
-Founder opens Natural Nation, reviews the Blueprint module, and confirms findings plus the MVP billing decision.
+Founder reviews the redesigned Blueprint experience and confirms findings plus the MVP billing decision.
