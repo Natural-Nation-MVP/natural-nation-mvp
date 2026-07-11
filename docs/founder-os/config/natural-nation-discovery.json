@@ -29,5 +29,44 @@
     { "section": "Security", "confidence": 68 },
     { "section": "Revenue", "confidence": 42 },
     { "section": "Deployment", "confidence": 76 }
-  ]
+  ],
+  "recommendation": {
+    "title": "Complete the MVP billing decision",
+    "confidence": 96,
+    "impact": "Resolving this decision allows Founder OS to classify Billing as Required, Recommended, or Later and complete the first draft Workspace Blueprint.",
+    "effort": "About 1 minute",
+    "reasoning": "The product, audience, AI mentor, and core experience are already supported by approved records. Revenue remains the lowest-confidence blueprint category because subscription billing has been discussed but has not been approved for the first MVP release.",
+    "sources": [
+      {
+        "title": "Workspace Discovery and Blueprint Engine",
+        "authority": "Approved Architecture",
+        "usedFor": "Defines the discovery process, recommendation classes, and the requirement to resolve material uncertainty before application installation.",
+        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md"
+      },
+      {
+        "title": "Natural Nation Project State",
+        "authority": "Canonical Project State",
+        "usedFor": "Confirms the current discovery result and records MVP billing as unresolved.",
+        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/PROJECT_STATE.md"
+      },
+      {
+        "title": "Founder OS Decision Ledger",
+        "authority": "Founder-Approved Decisions",
+        "usedFor": "Confirms approved platform, workspace, and blueprint decisions while showing no approved MVP billing decision.",
+        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/decisions/DECISION-LEDGER.md"
+      },
+      {
+        "title": "Phase 4 Roadmap",
+        "authority": "Approved Roadmap",
+        "usedFor": "Identifies the Natural Nation blueprint as the active vertical-slice objective.",
+        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/releases/PHASE-4-ROADMAP.md"
+      }
+    ],
+    "history": [
+      { "state": "Gateway foundation", "detail": "Founder OS Gateway deployed and public health routes validated.", "status": "Complete" },
+      { "state": "Command Center", "detail": "Workspace Registry and Command Center UX v1.1 Founder validated PASS.", "status": "Complete" },
+      { "state": "Workspace Discovery", "detail": "Natural Nation intelligence loaded with 87% overall confidence.", "status": "Complete" },
+      { "state": "Current recommendation", "detail": "Resolve MVP billing so the draft Workspace Blueprint can be generated.", "status": "Current" }
+    ]
+  }
 }
