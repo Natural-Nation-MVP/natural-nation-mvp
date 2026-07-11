@@ -2,9 +2,9 @@
 
 Status: Active
 
-Current release: Phase 4 — Automation Environment Foundation
+Current release: Phase 4.3 — Protected Transaction Engine
 
-Current priority: Complete Slice #1 by moving the Blueprint approval transaction from browser-local persistence to authenticated canonical gateway persistence.
+Current priority: Implement the first authenticated canonical Blueprint approval transaction through the Founder OS Gateway.
 
 Canonical runtime: docs/founder-os/
 
@@ -15,6 +15,10 @@ Phase 4 roadmap: docs/releases/PHASE-4-ROADMAP.md
 Founder OS Vision v2: docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 
 Gateway API v1: docs/releases/PHASE-4-GATEWAY-API-V1.md
+
+Phase 4.2 completion: docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md
+
+Gateway API v2 approval contract: docs/architecture/GATEWAY-API-V2-BLUEPRINT-APPROVAL.md
 
 Command Center UX v1.1: docs/releases/COMMAND-CENTER-UX-V1.1.md
 
@@ -34,44 +38,66 @@ Blueprint Approval Transaction v0.1: docs/releases/BLUEPRINT-APPROVAL-TRANSACTIO
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
+## Phase Status
+
+### Phase 4.2 — GitHub-Managed Gateway Foundation
+
+Status: Complete
+
+Verified:
+
+- canonical Worker source at `services/founder-os-gateway/`
+- Cloudflare Builds connected to the canonical GitHub repository
+- production branch `main`
+- repository-driven production deployment
+- live Gateway version `0.2.0`
+- Worker online after GitHub-managed deployment
+
+### Phase 4.3 — Protected Transaction Engine
+
+Status: Active
+
+Primary route:
+
+`POST /v2/workspaces/:workspaceId/blueprints/:blueprintVersion/approve`
+
 ## Active Slice
 
 1. Workspace Registry — implemented
 2. Workspace Discovery — implemented
 3. Workspace Blueprint — implemented
 4. Founder Review — implemented
-5. Founder Approval — browser transaction implemented
-6. Execution Package Generation — browser transaction implemented
+5. Founder Approval — browser transaction implemented; canonical Gateway transaction pending
+6. Execution Package Generation — browser transaction implemented; canonical generation pending
 7. AI Assignment — Build Studio handoff implemented
-8. GitHub Implementation — pending gateway support
+8. GitHub Implementation — Gateway source and deployment path operational; protected transaction writes pending
 9. Validation — pending protected execution
-10. Repository Update — pending gateway support
+10. Repository Update — pending protected approval endpoint
 11. Workspace Status Update — browser state implemented; canonical update pending
 
 ## Approved Validation Standard
 
-The Blueprint Validation Engine milestone is Founder approved.
-
-Approval must validate required Blueprint fields, workspace and version availability, unresolved critical decisions, repository configuration, required components, and action permission before confirmation or execution.
+Approval must validate required Blueprint fields, workspace and version availability, unresolved critical decisions, repository configuration, required components, authentication, authorization, and action permission before confirmation or execution.
 
 Failed or blocked validation must explain the reason and must not imply that approval or protected execution succeeded.
 
-## Newly Implemented
-
-- compact Blueprint approval dialog
-- required billing decision before approval
-- explicit Founder confirmation
-- browser-persisted approval transaction
-- browser-persisted audit event
-- execution package `NN-BUILD-001`
-- Blueprint state update after approval
-- automatic Build Studio handoff with the generated package loaded
-- clear pending status for canonical GitHub synchronization
-
 ## Truthfulness Boundary
 
-The live interface does not claim that GitHub synchronization completed. The transaction remains `approved-local` until the secure gateway confirms canonical writes.
+The live interface must not claim canonical approval until the Gateway confirms all required repository writes and returns the verified transaction result and commit SHA.
 
-## Next
+## Next Implementation
 
-Implement the authenticated gateway approval endpoint that writes the approval record, audit event, execution package, and workspace state to the canonical repository, then return a verified transaction result to Founder OS.
+Build the protected Blueprint approval endpoint with:
+
+1. Founder authentication
+2. authorization check
+3. request validation
+4. idempotent transaction ID
+5. critical-decision validation
+6. canonical approval record
+7. canonical audit event
+8. `NN-BUILD-001` execution package creation
+9. Blueprint lock
+10. workspace-state update
+11. verified GitHub commit result
+12. Founder OS Build Studio handoff only after commit success
