@@ -28,6 +28,8 @@ Execution Action Bar Standard: docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.
 
 End-to-End Vertical Slice: docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
 
+Blueprint Validation Engine Milestone: docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md
+
 Blueprint Approval Transaction v0.1: docs/releases/BLUEPRINT-APPROVAL-TRANSACTION-V0.1.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
@@ -45,6 +47,14 @@ Decision Ledger: docs/decisions/DECISION-LEDGER.md
 9. Validation — pending protected execution
 10. Repository Update — pending gateway support
 11. Workspace Status Update — browser state implemented; canonical update pending
+
+## Approved Validation Standard
+
+The Blueprint Validation Engine milestone is Founder approved.
+
+Approval must validate required Blueprint fields, workspace and version availability, unresolved critical decisions, repository configuration, required components, and action permission before confirmation or execution.
+
+Failed or blocked validation must explain the reason and must not imply that approval or protected execution succeeded.
 
 ## Newly Implemented
 
