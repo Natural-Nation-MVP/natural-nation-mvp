@@ -62,6 +62,9 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-043 | Command Center expansion is paused until Blueprint approval through validated repository and workspace updates works end to end | R4 | Founder OS | Approved | docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md |
 | DL-044 | Blueprint Validation Engine is the next implementation milestone in Slice #1 | R4 | Founder OS | Approved | docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md |
 | DL-045 | Blueprint approval must stop and explain blockers when required validation checks fail | R4 | Founder OS | Approved | docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md |
+| DL-046 | Phase 4.2 GitHub-managed Gateway foundation passed Founder validation and is complete | R4.2 | Gateway | Complete | docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md |
+| DL-047 | GitHub main is the canonical deployment source for founder-os-gateway | R4.2 | Gateway | Approved | docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md |
+| DL-048 | Phase 4.3 begins with the Protected Transaction Engine and Blueprint approval as its first protected route | R4.3 | Founder OS | Approved | docs/architecture/GATEWAY-API-V2-BLUEPRINT-APPROVAL.md |
 
 ## Related Records
 
@@ -69,12 +72,14 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-FOUNDER-OS-VISION-V2.md
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
+- docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
 - docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
 - docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
 - docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.3.md
 - docs/releases/VALIDATION-EVENT-BLUEPRINT-EXECUTION-BAR.md
 - docs/releases/BLUEPRINT-VALIDATION-ENGINE-MILESTONE.md
+- docs/architecture/GATEWAY-API-V2-BLUEPRINT-APPROVAL.md
 - docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 - docs/governance/NNOS-UX-002-EXECUTION-ACTION-BAR.md
 - docs/governance/NNOS-FLOW-001-END-TO-END-VERTICAL-SLICE.md
