@@ -179,7 +179,8 @@
 }
 
 .explain-drawer-header,
-.source-card-head {
+.source-card-head,
+.document-reader-head {
   display: flex;
   justify-content: space-between;
   gap: 14px;
@@ -224,6 +225,30 @@
   box-shadow: 0 4px 14px rgba(18, 31, 22, 0.08);
 }
 
+.discussion-summary {
+  margin-top: 12px;
+  padding: 12px 13px;
+  border-left: 3px solid var(--nn-green);
+  border-radius: 0 9px 9px 0;
+  background: rgba(47, 125, 50, 0.06);
+}
+
+.discussion-summary span,
+.explain-summary-card span,
+.source-card-head span,
+.history-item span,
+.document-reader-head span {
+  display: block;
+  color: var(--nn-muted);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.discussion-summary p {
+  margin: 0;
+  line-height: 1.5;
+}
+
 .explain-summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -233,20 +258,12 @@
 
 .explain-summary-card,
 .source-card,
-.history-item {
+.history-item,
+.document-reader {
   border: 1px solid var(--nn-line);
   border-radius: 10px;
   padding: 13px;
   background: white;
-}
-
-.explain-summary-card span,
-.source-card-head span,
-.history-item span {
-  display: block;
-  color: var(--nn-muted);
-  font-size: 11px;
-  margin-bottom: 4px;
 }
 
 .source-card,
@@ -254,18 +271,40 @@
   margin-bottom: 10px;
 }
 
-.source-card a {
+.source-card button,
+.document-reader-head button {
+  border: 0;
+  background: transparent;
   color: var(--nn-green);
   font-size: 12px;
   font-weight: 800;
+  cursor: pointer;
   white-space: nowrap;
 }
 
 .source-card p,
-.history-item p {
+.history-item p,
+.document-purpose {
   margin-bottom: 0;
   color: var(--nn-muted);
   line-height: 1.45;
+}
+
+.document-reader h3 {
+  margin: 2px 0 0;
+  font-size: 19px;
+}
+
+.document-purpose {
+  margin: 14px 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--nn-line);
+}
+
+.document-text {
+  white-space: pre-wrap;
+  line-height: 1.65;
+  color: var(--nn-ink);
 }
 
 .history-item.current {
@@ -287,6 +326,11 @@
 @media (max-width: 520px) {
   .explain-summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .source-card-head,
+  .document-reader-head {
+    flex-direction: column;
   }
 }
 
