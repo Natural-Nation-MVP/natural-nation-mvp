@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./css/components.css?v=r3-final-polish-1" />
   <link rel="stylesheet" href="./css/command-center.css?v=1.1.0" />
   <link rel="stylesheet" href="./css/workspace-discovery.css?v=1.2.0" />
-  <link rel="stylesheet" href="./css/workspace-blueprint.css?v=0.2.0" />
+  <link rel="stylesheet" href="./css/workspace-blueprint.css?v=0.3.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -58,7 +58,8 @@
 
         <article class="glass-panel">
           <div class="eyebrow">Our Mission</div>
-          <p class="mission-statement" data-blueprint-mission></p>
+          <div class="section-title">Turning Wellness Goals Into Daily Action</div>
+          <p class="blueprint-mission-text" data-blueprint-mission></p>
         </article>
 
         <article class="glass-panel">
@@ -107,14 +108,6 @@
         </article>
 
         <article class="glass-panel"><div class="eyebrow">Open Decisions</div><div class="section-title">Required Before Final Approval</div><div data-blueprint-decisions></div></article>
-
-        <div class="blueprint-sticky-bar">
-          <div class="blueprint-sticky-copy"><small>Approval Effect</small><strong data-blueprint-approval-effect></strong><span class="muted" data-blueprint-action-status>No protected changes will occur during review.</span></div>
-          <div class="blueprint-sticky-metric"><span>Readiness</span><strong data-sticky-confidence>Loading</strong></div>
-          <div class="blueprint-sticky-metric"><span>Components</span><strong data-sticky-components>Loading</strong></div>
-          <div class="blueprint-sticky-metric"><span>Decisions</span><strong data-sticky-decisions>Loading</strong></div>
-          <button class="generate" type="button" data-approve-blueprint>Approve Blueprint</button>
-        </div>
       </section>
 
       <section class="workspace-view" data-workspace="mission">
@@ -149,7 +142,19 @@
       <section class="workspace-view" data-workspace="ai"><article class="glass-panel"><div class="eyebrow">AI Team</div><div class="section-title">Coordinate AI Roles</div><p>Manage AI roles, handoffs, execution order, and review ownership.</p><div class="modules-grid" data-ai-roles></div></article><article class="glass-panel"><div class="eyebrow">Active Handoffs</div><div class="section-title">Execution Queue</div><div data-ai-handoffs></div></article></section>
     </main>
 
-    <div class="bottom-bar" hidden><div><span class="muted">Package Target</span><br /><strong data-bottom-target>Codex</strong></div><div><span class="muted">Delivery</span><br /><strong data-delivery>Codex Implementation Agent</strong></div><div><span class="muted">Approval</span><br /><strong data-approval>Founder Required</strong></div><button class="generate" type="button" data-action="generate">Generate Package →</button></div>
+    <div class="bottom-bar" data-execution-bar="build" hidden>
+      <div><span class="muted">Package Target</span><br /><strong data-bottom-target>Codex</strong></div>
+      <div><span class="muted">Delivery</span><br /><strong data-delivery>Codex Implementation Agent</strong></div>
+      <div><span class="muted">Approval</span><br /><strong data-approval>Founder Required</strong></div>
+      <button class="generate" type="button" data-action="generate">Generate Package →</button>
+    </div>
+
+    <div class="bottom-bar" data-execution-bar="blueprint" hidden>
+      <div><span class="muted">Blueprint Readiness</span><br /><strong data-sticky-confidence>Loading</strong></div>
+      <div><span class="muted">Approval Effect</span><br /><strong data-blueprint-approval-effect>Loading Blueprint...</strong></div>
+      <div><span class="muted">Pending Decisions</span><br /><strong data-sticky-decisions>Loading</strong></div>
+      <button class="generate" type="button" data-approve-blueprint>Approve Blueprint →</button>
+    </div>
   </div>
   <script src="./js/app.js?v=r3-preview-sync-2"></script>
   <script src="./js/queue-meta.js?v=r3-queue-meta-2"></script>
@@ -157,7 +162,7 @@
   <script src="./js/command-engine.js?v=1.0.0"></script>
   <script src="./js/gateway-status.js?v=0.1.0"></script>
   <script src="./js/workspace-discovery.js?v=1.2.0"></script>
-  <script src="./js/workspace-blueprint.js?v=0.2.0"></script>
-  <script src="./js/workspace-registry.js?v=1.3.0"></script>
+  <script src="./js/workspace-blueprint.js?v=0.3.0"></script>
+  <script src="./js/workspace-registry.js?v=1.4.0"></script>
 </body>
 </html>
