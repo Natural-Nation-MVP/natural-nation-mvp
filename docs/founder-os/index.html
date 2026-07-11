@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./css/layout.css?v=r3-preview-sync" />
   <link rel="stylesheet" href="./css/components.css?v=r3-final-polish-1" />
   <link rel="stylesheet" href="./css/command-center.css?v=1.1.0" />
+  <link rel="stylesheet" href="./css/workspace-discovery.css?v=1.0.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -15,11 +16,6 @@
       <div class="brand"><div class="brand-mark">☘</div><strong class="brand-title">FOUNDER<br />OS</strong></div>
       <nav class="nav">
         <button class="nav-link active" type="button" data-workspace-button="registry">Workspaces</button>
-        <button class="nav-link" type="button" data-workspace-button="mission">Overview</button>
-        <button class="nav-link" type="button" data-workspace-button="knowledge">Knowledge</button>
-        <button class="nav-link" type="button" data-workspace-button="build">Build Studio</button>
-        <button class="nav-link" type="button" data-workspace-button="repo">Repository</button>
-        <button class="nav-link" type="button" data-workspace-button="ai">AI Team</button>
       </nav>
       <div class="sidebar-note"><small>Command Center</small><br /><strong>Workspace Platform</strong><br /><small data-system-status>Checking gateway...</small></div>
     </aside>
@@ -46,6 +42,47 @@
           </div>
         </article>
         <div class="workspace-registry-grid" data-workspace-registry-list></div>
+      </section>
+
+      <section class="workspace-view" data-workspace="discovery">
+        <article class="glass-panel discovery-hero">
+          <div>
+            <div class="eyebrow">Workspace Discovery</div>
+            <h2>Natural Nation</h2>
+            <p data-discovery-summary>Loading approved project intelligence...</p>
+            <p class="muted" data-discovery-status>Reviewing approved knowledge...</p>
+          </div>
+          <div class="discovery-confidence">
+            <span class="muted">Overall Confidence</span>
+            <strong data-discovery-confidence>Loading</strong>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">What Founder OS Already Knows</div>
+          <div class="section-title">Approved Workspace Intelligence</div>
+          <div class="discovery-grid" data-discovery-known></div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Confidence Engine</div>
+          <div class="section-title">Blueprint Readiness</div>
+          <div data-blueprint-readiness></div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Questions That Still Need Answers</div>
+          <div class="section-title">Founder Confirmation</div>
+          <div data-discovery-questions></div>
+        </article>
+
+        <article class="glass-panel discovery-actions">
+          <div>
+            <div class="eyebrow">Next Step</div>
+            <strong>Generate the Natural Nation draft Workspace Blueprint.</strong>
+          </div>
+          <button class="generate" type="button" data-generate-blueprint>Generate Blueprint</button>
+        </article>
       </section>
 
       <section class="workspace-view" data-workspace="mission">
@@ -141,6 +178,7 @@
   <script src="./js/build-studio-polish.js?v=r3-final-polish-1"></script>
   <script src="./js/command-engine.js?v=1.0.0"></script>
   <script src="./js/gateway-status.js?v=0.1.0"></script>
-  <script src="./js/workspace-registry.js?v=1.1.0"></script>
+  <script src="./js/workspace-discovery.js?v=1.0.0"></script>
+  <script src="./js/workspace-registry.js?v=1.2.0"></script>
 </body>
 </html>
