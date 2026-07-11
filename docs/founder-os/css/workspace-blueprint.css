@@ -1,0 +1,151 @@
+.blueprint-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: end;
+}
+
+.blueprint-hero h2 {
+  margin: 4px 0 8px;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.05em;
+}
+
+.blueprint-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
+  gap: 8px;
+}
+
+.blueprint-meta div {
+  padding: 12px;
+  border: 1px solid var(--nn-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.blueprint-meta span,
+.blueprint-card p,
+.blueprint-row p,
+.blueprint-app p,
+.blueprint-decision small {
+  color: var(--nn-muted);
+}
+
+.blueprint-meta span {
+  display: block;
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.blueprint-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.blueprint-card,
+.blueprint-row,
+.blueprint-app,
+.blueprint-decision {
+  border: 1px solid var(--nn-line);
+  border-radius: 10px;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.blueprint-card-head,
+.blueprint-row,
+.blueprint-app {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.blueprint-card p,
+.blueprint-row p,
+.blueprint-app p,
+.blueprint-decision p {
+  margin-bottom: 0;
+  line-height: 1.45;
+}
+
+.blueprint-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.blueprint-list li {
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.blueprint-badge {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.blueprint-badge.required {
+  background: rgba(47, 125, 50, 0.14);
+  color: #245f25;
+}
+
+.blueprint-badge.recommended {
+  background: rgba(44, 102, 160, 0.14);
+  color: #2d5f91;
+}
+
+.blueprint-badge.later {
+  background: rgba(93, 93, 93, 0.12);
+  color: #595959;
+}
+
+.blueprint-badge.decision {
+  background: rgba(180, 124, 29, 0.16);
+  color: #7a5513;
+}
+
+.blueprint-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.blueprint-decision {
+  border-color: rgba(180, 124, 29, 0.35);
+  background: rgba(180, 124, 29, 0.06);
+}
+
+.blueprint-decision h3 {
+  margin: 6px 0;
+}
+
+.blueprint-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .blueprint-hero,
+  .blueprint-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blueprint-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .blueprint-card-head,
+  .blueprint-row,
+  .blueprint-app {
+    flex-direction: column;
+  }
+}
