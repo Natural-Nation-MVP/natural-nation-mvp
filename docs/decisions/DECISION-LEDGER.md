@@ -49,6 +49,11 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-030 | AI recommendations must expose an Explain action with reasoning, confidence, sources, and history | R4 | Founder OS | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
 | DL-031 | Supporting sources must link to canonical documents and respect source-authority ranking | R4 | Governance | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
 | DL-032 | Founder Intelligence remains a shared platform service and not a required primary-navigation page | R4 | Architecture | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
+| DL-033 | Natural Nation Blueprint uses Our Mission and positive purpose-led language | R4 | Natural Nation | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
+| DL-034 | Blueprint uses What We’re Building, Core User Experience, and Deployment Phases terminology | R4 | Natural Nation | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
+| DL-035 | Components and recommendations are unified with visual executive metrics | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
+| DL-036 | CRM terminology replaced with Community for Natural Nation | R4 | Natural Nation | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
+| DL-037 | Blueprint approval controls use a sticky Build Studio-style action bar | R4 | Founder OS | Approved | docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md |
 
 ## Related Records
 
@@ -58,6 +63,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
 - docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
+- docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.2.md
 - docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
