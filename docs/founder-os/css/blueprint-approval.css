@@ -1,0 +1,130 @@
+.approval-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(18, 31, 22, 0.46);
+}
+
+.approval-backdrop[hidden],
+.approval-dialog[hidden] {
+  display: none !important;
+}
+
+.approval-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 110;
+  width: min(560px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  padding: 16px;
+  border: 1px solid var(--nn-line);
+  border-radius: 12px;
+  background: #f7faf6;
+  box-shadow: 0 24px 70px rgba(18, 31, 22, 0.28);
+}
+
+.approval-dialog-head,
+.approval-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.approval-dialog-head h2 {
+  margin: 3px 0 0;
+  font-size: 22px;
+}
+
+.approval-dialog-head > button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.approval-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 14px 0 10px;
+}
+
+.approval-summary-grid > div,
+.approval-section,
+.approval-choice,
+.approval-step {
+  padding: 9px 10px;
+  border: 1px solid var(--nn-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.approval-summary-grid span,
+.approval-status {
+  color: var(--nn-muted);
+  font-size: 11px;
+}
+
+.approval-section,
+.approval-choice,
+.approval-progress {
+  margin-top: 8px;
+}
+
+.approval-section p,
+.approval-choice label,
+.approval-step {
+  margin: 0;
+  line-height: 1.4;
+  font-size: 12px;
+}
+
+.approval-choice {
+  display: grid;
+  gap: 8px;
+}
+
+.approval-choice legend {
+  padding: 0 4px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.approval-choice label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.approval-progress {
+  display: grid;
+  gap: 6px;
+}
+
+.approval-step {
+  border-color: rgba(47, 125, 50, 0.22);
+  color: #245f25;
+}
+
+.approval-step.pending {
+  border-color: rgba(180, 124, 29, 0.28);
+  color: #7a5513;
+}
+
+.approval-status {
+  margin: 10px 0;
+}
+
+@media (max-width: 620px) {
+  .approval-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .approval-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
