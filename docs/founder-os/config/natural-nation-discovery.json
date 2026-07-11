@@ -33,40 +33,45 @@
   "recommendation": {
     "title": "Complete the MVP billing decision",
     "confidence": 96,
-    "impact": "Resolving this decision allows Founder OS to classify Billing as Required, Recommended, or Later and complete the first draft Workspace Blueprint.",
+    "impact": "This choice determines whether Billing is built now, planned for later, or excluded from the MVP. It also clears the final major uncertainty blocking the first Workspace Blueprint.",
     "effort": "About 1 minute",
-    "reasoning": "The product, audience, AI mentor, and core experience are already supported by approved records. Revenue remains the lowest-confidence blueprint category because subscription billing has been discussed but has not been approved for the first MVP release.",
+    "reasoning": "We first defined Natural Nation as a website, mobile app, and Duey-led wellness experience. Monetization was discussed later, but billing was never approved for the MVP. Founder OS is asking now because the answer changes scope, application needs, security work, and launch timing.",
+    "discussionSummary": "The discussion moved from defining the core wellness experience to deciding what the first release truly needs. Billing appeared as a possible business capability, but it remained outside the locked MVP decisions. The current recommendation is to settle it before the blueprint is finalized.",
     "sources": [
       {
+        "id": "workspace-discovery-engine",
         "title": "Workspace Discovery and Blueprint Engine",
         "authority": "Approved Architecture",
-        "usedFor": "Defines the discovery process, recommendation classes, and the requirement to resolve material uncertainty before application installation.",
-        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md"
+        "usedFor": "Defines how uncertainty is resolved before applications are installed.",
+        "documentText": "Founder OS must understand the desired outcome, identify required capabilities, classify applications as Required, Recommended, or Later, and obtain Founder approval before installation. Material uncertainty should be resolved before the Workspace Blueprint is finalized."
       },
       {
+        "id": "project-state",
         "title": "Natural Nation Project State",
         "authority": "Canonical Project State",
-        "usedFor": "Confirms the current discovery result and records MVP billing as unresolved.",
-        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/PROJECT_STATE.md"
+        "usedFor": "Confirms the current discovery result and unresolved billing decision.",
+        "documentText": "Natural Nation Workspace Discovery is active with 87% overall understanding. Core product and Duey requirements are high confidence. Revenue remains at 42% confidence because MVP subscription billing has not yet been decided."
       },
       {
+        "id": "decision-ledger",
         "title": "Founder OS Decision Ledger",
         "authority": "Founder-Approved Decisions",
-        "usedFor": "Confirms approved platform, workspace, and blueprint decisions while showing no approved MVP billing decision.",
-        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/decisions/DECISION-LEDGER.md"
+        "usedFor": "Verifies what has been approved and confirms billing is not yet a locked MVP decision.",
+        "documentText": "The Decision Ledger records approved platform, workspace, discovery, and explainability decisions. It contains no Founder-approved decision requiring subscription billing in the first Natural Nation MVP release."
       },
       {
+        "id": "phase-4-roadmap",
         "title": "Phase 4 Roadmap",
         "authority": "Approved Roadmap",
-        "usedFor": "Identifies the Natural Nation blueprint as the active vertical-slice objective.",
-        "url": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/blob/main/docs/releases/PHASE-4-ROADMAP.md"
+        "usedFor": "Confirms that completing the Natural Nation Blueprint is the active vertical-slice objective.",
+        "documentText": "The current Phase 4 objective is to produce and validate the first Natural Nation Workspace Blueprint. The blueprint must identify required capabilities, explain recommendations, and separate MVP needs from later capabilities."
       }
     ],
     "history": [
-      { "state": "Gateway foundation", "detail": "Founder OS Gateway deployed and public health routes validated.", "status": "Complete" },
-      { "state": "Command Center", "detail": "Workspace Registry and Command Center UX v1.1 Founder validated PASS.", "status": "Complete" },
-      { "state": "Workspace Discovery", "detail": "Natural Nation intelligence loaded with 87% overall confidence.", "status": "Complete" },
-      { "state": "Current recommendation", "detail": "Resolve MVP billing so the draft Workspace Blueprint can be generated.", "status": "Current" }
+      { "state": "Core product defined", "detail": "Natural Nation was established as a website, mobile app, and Duey-led wellness experience.", "status": "Complete" },
+      { "state": "MVP scope organized", "detail": "Core journeys, scores, protocols, onboarding, and AI mentor behavior were approved.", "status": "Complete" },
+      { "state": "Monetization remained open", "detail": "Billing was discussed as a future capability but never locked into the MVP.", "status": "Complete" },
+      { "state": "Current recommendation", "detail": "Resolve billing now because it changes scope, applications, security, and launch planning.", "status": "Current" }
     ]
   }
 }
