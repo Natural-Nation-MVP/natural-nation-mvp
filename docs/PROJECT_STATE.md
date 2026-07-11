@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: Founder review of Explain Drawer v1 in Natural Nation Workspace Discovery.
+Current priority: Founder review of Natural Nation Workspace Blueprint v0.1.
 
 Canonical runtime: docs/founder-os/
 
@@ -26,6 +26,8 @@ Explainability First: docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 
 Explain Drawer v1: docs/releases/EXPLAIN-DRAWER-V1.md
 
+Natural Nation Workspace Blueprint v0.1: docs/releases/NATURAL-NATION-WORKSPACE-BLUEPRINT-V0.1.md
+
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
 ## Current Direction
@@ -34,13 +36,7 @@ Founder OS is the reusable AI-powered platform for creating applications, websit
 
 Natural Nation is Project #1 and the first real validation workspace.
 
-Founder Intelligence remains a shared platform service that makes existing pages smarter without creating unnecessary primary-navigation pages.
-
-## Approved UX Standard
-
-NNOS-UX-001 — Explainability First is Founder approved.
-
-Every AI recommendation must provide an Explain action with plain-language reasoning, confidence, evidence, linked canonical sources, source authority, and recommendation history when available.
+Discovery determines understanding. Explain establishes trust. Blueprint defines the execution contract.
 
 ## Implemented
 
@@ -49,26 +45,28 @@ Every AI recommendation must provide an Explain action with plain-language reaso
 - Command Center UX v1.1 Founder validated PASS
 - Workspace Discovery and Blueprint Engine architecture approved
 - Natural Nation Workspace Discovery screen
-- confidence, evidence, and blueprint-readiness display
-- unresolved MVP billing question
-- Explain drawer with Explain, Sources, and History tabs
-- direct links to canonical GitHub documents
-- source authority and usage descriptions
-- mobile, Escape-key, backdrop, and reduced-motion behavior
+- Explain drawer with compact reasoning, internal source summaries, and history
+- Natural Nation Workspace Blueprint v0.1 review screen
+- products, users, core journeys, and MVP boundaries
+- capability classification
+- application recommendations classified as Required, Recommended, Founder Decision Required, or Later
+- approval safety boundary
 
-## Current Discovery Result
+## Current Blueprint Result
 
-- overall understanding: 87%
-- core product and Duey requirements: high confidence
-- revenue confidence: 42%
-- MVP billing decision: unresolved
-- recommended next action: complete the MVP billing decision
+- blueprint confidence: 87%
+- core products: website, mobile application, and Duey AI mentor
+- required applications: Website Builder, App Builder, Authentication, Database, AI Team, Knowledge, Assets, and Deployments
+- recommended applications: Analytics and Notifications
+- later application: CRM
+- unresolved application: Billing
 
 ## Pending
 
-- Founder validation of Explain Drawer v1
+- Founder validation of Workspace Blueprint v0.1
 - Founder answer on MVP subscription billing
-- Natural Nation draft Workspace Blueprint
+- blueprint corrections, if any
+- final blueprint approval
 - Application Registry foundation
 - capability-to-application rule catalog
 - authentication foundation
@@ -78,4 +76,4 @@ Every AI recommendation must provide an Explain action with plain-language reaso
 
 ## Next
 
-Founder reviews the Explain link beside the MVP billing question and reports PASS, PASS WITH FINDINGS, or FAIL.
+Founder opens Natural Nation, reviews the Blueprint module, and confirms findings plus the MVP billing decision.
