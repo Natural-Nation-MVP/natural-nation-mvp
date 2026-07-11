@@ -1,3 +1,4 @@
+import { executeApprovalTransaction } from "../lib/approval-transaction.js";
 import { authenticateFounder } from "../lib/auth.js";
 import { validateApprovalRequest } from "../lib/blueprint-validation.js";
 import { errorResponse, json } from "../lib/http.js";
@@ -78,23 +79,53 @@ export async function handleApproveBlueprint(request, env, pathname) {
     );
   }
 
-  return json(
-    request,
-    {
-      ok: false,
-      status: "blocked",
-      workspaceId: routeParams.workspaceId,
-      blueprintVersion: routeParams.blueprintVersion,
-      blockers: [
-        {
-          code: "CANONICAL_COMMIT_ENGINE_PENDING",
-          message: "The approval request passed authentication and validation, but canonical commit execution is not enabled yet."
-        }
-      ],
-      validated: true,
-      actor: auth.actor,
-      clientRequestId: body.clientRequestId
-    },
-    501
-  );
+  try {
+    const result = await executeApprovalTransaction({
+      env,
+      body,
+      actor: auth.actor
+    });
+
+    if (result.duplicate) {
+      return json(request, {
+        ok: true,
+        status: "committed",
+        duplicate: true,
+        transaction: result.transaction
+      });
+    }
+
+    return json(request, {
+      ok: true,
+      transactionId: result.transaction.transactionId,
+      status: "committed",
+      workspace: {
+        id: body.workspaceId,
+        stage: "Build Ready",
+        nextAction: "Open Build Studio"
+      },
+      blueprint: {
+        version: body.blueprintVersion,
+        status: "Approved",
+        locked: true
+      },
+      executionPackage: {
+        id: "NN-BUILD-001",
+        status: "ready",
+        assignedTo: "Codex"
+      },
+      repository: result.transaction.repository
+    });
+  } catch (error) {
+    console.error("Blueprint approval transaction failed", error);
+
+    const conflict = /already approved|already.*locked/i.test(error.message || "");
+    return errorResponse(
+      request,
+      conflict ? 409 : 502,
+      conflict ? "BLUEPRINT_CONFLICT" : "CANONICAL_COMMIT_FAILED",
+      error.message || "The canonical Blueprint approval transaction failed.",
+      error.details
+    );
+  }
 }
