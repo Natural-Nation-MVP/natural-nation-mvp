@@ -41,6 +41,10 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-022 | Workspace Registry approved as the default Command Center landing experience | R4 | Command Center | Approved | docs/releases/COMMAND-CENTER-UX-V1.1.md |
 | DL-023 | Command Center UX v1.1 approved with Founder metrics, living cards, contextual navigation, and motion | R4 | Command Center | Approved | docs/releases/COMMAND-CENTER-UX-V1.1.md |
 | DL-024 | AI-guided product development operating system positioning deferred for future marketing | R4 | Marketing Backlog | Deferred | docs/releases/COMMAND-CENTER-UX-V1.1.md |
+| DL-025 | Workspace Discovery and Blueprint Engine approved | R4 | Intelligence | Approved | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
+| DL-026 | Application recommendations must be classified as Required, Recommended, or Later | R4 | Intelligence | Approved | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
+| DL-027 | Natural Nation selected as the first real blueprint validation workspace | R4 | Natural Nation | Approved | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
+| DL-028 | Digital Company Builder retained as a strategic future direction | R4 | Strategy Backlog | Deferred | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
 
 ## Related Records
 
@@ -49,6 +53,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-CLOUDFLARE-SECURITY-FOUNDATION.md
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
+- docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
