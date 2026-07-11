@@ -1,5 +1,5 @@
 (() => {
-  const blueprintPath = './config/natural-nation-blueprint.json?v=0.1.0';
+  const blueprintPath = './config/natural-nation-blueprint.json?v=0.2.0';
   let blueprint = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -24,49 +24,99 @@
   function renderList(selector, items) {
     const container = $(selector);
     if (!container) return;
-    container.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+    container.innerHTML = items.map((item) => `<div class="experience-line">${escapeHtml(item)}</div>`).join('');
   }
 
-  function renderProducts() {
-    const container = $('[data-blueprint-products]');
+  function renderSnapshot() {
+    const container = $('[data-blueprint-snapshot]');
     if (!container || !blueprint) return;
-    container.innerHTML = blueprint.products.map((item) => `
-      <article class="blueprint-card">
-        <div class="blueprint-card-head">
-          <strong>${escapeHtml(item.name)}</strong>
-          <span class="blueprint-badge ${badgeClass(item.status)}">${escapeHtml(item.status)}</span>
-        </div>
-        <p>${escapeHtml(item.purpose)}</p>
+
+    const metrics = [
+      ['Build Streams', blueprint.snapshot.buildStreams],
+      ['Required Components', blueprint.snapshot.requiredComponents],
+      ['Recommended', blueprint.snapshot.recommendedComponents],
+      ['Open Decisions', blueprint.snapshot.openDecisions],
+      ['Deployment Phases', blueprint.snapshot.deploymentPhases]
+    ];
+
+    container.innerHTML = metrics.map(([label, value]) => `
+      <article class="snapshot-metric">
+        <span>${escapeHtml(label)}</span>
+        <strong>${value}</strong>
       </article>
     `).join('');
+
+    const total = blueprint.components.length;
+    const required = blueprint.components.filter((item) => item.classification === 'Required').length;
+    const recommended = blueprint.components.filter((item) => item.classification === 'Recommended').length;
+    const decision = blueprint.components.filter((item) => item.classification.includes('Decision')).length;
+    const later = blueprint.components.filter((item) => item.classification === 'Later').length;
+
+    const chart = $('[data-component-chart]');
+    if (chart) {
+      const requiredStop = (required / total) * 100;
+      const recommendedStop = requiredStop + (recommended / total) * 100;
+      const decisionStop = recommendedStop + (decision / total) * 100;
+      chart.style.setProperty('--required-stop', `${requiredStop}%`);
+      chart.style.setProperty('--recommended-stop', `${recommendedStop}%`);
+      chart.style.setProperty('--decision-stop', `${decisionStop}%`);
+      chart.setAttribute('aria-label', `${required} required, ${recommended} recommended, ${decision} decision required, ${later} later`);
+    }
   }
 
-  function renderCapabilities() {
-    const container = $('[data-blueprint-capabilities]');
+  function renderBuildStreams() {
+    const container = $('[data-blueprint-build-streams]');
     if (!container || !blueprint) return;
-    container.innerHTML = blueprint.capabilities.map((item) => `
-      <article class="blueprint-row">
+    container.innerHTML = blueprint.buildStreams.map((item) => `
+      <article class="build-stream-card">
+        <div class="build-stream-icon" aria-hidden="true">${escapeHtml(item.shortName.charAt(0))}</div>
         <div>
-          <strong>${escapeHtml(item.name)}</strong>
-          <p>${escapeHtml(item.reason)}</p>
+          <div class="build-stream-head">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="blueprint-badge ${badgeClass(item.status)}">${escapeHtml(item.status)}</span>
+          </div>
+          <p>${escapeHtml(item.purpose)}</p>
         </div>
-        <span class="blueprint-badge ${badgeClass(item.classification)}">${escapeHtml(item.classification)}</span>
       </article>
     `).join('');
   }
 
-  function renderApplications() {
-    const container = $('[data-blueprint-applications]');
+  function renderDeploymentPhases() {
+    const container = $('[data-blueprint-phases]');
     if (!container || !blueprint) return;
-    container.innerHTML = blueprint.applications.map((item) => `
-      <article class="blueprint-app">
+    container.innerHTML = blueprint.deploymentPhases.map((item) => `
+      <article class="phase-card ${item.status.toLowerCase()}">
         <div>
-          <strong>${escapeHtml(item.name)}</strong>
-          <p>Supports: ${escapeHtml(item.supports)}</p>
+          <span>${escapeHtml(item.phase)} · ${escapeHtml(item.status)}</span>
+          <strong>${escapeHtml(item.title)}</strong>
         </div>
-        <span class="blueprint-badge ${badgeClass(item.classification)}">${escapeHtml(item.classification)}</span>
+        <p>${escapeHtml(item.description)}</p>
       </article>
     `).join('');
+  }
+
+  function renderComponents() {
+    const groups = {
+      required: blueprint.components.filter((item) => item.classification === 'Required'),
+      recommended: blueprint.components.filter((item) => item.classification === 'Recommended'),
+      decision: blueprint.components.filter((item) => item.classification.includes('Decision')),
+      later: blueprint.components.filter((item) => item.classification === 'Later')
+    };
+
+    Object.entries(groups).forEach(([key, items]) => {
+      const container = $(`[data-components-${key}]`);
+      if (!container) return;
+      container.innerHTML = items.map((item) => `
+        <article class="component-card">
+          <div class="component-card-head">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="blueprint-badge ${badgeClass(item.classification)}">${escapeHtml(item.classification)}</span>
+          </div>
+          <p>${escapeHtml(item.supports)}</p>
+          <small>${escapeHtml(item.reason)}</small>
+        </article>
+      `).join('');
+    });
   }
 
   function renderOpenDecisions() {
@@ -89,16 +139,18 @@
     $('[data-blueprint-status]').textContent = blueprint.status;
     $('[data-blueprint-confidence]').textContent = `${blueprint.confidence}%`;
     $('[data-blueprint-summary]').textContent = blueprint.summary;
-    $('[data-blueprint-problem]').textContent = blueprint.problem;
+    $('[data-blueprint-mission]').textContent = blueprint.mission;
     $('[data-blueprint-approval-effect]').textContent = blueprint.approvalEffect;
+    $('[data-sticky-confidence]').textContent = `${blueprint.confidence}% confidence`;
+    $('[data-sticky-components]').textContent = `${blueprint.snapshot.requiredComponents} required`;
+    $('[data-sticky-decisions]').textContent = `${blueprint.snapshot.openDecisions} pending`;
 
     renderList('[data-blueprint-users]', blueprint.users);
-    renderList('[data-blueprint-journeys]', blueprint.coreJourneys);
-    renderList('[data-blueprint-included]', blueprint.mvpBoundaries.included);
-    renderList('[data-blueprint-later]', blueprint.mvpBoundaries.excludedOrLater);
-    renderProducts();
-    renderCapabilities();
-    renderApplications();
+    renderList('[data-blueprint-experience]', blueprint.coreUserExperience);
+    renderSnapshot();
+    renderBuildStreams();
+    renderDeploymentPhases();
+    renderComponents();
     renderOpenDecisions();
   }
 
@@ -131,7 +183,7 @@
     if (approve) {
       event.preventDefault();
       const status = $('[data-blueprint-action-status]');
-      if (status) status.textContent = 'Approval is not yet recorded. Resolve the MVP billing decision before final blueprint approval.';
+      if (status) status.textContent = 'Resolve the MVP billing decision before final Blueprint approval can be recorded.';
     }
   });
 
