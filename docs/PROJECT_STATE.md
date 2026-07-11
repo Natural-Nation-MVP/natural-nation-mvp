@@ -22,6 +22,8 @@ Workspace Discovery and Blueprint Engine: docs/releases/WORKSPACE-DISCOVERY-BLUE
 
 Natural Nation Workspace Discovery v1: docs/releases/NATURAL-NATION-WORKSPACE-DISCOVERY-V1.md
 
+Explainability First: docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
+
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
 ## Current Direction
@@ -31,6 +33,23 @@ Founder OS is the reusable AI-powered platform for creating applications, websit
 Natural Nation is Project #1 and the first real validation workspace.
 
 Founder OS must understand the desired outcome and determine required capabilities before applications are installed or automation changes repositories.
+
+Founder Intelligence remains a shared platform service. It should make existing pages smarter without creating unnecessary primary-navigation pages.
+
+## Approved UX Standard
+
+NNOS-UX-001 — Explainability First is Founder approved.
+
+Every AI recommendation must provide an Explain action with:
+
+- plain-language reasoning
+- confidence
+- evidence
+- links to canonical supporting documents
+- source authority
+- recommendation history when available
+
+The interface should use progressive disclosure so reasoning details appear in a contextual drawer rather than overloading the page.
 
 ## Implemented
 
@@ -55,6 +74,7 @@ Founder OS must understand the desired outcome and determine required capabiliti
 
 - Founder review of Natural Nation Workspace Discovery v1
 - Founder answer on MVP subscription billing
+- Explain drawer implementation with source links
 - Natural Nation draft Workspace Blueprint
 - Application Registry foundation
 - capability-to-application rule catalog
@@ -65,4 +85,4 @@ Founder OS must understand the desired outcome and determine required capabiliti
 
 ## Next
 
-Founder opens Natural Nation, reviews Discovery, and confirms whether billing is Yes, No, or Decide Later for the MVP.
+Add the first Explain drawer to the Natural Nation Discovery recommendation, including direct links to the canonical documents used for its reasoning.
