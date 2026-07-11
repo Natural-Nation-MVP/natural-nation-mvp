@@ -4,6 +4,11 @@
   "main": "src/index.js",
   "compatibility_date": "2026-07-11",
   "workers_dev": true,
+  "vars": {
+    "GITHUB_OWNER": "Natural-Nation-MVP",
+    "GITHUB_REPOSITORY": "natural-nation-mvp",
+    "GITHUB_BRANCH": "main"
+  },
   "observability": {
     "enabled": true
   }
