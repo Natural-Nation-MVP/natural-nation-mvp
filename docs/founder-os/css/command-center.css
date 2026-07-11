@@ -31,6 +31,13 @@
   border-radius: 10px;
   padding: 16px;
   box-shadow: var(--nn-shadow);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.workspace-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(47, 125, 50, 0.3);
+  box-shadow: 0 16px 34px rgba(31, 55, 35, 0.12);
 }
 
 .workspace-card-top {
@@ -50,6 +57,38 @@
   color: var(--nn-muted);
   line-height: 1.5;
   min-height: 44px;
+}
+
+.workspace-progress {
+  margin: 12px 0 14px;
+}
+
+.workspace-progress-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.workspace-progress-copy span {
+  color: var(--nn-muted);
+}
+
+.workspace-progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(47, 80, 54, 0.1);
+  overflow: hidden;
+}
+
+.workspace-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #245f25, #4d8c42);
+  transform-origin: left;
+  animation: progress-grow 700ms ease both;
 }
 
 .workspace-meta-grid {
@@ -88,6 +127,82 @@
   width: 100%;
 }
 
+.nav-context {
+  margin: 10px 0 6px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.nav-context small,
+.nav-context strong {
+  display: block;
+}
+
+.nav-context small {
+  opacity: 0.65;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 3px;
+}
+
+.back-link {
+  margin-bottom: 4px;
+}
+
+.card-enter {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: card-rise 420ms ease forwards;
+  animation-delay: calc(var(--card-order, 0) * 90ms);
+}
+
+.metric-enter {
+  animation: metric-fade 360ms ease both;
+}
+
+.main.view-transition-out {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 170ms ease, transform 170ms ease;
+}
+
+.main.view-transition-in {
+  animation: view-fade-in 320ms ease both;
+}
+
+[data-system-status*="online"] {
+  animation: status-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes card-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes metric-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes view-fade-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progress-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
 @media (max-width: 860px) {
   .command-center-hero,
   .workspace-registry-grid {
@@ -96,5 +211,16 @@
 
   .command-center-actions {
     justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
