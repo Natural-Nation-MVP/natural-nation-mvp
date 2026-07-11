@@ -1,0 +1,11 @@
+# Local development placeholders only.
+# Copy to .dev.vars and add real values locally.
+# Never commit .dev.vars or actual secrets.
+
+GITHUB_OWNER=Natural-Nation-MVP
+GITHUB_REPOSITORY=natural-nation-mvp
+APPROVED_ORIGIN=https://natural-nation-mvp.github.io
+
+# Add with `npx wrangler secret put <NAME>` for deployed environments.
+GITHUB_TOKEN=
+FOUNDER_API_KEY=
