@@ -1,0 +1,96 @@
+{
+  "blueprintVersion": "0.1.0-draft",
+  "workspaceId": "natural-nation",
+  "workspaceName": "Natural Nation",
+  "status": "Founder Review",
+  "confidence": 87,
+  "summary": "Natural Nation is a mobile-first holistic wellness platform supported by a public brand website and Duey, an AI wellness mentor.",
+  "problem": "People need practical, personalized guidance that turns holistic wellness goals into simple daily actions.",
+  "users": [
+    "Adults age 21 and older seeking practical holistic wellness support",
+    "People who value whole-food, anti-inflammatory, and Dr. Sebi-inspired wellness principles",
+    "Users who need clear daily protocols, progress visibility, and supportive AI guidance"
+  ],
+  "products": [
+    {
+      "name": "Natural Nation Brand Website",
+      "purpose": "Explain the brand, establish trust, educate visitors, and guide qualified users toward the application.",
+      "status": "Required"
+    },
+    {
+      "name": "Natural Nation Mobile Application",
+      "purpose": "Deliver onboarding, personalized blueprints, daily protocols, progress tracking, scores, and Duey guidance.",
+      "status": "Required"
+    },
+    {
+      "name": "Duey AI Mentor",
+      "purpose": "Provide practical, non-medical wellness education, accountability, clarification, and personalized guidance.",
+      "status": "Required"
+    }
+  ],
+  "coreJourneys": [
+    "Guest enters onboarding and selects goals",
+    "Founder-approved rules generate a personalized wellness blueprint",
+    "User enters the Day 1 dashboard and receives a daily mission",
+    "User follows a time-based daily protocol",
+    "User records progress across energy, digestion, mood, sleep, and completion",
+    "Duey explains recommendations and supports consistency",
+    "Guest upgrades to a registered account without losing data"
+  ],
+  "mvpBoundaries": {
+    "included": [
+      "Guest-first onboarding",
+      "Email, Google, and Apple account upgrade path",
+      "Personalized wellness blueprint",
+      "Daily Protocol Timeline",
+      "Wellness Score",
+      "Completion-based Rejuvenation Score",
+      "Progress tracking",
+      "Duey mentor conversation experience",
+      "Natural Nation public brand website"
+    ],
+    "excludedOrLater": [
+      "Wearable integrations",
+      "Predictive biomarker analysis",
+      "Clinical diagnosis or treatment",
+      "Large-scale coaching marketplace",
+      "Advanced analytics and predictive personalization",
+      "Shopping navigation"
+    ]
+  },
+  "capabilities": [
+    { "name": "Public web publishing", "classification": "Required", "reason": "Natural Nation needs a public brand presence." },
+    { "name": "Mobile application delivery", "classification": "Required", "reason": "The core user experience is mobile-first." },
+    { "name": "Identity and guest upgrade", "classification": "Required", "reason": "Users need accounts while preserving guest progress." },
+    { "name": "Persistent wellness data", "classification": "Required", "reason": "Blueprints, protocol completion, progress, and memory must be stored." },
+    { "name": "AI mentor orchestration", "classification": "Required", "reason": "Duey is a core product experience." },
+    { "name": "Knowledge and decision retrieval", "classification": "Required", "reason": "Duey and Founder OS must use approved rules and canonical records." },
+    { "name": "Notifications", "classification": "Recommended", "reason": "Reminders may improve protocol consistency but are not essential to prove the MVP." },
+    { "name": "Analytics", "classification": "Recommended", "reason": "Basic product and retention insight will support iteration after launch." },
+    { "name": "Subscription billing", "classification": "Founder Decision Required", "reason": "Billing changes scope, security, access control, and launch planning." },
+    { "name": "CRM and social publishing", "classification": "Later", "reason": "Useful for growth, but unnecessary for the first working release." }
+  ],
+  "applications": [
+    { "name": "Website Builder", "classification": "Required", "supports": "Public web publishing" },
+    { "name": "App Builder", "classification": "Required", "supports": "Mobile application delivery" },
+    { "name": "Authentication", "classification": "Required", "supports": "Identity and guest upgrade" },
+    { "name": "Database", "classification": "Required", "supports": "Persistent wellness data" },
+    { "name": "AI Team", "classification": "Required", "supports": "Duey orchestration and AI execution" },
+    { "name": "Knowledge", "classification": "Required", "supports": "Canonical rules, memory, and decisions" },
+    { "name": "Assets", "classification": "Required", "supports": "Brand, Duey, UI, and production media" },
+    { "name": "Deployments", "classification": "Required", "supports": "Website and application release management" },
+    { "name": "Analytics", "classification": "Recommended", "supports": "MVP learning and retention insight" },
+    { "name": "Notifications", "classification": "Recommended", "supports": "Daily protocol consistency" },
+    { "name": "Billing", "classification": "Founder Decision Required", "supports": "Paid access and subscription management" },
+    { "name": "CRM", "classification": "Later", "supports": "Marketing and customer relationship management" }
+  ],
+  "openDecisions": [
+    {
+      "id": "billing-mvp",
+      "title": "MVP subscription billing",
+      "question": "Should paid subscription billing be included in the first Natural Nation MVP release?",
+      "impact": "Determines whether Billing, subscription access control, receipts, and payment security are part of the first release."
+    }
+  ],
+  "approvalEffect": "Founder approval will establish this blueprint as the execution contract for future AI planning and implementation. It will not install applications or change repositories until protected execution is available."
+}
