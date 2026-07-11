@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4 — Automation Environment Foundation
 
-Current priority: build the first Workspace Discovery and Blueprint vertical slice using Natural Nation.
+Current priority: Founder review of Natural Nation Workspace Discovery v1.
 
 Canonical runtime: docs/founder-os/
 
@@ -19,6 +19,8 @@ Gateway API v1: docs/releases/PHASE-4-GATEWAY-API-V1.md
 Command Center UX v1.1: docs/releases/COMMAND-CENTER-UX-V1.1.md
 
 Workspace Discovery and Blueprint Engine: docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
+
+Natural Nation Workspace Discovery v1: docs/releases/NATURAL-NATION-WORKSPACE-DISCOVERY-V1.md
 
 Decision Ledger: docs/decisions/DECISION-LEDGER.md
 
@@ -35,29 +37,27 @@ Founder OS must understand the desired outcome and determine required capabiliti
 - Cloudflare Gateway with GET /, GET /health, and GET /version
 - Workspace Registry as Command Center home
 - Command Center UX v1.1 Founder validated PASS
-- Founder-focused metrics and living workspace cards
-- Context-aware workspace navigation
-- Motion and reduced-motion support
 - Workspace Discovery and Blueprint Engine architecture approved
+- Natural Nation Workspace Discovery screen
+- approved-knowledge summary
+- confidence and evidence display
+- unresolved-question interaction
+- blueprint-readiness display
+- Generate Blueprint safe placeholder
 
-## Current Build Objective
+## Current Discovery Result
 
-Produce a Natural Nation Workspace Blueprint that:
-
-- reuses approved project intelligence
-- defines MVP boundaries
-- identifies required capabilities
-- recommends applications
-- separates Required, Recommended, and Later applications
-- explains every recommendation
-- is ready for Founder approval
+- overall understanding: 87%
+- core product and Duey requirements: high confidence
+- MVP billing decision: unresolved
 
 ## Pending
 
+- Founder review of Natural Nation Workspace Discovery v1
+- Founder answer on MVP subscription billing
 - Natural Nation draft Workspace Blueprint
 - Application Registry foundation
 - capability-to-application rule catalog
-- blueprint review interface
 - authentication foundation
 - approval and audit foundations
 - GitHub Actions connection
@@ -65,4 +65,4 @@ Produce a Natural Nation Workspace Blueprint that:
 
 ## Next
 
-Create the Natural Nation draft Workspace Blueprint and application recommendation package.
+Founder opens Natural Nation, reviews Discovery, and confirms whether billing is Yes, No, or Decide Later for the MVP.
