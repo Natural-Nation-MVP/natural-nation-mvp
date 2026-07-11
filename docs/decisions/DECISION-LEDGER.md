@@ -45,6 +45,10 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-026 | Application recommendations must be classified as Required, Recommended, or Later | R4 | Intelligence | Approved | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
 | DL-027 | Natural Nation selected as the first real blueprint validation workspace | R4 | Natural Nation | Approved | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
 | DL-028 | Digital Company Builder retained as a strategic future direction | R4 | Strategy Backlog | Deferred | docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md |
+| DL-029 | NNOS-UX-001 Explainability First approved as a platform-wide UX standard | R4 | Founder OS | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
+| DL-030 | AI recommendations must expose an Explain action with reasoning, confidence, sources, and history | R4 | Founder OS | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
+| DL-031 | Supporting sources must link to canonical documents and respect source-authority ranking | R4 | Governance | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
+| DL-032 | Founder Intelligence remains a shared platform service and not a required primary-navigation page | R4 | Architecture | Approved | docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md |
 
 ## Related Records
 
@@ -54,6 +58,7 @@ The Decision Ledger records Founder approval events without duplicating full sou
 - docs/releases/PHASE-4-GATEWAY-API-V1.md
 - docs/releases/COMMAND-CENTER-UX-V1.1.md
 - docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
+- docs/governance/NNOS-UX-001-EXPLAINABILITY-FIRST.md
 - docs/releases/PHASE-4-PLATFORM-DECISIONS.md
 - docs/releases/PHASE-4-REPOSITORY-STRATEGY.md
 - docs/governance/SYNC-STANDARD.md
