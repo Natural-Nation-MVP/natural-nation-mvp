@@ -14,6 +14,45 @@
       .replaceAll("'", '&#039;');
   }
 
+  function ensureExplainDrawer() {
+    if ($('[data-explain-drawer]')) return;
+
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="explain-backdrop" data-explain-backdrop hidden></div>
+      <aside class="explain-drawer" data-explain-drawer hidden aria-label="Explain recommendation" aria-modal="true" role="dialog">
+        <div class="explain-drawer-header">
+          <div>
+            <div class="eyebrow">Explain Recommendation</div>
+            <h2 data-explain-title>Recommendation</h2>
+          </div>
+          <button class="explain-close" type="button" data-close-explain aria-label="Close Explain drawer">×</button>
+        </div>
+        <div class="explain-tabs" role="tablist" aria-label="Recommendation details">
+          <button class="active" type="button" data-explain-tab="explain">Explain</button>
+          <button type="button" data-explain-tab="sources">Sources</button>
+          <button type="button" data-explain-tab="history">History</button>
+        </div>
+        <section data-explain-panel="explain">
+          <div class="eyebrow">Reasoning</div>
+          <p data-explain-reasoning></p>
+          <div class="explain-summary-grid">
+            <div class="explain-summary-card"><span>Confidence</span><strong data-explain-confidence></strong></div>
+            <div class="explain-summary-card"><span>Estimated effort</span><strong data-explain-effort></strong></div>
+          </div>
+          <div class="explain-summary-card" style="margin-top:10px"><span>Expected impact</span><strong data-explain-impact></strong></div>
+        </section>
+        <section data-explain-panel="sources" hidden>
+          <div class="eyebrow">Canonical Sources Used</div>
+          <div data-explain-sources></div>
+        </section>
+        <section data-explain-panel="history" hidden>
+          <div class="eyebrow">Recommendation History</div>
+          <div data-explain-history></div>
+        </section>
+      </aside>
+    `);
+  }
+
   function confidenceClass(value) {
     if (value >= 85) return 'high';
     if (value >= 60) return 'medium';
@@ -72,6 +111,8 @@
   function renderExplainDrawer() {
     const recommendation = discovery?.recommendation;
     if (!recommendation) return;
+
+    ensureExplainDrawer();
 
     const title = $('[data-explain-title]');
     const reasoning = $('[data-explain-reasoning]');
@@ -170,6 +211,7 @@
 
   async function loadDiscovery() {
     try {
+      ensureExplainDrawer();
       const response = await fetch(discoveryPath, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Discovery data returned ${response.status}`);
       discovery = await response.json();
