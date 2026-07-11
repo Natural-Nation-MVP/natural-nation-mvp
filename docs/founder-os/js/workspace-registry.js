@@ -1,5 +1,5 @@
 (() => {
-  const registryPath = './config/workspace-registry.json?v=1.1.0';
+  const registryPath = './config/workspace-registry.json?v=1.2.0';
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -53,10 +53,7 @@
   function renderHomeNavigation() {
     const nav = $('.nav');
     if (!nav) return;
-
-    nav.innerHTML = `
-      <button class="nav-link active" type="button" data-command-center-home>Workspaces</button>
-    `;
+    nav.innerHTML = '<button class="nav-link active" type="button" data-command-center-home>Workspaces</button>';
   }
 
   function renderWorkspaceNavigation(workspace) {
@@ -74,6 +71,23 @@
         <button class="nav-link${index === 0 ? ' active' : ''}" type="button" data-context-module="${module.target}">${module.label}</button>
       `).join('')}
     `;
+  }
+
+  function applyWorkspaceHeader(workspace, target) {
+    const title = $('[data-workspace-title]');
+    const subtitle = $('[data-workspace-subtitle]');
+    const badge = $('[data-workspace-badge]');
+
+    if (target === 'discovery') {
+      if (title) title.textContent = 'Workspace Discovery';
+      if (subtitle) subtitle.textContent = 'Review what Founder OS knows, inspect confidence, and resolve only the remaining uncertainty.';
+      if (badge) badge.textContent = `${workspace.name} · Discovery`;
+      return;
+    }
+
+    if (title) title.textContent = workspace.name;
+    if (subtitle) subtitle.textContent = `${workspace.type} · ${workspace.progress}% complete · Next: ${workspace.nextAction}`;
+    if (badge) badge.textContent = `Workspace #${workspace.number} · ${workspace.stage}`;
   }
 
   function activateRegistry() {
@@ -102,23 +116,17 @@
     renderWorkspaceNavigation(workspace);
 
     const bottomBar = $('.bottom-bar');
-    if (bottomBar) bottomBar.hidden = false;
+    if (bottomBar) bottomBar.hidden = workspace.resumeWorkspace === 'discovery';
 
     if (typeof window.setWorkspace === 'function') {
       window.setWorkspace(workspace.resumeWorkspace || 'mission');
     } else {
       $$('[data-workspace]').forEach((view) => {
-        view.classList.toggle('active', view.dataset.workspace === 'mission');
+        view.classList.toggle('active', view.dataset.workspace === (workspace.resumeWorkspace || 'mission'));
       });
     }
 
-    const title = $('[data-workspace-title]');
-    const subtitle = $('[data-workspace-subtitle]');
-    const badge = $('[data-workspace-badge]');
-
-    if (title) title.textContent = workspace.name;
-    if (subtitle) subtitle.textContent = `${workspace.type} · ${workspace.progress}% complete · Next: ${workspace.nextAction}`;
-    if (badge) badge.textContent = `Workspace #${workspace.number} · ${workspace.stage}`;
+    applyWorkspaceHeader(workspace, workspace.resumeWorkspace || 'mission');
   }
 
   function renderRegistry() {
@@ -126,7 +134,6 @@
     const count = $('[data-workspace-registry-count]');
 
     if (!list || !registry) return;
-
     if (count) count.textContent = `${registry.workspaces.length} active workspaces`;
 
     list.innerHTML = registry.workspaces.map((workspace, index) => `
@@ -188,6 +195,9 @@
         $$('[data-context-module]').forEach((button) => {
           button.classList.toggle('active', button.dataset.contextModule === target);
         });
+        if (window.NNOSActiveWorkspace) applyWorkspaceHeader(window.NNOSActiveWorkspace, target);
+        const bottomBar = $('.bottom-bar');
+        if (bottomBar) bottomBar.hidden = target !== 'build';
       });
       return;
     }
