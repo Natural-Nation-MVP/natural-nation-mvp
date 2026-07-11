@@ -1,6 +1,14 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "defaultWorkspaceId": "founder-os",
+  "commandCenterMetrics": {
+    "activeWorkspaces": 2,
+    "approvalsWaiting": 1,
+    "automationsRunning": 0,
+    "blockedItems": 1,
+    "deployments": 1,
+    "systemHealth": "Online"
+  },
   "workspaces": [
     {
       "number": 0,
@@ -12,8 +20,18 @@
       "status": "active",
       "health": "Gateway online",
       "version": "0.1.0",
-      "nextAction": "Build Command Center v1",
-      "resumeWorkspace": "mission"
+      "progress": 46,
+      "lastActivity": "Today",
+      "pendingApprovals": 0,
+      "nextAction": "Complete Command Center UX v1.1",
+      "resumeWorkspace": "mission",
+      "modules": [
+        { "target": "mission", "label": "Overview" },
+        { "target": "build", "label": "Build Studio" },
+        { "target": "knowledge", "label": "Knowledge" },
+        { "target": "repo", "label": "Repository" },
+        { "target": "ai", "label": "AI Team" }
+      ]
     },
     {
       "number": 1,
@@ -23,10 +41,20 @@
       "type": "Website + Application",
       "stage": "Build",
       "status": "active",
-      "health": "Repository foundation pending",
+      "health": "Needs repository setup",
       "version": "MVP",
+      "progress": 38,
+      "lastActivity": "Today",
+      "pendingApprovals": 1,
       "nextAction": "Create Natural-Nation-App repository",
-      "resumeWorkspace": "mission"
+      "resumeWorkspace": "mission",
+      "modules": [
+        { "target": "mission", "label": "Overview" },
+        { "target": "build", "label": "Build Studio" },
+        { "target": "knowledge", "label": "Knowledge" },
+        { "target": "ai", "label": "AI Team" },
+        { "target": "repo", "label": "Repository" }
+      ]
     }
   ]
 }
