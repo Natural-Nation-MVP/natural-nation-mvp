@@ -1,27 +1,27 @@
 .blueprint-hero {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 18px;
+  gap: 14px;
   align-items: end;
 }
 
 .blueprint-hero h2 {
-  margin: 4px 0 8px;
+  margin: 3px 0 6px;
   font-size: clamp(28px, 4vw, 42px);
   letter-spacing: -0.05em;
 }
 
 .blueprint-meta {
   display: grid;
-  grid-template-columns: repeat(3, minmax(90px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(86px, 1fr));
+  gap: 6px;
 }
 
 .blueprint-meta div,
 .snapshot-metric {
-  padding: 12px;
+  padding: 9px 10px;
   border: 1px solid var(--nn-line);
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.48);
 }
 
@@ -33,45 +33,43 @@
   display: block;
   color: var(--nn-muted);
   font-size: 10px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .blueprint-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
-.mission-statement {
+.blueprint-mission-text {
   margin: 0;
-  max-width: 900px;
-  font-size: clamp(20px, 3vw, 30px);
-  line-height: 1.3;
-  letter-spacing: -0.025em;
+  line-height: 1.45;
+  max-width: 980px;
 }
 
 .snapshot-layout {
   display: grid;
-  grid-template-columns: 1fr 230px;
-  gap: 18px;
+  grid-template-columns: 1fr 190px;
+  gap: 12px;
   align-items: center;
 }
 
 .snapshot-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 9px;
+  gap: 6px;
 }
 
 .snapshot-metric strong {
   display: block;
-  font-size: 25px;
+  font-size: 21px;
 }
 
 .component-chart-wrap {
   display: grid;
   place-items: center;
-  gap: 10px;
+  gap: 7px;
 }
 
 .component-chart {
@@ -79,8 +77,8 @@
   --recommended-stop: 83.33%;
   --decision-stop: 91.67%;
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 126px;
+  height: 126px;
   border-radius: 50%;
   background: conic-gradient(
     #2f7d32 0 var(--required-stop),
@@ -93,7 +91,7 @@
 .component-chart::after {
   content: '';
   position: absolute;
-  inset: 23px;
+  inset: 20px;
   border-radius: 50%;
   background: #f7faf6;
 }
@@ -108,27 +106,27 @@
 }
 
 .component-chart-center strong {
-  font-size: 25px;
+  font-size: 21px;
 }
 
 .component-chart-center span {
   color: var(--nn-muted);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .chart-legend {
   display: grid;
   grid-template-columns: repeat(2, auto);
-  gap: 5px 12px;
-  font-size: 10px;
+  gap: 4px 9px;
+  font-size: 9px;
 }
 
 .chart-legend span::before {
   content: '';
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 5px;
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
   border-radius: 50%;
 }
 
@@ -140,30 +138,30 @@
 .build-stream-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 7px;
 }
 
 .build-stream-card,
 .component-card,
 .blueprint-decision {
   border: 1px solid var(--nn-line);
-  border-radius: 10px;
-  padding: 13px;
+  border-radius: 8px;
+  padding: 9px 10px;
   background: rgba(255, 255, 255, 0.5);
 }
 
 .build-stream-card {
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 10px;
+  grid-template-columns: 34px 1fr;
+  gap: 8px;
 }
 
 .build-stream-icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
   background: rgba(47, 125, 50, 0.1);
   color: var(--nn-green);
   font-weight: 900;
@@ -173,44 +171,45 @@
 .component-card-head {
   display: flex;
   justify-content: space-between;
-  gap: 9px;
+  gap: 7px;
   align-items: flex-start;
 }
 
 .build-stream-card p,
 .component-card p,
 .blueprint-decision p {
-  margin-bottom: 0;
+  margin: 4px 0 0;
   color: var(--nn-muted);
-  line-height: 1.45;
+  line-height: 1.38;
 }
 
 .experience-stack {
   display: grid;
-  gap: 7px;
+  gap: 5px;
 }
 
 .experience-line {
-  padding: 9px 11px;
+  padding: 7px 9px;
   border-left: 3px solid rgba(47, 125, 50, 0.55);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 7px 7px 0;
   background: rgba(47, 125, 50, 0.055);
-  line-height: 1.4;
+  line-height: 1.35;
+  font-size: 12px;
 }
 
 .phase-stack {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .phase-card {
   display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 14px;
+  grid-template-columns: 138px 1fr;
+  gap: 10px;
   align-items: center;
-  padding: 11px 13px;
+  padding: 8px 10px;
   border: 1px solid var(--nn-line);
-  border-radius: 9px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.48);
 }
 
@@ -222,29 +221,31 @@
 .phase-card p {
   margin: 0;
   color: var(--nn-muted);
-  line-height: 1.4;
+  line-height: 1.35;
+  font-size: 12px;
 }
 
 .component-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .component-group {
   display: grid;
-  gap: 9px;
+  gap: 6px;
   align-content: start;
 }
 
 .component-group h3 {
-  margin: 0;
+  margin: 2px 0 0;
+  font-size: 14px;
 }
 
 .blueprint-badge {
   border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 10px;
+  padding: 3px 7px;
+  font-size: 9px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -275,35 +276,7 @@
 }
 
 .blueprint-decision h3 {
-  margin: 6px 0;
-}
-
-.blueprint-sticky-bar {
-  position: sticky;
-  bottom: 12px;
-  z-index: 35;
-  display: grid;
-  grid-template-columns: 1fr auto auto auto auto;
-  gap: 12px;
-  align-items: center;
-  margin-top: 18px;
-  padding: 12px 14px;
-  border: 1px solid rgba(47, 125, 50, 0.25);
-  border-radius: 12px;
-  background: rgba(248, 251, 247, 0.94);
-  box-shadow: 0 14px 40px rgba(18, 31, 22, 0.16);
-  backdrop-filter: blur(16px);
-}
-
-.blueprint-sticky-bar small,
-.blueprint-sticky-metric span {
-  display: block;
-  color: var(--nn-muted);
-  font-size: 10px;
-}
-
-.blueprint-sticky-metric strong {
-  font-size: 13px;
+  margin: 4px 0;
 }
 
 @media (max-width: 980px) {
@@ -325,14 +298,6 @@
   .blueprint-meta {
     grid-template-columns: repeat(3, 1fr);
   }
-
-  .blueprint-sticky-bar {
-    grid-template-columns: 1fr repeat(3, auto);
-  }
-
-  .blueprint-sticky-bar button {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (max-width: 620px) {
@@ -343,15 +308,6 @@
 
   .phase-card {
     grid-template-columns: 1fr;
-    gap: 5px;
-  }
-
-  .blueprint-sticky-bar {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .blueprint-sticky-copy,
-  .blueprint-sticky-bar button {
-    grid-column: 1 / -1;
+    gap: 3px;
   }
 }
