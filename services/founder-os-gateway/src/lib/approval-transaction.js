@@ -62,7 +62,7 @@ function updateBlueprint(blueprint, body, transactionId, timestamp) {
   };
 }
 
-export async function executeApprovalTransaction({ env, body, actor }) {
+async function prepareApprovalTransaction({ env, body, actor }) {
   const transactionHash = await shortHash(body.clientRequestId);
   const transactionId = `TX-NN-BP-${transactionHash.toUpperCase()}`;
   const transactionPath = `docs/transactions/${transactionId}.json`;
@@ -160,22 +160,65 @@ export async function executeApprovalTransaction({ env, body, actor }) {
     executionPackageId: "NN-BUILD-001"
   };
 
+  const files = [
+    { path: approvalPath, content: approvalRecord },
+    { path: auditPath, content: auditEvent },
+    { path: packagePath, content: executionPackage },
+    { path: transactionPath, content: transaction },
+    { path: BLUEPRINT_PATH, content: updateBlueprint(blueprint, body, transactionId, timestamp) },
+    { path: WORKSPACE_REGISTRY_PATH, content: updateWorkspaceRegistry(registryFile.content, timestamp) }
+  ];
+
+  return {
+    duplicate: false,
+    transaction,
+    files,
+    verification: {
+      githubAccess: true,
+      blueprintReadable: true,
+      workspaceRegistryReadable: true,
+      blueprintVersionMatches: true,
+      blueprintUnlocked: true,
+      plannedFileCount: files.length
+    }
+  };
+}
+
+export async function dryRunApprovalTransaction({ env, body, actor }) {
+  const prepared = await prepareApprovalTransaction({ env, body, actor });
+
+  if (prepared.duplicate) {
+    return prepared;
+  }
+
+  return {
+    duplicate: false,
+    transaction: {
+      ...prepared.transaction,
+      status: "dry-run-passed",
+      committedAt: null
+    },
+    verification: prepared.verification,
+    plannedWrites: prepared.files.map((file) => file.path)
+  };
+}
+
+export async function executeApprovalTransaction({ env, body, actor }) {
+  const prepared = await prepareApprovalTransaction({ env, body, actor });
+
+  if (prepared.duplicate) {
+    return prepared;
+  }
+
   const result = await commitFilesAtomically(env, {
     message: `approve: Natural Nation Blueprint ${body.blueprintVersion}`,
-    files: [
-      { path: approvalPath, content: approvalRecord },
-      { path: auditPath, content: auditEvent },
-      { path: packagePath, content: executionPackage },
-      { path: transactionPath, content: transaction },
-      { path: BLUEPRINT_PATH, content: updateBlueprint(blueprint, body, transactionId, timestamp) },
-      { path: WORKSPACE_REGISTRY_PATH, content: updateWorkspaceRegistry(registryFile.content, timestamp) }
-    ]
+    files: prepared.files
   });
 
   return {
     duplicate: false,
     transaction: {
-      ...transaction,
+      ...prepared.transaction,
       repository: {
         synchronized: true,
         commitSha: result.commitSha,
