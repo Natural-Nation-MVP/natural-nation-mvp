@@ -1,4 +1,7 @@
-import { executeApprovalTransaction } from "../lib/approval-transaction.js";
+import {
+  dryRunApprovalTransaction,
+  executeApprovalTransaction
+} from "../lib/approval-transaction.js";
 import { authenticateFounder } from "../lib/auth.js";
 import { validateApprovalRequest } from "../lib/blueprint-validation.js";
 import { errorResponse, json } from "../lib/http.js";
@@ -80,6 +83,25 @@ export async function handleApproveBlueprint(request, env, pathname) {
   }
 
   try {
+    if (body.dryRun === true) {
+      const result = await dryRunApprovalTransaction({
+        env,
+        body,
+        actor: auth.actor
+      });
+
+      return json(request, {
+        ok: true,
+        status: "dry-run-passed",
+        dryRun: true,
+        writesPerformed: false,
+        duplicate: result.duplicate,
+        transaction: result.transaction,
+        verification: result.verification,
+        plannedWrites: result.plannedWrites || []
+      });
+    }
+
     const result = await executeApprovalTransaction({
       env,
       body,
