@@ -169,15 +169,70 @@
     renderOpenDecisions();
   }
 
-  function getFounderApiKey() {
+  function openFounderKeyDialog() {
+    return new Promise((resolve) => {
+      const existing = document.querySelector('[data-founder-key-dialog]');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.dataset.founderKeyDialog = 'true';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-labelledby', 'founder-key-title');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px;background:rgba(4,12,8,.72);backdrop-filter:blur(8px);';
+      overlay.innerHTML = `
+        <form style="width:min(440px,100%);background:#fffaf0;border:1px solid rgba(75,94,67,.28);border-radius:14px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.35);">
+          <div class="eyebrow">Protected Founder Action</div>
+          <h2 id="founder-key-title" style="margin:6px 0 8px;">Enter Founder API Key</h2>
+          <p class="muted" style="margin:0 0 14px;">The key is used only for this browser tab. It is not saved, logged, or committed.</p>
+          <label style="display:block;font-weight:800;margin-bottom:6px;" for="founder-api-key-input">Founder API Key</label>
+          <input id="founder-api-key-input" type="password" autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid rgba(75,94,67,.35);border-radius:8px;font:inherit;" required />
+          <p data-key-error style="display:none;color:#8b2525;margin:8px 0 0;font-size:13px;">Enter the temporary Founder API key.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+            <button type="button" data-key-cancel>Cancel</button>
+            <button class="generate" type="submit">Continue</button>
+          </div>
+        </form>
+      `;
+
+      const form = overlay.querySelector('form');
+      const input = overlay.querySelector('input');
+      const error = overlay.querySelector('[data-key-error]');
+
+      function close(value) {
+        document.removeEventListener('keydown', onKeydown);
+        overlay.remove();
+        resolve(value);
+      }
+
+      function onKeydown(event) {
+        if (event.key === 'Escape') close('');
+      }
+
+      overlay.querySelector('[data-key-cancel]').addEventListener('click', () => close(''));
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) close('');
+      });
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = input.value.trim();
+        if (!value) {
+          error.style.display = 'block';
+          input.focus();
+          return;
+        }
+        close(value);
+      });
+
+      document.addEventListener('keydown', onKeydown);
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => input.focus());
+    });
+  }
+
+  async function getFounderApiKey() {
     if (founderApiKey) return founderApiKey;
-
-    const entered = window.prompt(
-      'Enter the temporary Founder API key for this protected action. It will stay only in this browser tab and will not be saved.'
-    );
-
-    if (!entered) return '';
-    founderApiKey = entered.trim();
+    founderApiKey = await openFounderKeyDialog();
     return founderApiKey;
   }
 
@@ -198,7 +253,7 @@
   }
 
   async function requestApproval(dryRun) {
-    const key = getFounderApiKey();
+    const key = await getFounderApiKey();
     if (!key) throw new Error('Founder authentication was cancelled.');
 
     const version = encodeURIComponent(blueprint.blueprintVersion);
