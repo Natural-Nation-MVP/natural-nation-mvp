@@ -1,0 +1,19 @@
+{
+  "approvalId": "APR-6EB4765C9D9DD877",
+  "transactionId": "TX-NN-BP-6EB4765C9D9DD877",
+  "type": "blueprint-approval",
+  "workspaceId": "natural-nation",
+  "blueprintVersion": "0.2.0-draft",
+  "actor": {
+    "id": "founder",
+    "role": "founder",
+    "permissions": [
+      "blueprint:approve"
+    ]
+  },
+  "decisionResolutions": {
+    "billing-mvp": "excluded-from-mvp"
+  },
+  "approvedAt": "2026-07-14T22:45:27.994Z",
+  "status": "approved"
+}

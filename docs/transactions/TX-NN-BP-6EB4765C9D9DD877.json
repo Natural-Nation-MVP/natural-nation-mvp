@@ -1,0 +1,18 @@
+{
+  "transactionId": "TX-NN-BP-6EB4765C9D9DD877",
+  "type": "blueprint-approval",
+  "workspaceId": "natural-nation",
+  "blueprintVersion": "0.2.0-draft",
+  "status": "committed",
+  "actor": {
+    "id": "founder",
+    "role": "founder",
+    "permissions": [
+      "blueprint:approve"
+    ]
+  },
+  "clientRequestId": "nn-live-approval-19f56e1a-5267-43b2-b3c0-d052a07fd9b7",
+  "createdAt": "2026-07-14T22:45:27.994Z",
+  "committedAt": "2026-07-14T22:45:27.994Z",
+  "executionPackageId": "NN-BUILD-001"
+}

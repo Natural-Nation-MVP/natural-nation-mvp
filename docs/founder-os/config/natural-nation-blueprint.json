@@ -2,7 +2,7 @@
   "blueprintVersion": "0.2.0-draft",
   "workspaceId": "natural-nation",
   "workspaceName": "Natural Nation",
-  "status": "Founder Review",
+  "status": "Approved",
   "confidence": 87,
   "summary": "Natural Nation is a mobile-first holistic wellness platform supported by a public brand website and Duey, an AI wellness mentor.",
   "mission": "Our mission is to provide practical, personalized guidance that turns holistic wellness goals into simple daily actions.",
@@ -15,7 +15,7 @@
     "buildStreams": 3,
     "requiredComponents": 8,
     "recommendedComponents": 2,
-    "openDecisions": 1,
+    "openDecisions": 0,
     "deploymentPhases": 3
   },
   "buildStreams": [
@@ -68,27 +68,86 @@
     }
   ],
   "components": [
-    { "name": "Website Builder", "classification": "Required", "supports": "Public brand experience and web publishing", "reason": "Natural Nation needs a trusted public presence." },
-    { "name": "App Builder", "classification": "Required", "supports": "Mobile-first wellness experience", "reason": "The primary member experience is delivered through the application." },
-    { "name": "Authentication", "classification": "Required", "supports": "Guest-first identity and account upgrade", "reason": "Members must retain progress when upgrading from guest access." },
-    { "name": "Database", "classification": "Required", "supports": "Blueprints, progress, protocols, and memory", "reason": "Personalized wellness information must persist securely." },
-    { "name": "AI Team", "classification": "Required", "supports": "Duey orchestration and AI execution", "reason": "Duey is a central part of the Natural Nation experience." },
-    { "name": "Knowledge", "classification": "Required", "supports": "Approved rules, decisions, and mentor guidance", "reason": "Founder-approved knowledge must guide the system consistently." },
-    { "name": "Assets", "classification": "Required", "supports": "Brand, Duey, interface, and production media", "reason": "Approved visual assets must remain organized and reusable." },
-    { "name": "Deployments", "classification": "Required", "supports": "Website and application release management", "reason": "Both experiences require controlled release and version management." },
-    { "name": "Analytics", "classification": "Recommended", "supports": "MVP learning and retention insight", "reason": "Basic insight will help improve the experience after launch." },
-    { "name": "Notifications", "classification": "Recommended", "supports": "Daily protocol consistency", "reason": "Thoughtful reminders may support member consistency." },
-    { "name": "Billing", "classification": "Founder Decision Required", "supports": "Paid access and subscription management", "reason": "Billing changes scope, security, access control, and launch planning." },
-    { "name": "Community", "classification": "Later", "supports": "Member relationships, engagement, and growth", "reason": "Community can strengthen long-term engagement after the core experience is proven." }
-  ],
-  "openDecisions": [
     {
-      "id": "billing-mvp",
-      "title": "MVP subscription billing",
-      "question": "Should paid subscription billing be included in the first Natural Nation MVP release?",
-      "impact": "This determines whether payment security, subscription access, receipts, and billing operations are included in Phase 1."
+      "name": "Website Builder",
+      "classification": "Required",
+      "supports": "Public brand experience and web publishing",
+      "reason": "Natural Nation needs a trusted public presence."
+    },
+    {
+      "name": "App Builder",
+      "classification": "Required",
+      "supports": "Mobile-first wellness experience",
+      "reason": "The primary member experience is delivered through the application."
+    },
+    {
+      "name": "Authentication",
+      "classification": "Required",
+      "supports": "Guest-first identity and account upgrade",
+      "reason": "Members must retain progress when upgrading from guest access."
+    },
+    {
+      "name": "Database",
+      "classification": "Required",
+      "supports": "Blueprints, progress, protocols, and memory",
+      "reason": "Personalized wellness information must persist securely."
+    },
+    {
+      "name": "AI Team",
+      "classification": "Required",
+      "supports": "Duey orchestration and AI execution",
+      "reason": "Duey is a central part of the Natural Nation experience."
+    },
+    {
+      "name": "Knowledge",
+      "classification": "Required",
+      "supports": "Approved rules, decisions, and mentor guidance",
+      "reason": "Founder-approved knowledge must guide the system consistently."
+    },
+    {
+      "name": "Assets",
+      "classification": "Required",
+      "supports": "Brand, Duey, interface, and production media",
+      "reason": "Approved visual assets must remain organized and reusable."
+    },
+    {
+      "name": "Deployments",
+      "classification": "Required",
+      "supports": "Website and application release management",
+      "reason": "Both experiences require controlled release and version management."
+    },
+    {
+      "name": "Analytics",
+      "classification": "Recommended",
+      "supports": "MVP learning and retention insight",
+      "reason": "Basic insight will help improve the experience after launch."
+    },
+    {
+      "name": "Notifications",
+      "classification": "Recommended",
+      "supports": "Daily protocol consistency",
+      "reason": "Thoughtful reminders may support member consistency."
+    },
+    {
+      "name": "Billing",
+      "classification": "Founder Decision Required",
+      "supports": "Paid access and subscription management",
+      "reason": "Billing changes scope, security, access control, and launch planning."
+    },
+    {
+      "name": "Community",
+      "classification": "Later",
+      "supports": "Member relationships, engagement, and growth",
+      "reason": "Community can strengthen long-term engagement after the core experience is proven."
     }
   ],
+  "openDecisions": [],
   "approvalEffect": "Approval establishes this Blueprint as the execution contract for future AI planning and implementation. Protected changes remain unavailable until authentication, approval, and audit controls are ready.",
-  "actionBarEffect": "Sets this Blueprint as the approved execution contract."
+  "actionBarEffect": "Sets this Blueprint as the approved execution contract.",
+  "locked": true,
+  "approvedAt": "2026-07-14T22:45:27.994Z",
+  "approvalTransactionId": "TX-NN-BP-6EB4765C9D9DD877",
+  "decisionResolutions": {
+    "billing-mvp": "excluded-from-mvp"
+  }
 }

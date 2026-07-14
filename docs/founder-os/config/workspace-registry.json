@@ -3,9 +3,9 @@
   "defaultWorkspaceId": "founder-os",
   "commandCenterMetrics": {
     "activeWorkspaces": 2,
-    "approvalsWaiting": 2,
+    "approvalsWaiting": 1,
     "automationsRunning": 0,
-    "blockedItems": 1,
+    "blockedItems": 0,
     "deployments": 1,
     "systemHealth": "Online"
   },
@@ -26,11 +26,26 @@
       "nextAction": "Validate Natural Nation Blueprint vertical slice",
       "resumeWorkspace": "mission",
       "modules": [
-        { "target": "mission", "label": "Overview" },
-        { "target": "build", "label": "Build Studio" },
-        { "target": "knowledge", "label": "Knowledge" },
-        { "target": "repo", "label": "Repository" },
-        { "target": "ai", "label": "AI Team" }
+        {
+          "target": "mission",
+          "label": "Overview"
+        },
+        {
+          "target": "build",
+          "label": "Build Studio"
+        },
+        {
+          "target": "knowledge",
+          "label": "Knowledge"
+        },
+        {
+          "target": "repo",
+          "label": "Repository"
+        },
+        {
+          "target": "ai",
+          "label": "AI Team"
+        }
       ]
     },
     {
@@ -39,24 +54,46 @@
       "name": "Natural Nation",
       "description": "Project #1: the Natural Nation brand website and wellness application with Duey.",
       "type": "Website + Application",
-      "stage": "Discovery",
+      "stage": "Build Ready",
       "status": "active",
-      "health": "Billing decision ready for confirmation",
+      "health": "Blueprint approved",
       "version": "MVP",
-      "progress": 44,
-      "lastActivity": "Today",
-      "pendingApprovals": 2,
-      "nextAction": "Confirm MVP billing scope in Discovery",
-      "resumeWorkspace": "discovery",
+      "progress": 52,
+      "lastActivity": "2026-07-14T22:45:27.994Z",
+      "pendingApprovals": 1,
+      "nextAction": "Open Build Studio",
+      "resumeWorkspace": "build",
       "modules": [
-        { "target": "discovery", "label": "Discovery" },
-        { "target": "blueprint", "label": "Blueprint" },
-        { "target": "mission", "label": "Overview" },
-        { "target": "build", "label": "Build Studio" },
-        { "target": "knowledge", "label": "Knowledge" },
-        { "target": "ai", "label": "AI Team" },
-        { "target": "repo", "label": "Repository" }
-      ]
+        {
+          "target": "discovery",
+          "label": "Discovery"
+        },
+        {
+          "target": "blueprint",
+          "label": "Blueprint"
+        },
+        {
+          "target": "mission",
+          "label": "Overview"
+        },
+        {
+          "target": "build",
+          "label": "Build Studio"
+        },
+        {
+          "target": "knowledge",
+          "label": "Knowledge"
+        },
+        {
+          "target": "ai",
+          "label": "AI Team"
+        },
+        {
+          "target": "repo",
+          "label": "Repository"
+        }
+      ],
+      "activePackageId": "NN-BUILD-001"
     }
   ]
 }

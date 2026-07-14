@@ -1,0 +1,17 @@
+{
+  "eventId": "AUD-6EB4765C9D9DD877",
+  "transactionId": "TX-NN-BP-6EB4765C9D9DD877",
+  "eventType": "blueprint.approved",
+  "workspaceId": "natural-nation",
+  "blueprintVersion": "0.2.0-draft",
+  "actor": {
+    "id": "founder",
+    "role": "founder",
+    "permissions": [
+      "blueprint:approve"
+    ]
+  },
+  "occurredAt": "2026-07-14T22:45:27.994Z",
+  "source": "founder-os-gateway",
+  "clientRequestId": "nn-live-approval-19f56e1a-5267-43b2-b3c0-d052a07fd9b7"
+}
