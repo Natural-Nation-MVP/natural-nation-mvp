@@ -12,8 +12,12 @@ function loadScriptOnce(src, marker) {
   document.body.appendChild(script);
 }
 
+function loadGatewayClient() {
+  loadScriptOnce('./js/gateway-client-v2.js?v=2.0.0', 'data-gateway-client-v2-loader');
+}
+
 function loadCanonicalBuildStudio() {
-  loadScriptOnce('./js/canonical-build-studio.js?v=1.0.0', 'data-canonical-build-loader');
+  loadScriptOnce('./js/canonical-build-studio.js?v=1.0.1', 'data-canonical-build-loader');
 }
 
 function loadFounderActions() {
@@ -65,6 +69,7 @@ function watchWorkspaceChanges() {
 }
 
 polishBuildStudioMetrics();
+loadGatewayClient();
 loadCanonicalBuildStudio();
 loadFounderActions();
 loadKnowledgeEngine();
@@ -75,7 +80,8 @@ updateBottomActionBar();
 watchWorkspaceChanges();
 setTimeout(polishBuildStudioMetrics, 250);
 setTimeout(polishBuildStudioMetrics, 900);
-setTimeout(loadCanonicalBuildStudio, 50);
+setTimeout(loadGatewayClient, 25);
+setTimeout(loadCanonicalBuildStudio, 75);
 setTimeout(loadFounderActions, 200);
 setTimeout(loadKnowledgeEngine, 300);
 setTimeout(loadRepositoryIntelligence, 300);
