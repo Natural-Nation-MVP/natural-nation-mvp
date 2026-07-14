@@ -63,6 +63,14 @@
     });
   }
 
+  function openBlueprint() {
+    if (typeof window.setWorkspace === 'function') window.setWorkspace('blueprint');
+    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('blueprint');
+    document.querySelectorAll('[data-context-module]').forEach((button) => {
+      button.classList.toggle('active', button.dataset.contextModule === 'blueprint');
+    });
+  }
+
   async function ensureReady() {
     await loadBlueprint();
     if (canonicalApproved()) throw new Error('This Blueprint is already approved and locked in GitHub.');
@@ -145,6 +153,16 @@
   }
 
   document.addEventListener('click', (event) => {
+    const buildRoute = event.target.closest?.('[data-context-module="build"]');
+    if (buildRoute && !window.NNOSWorkspaceFlow?.state?.packageReady) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      openBlueprint();
+      window.alert('Build Studio is locked until the Gateway commits the approved Blueprint and GitHub publishes NN-BUILD-001.');
+      return;
+    }
+
     const button = event.target.closest?.('[data-approve-blueprint]');
     if (!button) return;
 
