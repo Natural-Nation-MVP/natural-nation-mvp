@@ -1,18 +1,20 @@
 (() => {
   const GATEWAY_ORIGIN = 'https://founder-os-gateway.dmoseley1024.workers.dev';
-  const SESSION_KEY = 'nnos_founder_api_key';
 
-  function getFounderKey() {
-    let key = sessionStorage.getItem(SESSION_KEY);
-    if (key) return key;
+  // Keep the bootstrap credential only in this JavaScript runtime.
+  // Refreshing or reopening Founder OS requires explicit re-entry.
+  let founderKey = '';
 
-    key = window.prompt(
-      'Enter the temporary Founder API key for this browser session. It will not be saved to GitHub or localStorage.'
+  function requestFounderKey({ force = false } = {}) {
+    if (!force && founderKey) return founderKey;
+
+    const key = window.prompt(
+      'Enter the temporary Founder API key to authorize this protected Founder action. The key remains only in this open page and is never written to GitHub or browser storage.'
     );
 
-    if (!key) throw new Error('Founder authentication was cancelled.');
-    sessionStorage.setItem(SESSION_KEY, key.trim());
-    return key.trim();
+    if (!key?.trim()) throw new Error('Founder authentication was cancelled.');
+    founderKey = key.trim();
+    return founderKey;
   }
 
   async function request(path, options = {}) {
@@ -20,7 +22,7 @@
       ...options,
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${getFounderKey()}`,
+        authorization: `Bearer ${requestFounderKey()}`,
         ...(options.headers || {})
       }
     });
@@ -39,10 +41,7 @@
       error.status = response.status;
       error.payload = payload;
 
-      if (response.status === 401 || response.status === 403) {
-        sessionStorage.removeItem(SESSION_KEY);
-      }
-
+      if (response.status === 401 || response.status === 403) founderKey = '';
       throw error;
     }
 
@@ -55,7 +54,7 @@
   }
 
   async function approveBlueprint({ workspaceId, blueprintVersion, billingResolution, dryRun, clientRequestId: requestId }) {
-    return request(
+    const payload = await request(
       `/v2/workspaces/${encodeURIComponent(workspaceId)}/blueprints/${encodeURIComponent(blueprintVersion)}/approve`,
       {
         method: 'POST',
@@ -74,12 +73,20 @@
         })
       }
     );
+
+    // Do not retain the bootstrap key after a real canonical transaction.
+    if (!dryRun) founderKey = '';
+    return payload;
   }
 
   window.FounderOSGateway = {
     approveBlueprint,
+    requestFounderKey,
     clearSessionCredential() {
-      sessionStorage.removeItem(SESSION_KEY);
+      founderKey = '';
+    },
+    hasSessionCredential() {
+      return Boolean(founderKey);
     }
   };
 })();
