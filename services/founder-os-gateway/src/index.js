@@ -1,15 +1,27 @@
 /**
- * Founder OS Gateway Worker v0.4.3
+ * Founder OS Gateway Worker v0.4.4
  *
  * Canonical source for the Cloudflare Worker.
- * v0.4.3 preserves dashboard-managed runtime secrets across GitHub deployments
- * and exposes safe binding-status verification without returning secret values.
+ * v0.4.4 adds safe runtime-binding name diagnostics so deployment binding
+ * mismatches can be identified without exposing any secret values.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 
-const VERSION = "0.4.3";
+const VERSION = "0.4.4";
+
+function safeBindingDiagnostics(env) {
+  const receivedBindingNames = Object.keys(env || {}).sort();
+  const normalizedFounderCandidates = receivedBindingNames.filter((name) =>
+    name.replace(/[^A-Z0-9]/gi, "").toUpperCase().includes("FOUNDERAPIKEY")
+  );
+
+  return {
+    receivedBindingNames,
+    founderBindingCandidates: normalizedFounderCandidates
+  };
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -41,7 +53,8 @@ export default {
           blueprintApproval: "canonical-commit-enabled",
           blueprintApprovalDryRun: "enabled",
           idempotentApprovalRecovery: "enabled",
-          preservedRuntimeBindings: "enabled"
+          preservedRuntimeBindings: "enabled",
+          safeBindingDiagnostics: "enabled"
         }
       });
     }
@@ -59,7 +72,8 @@ export default {
         service: "Founder OS Gateway",
         version: VERSION,
         configured: Object.values(bindings).every(Boolean),
-        bindings
+        bindings,
+        diagnostics: safeBindingDiagnostics(env)
       });
     }
 
