@@ -12,6 +12,10 @@ function loadScriptOnce(src, marker) {
   document.body.appendChild(script);
 }
 
+function loadCanonicalBuildStudio() {
+  loadScriptOnce('./js/canonical-build-studio.js?v=1.0.0', 'data-canonical-build-loader');
+}
+
 function loadFounderActions() {
   loadScriptOnce('./js/founder-actions.js?v=r3-actions-1', 'data-founder-actions-loader');
 }
@@ -37,12 +41,14 @@ function activeWorkspaceName() {
 }
 
 function updateBottomActionBar() {
-  const bottomBar = document.querySelector('.bottom-bar');
-  if (!bottomBar) return;
+  const bars = document.querySelectorAll('[data-execution-bar]');
+  const active = activeWorkspaceName();
 
-  const isBuildStudio = activeWorkspaceName() === 'build';
-  bottomBar.style.display = isBuildStudio ? '' : 'none';
-  document.body.classList.toggle('has-build-action-bar', isBuildStudio);
+  bars.forEach((bar) => {
+    bar.hidden = bar.dataset.executionBar !== active;
+  });
+
+  document.body.classList.toggle('has-build-action-bar', active === 'build');
 }
 
 function watchWorkspaceChanges() {
@@ -51,10 +57,15 @@ function watchWorkspaceChanges() {
   });
 
   const main = document.querySelector('.main');
-  if (main) new MutationObserver(updateBottomActionBar).observe(main, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  if (main) new MutationObserver(updateBottomActionBar).observe(main, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['class']
+  });
 }
 
 polishBuildStudioMetrics();
+loadCanonicalBuildStudio();
 loadFounderActions();
 loadKnowledgeEngine();
 loadRepositoryIntelligence();
@@ -64,6 +75,7 @@ updateBottomActionBar();
 watchWorkspaceChanges();
 setTimeout(polishBuildStudioMetrics, 250);
 setTimeout(polishBuildStudioMetrics, 900);
+setTimeout(loadCanonicalBuildStudio, 50);
 setTimeout(loadFounderActions, 200);
 setTimeout(loadKnowledgeEngine, 300);
 setTimeout(loadRepositoryIntelligence, 300);
