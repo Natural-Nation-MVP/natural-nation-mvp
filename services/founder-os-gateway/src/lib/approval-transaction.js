@@ -1,5 +1,6 @@
 import {
   commitFilesAtomically,
+  findRepositoryCommitForPath,
   readRepositoryJson,
   repositoryFileExists
 } from "./github.js";
@@ -69,9 +70,13 @@ async function prepareApprovalTransaction({ env, body, actor }) {
 
   if (await repositoryFileExists(env, transactionPath)) {
     const existing = await readRepositoryJson(env, transactionPath);
+    const repository = await findRepositoryCommitForPath(env, transactionPath);
     return {
       duplicate: true,
-      transaction: existing.content
+      transaction: {
+        ...existing.content,
+        repository
+      }
     };
   }
 
