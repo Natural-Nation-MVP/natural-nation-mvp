@@ -4,7 +4,7 @@ Status: Active
 
 Current release: Phase 4.3 — Protected Transaction Engine
 
-Current priority: Implement the first authenticated canonical Blueprint approval transaction through the Founder OS Gateway.
+Current priority: Execute and verify the first live canonical Natural Nation Blueprint approval transaction from Founder OS.
 
 Canonical runtime: docs/founder-os/
 
@@ -19,6 +19,8 @@ Gateway API v1: docs/releases/PHASE-4-GATEWAY-API-V1.md
 Phase 4.2 completion: docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md
 
 Gateway API v2 approval contract: docs/architecture/GATEWAY-API-V2-BLUEPRINT-APPROVAL.md
+
+Live action flow audit: docs/releases/PHASE-4.3-LIVE-ACTION-FLOW-AUDIT.md
 
 Command Center UX v1.1: docs/releases/COMMAND-CENTER-UX-V1.1.md
 
@@ -50,12 +52,13 @@ Verified:
 - Cloudflare Builds connected to the canonical GitHub repository
 - production branch `main`
 - repository-driven production deployment
-- live Gateway version `0.2.0`
+- live Gateway version `0.4.1`
 - Worker online after GitHub-managed deployment
+- runtime Founder and GitHub secrets configured in Cloudflare
 
 ### Phase 4.3 — Protected Transaction Engine
 
-Status: Active
+Status: Implementation Ready — Live Transaction Pending
 
 Primary route:
 
@@ -63,17 +66,38 @@ Primary route:
 
 ## Active Slice
 
-1. Workspace Registry — implemented
+1. Workspace Registry — implemented; canonical refresh enabled
 2. Workspace Discovery — implemented
-3. Workspace Blueprint — implemented
+3. Workspace Blueprint — implemented; canonical state rendering enabled
 4. Founder Review — implemented
-5. Founder Approval — browser transaction implemented; canonical Gateway transaction pending
-6. Execution Package Generation — browser transaction implemented; canonical generation pending
-7. AI Assignment — Build Studio handoff implemented
-8. GitHub Implementation — Gateway source and deployment path operational; protected transaction writes pending
-9. Validation — pending protected execution
-10. Repository Update — pending protected approval endpoint
-11. Workspace Status Update — browser state implemented; canonical update pending
+5. Founder Approval — authenticated Gateway route implemented; first live commit pending
+6. Execution Package Generation — canonical Gateway generation implemented; `NN-BUILD-001` not yet committed
+7. AI Assignment — canonical Build Studio package loading implemented; execution handoff pending package creation
+8. GitHub Implementation — atomic six-file commit engine implemented
+9. Validation — dry-run and canonical post-commit verification implemented
+10. Repository Update — implementation ready; first live transaction pending
+11. Workspace Status Update — canonical update implemented; first live transaction pending
+
+## Live-Action Rules
+
+- The browser is a presentation and request layer only.
+- The browser must not create approval, audit, transaction, or execution-package records.
+- Dry run performs no repository writes.
+- Approval does not advance from the Gateway response alone.
+- Founder OS must verify the published Blueprint and package in the repository-backed site.
+- Blueprint and package transaction IDs must match.
+- Build Studio remains blocked until `docs/execution-packages/NN-BUILD-001.json` exists and is valid.
+- Queue state must not advance from browser-only actions.
+
+## Current Canonical State
+
+- Blueprint status: `Founder Review`
+- Blueprint locked: no
+- billing decision: open in the repository
+- canonical transaction: not created
+- canonical `NN-BUILD-001`: not created
+
+This state is truthful and must remain visible until the live approval commits successfully.
 
 ## Approved Validation Standard
 
@@ -83,21 +107,20 @@ Failed or blocked validation must explain the reason and must not imply that app
 
 ## Truthfulness Boundary
 
-The live interface must not claim canonical approval until the Gateway confirms all required repository writes and returns the verified transaction result and commit SHA.
+The live interface must not claim canonical approval until the Gateway confirms the atomic repository write and Founder OS verifies the published Blueprint and `NN-BUILD-001` with the matching transaction ID.
 
-## Next Implementation
+## Next Action
 
-Build the protected Blueprint approval endpoint with:
+Run the live Founder OS flow:
 
-1. Founder authentication
-2. authorization check
-3. request validation
-4. idempotent transaction ID
-5. critical-decision validation
-6. canonical approval record
-7. canonical audit event
-8. `NN-BUILD-001` execution package creation
-9. Blueprint lock
-10. workspace-state update
-11. verified GitHub commit result
-12. Founder OS Build Studio handoff only after commit success
+1. Open Natural Nation → Blueprint.
+2. Select `Validate Approval`.
+3. Enter the current Founder API key.
+4. Confirm dry-run success.
+5. Select `Approve Blueprint`.
+6. Confirm the protected transaction.
+7. Verify the returned transaction ID and commit SHA.
+8. Verify billing is removed from open decisions.
+9. Verify the Blueprint is approved and locked.
+10. Verify Build Studio loads the canonical `NN-BUILD-001` package.
+11. Verify the Workspace Registry changes to `Build Ready`.
