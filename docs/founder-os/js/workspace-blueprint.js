@@ -1,5 +1,5 @@
 (() => {
-  const blueprintPath = './config/natural-nation-blueprint.json?v=0.2.1';
+  const blueprintPath = './config/natural-nation-blueprint.json';
   const billingResolution = 'excluded-from-mvp';
 
   let blueprint = null;
@@ -17,7 +17,7 @@
   async function loadGatewayClient() {
     if (window.FounderOSGateway) return window.FounderOSGateway;
     if (!gatewayReady) {
-      gatewayReady = import('./gateway-client.js?v=0.1.0').then(() => {
+      gatewayReady = import('./gateway-client.js?v=0.1.1').then(() => {
         if (!window.FounderOSGateway) throw new Error('Founder OS Gateway client failed to initialize.');
         return window.FounderOSGateway;
       });
@@ -45,6 +45,19 @@
     if (key.includes('recommended')) return 'recommended';
     if (key.includes('later')) return 'later';
     return 'decision';
+  }
+
+  function canonicalApprovedState(value = blueprint) {
+    return Boolean(
+      value &&
+      value.status === 'Approved' &&
+      value.locked === true &&
+      value.decisionResolutions?.['billing-mvp'] === billingResolution &&
+      Array.isArray(value.openDecisions) &&
+      value.openDecisions.length === 0 &&
+      value.snapshot?.openDecisions === 0 &&
+      value.approvalTransactionId
+    );
   }
 
   function renderList(selector, items = []) {
@@ -146,20 +159,33 @@
   function renderOpenDecisions() {
     const container = $('[data-blueprint-decisions]');
     if (!container || !blueprint) return;
-    container.innerHTML = blueprint.openDecisions.map((item) => `
+
+    if (canonicalApprovedState()) {
+      container.innerHTML = `
+        <article class="blueprint-decision">
+          <div class="eyebrow">Founder Decision Committed</div>
+          <h3>MVP subscription billing</h3>
+          <p>Subscription billing is excluded from the first MVP release and recorded in GitHub.</p>
+          <small>Transaction: ${escapeHtml(blueprint.approvalTransactionId)}</small>
+        </article>
+      `;
+      return;
+    }
+
+    container.innerHTML = (blueprint.openDecisions || []).map((item) => `
       <article class="blueprint-decision">
-        <div class="eyebrow">Founder Decision Resolved</div>
+        <div class="eyebrow">Founder Decision Pending Commit</div>
         <h3>${escapeHtml(item.title)}</h3>
-        <p>Subscription billing is excluded from the first MVP release.</p>
-        <small>${escapeHtml(item.impact)}</small>
+        <p>Selected resolution: subscription billing excluded from the first MVP release.</p>
+        <small>This decision remains pending until the Gateway commits it to GitHub.</small>
       </article>
-    `).join('');
+    `).join('') || '<p class="muted">No decision data is available.</p>';
   }
 
   function renderBlueprint() {
     if (!blueprint) return;
 
-    const canonicalApproved = blueprint.status === 'Approved' && blueprint.locked === true;
+    const canonicalApproved = canonicalApprovedState();
     approvalStage = canonicalApproved ? 'committed' : 'idle';
 
     setText('[data-blueprint-version]', blueprint.blueprintVersion);
@@ -167,9 +193,9 @@
     setText('[data-blueprint-confidence]', `${blueprint.confidence}%`);
     setText('[data-blueprint-summary]', blueprint.summary);
     setText('[data-blueprint-mission]', blueprint.mission);
-    setText('[data-blueprint-approval-effect]', canonicalApproved ? 'Canonical approval committed.' : 'Validate before canonical approval.');
+    setText('[data-blueprint-approval-effect]', canonicalApproved ? 'Verified in GitHub. Ready for Build Studio.' : 'Validate before canonical approval.');
     setText('[data-sticky-confidence]', `${blueprint.confidence}% confidence`);
-    setText('[data-sticky-decisions]', canonicalApproved ? 'Approved' : 'Billing excluded');
+    setText('[data-sticky-decisions]', canonicalApproved ? 'Committed' : 'Pending commit');
 
     const button = $('[data-approve-blueprint]');
     if (button) {
@@ -184,6 +210,12 @@
     renderDeploymentPhases();
     renderComponents();
     renderOpenDecisions();
+  }
+
+  async function fetchCanonicalBlueprint(cacheKey = Date.now()) {
+    const response = await fetch(`${blueprintPath}?verify=${encodeURIComponent(cacheKey)}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Canonical Blueprint returned ${response.status}.`);
+    return response.json();
   }
 
   async function requestApproval(dryRun) {
@@ -205,32 +237,46 @@
       button.textContent = 'Approve Blueprint →';
     }
 
-    setText('[data-blueprint-approval-effect]', 'Dry run passed. Ready to commit.');
-    setText('[data-sticky-decisions]', '0 blockers');
+    setText('[data-blueprint-approval-effect]', 'Dry run passed. No repository files changed.');
+    setText('[data-sticky-decisions]', 'Ready to commit');
 
     const checked = result.checks?.filter((item) => item.status === 'passed').length || 0;
     window.alert(`Dry Run Passed\n\n${checked} checks passed.\n${result.plannedWrites?.length || 0} repository writes prepared.\nNo files were written.`);
   }
 
-  function showApprovalCommitted(result) {
-    approvalStage = 'committed';
-    setText('[data-blueprint-status]', 'Approved');
-    setText('[data-blueprint-approval-effect]', 'Canonical approval committed.');
-    setText('[data-sticky-decisions]', 'Approved');
+  async function verifyCanonicalCommit(result) {
+    const verified = await fetchCanonicalBlueprint(result.repository?.commitSha || result.transactionId || Date.now());
 
-    const button = $('[data-approve-blueprint]');
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Blueprint Approved ✓';
+    if (!canonicalApprovedState(verified)) {
+      throw new Error('GitHub did not return a fully approved and locked Blueprint after the transaction.');
     }
 
-    setText('[data-selected-id]', result.executionPackage?.id || 'NN-BUILD-001');
-    setText('[data-selected-title]', 'Natural Nation Blueprint Implementation');
-    setText('[data-selected-meta]', 'Owner: Codex • Type: Implementation Package • Status: Ready');
-    setText('[data-validation-status]', `Canonical transaction ${result.transactionId} committed.`);
-    setText('[data-build-approval]', 'Founder Approval Complete');
+    if (verified.approvalTransactionId !== result.transactionId) {
+      throw new Error('The canonical Blueprint transaction ID does not match the Gateway response.');
+    }
 
-    window.alert(`Blueprint Approved\n\nTransaction: ${result.transactionId}\nPackage: ${result.executionPackage?.id || 'NN-BUILD-001'}\nCommit: ${result.repository?.commitSha || 'verified'}`);
+    blueprint = verified;
+    renderBlueprint();
+    window.dispatchEvent(new CustomEvent('founder-os:canonical-blueprint-approved', {
+      detail: {
+        transactionId: result.transactionId,
+        executionPackageId: result.executionPackage?.id || 'NN-BUILD-001',
+        commitSha: result.repository?.commitSha || ''
+      }
+    }));
+
+    return verified;
+  }
+
+  async function showApprovalCommitted(result) {
+    const button = $('[data-approve-blueprint]');
+    if (button) button.textContent = 'Verifying GitHub…';
+    setText('[data-blueprint-approval-effect]', 'Commit returned. Verifying canonical repository state…');
+    setText('[data-sticky-decisions]', 'Verifying');
+
+    await verifyCanonicalCommit(result);
+
+    window.alert(`Blueprint Approved and Verified\n\nTransaction: ${result.transactionId}\nPackage: ${result.executionPackage?.id || 'NN-BUILD-001'}\nCommit: ${result.repository?.commitSha || 'verified'}\n\nGitHub now contains the resolved billing decision and locked Blueprint.`);
 
     if (typeof window.setWorkspace === 'function') window.setWorkspace('build');
     if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('build');
@@ -253,7 +299,7 @@
       }
 
       const confirmed = window.confirm(
-        'Approve the Natural Nation Blueprint for real?\n\nThis will create the approval record, audit event, NN-BUILD-001, Blueprint lock, and workspace update in GitHub. Billing remains excluded from the MVP.'
+        'Approve the Natural Nation Blueprint for real?\n\nFounder OS will remain on this page until GitHub confirms the approval record, resolved billing decision, NN-BUILD-001, Blueprint lock, and workspace update.'
       );
 
       if (!confirmed) {
@@ -263,10 +309,14 @@
       }
 
       button.textContent = 'Committing Approval…';
-      showApprovalCommitted(await requestApproval(false));
+      const result = await requestApproval(false);
+      await showApprovalCommitted(result);
     } catch (error) {
-      button.disabled = false;
-      button.textContent = approvalStage === 'dry-run-passed' ? 'Approve Blueprint →' : 'Validate Approval →';
+      approvalStage = canonicalApprovedState() ? 'committed' : 'idle';
+      button.disabled = approvalStage === 'committed';
+      button.textContent = approvalStage === 'committed' ? 'Blueprint Approved ✓' : 'Validate Approval →';
+      setText('[data-blueprint-approval-effect]', 'Canonical approval not verified. Blueprint remains in review.');
+      setText('[data-sticky-decisions]', 'Pending commit');
       window.alert(`Approval action blocked\n\n${error.message}`);
     }
   }
@@ -274,13 +324,11 @@
   async function loadBlueprint() {
     const status = $('[data-blueprint-load-status]');
     try {
-      const response = await fetch(blueprintPath, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Blueprint returned ${response.status}`);
-      blueprint = await response.json();
+      blueprint = await fetchCanonicalBlueprint();
       renderBlueprint();
-      if (status) status.textContent = blueprint.status === 'Approved'
-        ? 'Canonical Founder-approved Blueprint loaded.'
-        : 'Draft Blueprint assembled from approved Natural Nation intelligence.';
+      if (status) status.textContent = canonicalApprovedState()
+        ? 'Canonical Founder-approved Blueprint loaded from GitHub Pages.'
+        : 'Founder Review Blueprint loaded. No canonical approval has been committed.';
     } catch (error) {
       if (status) status.textContent = 'Workspace Blueprint could not be loaded.';
       console.error(error);
