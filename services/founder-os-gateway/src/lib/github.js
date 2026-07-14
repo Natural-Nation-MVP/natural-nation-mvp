@@ -67,6 +67,31 @@ export async function repositoryFileExists(env, path) {
   }
 }
 
+export async function findRepositoryCommitForPath(env, path) {
+  const { owner, repository, branch } = repositoryConfig(env);
+  const query = new URLSearchParams({
+    path,
+    sha: branch,
+    per_page: "1"
+  });
+  const commits = await githubRequest(
+    env,
+    `/repos/${owner}/${repository}/commits?${query.toString()}`
+  );
+
+  const commit = Array.isArray(commits) ? commits[0] : null;
+  if (!commit?.sha) {
+    throw new Error(`No canonical commit was found for repository path: ${path}`);
+  }
+
+  return {
+    synchronized: true,
+    commitSha: commit.sha,
+    commitUrl: commit.html_url || `https://github.com/${owner}/${repository}/commit/${commit.sha}`,
+    branch
+  };
+}
+
 async function createBlob(env, content) {
   const { owner, repository } = repositoryConfig(env);
   return githubRequest(env, `/repos/${owner}/${repository}/git/blobs`, {
