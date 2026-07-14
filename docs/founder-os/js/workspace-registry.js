@@ -1,13 +1,9 @@
 (() => {
-  const registryPath = './config/workspace-registry.json';
+  const registryPath = './config/workspace-registry.json?v=1.4.0';
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => document.querySelectorAll(selector);
-
-  import('./canonical-build-package.js?v=1.0.0').catch((error) => {
-    console.error('Canonical Build Package loader failed', error);
-  });
 
   function greeting() {
     const hour = new Date().getHours();
@@ -18,28 +14,26 @@
 
   function transition(action) {
     const main = $('.main');
-    if (!main || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      action();
-      return;
-    }
+    if (!main || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return action();
     main.classList.add('view-transition-out');
-    window.setTimeout(() => {
+    setTimeout(() => {
       action();
       main.classList.remove('view-transition-out');
       main.classList.add('view-transition-in');
-      window.setTimeout(() => main.classList.remove('view-transition-in'), 320);
-    }, 170);
+      setTimeout(() => main.classList.remove('view-transition-in'), 250);
+    }, 140);
   }
 
   function showExecutionBar(target) {
     $$('[data-execution-bar]').forEach((bar) => {
-      bar.hidden = bar.dataset.executionBar !== target;
+      const allowed = window.NNOSActiveWorkspace?.id === 'natural-nation';
+      bar.hidden = !allowed || bar.dataset.executionBar !== target;
     });
   }
 
   window.NNOSShowExecutionBar = showExecutionBar;
 
-  function renderCommandCenterMetrics() {
+  function renderMetrics() {
     const metrics = registry?.commandCenterMetrics;
     const container = $('[data-system-metrics]');
     if (!metrics || !container) return;
@@ -74,30 +68,26 @@
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
-
-    if (target === 'discovery') {
-      if (title) title.textContent = 'Workspace Discovery';
-      if (subtitle) subtitle.textContent = 'Review what Founder OS knows, inspect confidence, and resolve only the remaining uncertainty.';
-      if (badge) badge.textContent = `${workspace.name} · Discovery`;
-      return;
-    }
-
-    if (target === 'blueprint') {
-      if (title) title.textContent = 'Workspace Blueprint';
-      if (subtitle) subtitle.textContent = 'Review the products, users, components, deployment phases, and open decisions that will guide execution.';
-      if (badge) badge.textContent = workspace.stage === 'Build Ready' ? `${workspace.name} · Approved` : `${workspace.name} · Draft`;
-      return;
-    }
-
-    if (title) title.textContent = workspace.name;
-    if (subtitle) subtitle.textContent = `${workspace.type} · ${workspace.progress}% complete · Next: ${workspace.nextAction}`;
-    if (badge) badge.textContent = `Workspace #${workspace.number} · ${workspace.stage}`;
+    const labels = {
+      discovery: ['Workspace Discovery', 'Review canonical intelligence and resolved Founder decisions.'],
+      blueprint: ['Workspace Blueprint', 'Review the approved execution contract and protected transaction state.'],
+      mission: ['Workspace Overview', 'Review workspace operations, priorities, and next actions.'],
+      build: ['Build Studio', 'Open the canonical execution package for this workspace.'],
+      knowledge: ['Knowledge', 'Review canonical knowledge for this workspace.'],
+      repo: ['Repository', 'Review repository status for this workspace.'],
+      ai: ['AI Team', 'Review AI roles and handoffs for this workspace.']
+    };
+    const [pageTitle, pageSubtitle] = labels[target] || [workspace.name, `${workspace.type} · ${workspace.progress}% complete`];
+    if (title) title.textContent = `${workspace.name} · ${pageTitle}`;
+    if (subtitle) subtitle.textContent = pageSubtitle;
+    if (badge) badge.textContent = `${workspace.name} · ${workspace.stage}`;
   }
 
   function activateRegistry() {
+    window.NNOSActiveWorkspace = null;
     $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === 'registry'));
     renderHomeNavigation();
-    renderCommandCenterMetrics();
+    renderMetrics();
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
@@ -105,20 +95,16 @@
     if (subtitle) subtitle.textContent = 'Your workspaces are ready. Continue the recommended next step or begin a new product.';
     if (badge) badge.textContent = 'Command Center';
     showExecutionBar('none');
-    window.NNOSActiveWorkspace = null;
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace: null, target: 'registry' } }));
   }
 
   function openWorkspace(workspace) {
     window.NNOSActiveWorkspace = workspace;
     renderWorkspaceNavigation(workspace);
     const target = workspace.resumeWorkspace || 'mission';
-    showExecutionBar(target);
-    if (typeof window.setWorkspace === 'function') {
-      window.setWorkspace(target);
-    } else {
-      $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === target));
-    }
+    window.setWorkspace?.(target);
     applyWorkspaceHeader(workspace, target);
+    showExecutionBar(target);
   }
 
   function renderRegistry() {
@@ -130,7 +116,7 @@
       <article class="workspace-card card-enter" data-workspace-id="${workspace.id}" style="--card-order:${index}">
         <div class="workspace-card-top"><div><div class="eyebrow">Workspace #${workspace.number}</div><h2>${workspace.name}</h2></div><span class="status">${workspace.stage}</span></div>
         <p>${workspace.description}</p>
-        <div class="workspace-progress" aria-label="${workspace.progress}% complete"><div class="workspace-progress-copy"><span>Progress</span><strong>${workspace.progress}%</strong></div><div class="workspace-progress-track"><span style="width:${workspace.progress}%"></span></div></div>
+        <div class="workspace-progress"><div class="workspace-progress-copy"><span>Progress</span><strong>${workspace.progress}%</strong></div><div class="workspace-progress-track"><span style="width:${workspace.progress}%"></span></div></div>
         <div class="workspace-meta-grid"><div><span>Health</span><strong>${workspace.health}</strong></div><div><span>Last Activity</span><strong>${workspace.lastActivity}</strong></div><div><span>Next Action</span><strong>${workspace.nextAction}</strong></div><div><span>Approvals</span><strong>${workspace.pendingApprovals}</strong></div></div>
         <button class="generate" type="button" data-resume-workspace="${workspace.id}">Resume ${workspace.name}</button>
       </article>
@@ -138,17 +124,11 @@
   }
 
   async function loadRegistry() {
-    const status = $('[data-workspace-registry-status]');
-    try {
-      const response = await fetch(`${registryPath}?verify=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Workspace Registry returned ${response.status}`);
-      registry = await response.json();
-      renderRegistry();
-      if (status) status.textContent = 'Your current workspaces and recommended next actions are ready.';
-    } catch (error) {
-      if (status) status.textContent = 'Workspace Registry could not be loaded.';
-      console.error(error);
-    }
+    const response = await fetch(`${registryPath}&verify=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Workspace Registry returned ${response.status}`);
+    registry = await response.json();
+    renderRegistry();
+    return registry;
   }
 
   document.addEventListener('click', (event) => {
@@ -166,8 +146,7 @@
       event.stopImmediatePropagation();
       const target = moduleButton.dataset.contextModule;
       transition(() => {
-        if (typeof window.setWorkspace === 'function') window.setWorkspace(target);
-        $$('[data-context-module]').forEach((button) => button.classList.toggle('active', button.dataset.contextModule === target));
+        window.setWorkspace?.(target);
         if (window.NNOSActiveWorkspace) applyWorkspaceHeader(window.NNOSActiveWorkspace, target);
         showExecutionBar(target);
       });
@@ -180,26 +159,18 @@
       event.stopImmediatePropagation();
       const workspace = registry.workspaces.find((item) => item.id === resumeButton.dataset.resumeWorkspace);
       if (workspace) transition(() => openWorkspace(workspace));
-      return;
-    }
-
-    const createButton = event.target.closest('[data-create-workspace]');
-    if (createButton) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const status = $('[data-workspace-registry-status]');
-      if (status) status.textContent = 'Create Workspace follows blueprint validation and protected execution foundations.';
     }
   }, true);
 
   window.addEventListener('founder-os:canonical-blueprint-approved', async () => {
     await loadRegistry();
-    const naturalNation = registry?.workspaces?.find((item) => item.id === 'natural-nation');
-    if (naturalNation) {
-      window.NNOSActiveWorkspace = naturalNation;
-      renderWorkspaceNavigation(naturalNation);
-    }
+    const workspace = registry.workspaces.find((item) => item.id === 'natural-nation');
+    if (workspace) openWorkspace(workspace);
   });
 
-  loadRegistry().finally(activateRegistry);
+  loadRegistry().then(activateRegistry).catch((error) => {
+    console.error(error);
+    const status = $('[data-workspace-registry-status]');
+    if (status) status.textContent = 'Workspace Registry could not be loaded.';
+  });
 })();
