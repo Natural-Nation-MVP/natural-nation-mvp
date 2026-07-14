@@ -1,22 +1,26 @@
 (() => {
   const GATEWAY_ORIGIN = 'https://founder-os-gateway.dmoseley1024.workers.dev';
-  const SESSION_KEY = 'nnos_founder_api_key';
   const BLUEPRINT_URL = './config/natural-nation-blueprint.json';
   const PACKAGE_URL = '../execution-packages/NN-BUILD-001.json';
+
+  // Bootstrap credential is intentionally memory-only.
+  // A page refresh always requires explicit Founder authentication again.
+  let founderKey = '';
 
   function sleep(milliseconds) {
     return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
   }
 
-  function getFounderKey() {
-    let key = sessionStorage.getItem(SESSION_KEY);
-    if (key) return key;
+  function getFounderKey({ force = false } = {}) {
+    if (!force && founderKey) return founderKey;
 
-    key = window.prompt('Enter the temporary Founder API key for this browser session. It is never committed to GitHub.');
-    if (!key) throw new Error('Founder authentication was cancelled.');
+    const key = window.prompt(
+      'Enter the temporary Founder API key to authorize this protected action. It remains only in this open page and is never written to GitHub or browser storage.'
+    );
+    if (!key?.trim()) throw new Error('Founder authentication was cancelled.');
 
-    sessionStorage.setItem(SESSION_KEY, key.trim());
-    return key.trim();
+    founderKey = key.trim();
+    return founderKey;
   }
 
   async function request(path, options = {}) {
@@ -43,10 +47,7 @@
       error.status = response.status;
       error.payload = payload;
 
-      if (response.status === 401 || response.status === 403) {
-        sessionStorage.removeItem(SESSION_KEY);
-      }
-
+      if (response.status === 401 || response.status === 403) founderKey = '';
       throw error;
     }
 
@@ -59,11 +60,11 @@
     return response.json();
   }
 
-  function canonicalMatches(blueprint, pkg, transactionId) {
+  function canonicalMatches(blueprint, pkg, transactionId, billingResolution) {
     return Boolean(
       blueprint?.status === 'Approved' &&
       blueprint?.locked === true &&
-      blueprint?.decisionResolutions?.['billing-mvp'] === 'excluded-from-mvp' &&
+      blueprint?.decisionResolutions?.['billing-mvp'] === billingResolution &&
       Array.isArray(blueprint?.openDecisions) &&
       blueprint.openDecisions.length === 0 &&
       blueprint?.snapshot?.openDecisions === 0 &&
@@ -75,10 +76,9 @@
     );
   }
 
-  async function waitForCanonicalPublication(transactionId) {
+  async function waitForCanonicalPublication(transactionId, billingResolution) {
     let lastError = null;
 
-    // GitHub commits immediately, while GitHub Pages can take several seconds to publish the same files.
     for (let attempt = 1; attempt <= 30; attempt += 1) {
       try {
         const [blueprint, pkg] = await Promise.all([
@@ -86,7 +86,7 @@
           fetchJson(PACKAGE_URL)
         ]);
 
-        if (canonicalMatches(blueprint, pkg, transactionId)) {
+        if (canonicalMatches(blueprint, pkg, transactionId, billingResolution)) {
           return { blueprint, executionPackage: pkg, attempts: attempt };
         }
 
@@ -135,7 +135,9 @@
     const transactionId = payload.transactionId || payload.transaction?.transactionId;
     if (!transactionId) throw new Error('Gateway did not return a transaction ID.');
 
-    const canonical = await waitForCanonicalPublication(transactionId);
+    const canonical = await waitForCanonicalPublication(transactionId, billingResolution);
+    founderKey = '';
+
     return {
       ...payload,
       transactionId,
@@ -146,8 +148,12 @@
 
   window.FounderOSGateway = {
     approveBlueprint,
+    requestFounderKey: getFounderKey,
     clearSessionCredential() {
-      sessionStorage.removeItem(SESSION_KEY);
+      founderKey = '';
+    },
+    hasSessionCredential() {
+      return Boolean(founderKey);
     }
   };
 })();
