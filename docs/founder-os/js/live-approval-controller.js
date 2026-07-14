@@ -11,13 +11,28 @@
   }
 
   function billingResolution() {
-    return sessionStorage.getItem(BILLING_KEY) || 'excluded-from-mvp';
+    return sessionStorage.getItem(BILLING_KEY) || 'unresolved';
+  }
+
+  function canonicalApproved(value = blueprint) {
+    return Boolean(
+      value?.status === 'Approved' &&
+      value?.locked === true &&
+      value?.approvalTransactionId &&
+      Array.isArray(value?.openDecisions) &&
+      value.openDecisions.length === 0 &&
+      value?.snapshot?.openDecisions === 0
+    );
   }
 
   async function loadBlueprint() {
     const response = await fetch(`${BLUEPRINT_URL}?live=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Blueprint returned ${response.status}.`);
     blueprint = await response.json();
+    if (canonicalApproved()) {
+      stage = 'committed';
+      setButton('Blueprint Approved ✓', true);
+    }
     return blueprint;
   }
 
@@ -49,7 +64,8 @@
   }
 
   async function ensureReady() {
-    if (!blueprint) await loadBlueprint();
+    await loadBlueprint();
+    if (canonicalApproved()) throw new Error('This Blueprint is already approved and locked in GitHub.');
     if (!window.FounderOSGateway?.approveBlueprint) {
       throw new Error('The live Gateway client did not load. Refresh Founder OS and try again.');
     }
@@ -58,6 +74,31 @@
       throw new Error('Return to Discovery and resolve the MVP billing decision before approval.');
     }
     return resolution;
+  }
+
+  async function handoffToBuild(result) {
+    const transactionId = result.transactionId;
+    window.dispatchEvent(new CustomEvent('founder-os:canonical-blueprint-approved', {
+      detail: {
+        transactionId,
+        executionPackageId: 'NN-BUILD-001',
+        commitSha: result.repository?.commitSha || ''
+      }
+    }));
+
+    await window.NNOSBlueprintView?.reload?.();
+    await window.NNOSWorkspaceFlow?.refresh?.();
+
+    if (!window.NNOSWorkspaceFlow?.state?.packageReady) {
+      throw new Error('The GitHub commit completed, but Build Studio is still waiting for the canonical NN-BUILD-001 publication.');
+    }
+
+    if (typeof window.setWorkspace === 'function') window.setWorkspace('build');
+    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('build');
+    document.querySelectorAll('[data-context-module]').forEach((button) => {
+      button.classList.toggle('active', button.dataset.contextModule === 'build');
+    });
+    await window.NNOSCanonicalBuild?.reload?.();
   }
 
   async function runLiveApproval() {
@@ -96,10 +137,10 @@
 
       stage = 'committed';
       setButton('Blueprint Approved ✓', true);
+      await handoffToBuild(result);
       window.alert(
-        `Blueprint Approved and Verified\n\nTransaction: ${result.transactionId}\nCommit: ${result.repository?.commitSha || 'verified'}\nPackage: NN-BUILD-001\n\nFounder OS will reload from canonical repository state.`
+        `Blueprint Approved and Verified\n\nTransaction: ${result.transactionId}\nCommit: ${result.repository?.commitSha || 'verified'}\nPackage: NN-BUILD-001\n\nBuild Studio is now displaying the canonical repository package.`
       );
-      window.location.reload();
     }
   }
 
@@ -113,8 +154,8 @@
     removeLegacyApprovalUi();
 
     runLiveApproval().catch((error) => {
-      stage = 'idle';
-      setButton('Validate Approval →');
+      if (!canonicalApproved()) stage = 'idle';
+      setButton(canonicalApproved() ? 'Blueprint Approved ✓' : 'Validate Approval →', canonicalApproved());
       window.FounderOSGateway?.clearSessionCredential?.();
       window.alert(`Approval action blocked\n\n${error.message}`);
     });
