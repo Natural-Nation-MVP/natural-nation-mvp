@@ -24,6 +24,32 @@ async function readJson(request) {
   }
 }
 
+function committedResponse(body, transaction, duplicate = false) {
+  return {
+    ok: true,
+    transactionId: transaction.transactionId,
+    status: "committed",
+    duplicate,
+    transaction,
+    workspace: {
+      id: body.workspaceId,
+      stage: "Build Ready",
+      nextAction: "Open Build Studio"
+    },
+    blueprint: {
+      version: body.blueprintVersion,
+      status: "Approved",
+      locked: true
+    },
+    executionPackage: {
+      id: transaction.executionPackageId || "NN-BUILD-001",
+      status: "ready",
+      assignedTo: "Codex"
+    },
+    repository: transaction.repository
+  };
+}
+
 export async function handleApproveBlueprint(request, env, pathname) {
   const routeParams = parseRoute(pathname);
   if (!routeParams) return null;
@@ -90,12 +116,21 @@ export async function handleApproveBlueprint(request, env, pathname) {
         actor: auth.actor
       });
 
+      if (result.duplicate) {
+        return json(request, {
+          ...committedResponse(body, result.transaction, true),
+          dryRun: true,
+          writesPerformed: false,
+          status: "already-committed"
+        });
+      }
+
       return json(request, {
         ok: true,
         status: "dry-run-passed",
         dryRun: true,
         writesPerformed: false,
-        duplicate: result.duplicate,
+        duplicate: false,
         transaction: result.transaction,
         verification: result.verification,
         plannedWrites: result.plannedWrites || []
@@ -108,36 +143,7 @@ export async function handleApproveBlueprint(request, env, pathname) {
       actor: auth.actor
     });
 
-    if (result.duplicate) {
-      return json(request, {
-        ok: true,
-        status: "committed",
-        duplicate: true,
-        transaction: result.transaction
-      });
-    }
-
-    return json(request, {
-      ok: true,
-      transactionId: result.transaction.transactionId,
-      status: "committed",
-      workspace: {
-        id: body.workspaceId,
-        stage: "Build Ready",
-        nextAction: "Open Build Studio"
-      },
-      blueprint: {
-        version: body.blueprintVersion,
-        status: "Approved",
-        locked: true
-      },
-      executionPackage: {
-        id: "NN-BUILD-001",
-        status: "ready",
-        assignedTo: "Codex"
-      },
-      repository: result.transaction.repository
-    });
+    return json(request, committedResponse(body, result.transaction, result.duplicate));
   } catch (error) {
     console.error("Blueprint approval transaction failed", error);
 
