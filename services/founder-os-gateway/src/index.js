@@ -1,14 +1,15 @@
 /**
- * Founder OS Gateway Worker v0.4.1
+ * Founder OS Gateway Worker v0.4.2
  *
  * Canonical source for the Cloudflare Worker.
- * v0.4.1 adds authenticated no-write Blueprint approval dry runs.
+ * v0.4.2 unifies duplicate approval responses and recovers the original
+ * canonical GitHub commit metadata for safe retries.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 
-const VERSION = "0.4.1";
+const VERSION = "0.4.2";
 
 export default {
   async fetch(request, env, ctx) {
@@ -38,7 +39,8 @@ export default {
         deployment: "github-managed",
         capabilities: {
           blueprintApproval: "canonical-commit-enabled",
-          blueprintApprovalDryRun: "enabled"
+          blueprintApprovalDryRun: "enabled",
+          idempotentApprovalRecovery: "enabled"
         }
       });
     }
