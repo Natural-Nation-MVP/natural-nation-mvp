@@ -1,15 +1,15 @@
 /**
- * Founder OS Gateway Worker v0.4.2
+ * Founder OS Gateway Worker v0.4.3
  *
  * Canonical source for the Cloudflare Worker.
- * v0.4.2 unifies duplicate approval responses and recovers the original
- * canonical GitHub commit metadata for safe retries.
+ * v0.4.3 preserves dashboard-managed runtime secrets across GitHub deployments
+ * and exposes safe binding-status verification without returning secret values.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 
-const VERSION = "0.4.2";
+const VERSION = "0.4.3";
 
 export default {
   async fetch(request, env, ctx) {
@@ -40,8 +40,26 @@ export default {
         capabilities: {
           blueprintApproval: "canonical-commit-enabled",
           blueprintApprovalDryRun: "enabled",
-          idempotentApprovalRecovery: "enabled"
+          idempotentApprovalRecovery: "enabled",
+          preservedRuntimeBindings: "enabled"
         }
+      });
+    }
+
+    if (url.pathname === "/configuration") {
+      const bindings = {
+        founderAuthentication: Boolean(env.FOUNDER_API_KEY),
+        githubToken: Boolean(env.GITHUB_TOKEN),
+        githubOwner: Boolean(env.GITHUB_OWNER),
+        githubRepository: Boolean(env.GITHUB_REPOSITORY),
+        githubBranch: Boolean(env.GITHUB_BRANCH)
+      };
+
+      return json(request, {
+        service: "Founder OS Gateway",
+        version: VERSION,
+        configured: Object.values(bindings).every(Boolean),
+        bindings
       });
     }
 
