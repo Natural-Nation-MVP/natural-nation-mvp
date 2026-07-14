@@ -1,9 +1,13 @@
 (() => {
-  const registryPath = './config/workspace-registry.json?v=1.3.0';
+  const registryPath = './config/workspace-registry.json';
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => document.querySelectorAll(selector);
+
+  import('./canonical-build-package.js?v=1.0.0').catch((error) => {
+    console.error('Canonical Build Package loader failed', error);
+  });
 
   function greeting() {
     const hour = new Date().getHours();
@@ -81,7 +85,7 @@
     if (target === 'blueprint') {
       if (title) title.textContent = 'Workspace Blueprint';
       if (subtitle) subtitle.textContent = 'Review the products, users, components, deployment phases, and open decisions that will guide execution.';
-      if (badge) badge.textContent = `${workspace.name} · Draft`;
+      if (badge) badge.textContent = workspace.stage === 'Build Ready' ? `${workspace.name} · Approved` : `${workspace.name} · Draft`;
       return;
     }
 
@@ -136,7 +140,7 @@
   async function loadRegistry() {
     const status = $('[data-workspace-registry-status]');
     try {
-      const response = await fetch(registryPath, { cache: 'no-store' });
+      const response = await fetch(`${registryPath}?verify=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Workspace Registry returned ${response.status}`);
       registry = await response.json();
       renderRegistry();
@@ -187,6 +191,15 @@
       if (status) status.textContent = 'Create Workspace follows blueprint validation and protected execution foundations.';
     }
   }, true);
+
+  window.addEventListener('founder-os:canonical-blueprint-approved', async () => {
+    await loadRegistry();
+    const naturalNation = registry?.workspaces?.find((item) => item.id === 'natural-nation');
+    if (naturalNation) {
+      window.NNOSActiveWorkspace = naturalNation;
+      renderWorkspaceNavigation(naturalNation);
+    }
+  });
 
   loadRegistry().finally(activateRegistry);
 })();
