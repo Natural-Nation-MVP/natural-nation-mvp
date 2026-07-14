@@ -1,9 +1,9 @@
 {
-  "registryVersion": "1.3.1",
+  "registryVersion": "1.4.0",
   "defaultWorkspaceId": "founder-os",
   "commandCenterMetrics": {
     "activeWorkspaces": 2,
-    "approvalsWaiting": 1,
+    "approvalsWaiting": 0,
     "automationsRunning": 0,
     "blockedItems": 0,
     "deployments": 1,
@@ -16,36 +16,20 @@
       "name": "Founder OS",
       "description": "The AI-guided product development operating system and Command Center platform.",
       "type": "Platform",
-      "stage": "Build",
+      "stage": "Platform Operations",
       "status": "active",
       "health": "Gateway online",
-      "version": "0.1.0",
-      "progress": 48,
-      "lastActivity": "Today",
+      "version": "0.4.4",
+      "progress": 54,
+      "lastActivity": "2026-07-14",
       "pendingApprovals": 0,
-      "nextAction": "Validate Natural Nation Blueprint vertical slice",
+      "nextAction": "Review platform operations",
       "resumeWorkspace": "mission",
       "modules": [
-        {
-          "target": "mission",
-          "label": "Overview"
-        },
-        {
-          "target": "build",
-          "label": "Build Studio"
-        },
-        {
-          "target": "knowledge",
-          "label": "Knowledge"
-        },
-        {
-          "target": "repo",
-          "label": "Repository"
-        },
-        {
-          "target": "ai",
-          "label": "AI Team"
-        }
+        { "target": "mission", "label": "Overview" },
+        { "target": "knowledge", "label": "Knowledge" },
+        { "target": "repo", "label": "Repository" },
+        { "target": "ai", "label": "AI Team" }
       ]
     },
     {
@@ -60,38 +44,17 @@
       "version": "MVP",
       "progress": 52,
       "lastActivity": "2026-07-14T22:45:27.994Z",
-      "pendingApprovals": 1,
+      "pendingApprovals": 0,
       "nextAction": "Open Build Studio",
       "resumeWorkspace": "build",
       "modules": [
-        {
-          "target": "discovery",
-          "label": "Discovery"
-        },
-        {
-          "target": "blueprint",
-          "label": "Blueprint"
-        },
-        {
-          "target": "mission",
-          "label": "Overview"
-        },
-        {
-          "target": "build",
-          "label": "Build Studio"
-        },
-        {
-          "target": "knowledge",
-          "label": "Knowledge"
-        },
-        {
-          "target": "ai",
-          "label": "AI Team"
-        },
-        {
-          "target": "repo",
-          "label": "Repository"
-        }
+        { "target": "discovery", "label": "Discovery" },
+        { "target": "blueprint", "label": "Blueprint" },
+        { "target": "mission", "label": "Overview" },
+        { "target": "build", "label": "Build Studio" },
+        { "target": "knowledge", "label": "Knowledge" },
+        { "target": "ai", "label": "AI Team" },
+        { "target": "repo", "label": "Repository" }
       ],
       "activePackageId": "NN-BUILD-001"
     }
