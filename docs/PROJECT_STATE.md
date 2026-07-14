@@ -24,6 +24,8 @@ Live action flow audit: docs/releases/PHASE-4.3-LIVE-ACTION-FLOW-AUDIT.md
 
 Canonical approval completion: docs/releases/PHASE-4.3-CANONICAL-BLUEPRINT-APPROVAL-COMPLETE.md
 
+Workspace isolation cleanup: docs/releases/PHASE-4.4-WORKSPACE-ISOLATION-CLEANUP.md
+
 Command Center UX v1.1: docs/releases/COMMAND-CENTER-UX-V1.1.md
 
 Workspace Discovery and Blueprint Engine: docs/releases/WORKSPACE-DISCOVERY-BLUEPRINT-ENGINE.md
@@ -80,10 +82,12 @@ Primary objective:
 
 Use canonical package `NN-BUILD-001` to drive Codex implementation, review, repository updates, and deployment without reintroducing browser-local execution state.
 
+Workspace isolation cleanup is complete. Founder OS platform operations and Natural Nation project data now use separate module boundaries.
+
 ## Completed Vertical Slice
 
 1. Workspace Registry — canonical refresh verified
-2. Workspace Discovery — verified
+2. Workspace Discovery — synchronized with approved Blueprint state
 3. Workspace Blueprint — repository-backed rendering verified
 4. Founder Review — verified
 5. Founder Approval — authenticated Gateway transaction verified
@@ -93,6 +97,30 @@ Use canonical package `NN-BUILD-001` to drive Codex implementation, review, repo
 9. Validation — dry run passed six checks with zero writes
 10. Repository Update — verified on `main`
 11. Workspace Status Update — `Build Ready` verified
+12. Workspace Isolation — Founder OS and Natural Nation routes and packages separated
+
+## Workspace Boundaries
+
+### Founder OS
+
+- Overview
+- Knowledge
+- Repository
+- AI Team
+
+Founder OS must not display Natural Nation package, queue, Discovery, Blueprint, or decision state.
+
+### Natural Nation
+
+- Discovery
+- Blueprint
+- Overview
+- Build Studio
+- Knowledge
+- AI Team
+- Repository
+
+Natural Nation Build Studio is the only workspace authorized to load `NN-BUILD-001`.
 
 ## Live-Action Rules
 
@@ -104,6 +132,7 @@ Use canonical package `NN-BUILD-001` to drive Codex implementation, review, repo
 - Blueprint and package transaction IDs must match.
 - Build Studio remains blocked until `docs/execution-packages/NN-BUILD-001.json` exists and is valid.
 - Queue state must not advance from browser-only actions.
+- A workspace may display only records owned by that workspace.
 
 ## Current Canonical State
 
@@ -111,10 +140,12 @@ Use canonical package `NN-BUILD-001` to drive Codex implementation, review, repo
 - Blueprint locked: yes
 - billing decision: moved to Phase 2
 - open decisions: `0`
+- Discovery pending questions: `0`
 - canonical transaction: `TX-NN-BP-6EB4765C9D9DD877`
 - canonical package: `NN-BUILD-001`
 - workspace stage: `Build Ready`
 - assigned implementation target: `Codex`
+- command center approvals waiting: `0`
 
 ## Approved Validation Standard
 
@@ -128,7 +159,7 @@ The live interface must not claim canonical approval until the Gateway confirms 
 
 ## Next Action
 
-1. Open canonical package `NN-BUILD-001` in Build Studio.
+1. Open canonical package `NN-BUILD-001` in Natural Nation Build Studio.
 2. Validate package scope, target repository, acceptance criteria, and assigned AI roles.
 3. Create the governed Codex implementation handoff.
 4. Track implementation through repository-backed status updates.
