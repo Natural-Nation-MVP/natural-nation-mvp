@@ -1,190 +1,35 @@
-const workspaceMeta = {
-  mission: { title: 'Mission Control', subtitle: 'Founder dashboard, release state, health indicators, and command priorities.', badge: 'Founder OS Online' },
-  knowledge: { title: 'Knowledge Graph', subtitle: 'Search canonical records, decisions, approvals, architecture standards, and project intelligence.', badge: 'Knowledge Intelligence' },
-  build: { title: 'AI Build Orchestrator OP-002', subtitle: 'Generate AI-ready implementation packages with delivery targets and Founder approval.', badge: 'Target: Codex' },
-  repo: { title: 'Repository Intelligence', subtitle: 'Branch, deployment, folder, runtime, and source-of-truth visibility.', badge: 'main / docs' },
-  ai: { title: 'AI Operations', subtitle: 'Coordinate AI roles, handoffs, execution order, and review ownership.', badge: 'AI Team Ready' },
-};
-
-const targets = ['ChatGPT', 'Codex', 'Google AI Studio', 'Gemini', 'Manual Review'];
-const buildItems = [
-  { id: 'BUILD-NNCC-002', title: 'Create Google AI Studio app build package', owner: 'Art', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates an AI-ready package for the Google AI Studio version of Natural Nation using Founder OS context and approval rules.', outcome: 'Outcome: AI Studio package', system: 'Google AI Studio app build path and Founder OS package routing.' },
-  { id: 'BUILD-NNCC-003', title: 'Codex implementation package', owner: 'Codex', status: 'Ready', target: 'Codex', delivery: 'Codex Implementation Agent', approval: 'Founder Required', plain: 'Creates a Codex-ready implementation task with repository context, acceptance criteria, and verification steps.', outcome: 'Outcome: Codex implementation', system: 'Repository implementation workflow and code handoff process.' },
-  { id: 'BUILD-NNCC-004', title: 'Founder OS design system package', owner: 'Gemini', status: 'In Progress', target: 'Gemini', delivery: 'Design Review Agent', approval: 'Founder Review', plain: 'Prepares a design review package for Founder OS visual standards, spacing, glass panels, icons, and iPad usability.', outcome: 'Outcome: Design review', system: 'Founder OS visual system, iPad layout, and production interface rules.' },
-];
-const knowledgeRecords = [
-  { id: 'PROJECT_STATE', title: 'Natural Nation Project State', type: 'State', path: 'docs/PROJECT_STATE.md', summary: 'Current release, priority, runtime, and GitHub issue.' },
-  { id: 'NN-ARCH-001', title: 'Founder OS Architecture Standard', type: 'Architecture', path: 'docs/founder-os/ARCHITECTURE.md', summary: 'Defines runtime, workspace model, deployment, and governance.' },
-  { id: 'NNOS-GOV-001', title: 'GitHub Governance Sync Standard', type: 'Governance', path: 'docs/governance/NNOS-GOV-001.md', summary: 'Defines GitHub as the source of truth.' },
-  { id: 'R3', title: 'Release 3 Roadmap', type: 'Release', path: 'docs/releases/RELEASE-3-ROADMAP.md', summary: 'Tracks Release 3 restoration and module completion.' },
-  { id: 'ADR-001', title: 'Production Workspace Layout', type: 'Decision', path: 'docs/decisions/ADR-001-production-workspace-layout.md', summary: 'Approves production workspace layout.' },
-  { id: 'ADR-002', title: 'GitHub Project Intelligence', type: 'Decision', path: 'docs/decisions/ADR-002-github-project-intelligence.md', summary: 'Approves GitHub as project intelligence platform.' },
-  { id: 'READINESS', title: 'Founder OS Readiness Check', type: 'QA', path: 'docs/founder-os/READINESS_REPORT.md', summary: 'Tracks readiness findings and release state.' },
-];
-const repoStatus = [
-  { label: 'Pages Source', value: 'main / docs', detail: 'Active GitHub Pages publishing source.' },
-  { label: 'Canonical Runtime', value: 'docs/founder-os/', detail: 'Only public Founder OS runtime.' },
-  { label: 'Release', value: 'R3', detail: 'Production workspace restoration in progress.' },
-  { label: 'Deployment', value: 'Ready', detail: 'Branch deploy is active and stable.' },
-  { label: 'Architecture', value: 'Active', detail: 'NN-ARCH-001 is active.' },
-  { label: 'Docs Sync', value: 'Active', detail: 'Issue #2 tracks documentation synchronization.' },
-];
-const aiRoles = [
-  { role: 'Art', duty: 'Architecture and system planning', handoff: 'Defines standards and scope.' },
-  { role: 'Codex', duty: 'Implementation and code execution', handoff: 'Receives build-ready packages.' },
-  { role: 'Gemini', duty: 'Design and review support', handoff: 'Reviews UI and UX output.' },
-  { role: 'GPose', duty: 'Prompting, docs, strategy', handoff: 'Creates summaries and team prompts.' },
-  { role: 'Duey', duty: 'Wellness intelligence', handoff: 'Reviews wellness logic and mentor behavior.' },
-  { role: 'Founder', duty: 'Approval and final direction', handoff: 'Approves locked changes.' },
-];
-
-let selectedBuild = buildItems[0];
-let selectedTarget = selectedBuild.target;
-let packageHistory = [];
-let previewGenerated = false;
-let lastPreviewFormat = 'markdown';
-
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
-
-function safeText(selector, value) { const node = $(selector); if (node) node.textContent = value; }
-function safeHtml(selector, value) { const node = $(selector); if (node) node.innerHTML = value; }
-
-function renderMetrics() {
-  const metrics = [['Queue', buildItems.length], ['Ready', buildItems.filter((i) => i.status === 'Ready').length], ['Active', buildItems.filter((i) => i.status === 'In Progress').length], ['Done', 0], ['Blocked', 0], ['R', 3]];
-  safeHtml('[data-system-metrics]', metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join(''));
-  safeText('[data-system-status]', 'R3 production shell active');
-}
-function renderMission() {
-  safeHtml('[data-mission-cards]', [['Project Health', 'Ready', 'Infrastructure, routing, modules, and actions are operational.'], ['Current Priority', 'R3 Shell', 'Production workspace layout restoration.'], ['Readiness', 'Active', 'Founder validation pending after shell restoration.']].map(([a,b,c]) => `<div class="module-card"><strong>${a}</strong><div class="section-title">${b}</div><p class="muted">${c}</p></div>`).join(''));
-  safeHtml('[data-action-queue]', ['Verify R3 live route', 'Test Build Studio layout', 'Test Generate Package', 'Confirm iPad portrait', 'Confirm iPad landscape'].map((item, i) => `<div class="record-row"><span>${i + 1}. ${item}</span><span class="status">Ready</span></div>`).join(''));
-}
-function renderKnowledge(query = '') {
-  const q = query.toLowerCase();
-  const matches = knowledgeRecords.filter((r) => `${r.id} ${r.title} ${r.type} ${r.path} ${r.summary}`.toLowerCase().includes(q));
-  safeText('[data-knowledge-count]', `${matches.length} Knowledge Matches`);
-  safeHtml('[data-knowledge-results]', matches.map((r) => `<div class="module-card"><strong>${r.id} — ${r.title}</strong><p class="muted">${r.summary}</p><div class="record-row"><span>${r.type}</span><span>${r.path}</span></div></div>`).join('') || '<p class="muted">No records matched.</p>');
-}
-function renderRepo() {
-  safeHtml('[data-repo-status]', repoStatus.map((item) => `<div class="module-card"><strong>${item.label}</strong><div class="section-title">${item.value}</div><p class="muted">${item.detail}</p></div>`).join(''));
-  safeHtml('[data-repo-checklist]', ['main / docs source confirmed', 'docs/founder-os canonical runtime confirmed', 'Release 3 roadmap created', 'ADR-001 layout approved', 'Issue #2 documentation sync active'].map((item) => `<div class="record-row"><span>${item}</span><span class="status">PASS</span></div>`).join(''));
-}
-function renderAi() {
-  safeHtml('[data-ai-roles]', aiRoles.map((r) => `<div class="module-card"><strong>${r.role}</strong><p class="muted">${r.duty}</p><div class="record-row"><span>Handoff</span><span>${r.handoff}</span></div></div>`).join(''));
-  safeHtml('[data-ai-handoffs]', buildItems.map((item) => `<div class="record-row"><span>${item.id} → ${item.target}</span><span>${item.delivery}</span></div>`).join(''));
-}
-function renderQueue() {
-  safeHtml('[data-build-queue]', buildItems.map((item) => `<button class="queue-item${item.id === selectedBuild.id ? ' active' : ''}" data-build-id="${item.id}" type="button"><span class="queue-top"><strong>${item.id}</strong><span class="status">${item.status}</span></span><span>${item.title}</span><small>Owner: ${item.owner}</small></button>`).join(''));
-}
-function renderTargets() {
-  safeHtml('[data-target-buttons]', targets.map((target) => `<button class="${target === selectedTarget ? 'active' : ''}" type="button" data-target="${target}">${target}</button>`).join(''));
-}
-function deliveryFor(target) {
-  if (target === 'Google AI Studio') return 'Google AI Studio Builder';
-  if (target === 'Gemini') return 'Design Review Agent';
-  if (target === 'ChatGPT') return 'Strategy and Prompt Review';
-  if (target === 'Manual Review') return 'Founder Manual Review';
-  return 'Codex Implementation Agent';
-}
-function renderImpact() {
-  const delivery = deliveryFor(selectedTarget);
-  safeText('[data-impact-statement]', `${selectedBuild.id} prepares ${selectedTarget} to work on ${selectedBuild.system} without drifting into unrelated parts of Natural Nation.`);
-  safeText('[data-impact-system]', selectedBuild.system);
-  safeText('[data-impact-why]', `It gives ${selectedTarget} the right context, boundaries, acceptance criteria, and approval path so the work stays aligned with Release 3.`);
-  safeText('[data-impact-result]', `The expected result is a ${delivery} handoff that is ready for review, validation, and Founder approval.`);
-}
-function renderBuild() {
-  safeText('[data-selected-id]', selectedBuild.id);
-  safeText('[data-selected-title]', selectedBuild.title);
-  safeText('[data-selected-meta]', `Owner: ${selectedBuild.owner} • Target: ${selectedTarget} • Status: ${selectedBuild.status}`);
-  safeText('[data-build-plain]', selectedBuild.plain);
-  safeText('[data-build-outcome]', selectedBuild.outcome);
-  safeText('[data-build-approval]', selectedBuild.approval);
-  safeText('[data-validation-status]', selectedBuild.status === 'Ready' ? 'Validated: ready to package.' : 'Watch: still in progress.');
-  $$('[data-delivery]').forEach((node) => node.textContent = deliveryFor(selectedTarget));
-  safeText('[data-approval]', selectedBuild.approval);
-  safeText('[data-bottom-target]', selectedTarget);
-  safeHtml('[data-role-plan]', aiRoles.slice(0, 4).map((r) => `<div class="role-row"><span>${r.role}</span><strong>${r.duty}</strong></div>`).join(''));
-  safeText('[data-execution-order]', selectedTarget === 'Gemini' ? 'Art → Gemini → GPose → Founder' : 'Art → Codex → Gemini → GPose → Founder');
-  safeText('[data-ai-notes]', `Recommended order: ${$('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder'}.`);
-  renderImpact();
-  renderQueue();
-  renderTargets();
-  syncPreviewToSelection();
-}
-function packageData() {
-  return {
-    itemId: selectedBuild.id,
-    title: selectedBuild.title,
-    target: selectedTarget,
-    delivery: deliveryFor(selectedTarget),
-    approval: selectedBuild.approval,
-    executionOrder: $('[data-execution-order]')?.textContent || 'Art → Codex → Gemini → GPose → Founder',
-    system: selectedBuild.system,
-    acceptance: ['Scope respected', 'Founder approval required', 'Canonical docs/founder-os path preserved', 'Release 3 production shell preserved', 'Package preview synced to active selection']
+(() => {
+  const meta = {
+    registry: { title: 'Command Center', subtitle: 'Choose a workspace, resume progress, or begin a new product.', badge: 'Workspace Registry' },
+    discovery: { title: 'Workspace Discovery', subtitle: 'Review what Founder OS knows and resolve the remaining uncertainty.', badge: 'Natural Nation · Discovery' },
+    blueprint: { title: 'Workspace Blueprint', subtitle: 'Review the canonical execution contract before protected approval.', badge: 'Natural Nation · Blueprint' },
+    build: { title: 'Build Studio', subtitle: 'Open the canonical Founder-approved execution package.', badge: 'Natural Nation · Build' },
+    mission: { title: 'Natural Nation', subtitle: 'Workspace operating overview.', badge: 'Natural Nation · Overview' },
+    knowledge: { title: 'Knowledge', subtitle: 'Canonical project knowledge.', badge: 'Natural Nation · Knowledge' },
+    repo: { title: 'Repository', subtitle: 'Canonical repository status.', badge: 'Natural Nation · Repository' },
+    ai: { title: 'AI Team', subtitle: 'AI roles and handoffs.', badge: 'Natural Nation · AI Team' }
   };
-}
-function packageMarkdown(data) {
-  return `# ${data.itemId} — ${data.title}\n\n## Target\n${data.target}\n\n## Deliver To\n${data.delivery}\n\n## System Impact\n${data.system}\n\n## Why This Matters\nThis package gives ${data.target} the context and boundaries needed to work safely inside the selected system.\n\n## Approval\n${data.approval}\n\n## Execution Order\n${data.executionOrder}\n\n## Acceptance Criteria\n${data.acceptance.map((x) => `- ${x}`).join('\n')}`;
-}
-function previewOutput(format = lastPreviewFormat) {
-  const data = packageData();
-  return format === 'json' ? JSON.stringify(data, null, 2) : packageMarkdown(data);
-}
-function setPreviewOutput(format = lastPreviewFormat, shouldScroll = false) {
-  const preview = $('[data-package-preview]');
-  if (!preview) return;
-  preview.textContent = previewOutput(format === 'json' ? 'json' : 'markdown');
-  preview.dataset.generated = previewGenerated ? 'true' : 'draft';
-  preview.closest('.output-panel')?.classList.toggle('generated', previewGenerated);
-  if (shouldScroll) setTimeout(() => preview.closest('.output-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
-}
-function syncPreviewToSelection() {
-  const syncFormat = lastPreviewFormat === 'json' ? 'json' : 'markdown';
-  setPreviewOutput(syncFormat, false);
-  safeText('[data-validation-status]', previewGenerated ? `Preview synced to ${selectedBuild.id} for ${selectedTarget}.` : `Preview ready for ${selectedBuild.id}.`);
-}
-function generatePackage(format = 'markdown') {
-  previewGenerated = true;
-  lastPreviewFormat = format;
-  setPreviewOutput(format, true);
-  const data = packageData();
-  safeText('[data-validation-status]', `Generated ${format.toUpperCase()} package for ${selectedBuild.id}.`);
-  packageHistory.unshift(`${data.itemId} ${format.toUpperCase()} package generated for ${data.target}`);
-  renderHistory();
-}
-function renderHistory() {
-  safeHtml('[data-package-history]', packageHistory.length ? packageHistory.map((item) => `<div class="record-row"><span>${item}</span><span class="status">Done</span></div>`).join('') : '<p class="muted">No packages generated this session.</p>');
-}
-function validatePackage() {
-  previewGenerated = true;
-  lastPreviewFormat = 'markdown';
-  setPreviewOutput('markdown', true);
-  safeText('[data-validation-status]', `Validation pass. Preview synced to ${selectedBuild.id}.`);
-}
-function setWorkspace(workspace) {
-  const meta = workspaceMeta[workspace] || workspaceMeta.build;
-  $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === workspace));
-  $$('[data-workspace-button]').forEach((button) => button.classList.toggle('active', button.dataset.workspaceButton === workspace));
-  safeText('[data-workspace-title]', meta.title);
-  safeText('[data-workspace-subtitle]', meta.subtitle);
-  safeText('[data-workspace-badge]', meta.badge);
-}
-function init() {
-  renderMetrics(); renderMission(); renderKnowledge(); renderRepo(); renderAi(); renderBuild(); renderHistory(); setWorkspace('build');
-  $('[data-knowledge-search]')?.addEventListener('input', (event) => renderKnowledge(event.target.value));
-  document.addEventListener('click', (event) => {
-    const workspaceTarget = event.target.closest('[data-workspace-button]');
-    if (workspaceTarget) return setWorkspace(workspaceTarget.dataset.workspaceButton);
-    const buildTarget = event.target.closest('[data-build-id]');
-    if (buildTarget) { selectedBuild = buildItems.find((item) => item.id === buildTarget.dataset.buildId) || selectedBuild; selectedTarget = selectedBuild.target; renderBuild(); return; }
-    const targetButton = event.target.closest('[data-target]');
-    if (targetButton) { selectedTarget = targetButton.dataset.target; renderBuild(); return; }
-    const action = event.target.closest('[data-action]')?.dataset.action;
-    if (action === 'generate') generatePackage('markdown');
-    if (action === 'validate') validatePackage();
-    if (action === 'export-md') generatePackage('markdown');
-    if (action === 'export-json') generatePackage('json');
-  });
-}
-init();
+
+  function setText(selector, value) {
+    const node = document.querySelector(selector);
+    if (node) node.textContent = value;
+  }
+
+  function setWorkspace(target) {
+    document.querySelectorAll('[data-workspace]').forEach((view) => {
+      view.classList.toggle('active', view.dataset.workspace === target);
+    });
+
+    document.querySelectorAll('[data-context-module]').forEach((button) => {
+      button.classList.toggle('active', button.dataset.contextModule === target);
+    });
+
+    const page = meta[target] || meta.registry;
+    setText('[data-workspace-title]', page.title);
+    setText('[data-workspace-subtitle]', page.subtitle);
+    setText('[data-workspace-badge]', page.badge);
+    window.NNOSShowExecutionBar?.(target);
+  }
+
+  window.setWorkspace = setWorkspace;
+})();
