@@ -131,9 +131,9 @@
             <article class="glass-panel action-explainer target-impact-panel"><div class="eyebrow">2 · Target Impact Explanation</div><div class="section-title">How this build affects the selected target</div><p class="impact-lead" data-impact-statement>This package gives Codex the exact implementation context it needs to update the selected system without changing unrelated Founder OS areas.</p><div class="impact-grid"><div class="step-card"><strong>Affected System</strong><p class="muted" data-impact-system>Founder OS Build Studio and related documentation records.</p></div><div class="step-card"><strong>Why It Matters</strong><p class="muted" data-impact-why>It keeps the AI implementation focused, traceable, and aligned with Founder-approved decisions.</p></div><div class="step-card"><strong>Expected Result</strong><p class="muted" data-impact-result>A build-ready package that can be reviewed, validated, and approved.</p></div></div></article>
             <article class="glass-panel build-summary-panel"><div class="grid-2"><div><div class="eyebrow">3 · Plain English</div><div class="section-title">What this build does</div><p data-build-plain>This build turns a Founder OS work item into an AI-ready implementation package with delivery instructions, review ownership, and approval path.</p></div><div class="summary-pills"><span class="pill" data-build-outcome>Outcome: AI-ready package</span><span class="pill">Users: Founder / AI Team</span><span class="pill">Value: High</span></div></div></article>
             <article class="glass-panel"><div class="eyebrow">4 · Execution Catalog</div><div class="section-title">Founder Commands</div><p class="muted" data-command-status>Loading command registry...</p><div class="modules-grid" data-command-list></div><div class="output-panel"><div class="eyebrow">Prepared Execution Payload</div><pre class="output-box" data-command-output>Select Prepare Command to generate a preview payload.</pre></div></article>
-            <article class="glass-panel output-panel"><div class="eyebrow">Package Preview</div><div class="section-title">Generated Output</div><pre class="output-box" data-package-preview>Select Generate Package to create output.</pre></article>
+            <article class="glass-panel output-panel"><div class="eyebrow">Package Preview</div><div class="section-title">Generated Output</div><pre class="output-box" data-package-preview>Waiting for canonical package verification...</pre></article>
           </div>
-          <aside class="right-rail"><article class="glass-panel queue-panel"><div class="eyebrow">Queue</div><div class="section-title">Build Queue</div><div class="queue-scroll" data-build-queue></div></article><details><summary>Quick Actions</summary><div class="action-stack"><button class="generate" type="button" data-action="generate">Generate Package</button><button type="button" data-action="validate">Validate</button><button type="button" data-action="export-md">Export Markdown</button><button type="button" data-action="export-json">Export JSON</button></div></details><details><summary>Recent Packages</summary><div data-package-history><p class="muted">No packages generated this session.</p></div></details><details><summary>AI Notes</summary><p class="muted" data-ai-notes>Recommended order: Art → Codex → Gemini → GPose → Founder.</p></details></aside>
+          <aside class="right-rail"><article class="glass-panel queue-panel"><div class="eyebrow">Queue</div><div class="section-title">Build Queue</div><div class="queue-scroll" data-build-queue></div></article><details><summary>Quick Actions</summary><div class="action-stack"><button class="generate" type="button" data-action="generate">Await Canonical Approval</button><button type="button" data-action="validate">Validate Canonical Package</button><button type="button" data-action="export-md">Markdown Disabled</button><button type="button" data-action="export-json">JSON Copy Disabled</button></div></details><details><summary>Recent Packages</summary><div data-package-history><p class="muted">No repository-backed packages loaded.</p></div></details><details><summary>AI Notes</summary><p class="muted" data-ai-notes>Canonical package and transaction are required before implementation handoff.</p></details></aside>
         </div>
       </section>
 
@@ -145,24 +145,25 @@
     <div class="bottom-bar" data-execution-bar="build" hidden>
       <div><span class="muted">Package Target</span><br /><strong data-bottom-target>Codex</strong></div>
       <div><span class="muted">Delivery</span><br /><strong data-delivery>Codex Implementation Agent</strong></div>
-      <div><span class="muted">Approval</span><br /><strong data-approval>Founder Required</strong></div>
-      <button class="generate" type="button" data-action="generate">Generate Package →</button>
+      <div><span class="muted">Approval</span><br /><strong data-approval>Canonical Approval Required</strong></div>
+      <button class="generate" type="button" data-action="generate">Await Canonical Approval</button>
     </div>
 
     <div class="bottom-bar" data-execution-bar="blueprint" hidden>
       <div><span class="muted">Blueprint Readiness</span><br /><strong data-sticky-confidence>Loading</strong></div>
       <div><span class="muted">Approval Effect</span><br /><strong data-blueprint-approval-effect>Loading Blueprint...</strong></div>
-      <div><span class="muted">Decision</span><br /><strong data-sticky-decisions>Billing excluded</strong></div>
+      <div><span class="muted">Decision</span><br /><strong data-sticky-decisions>Pending commit</strong></div>
       <button class="generate" type="button" data-approve-blueprint>Validate Approval →</button>
     </div>
   </div>
   <script src="./js/app.js?v=r3-preview-sync-2"></script>
   <script src="./js/queue-meta.js?v=r3-queue-meta-2"></script>
-  <script src="./js/build-studio-polish.js?v=r3-final-polish-1"></script>
+  <script src="./js/build-studio-polish.js?v=live-actions-2"></script>
   <script src="./js/command-engine.js?v=1.0.0"></script>
   <script src="./js/gateway-status.js?v=0.1.0"></script>
   <script src="./js/workspace-discovery.js?v=1.2.0"></script>
-  <script src="./js/workspace-blueprint.js?v=0.4.1"></script>
-  <script src="./js/workspace-registry.js?v=1.4.1"></script>
+  <script src="./js/gateway-client-v2.js?v=2.0.0"></script>
+  <script src="./js/workspace-blueprint.js?v=live-actions-2"></script>
+  <script src="./js/workspace-registry.js?v=live-actions-2"></script>
 </body>
 </html>
