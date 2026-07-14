@@ -150,6 +150,14 @@
     if (state.packageReady) window.NNOSCanonicalBuild?.reload?.();
   });
 
+  const navigation = $('.nav');
+  if (navigation) {
+    new MutationObserver(() => renderFlowState()).observe(navigation, {
+      childList: true,
+      subtree: true
+    });
+  }
+
   window.NNOSWorkspaceFlow = {
     refresh: refreshFlowState,
     get state() { return { ...state }; }
