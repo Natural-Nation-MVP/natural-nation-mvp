@@ -11,7 +11,6 @@
     transactionId: ''
   };
 
-  // Remove credentials left by the retired session-storage client.
   sessionStorage.removeItem(LEGACY_FOUNDER_KEY);
 
   const $ = (selector) => document.querySelector(selector);
@@ -51,26 +50,48 @@
     });
   }
 
+  function setIfChanged(node, property, value) {
+    if (!node) return;
+    if (property === 'textContent') {
+      if (node.textContent !== value) node.textContent = value;
+      return;
+    }
+    if (property === 'disabled') {
+      if (node.disabled !== value) node.disabled = value;
+      return;
+    }
+    if (node.getAttribute(property) !== value) node.setAttribute(property, value);
+  }
+
   function renderFlowState() {
     const buildNav = $('[data-context-module="build"]');
     if (buildNav) {
-      buildNav.dataset.flowLocked = state.packageReady ? 'false' : 'true';
-      buildNav.setAttribute('aria-disabled', state.packageReady ? 'false' : 'true');
-      buildNav.title = state.packageReady
-        ? 'Open the canonical NN-BUILD-001 package.'
-        : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.';
-      buildNav.textContent = state.packageReady ? 'Build Studio' : 'Build Studio · Locked';
+      const locked = state.packageReady ? 'false' : 'true';
+      setIfChanged(buildNav, 'data-flow-locked', locked);
+      setIfChanged(buildNav, 'aria-disabled', locked);
+      setIfChanged(
+        buildNav,
+        'title',
+        state.packageReady
+          ? 'Open the canonical NN-BUILD-001 package.'
+          : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.'
+      );
+      setIfChanged(buildNav, 'textContent', state.packageReady ? 'Build Studio' : 'Build Studio · Locked');
     }
 
     const reviewButton = $('[data-review-blueprint]');
     if (reviewButton) {
       const decisionResolved = state.billingResolution !== 'unresolved';
-      reviewButton.disabled = !decisionResolved;
-      reviewButton.textContent = state.packageReady
-        ? 'Open Build Studio →'
-        : decisionResolved
-          ? 'Continue to Blueprint →'
-          : 'Resolve Billing to Continue';
+      setIfChanged(reviewButton, 'disabled', !decisionResolved);
+      setIfChanged(
+        reviewButton,
+        'textContent',
+        state.packageReady
+          ? 'Open Build Studio →'
+          : decisionResolved
+            ? 'Continue to Blueprint →'
+            : 'Resolve Billing to Continue'
+      );
     }
 
     document.body.dataset.nnosFlowStage = state.packageReady
@@ -87,7 +108,7 @@
     try {
       blueprint = await fetchJson(BLUEPRINT_URL);
     } catch {
-      // Blueprint loader will surface its own error state.
+      // Blueprint loader displays its own error state.
     }
 
     state.blueprintApproved = isApproved(blueprint);
@@ -109,6 +130,9 @@
   }
 
   document.addEventListener('click', (event) => {
+    const resumeButton = event.target.closest('[data-resume-workspace]');
+    if (resumeButton) window.setTimeout(renderFlowState, 250);
+
     const buildButton = event.target.closest('[data-context-module="build"]');
     if (buildButton && !state.packageReady) {
       event.preventDefault();
@@ -149,14 +173,6 @@
     await refreshFlowState();
     if (state.packageReady) window.NNOSCanonicalBuild?.reload?.();
   });
-
-  const navigation = $('.nav');
-  if (navigation) {
-    new MutationObserver(() => renderFlowState()).observe(navigation, {
-      childList: true,
-      subtree: true
-    });
-  }
 
   window.NNOSWorkspaceFlow = {
     refresh: refreshFlowState,
