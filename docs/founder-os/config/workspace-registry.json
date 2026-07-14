@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.3.1",
   "defaultWorkspaceId": "founder-os",
   "commandCenterMetrics": {
     "activeWorkspaces": 2,
@@ -39,15 +39,15 @@
       "name": "Natural Nation",
       "description": "Project #1: the Natural Nation brand website and wellness application with Duey.",
       "type": "Website + Application",
-      "stage": "Blueprint",
+      "stage": "Discovery",
       "status": "active",
-      "health": "Draft blueprint ready",
+      "health": "Billing decision ready for confirmation",
       "version": "MVP",
       "progress": 44,
       "lastActivity": "Today",
       "pendingApprovals": 2,
-      "nextAction": "Review draft Workspace Blueprint",
-      "resumeWorkspace": "blueprint",
+      "nextAction": "Confirm MVP billing scope in Discovery",
+      "resumeWorkspace": "discovery",
       "modules": [
         { "target": "discovery", "label": "Discovery" },
         { "target": "blueprint", "label": "Blueprint" },
