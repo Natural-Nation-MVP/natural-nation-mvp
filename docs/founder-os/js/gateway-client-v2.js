@@ -2,6 +2,7 @@
   const GATEWAY_ORIGIN = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const BLUEPRINT_URL = './config/natural-nation-blueprint.json';
   const PACKAGE_URL = '../execution-packages/NN-BUILD-001.json';
+  const BILLING_KEY = 'nnos_billing_resolution';
 
   // Bootstrap credential is intentionally memory-only.
   // A page refresh always requires explicit Founder authentication again.
@@ -107,6 +108,11 @@
   }
 
   async function approveBlueprint({ workspaceId, blueprintVersion, billingResolution, dryRun, clientRequestId }) {
+    const effectiveBillingResolution = sessionStorage.getItem(BILLING_KEY) || billingResolution || 'excluded-from-mvp';
+    if (!['included-in-mvp', 'excluded-from-mvp'].includes(effectiveBillingResolution)) {
+      throw new Error('Resolve the billing decision in Discovery before approving the Blueprint.');
+    }
+
     const payload = await request(
       `/v2/workspaces/${encodeURIComponent(workspaceId)}/blueprints/${encodeURIComponent(blueprintVersion)}/approve`,
       {
@@ -114,7 +120,7 @@
         body: JSON.stringify({
           workspaceId,
           blueprintVersion,
-          decisionResolutions: { 'billing-mvp': billingResolution },
+          decisionResolutions: { 'billing-mvp': effectiveBillingResolution },
           confirmation: { approved: true, effectAcknowledged: true },
           clientRequestId: clientRequestId || createClientRequestId(dryRun ? 'nn-blueprint-dry-run' : 'nn-blueprint-approval'),
           dryRun: Boolean(dryRun)
@@ -125,6 +131,7 @@
     if (dryRun) {
       return {
         ...payload,
+        billingResolution: effectiveBillingResolution,
         checks: Object.entries(payload.verification || {}).map(([name, value]) => ({
           name,
           status: value === true || (typeof value === 'number' && value > 0) ? 'passed' : 'review'
@@ -135,12 +142,13 @@
     const transactionId = payload.transactionId || payload.transaction?.transactionId;
     if (!transactionId) throw new Error('Gateway did not return a transaction ID.');
 
-    const canonical = await waitForCanonicalPublication(transactionId, billingResolution);
+    const canonical = await waitForCanonicalPublication(transactionId, effectiveBillingResolution);
     founderKey = '';
 
     return {
       ...payload,
       transactionId,
+      billingResolution: effectiveBillingResolution,
       canonicalVerified: true,
       canonical
     };
