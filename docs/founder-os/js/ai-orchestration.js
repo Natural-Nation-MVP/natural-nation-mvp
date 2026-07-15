@@ -1,6 +1,10 @@
 (() => {
   const REGISTRY_URL = './config/ai-agent-registry.json';
   const STATE_URL = './config/ai-orchestration-state.json';
+  const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
+
+  let currentRegistry = null;
+  let currentState = null;
 
   const fetchJson = async (url) => {
     const response = await fetch(`${url}?v=${Date.now()}`, { cache: 'no-store' });
@@ -52,6 +56,7 @@
   function renderTask(task, registry) {
     const owner = registry.agents.find((agent) => agent.id === task.owner);
     const next = registry.agents.find((agent) => agent.id === task.nextRole);
+    const canStart = task.status === 'ready';
     return `
       <article class="module-card orchestration-task" data-task-id="${escapeHtml(task.id)}">
         <div class="workspace-card-top">
@@ -61,7 +66,55 @@
         <div class="record-row"><span>Needs</span><span>${escapeHtml(task.requiredInput)}</span></div>
         <div class="record-row"><span>Delivers</span><span>${escapeHtml(task.expectedOutput)}</span></div>
         <div class="record-row"><span>Then</span><span>${escapeHtml(next ? next.name : 'Founder decision complete')}</span></div>
+        ${canStart ? `<button class="generate" type="button" data-start-ai-task="${escapeHtml(task.id)}">Start this work</button>` : ''}
       </article>`;
+  }
+
+  async function dispatchTask(taskId) {
+    const workspace = window.NNOSActiveWorkspace;
+    if (!workspace || !currentState) return;
+
+    const key = window.prompt('Enter your Founder Key to start this work.');
+    if (!key) return;
+
+    const button = document.querySelector(`[data-start-ai-task="${CSS.escape(taskId)}"]`);
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Checking work...';
+    }
+
+    const endpoint = `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(currentState.packageId)}/tasks/${encodeURIComponent(taskId)}/dispatch`;
+
+    try {
+      const dryRun = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'authorization': `Bearer ${key}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ dryRun: true })
+      });
+      const dryRunBody = await dryRun.json();
+      if (!dryRun.ok || !dryRunBody.ok) throw new Error(dryRunBody?.error?.message || 'The work check failed.');
+
+      if (!window.confirm('The work is ready to start. Send it to the assigned AI role now?')) return;
+
+      if (button) button.textContent = 'Starting work...';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'authorization': `Bearer ${key}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ dryRun: false })
+      });
+      const body = await response.json();
+      if (!response.ok || !body.ok) throw new Error(body?.error?.message || 'The work could not be started.');
+
+      window.alert(`Work started for ${taskId}. Founder OS recorded the handoff in GitHub.`);
+      await render();
+    } catch (error) {
+      window.alert(error.message || 'The work could not be started.');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Start this work';
+      }
+    }
   }
 
   async function render() {
@@ -82,6 +135,8 @@
     try {
       const [registry, state] = await Promise.all([fetchJson(REGISTRY_URL), fetchJson(STATE_URL)]);
       validateState(registry, state, workspace);
+      currentRegistry = registry;
+      currentState = state;
       roles.innerHTML = registry.agents.map((agent) => renderAgent(agent, state)).join('');
       handoffs.innerHTML = `
         <article class="glass-panel orchestration-summary">
@@ -98,7 +153,12 @@
     }
   }
 
-  window.NNOSAIOrchestration = { reload: render };
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-start-ai-task]');
+    if (button) dispatchTask(button.dataset.startAiTask);
+  });
+
+  window.NNOSAIOrchestration = { reload: render, dispatchTask };
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
     if (event.detail?.target === 'ai') render();
   });
