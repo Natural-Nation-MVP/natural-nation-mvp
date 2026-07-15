@@ -19,12 +19,26 @@ function parseResultRoute(pathname) {
 }
 
 async function readJson(request) {
-  try { return await request.json(); } catch { return {}; }
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
+}
+
+function dispatchError(error) {
+  const message = error.message || "The AI task could not be dispatched.";
+  if (/already|not ready|not owned|blocked|dispatch record/i.test(message)) {
+    return { status: 409, code: "AI_DISPATCH_CONFLICT", message };
+  }
+  return { status: 422, code: "AI_DISPATCH_BLOCKED", message };
 }
 
 export async function handleAiOrchestration(request, env, pathname) {
   if (pathname === "/v1/ai/providers") {
-    if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to check AI provider readiness.");
+    if (request.method !== "GET") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to check AI provider readiness.");
+    }
     return json(request, { ok: true, providers: providerReadiness(env) });
   }
 
@@ -34,7 +48,9 @@ export async function handleAiOrchestration(request, env, pathname) {
   if (!stateRoute && !dispatchRoute && !resultRoute) return null;
 
   if (stateRoute) {
-    if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
+    if (request.method !== "GET") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
+    }
     try {
       const state = await readOrchestrationState({ env, ...stateRoute });
       return json(request, { ok: true, state });
@@ -44,30 +60,59 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   if (resultRoute) {
-    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to return AI work results.");
+    if (request.method !== "POST") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to return AI work results.");
+    }
+
     const auth = authenticateAgentCallback(request, env);
     if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+
     const body = await readJson(request);
-    if (!body.summary) return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include a summary.");
+    if (!body.summary || typeof body.summary !== "string") {
+      return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include a summary.");
+    }
+    if (!body.dispatchId || typeof body.dispatchId !== "string") {
+      return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include the matching dispatch ID.");
+    }
+
     try {
       const completed = await completeTask({ env, ...resultRoute, result: body, actor: auth.actor });
-      return json(request, { ok: true, status: "completed", ...completed });
+      return json(request, {
+        ok: true,
+        status: "result-verified",
+        message: "The provider result was verified and the canonical task state was advanced.",
+        ...completed
+      });
     } catch (error) {
-      return errorResponse(request, 422, "RESULT_REJECTED", error.message || "The AI result could not be recorded.");
+      return errorResponse(request, 409, "RESULT_REJECTED", error.message || "The AI result could not be recorded.");
     }
   }
 
-  if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to start AI work.");
+  if (request.method !== "POST") {
+    return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to validate or dispatch AI work.");
+  }
+
   const auth = authenticateFounder(request, env);
   if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
-  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
+  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
+    return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
+  }
 
   const body = await readJson(request);
   try {
-    const result = await dispatchTask({ env, ...dispatchRoute, actor: auth.actor, dryRun: body.dryRun === true });
-    return json(request, { ok: true, status: result.dryRun ? "dry-run-passed" : result.dispatch.status, ...result });
+    const result = await dispatchTask({
+      env,
+      ...dispatchRoute,
+      actor: auth.actor,
+      dryRun: body.dryRun === true
+    });
+    return json(request, {
+      ok: true,
+      status: result.dryRun ? "dry-run-passed" : result.dispatch.status,
+      ...result
+    });
   } catch (error) {
-    const conflict = /already complete/i.test(error.message || "");
-    return errorResponse(request, conflict ? 409 : 422, conflict ? "TASK_ALREADY_COMPLETE" : "AI_DISPATCH_BLOCKED", error.message || "The AI task could not be started.");
+    const mapped = dispatchError(error);
+    return errorResponse(request, mapped.status, mapped.code, mapped.message);
   }
 }
