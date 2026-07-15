@@ -29,6 +29,10 @@ for (const phrase of [
   assert(html.includes(phrase), `Founder-facing label is missing: ${phrase}`);
 }
 
+assert(!html.includes('Workspace Registry'), 'The visible interface must not use the technical label Workspace Registry.');
+assert(!html.includes('Canonical Output'), 'The visible interface must not lead with repository terminology.');
+assert(!html.includes('Execution Catalog'), 'The visible interface must not expose implementation terminology by default.');
+
 const founderOS = registry.workspaces.find((workspace) => workspace.id === 'founder-os');
 const naturalNation = registry.workspaces.find((workspace) => workspace.id === 'natural-nation');
 assert(founderOS, 'Founder OS workspace is required.');
@@ -45,6 +49,5 @@ assert(naturalNationModules.has('blueprint'), 'Natural Nation must own its Build
 
 assert(app.includes('workspaceAllows'), 'Route ownership must be enforced by app.js.');
 assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"), 'Execution bars must be scoped to Natural Nation.');
-assert(!workspaceRegistry.includes('Workspace Registry'), 'Founder-facing workspace navigation should use common English.');
 
 console.log('Founder OS validation passed.');
