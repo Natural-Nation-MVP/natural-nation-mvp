@@ -90,7 +90,7 @@
   function pageLabels(workspace, target) {
     const common = {
       mission: workspace.id === 'natural-nation'
-        ? ['Natural Nation Overview', 'See what is complete, what is incomplete, and the safest next step for the product.']
+        ? ['Product Overview', 'See the current objective, live task, project health, and safest next action.']
         : ['Founder OS Overview', 'See what is working, what is incomplete, and what needs your attention.'],
       knowledge: workspace.id === 'natural-nation'
         ? ['Product Records', 'Find approved Natural Nation decisions, plans, assets, and implementation records.']
