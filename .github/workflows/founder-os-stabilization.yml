@@ -33,3 +33,6 @@ jobs:
           node-version: '22'
       - name: Validate runtime, UX, workspace isolation, and AI dispatch
         run: node scripts/validate-founder-os.mjs
+      - name: Test direct AI provider routing and failover
+        working-directory: services/founder-os-gateway
+        run: npm test
