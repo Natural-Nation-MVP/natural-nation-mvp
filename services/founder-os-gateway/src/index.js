@@ -1,15 +1,15 @@
 /**
- * Founder OS Gateway Worker v0.4.4
+ * Founder OS Gateway Worker v0.5.0
  *
  * Canonical source for the Cloudflare Worker.
- * v0.4.4 adds safe runtime-binding name diagnostics so deployment binding
- * mismatches can be identified without exposing any secret values.
+ * v0.5.0 adds protected repository-backed AI task orchestration.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
+import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 
-const VERSION = "0.4.4";
+const VERSION = "0.5.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -30,6 +30,9 @@ export default {
     if (request.method === "OPTIONS") {
       return json(request, { ok: true }, 204);
     }
+
+    const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
+    if (orchestrationResponse) return orchestrationResponse;
 
     const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
     if (approvalResponse) return approvalResponse;
@@ -53,6 +56,8 @@ export default {
           blueprintApproval: "canonical-commit-enabled",
           blueprintApprovalDryRun: "enabled",
           idempotentApprovalRecovery: "enabled",
+          aiOrchestration: "repository-backed-dispatch-enabled",
+          aiOrchestrationDryRun: "enabled",
           preservedRuntimeBindings: "enabled",
           safeBindingDiagnostics: "enabled"
         }
