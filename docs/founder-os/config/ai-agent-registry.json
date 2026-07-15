@@ -1,11 +1,12 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "agents": [
     {
       "id": "art",
       "name": "Art",
       "role": "Architecture Lead",
       "purpose": "Defines system structure, boundaries, standards, and implementation plans.",
+      "provider": "openai",
       "allowedActions": ["plan", "review-architecture", "prepare-handoff"],
       "requiresFounderApprovalFor": ["architecture-lock", "production-standard-change"]
     },
@@ -14,6 +15,7 @@
       "name": "Codex",
       "role": "Implementation Lead",
       "purpose": "Writes and updates code from approved build packages.",
+      "provider": "openai",
       "allowedActions": ["implement", "test", "prepare-pull-request"],
       "requiresFounderApprovalFor": ["merge", "production-deploy"]
     },
@@ -22,6 +24,7 @@
       "name": "Gemini",
       "role": "Design Review",
       "purpose": "Reviews usability, visual quality, and responsive behavior.",
+      "provider": "google",
       "allowedActions": ["review-design", "report-findings", "prepare-handoff"],
       "requiresFounderApprovalFor": ["design-lock"]
     },
@@ -30,6 +33,7 @@
       "name": "GPose",
       "role": "Strategy and Documentation",
       "purpose": "Maintains prompts, summaries, operating guidance, and release communication.",
+      "provider": "openai",
       "allowedActions": ["prepare-prompt", "update-documentation", "summarize"],
       "requiresFounderApprovalFor": ["governance-lock"]
     },
@@ -38,6 +42,7 @@
       "name": "Founder",
       "role": "Protected Approval",
       "purpose": "Approves protected decisions, releases, merges, and deployments.",
+      "provider": "manual",
       "allowedActions": ["approve", "reject", "request-changes"],
       "requiresFounderApprovalFor": []
     }
