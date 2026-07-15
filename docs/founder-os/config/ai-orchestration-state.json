@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready-for-architecture",
+  "status": "dispatching",
   "currentOwner": "art",
   "nextOwner": "codex",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-15T01:15:00Z",
+  "updatedAt": "2026-07-15T21:47:29.280Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -14,10 +14,14 @@
       "packageId": "NN-BUILD-001",
       "title": "Confirm the build approach",
       "owner": "art",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Canonical package NN-BUILD-001",
       "expectedOutput": "Implementation plan with boundaries, risks, tests, and handoff notes",
-      "nextRole": "codex"
+      "nextRole": "codex",
+      "startedAt": "2026-07-15T21:47:29.280Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-A1327F20-5217-4C8C-868D-BF9BDE679790",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-002",
