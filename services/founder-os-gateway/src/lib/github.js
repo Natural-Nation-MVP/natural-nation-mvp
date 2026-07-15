@@ -8,7 +8,7 @@ function repositoryConfig(env) {
   };
 }
 
-async function githubRequest(env, path, options = {}) {
+export async function githubRequest(env, path, options = {}) {
   const response = await fetch(`${GITHUB_API}${path}`, {
     ...options,
     headers: {
@@ -100,15 +100,13 @@ async function createBlob(env, content) {
   });
 }
 
-export async function commitFilesAtomically(env, { message, files }) {
-  const { owner, repository, branch } = repositoryConfig(env);
-
+async function commitFilesToRef(env, { branch, message, files }) {
+  const { owner, repository } = repositoryConfig(env);
   const ref = await githubRequest(
     env,
     `/repos/${owner}/${repository}/git/ref/heads/${encodeURIComponent(branch)}`
   );
   const parentSha = ref.object.sha;
-
   const parentCommit = await githubRequest(
     env,
     `/repos/${owner}/${repository}/git/commits/${parentSha}`
@@ -158,5 +156,72 @@ export async function commitFilesAtomically(env, { message, files }) {
     commitSha: commit.sha,
     commitUrl: commit.html_url || `https://github.com/${owner}/${repository}/commit/${commit.sha}`,
     branch
+  };
+}
+
+export async function commitFilesAtomically(env, { message, files }) {
+  const { branch } = repositoryConfig(env);
+  return commitFilesToRef(env, { branch, message, files });
+}
+
+export async function createRepositoryExecutionBranch(env, branchName) {
+  const { owner, repository, branch: baseBranch } = repositoryConfig(env);
+  const baseRef = await githubRequest(
+    env,
+    `/repos/${owner}/${repository}/git/ref/heads/${encodeURIComponent(baseBranch)}`
+  );
+  await githubRequest(env, `/repos/${owner}/${repository}/git/refs`, {
+    method: "POST",
+    body: JSON.stringify({
+      ref: `refs/heads/${branchName}`,
+      sha: baseRef.object.sha
+    })
+  });
+  return { branch: branchName, baseBranch, baseSha: baseRef.object.sha };
+}
+
+export async function commitRepositoryExecutionFiles(env, { branch, message, files }) {
+  return commitFilesToRef(env, { branch, message, files });
+}
+
+export async function openRepositoryExecutionPullRequest(env, { branch, title, body }) {
+  const { owner, repository, branch: baseBranch } = repositoryConfig(env);
+  const pull = await githubRequest(env, `/repos/${owner}/${repository}/pulls`, {
+    method: "POST",
+    body: JSON.stringify({
+      title,
+      head: branch,
+      base: baseBranch,
+      body,
+      draft: false,
+      maintainer_can_modify: false
+    })
+  });
+  return {
+    number: pull.number,
+    url: pull.html_url,
+    branch,
+    baseBranch,
+    headSha: pull.head?.sha || null,
+    state: pull.state,
+    mergeable: pull.mergeable ?? null
+  };
+}
+
+export async function readRepositoryExecutionPullRequest(env, pullNumber) {
+  const { owner, repository } = repositoryConfig(env);
+  const [pull, files] = await Promise.all([
+    githubRequest(env, `/repos/${owner}/${repository}/pulls/${pullNumber}`),
+    githubRequest(env, `/repos/${owner}/${repository}/pulls/${pullNumber}/files?per_page=100`)
+  ]);
+  return {
+    number: pull.number,
+    url: pull.html_url,
+    branch: pull.head?.ref || null,
+    baseBranch: pull.base?.ref || null,
+    headSha: pull.head?.sha || null,
+    state: pull.state,
+    merged: pull.merged === true,
+    changedFiles: Array.isArray(files) ? files.map((file) => file.filename) : []
   };
 }
