@@ -5,7 +5,7 @@
   document.head.appendChild(completionStyle);
 
   const completionScript = document.createElement('script');
-  completionScript.src = './js/ux-completion.js?v=1.0.0';
+  completionScript.src = './js/ux-completion.js?v=live-state-1';
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 
@@ -27,8 +27,8 @@
     },
     build: {
       title: 'Build Work',
-      subtitle: 'Review the approved implementation package, its safeguards, and the work assigned to the build team.',
-      badge: 'Controlled Execution'
+      subtitle: 'See the live current owner, ready task, next handoff, and protected execution action.',
+      badge: 'Live Execution'
     },
     mission: {
       title: 'Product Overview',
@@ -42,13 +42,13 @@
     },
     repo: {
       title: 'Code Status',
-      subtitle: 'See what is connected, what has only passed automated checks, and what still needs production verification.',
+      subtitle: 'See the canonical repository, deployed Gateway release, and remaining customer-application work.',
       badge: 'Technical Reality'
     },
     ai: {
       title: 'AI Team',
-      subtitle: 'See each role, the current handoff, provider readiness, and the limits of automation.',
-      badge: 'Assignments'
+      subtitle: 'See each stable role, provider readiness, current handoff, and verified task status.',
+      badge: 'Live Assignments'
     }
   };
 
