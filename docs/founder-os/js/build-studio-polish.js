@@ -26,6 +26,7 @@ function loadWorkspaceModules() {
   loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
   loadScriptOnce('./js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
   loadScriptOnce('./js/ai-orchestration.js?v=live-state-1', 'data-ai-orchestration-loader');
+  loadScriptOnce('./js/build-dispatch-bridge.js?v=dispatch-fix-1', 'data-build-dispatch-bridge-loader');
   loadScriptOnce('./js/natural-nation-final-pass.js?v=workspace-review-1', 'data-natural-nation-final-pass-loader');
 }
 
