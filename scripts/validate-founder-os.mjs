@@ -129,9 +129,12 @@ assert(providerAdapters.includes('delivery-failed'), 'Provider failures must rem
 assert(providerAdapters.includes('AI_CALLBACK_TOKEN') || gatewayAuth.includes('AI_CALLBACK_TOKEN'), 'Legacy provider callbacks must use a dedicated secret.');
 
 assert(structuredLog.includes('console.log(JSON.stringify'), 'Structured logs must be emitted as JSON.');
-assert(structuredLog.includes('redact'), 'Structured logging must redact protected values.');
-assert(!structuredLog.includes('OPENAI_API_KEY'), 'Structured logging must not reference the OpenAI secret by name.');
-assert(!structuredLog.includes('GOOGLE_AI_API_KEY'), 'Structured logging must not reference the Google AI secret by name.');
+assert(structuredLog.includes('sanitize'), 'Structured logging must sanitize nested data.');
+assert(structuredLog.includes('[REDACTED]'), 'Structured logging must replace protected values.');
+for (const protectedKey of ['OPENAI_API_KEY', 'GOOGLE_AI_API_KEY', 'GITHUB_TOKEN', 'FOUNDER_API_KEY']) {
+  assert(structuredLog.includes(protectedKey), `${protectedKey} must be explicitly covered by the redaction policy.`);
+}
+assert(structuredLog.includes('/token|secret|authorization|api.?key/i'), 'Structured logging must redact dynamically named secret fields.');
 
 assert(orchestrationUi.includes('data-start-ai-task'), 'The Founder must have a clear dispatch control.');
 assert(orchestrationUi.includes('dryRun: true'), 'The UI must validate before dispatching live work.');
