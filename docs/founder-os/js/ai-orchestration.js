@@ -22,10 +22,11 @@
     waiting: 'Waiting',
     working: 'Provider accepted',
     complete: 'Result verified',
+    completed: 'Result verified',
     blocked: 'Blocked',
     delivered: 'Provider accepted',
     dispatching: 'Recording handoff',
-    'awaiting-configuration': 'Adapter unavailable',
+    'awaiting-configuration': 'Provider unavailable',
     'delivery-failed': 'Delivery failed',
     'result-verified': 'Result verified',
     'ready-for-architecture': 'Ready for architecture',
@@ -51,8 +52,8 @@
 
   function providerLabel(agent) {
     if (agent.provider === 'manual') return 'Manual Founder step';
-    if (!providerStatus) return 'Checking adapter';
-    return providerStatus[agent.provider] ? 'Adapter configured' : 'Adapter unavailable';
+    if (!providerStatus) return 'Checking provider';
+    return providerStatus[agent.provider] ? 'Provider configured' : 'Provider unavailable';
   }
 
   function renderAgent(agent, state) {
@@ -74,7 +75,7 @@
     const next = registry.agents.find((agent) => agent.id === task.nextRole);
     const canDispatch = task.status === 'ready' && currentState.currentOwner === task.owner;
     const note = task.status === 'working'
-      ? 'The provider accepted this task. It is not complete until a matching result is verified.'
+      ? 'The provider accepted this task. A verified result is still required before completion.'
       : task.status === 'blocked'
         ? task.blockedReason || 'The handoff could not start execution.'
         : '';
@@ -89,7 +90,7 @@
         <div class="record-row"><span>Delivers</span><span>${escapeHtml(task.expectedOutput)}</span></div>
         <div class="record-row"><span>Then</span><span>${escapeHtml(next ? next.name : 'Founder decision complete')}</span></div>
         ${note ? `<p class="muted">${escapeHtml(note)}</p>` : ''}
-        ${canDispatch ? `<button class="generate" type="button" data-start-ai-task="${escapeHtml(task.id)}">Validate and dispatch handoff</button>` : ''}
+        ${canDispatch ? `<button class="generate" type="button" data-start-ai-task="${escapeHtml(task.id)}">Validate and run task</button>` : ''}
       </article>`;
   }
 
@@ -120,7 +121,7 @@
     const button = document.querySelector(`[data-start-ai-task="${CSS.escape(taskId)}"]`);
     if (button) {
       button.disabled = true;
-      button.textContent = 'Validating handoff...';
+      button.textContent = 'Validating task...';
     }
 
     const endpoint = `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(currentState.packageId)}/tasks/${encodeURIComponent(taskId)}/dispatch`;
@@ -137,11 +138,11 @@
       }
 
       const confirmed = window.confirm(
-        'Validation passed. This will record the handoff in GitHub and attempt delivery to the configured provider. It will not mark the task complete. Continue?'
+        'Validation passed. This will record the handoff in GitHub and call the configured provider. Direct providers may complete and record the task during this request. Continue?'
       );
       if (!confirmed) return;
 
-      if (button) button.textContent = 'Recording and delivering...';
+      if (button) button.textContent = 'Running provider task...';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -153,9 +154,11 @@
       }
 
       window.alert(body.message || (
-        body.dispatch?.executionConfirmed
-          ? 'The provider accepted the task. Completion still requires a verified result.'
-          : 'The handoff was recorded, but provider execution did not start.'
+        body.dispatch?.status === 'completed'
+          ? 'The provider completed the task and the verified result was recorded.'
+          : body.dispatch?.executionConfirmed
+            ? 'The provider accepted the task. A verified result is still pending.'
+            : 'The handoff was recorded, but provider execution did not start.'
       ));
       await render();
     } catch (error) {
@@ -164,7 +167,7 @@
     } finally {
       if (button) {
         button.disabled = false;
-        button.textContent = 'Validate and dispatch handoff';
+        button.textContent = 'Validate and run task';
       }
     }
   }

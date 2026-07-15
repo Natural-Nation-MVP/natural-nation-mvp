@@ -81,7 +81,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   const dispatchId = `AI-DISPATCH-${crypto.randomUUID().toUpperCase()}`;
   const updatedState = queuedState(state, task, actor, dispatchId);
   const dispatchRecord = {
-    dispatchVersion: "1.2.0",
+    dispatchVersion: "1.3.0",
     dispatchId,
     workspaceId,
     packageId,
@@ -131,6 +131,33 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     ]
   });
 
+  if (delivery.synchronous === true && delivery.completedResult) {
+    const completion = await completeTask({
+      env,
+      workspaceId,
+      packageId,
+      taskId,
+      result: delivery.completedResult,
+      actor: { id: agent.id || `${delivery.provider}-direct` }
+    });
+
+    return {
+      dryRun: false,
+      writesPerformed: true,
+      dispatch: {
+        ...deliveredRecord,
+        status: "completed",
+        executionConfirmed: true
+      },
+      state: completion.state,
+      result: completion.result,
+      repository: completion.repository,
+      deliveryRepository,
+      queuedRepository,
+      message: "The AI task was dispatched, completed, verified, and recorded in the canonical repository."
+    };
+  }
+
   return {
     dryRun: false,
     writesPerformed: true,
@@ -179,7 +206,7 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
   };
 
   const resultRecord = {
-    resultVersion: "1.1.0",
+    resultVersion: "1.2.0",
     workspaceId,
     packageId,
     taskId,

@@ -1,5 +1,5 @@
 /**
- * Founder OS Gateway Worker v0.5.1
+ * Founder OS Gateway Worker v0.5.2
  *
  * Canonical Cloudflare Worker source for protected Founder approvals and
  * repository-backed AI orchestration.
@@ -9,7 +9,7 @@ import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 
-const VERSION = "0.5.1";
+const VERSION = "0.5.2";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -58,8 +58,9 @@ export default {
           idempotentApprovalRecovery: "enabled",
           aiOrchestration: "repository-backed",
           aiDispatchDryRun: "enabled",
+          directAiProviders: "enabled",
           providerReadiness: "enabled",
-          verifiedResultCallbacks: "enabled",
+          verifiedResultCallbacks: "legacy-compatible",
           workspaceIsolation: "enabled"
         }
       });
@@ -72,8 +73,8 @@ export default {
         githubOwner: Boolean(env.GITHUB_OWNER),
         githubRepository: Boolean(env.GITHUB_REPOSITORY),
         githubBranch: Boolean(env.GITHUB_BRANCH),
-        openAiProvider: Boolean(env.OPENAI_AGENT_ENDPOINT && env.OPENAI_AGENT_TOKEN),
-        googleProvider: Boolean(env.GOOGLE_AGENT_ENDPOINT && env.GOOGLE_AGENT_TOKEN),
+        openAiProvider: Boolean(env.OPENAI_API_KEY),
+        googleProvider: Boolean(env.GOOGLE_AI_API_KEY),
         aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
         gatewayPublicUrl: Boolean(env.GATEWAY_PUBLIC_URL)
       };
