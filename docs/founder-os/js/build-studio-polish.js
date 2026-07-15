@@ -25,7 +25,7 @@ function loadWorkspaceModules() {
   loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-5', 'data-knowledge-engine-loader');
   loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
   loadScriptOnce('./js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
-  loadScriptOnce('./js/ai-operations.js?v=r3-ai-ops-3', 'data-ai-operations-loader');
+  loadScriptOnce('./js/ai-orchestration.js?v=1.0.0', 'data-ai-orchestration-loader');
 }
 
 loadWorkspaceModules();
