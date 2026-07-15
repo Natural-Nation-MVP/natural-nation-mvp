@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-15T21:47:57.235Z",
+  "updatedAt": "2026-07-15T21:55:22.080Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,10 +33,14 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Art-approved implementation plan",
       "expectedOutput": "Tested repository changes in a pull request",
-      "nextRole": "gemini"
+      "nextRole": "gemini",
+      "startedAt": "2026-07-15T21:55:22.080Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-E3C28F2B-5492-466C-A701-4005E8FD77D0",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-003",
