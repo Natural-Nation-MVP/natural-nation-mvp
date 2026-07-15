@@ -83,9 +83,11 @@ for (const task of orchestrationState.tasks) {
 }
 
 assert(gatewayIndex.includes('handleAiOrchestration'), 'The Gateway must activate AI orchestration routes.');
-assert(gatewayIndex.includes('0.5.1'), 'The Gateway version must identify the provider orchestration release.');
+assert(gatewayIndex.includes('0.5.2'), 'The Gateway version must identify the direct-provider orchestration release.');
+assert(gatewayIndex.includes('OPENAI_API_KEY'), 'Gateway configuration must recognize the direct OpenAI secret.');
+assert(gatewayIndex.includes('GOOGLE_AI_API_KEY'), 'Gateway configuration must recognize the direct Google AI secret.');
 assert(gatewayRoute.includes('authenticateFounder'), 'AI task dispatch must require Founder authentication.');
-assert(gatewayRoute.includes('authenticateAgentCallback'), 'AI results must require callback authentication.');
+assert(gatewayRoute.includes('authenticateAgentCallback'), 'Legacy AI result callbacks must require callback authentication.');
 assert(gatewayRoute.includes('/v1/ai/providers'), 'The Gateway must expose safe provider readiness.');
 assert(gatewayRoute.includes('dryRun'), 'AI task dispatch must support a no-write validation.');
 assert(gatewayRoute.includes('body.dispatchId'), 'AI result callbacks must include a dispatch ID.');
@@ -97,18 +99,26 @@ assert(gatewayTransaction.includes('validateDispatchEligibility'), 'Dispatch mus
 assert(gatewayTransaction.includes('task.status !== "ready"'), 'Waiting and blocked tasks must not be dispatched.');
 assert(gatewayTransaction.includes('task.startedAt || task.dispatchId'), 'Duplicate dispatch records must be rejected.');
 assert(gatewayTransaction.includes('providerStatus !== "delivered"'), 'A task cannot complete before provider delivery is confirmed.');
-assert(gatewayTransaction.includes('result.dispatchId !== task.dispatchId'), 'A callback cannot complete the wrong dispatch.');
+assert(gatewayTransaction.includes('result.dispatchId !== task.dispatchId'), 'A provider result cannot complete the wrong dispatch.');
 assert(gatewayTransaction.includes('status: successful ? "working" : "blocked"'), 'Failed provider delivery must block the task instead of claiming execution.');
 assert(gatewayTransaction.includes('deliverToProvider'), 'Queued work must pass through the provider adapter.');
+assert(gatewayTransaction.includes('delivery.synchronous === true'), 'Direct-provider results must enter synchronous completion handling.');
+assert(gatewayTransaction.includes('completedResult'), 'Synchronous provider delivery must include a verified completion result.');
 
-assert(providerAdapters.includes('awaiting-configuration'), 'Unconfigured providers must remain truthful and blocked.');
-assert(providerAdapters.includes('AI_CALLBACK_TOKEN') || gatewayAuth.includes('AI_CALLBACK_TOKEN'), 'Provider callbacks must use a dedicated secret.');
+assert(providerAdapters.includes('OPENAI_API_KEY'), 'The direct OpenAI adapter must use OPENAI_API_KEY.');
+assert(providerAdapters.includes('GOOGLE_AI_API_KEY'), 'The direct Google adapter must use GOOGLE_AI_API_KEY.');
+assert(providerAdapters.includes('api.openai.com/v1/responses'), 'The direct OpenAI adapter must call the Responses API.');
+assert(providerAdapters.includes('generativelanguage.googleapis.com'), 'The direct Google adapter must call the Gemini API.');
+assert(providerAdapters.includes('synchronous: true'), 'Direct providers must identify immediate completion semantics.');
+assert(providerAdapters.includes('delivery-failed'), 'Provider failures must remain truthful and blocked.');
+assert(providerAdapters.includes('AI_CALLBACK_TOKEN') || gatewayAuth.includes('AI_CALLBACK_TOKEN'), 'Legacy provider callbacks must use a dedicated secret.');
 
 assert(orchestrationUi.includes('data-start-ai-task'), 'The Founder must have a clear dispatch control.');
 assert(orchestrationUi.includes('dryRun: true'), 'The UI must validate before dispatching live work.');
-assert(orchestrationUi.includes('It will not mark the task complete'), 'The UI must distinguish dispatch from completion.');
+assert(orchestrationUi.includes('Direct providers may complete and record the task during this request'), 'The UI must explain synchronous direct-provider completion.');
+assert(orchestrationUi.includes("body.dispatch?.status === 'completed'"), 'The UI must report direct-provider completion truthfully.');
 assert(orchestrationUi.includes('executionConfirmed'), 'The UI must report provider acceptance truthfully.');
-assert(orchestrationUi.includes('/v1/ai/providers'), 'The UI must display provider adapter readiness.');
+assert(orchestrationUi.includes('/v1/ai/providers'), 'The UI must display provider readiness.');
 assert(!orchestrationUi.includes('Work started for'), 'The UI must not claim execution merely because a handoff was recorded.');
 
 console.log('Founder OS validation passed.');
