@@ -1,56 +1,119 @@
 (() => {
+  const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const $ = (selector) => document.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
   function statusCard(title, status, detail, tone = 'neutral') {
-    return `<article class="module-card ux-status-card" data-tone="${esc(tone)}"><div class="workspace-card-top"><strong>${esc(title)}</strong><span class="status">${esc(status)}</span></div><p>${esc(detail)}</p></article>`;
+    return `<article class="module-card ux-status-card" data-tone="${esc(tone)}"><div class="workspace-card-top"><strong>${esc(title)}</strong><span class="status">${esc(status)}</span></div>${detail ? `<p>${esc(detail)}</p>` : ''}</article>`;
+  }
+
+  async function fetchJson(url) {
+    const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+    return response.json();
+  }
+
+  function roleName(roleId) {
+    return ({ art: 'Art', codex: 'Codex', gemini: 'Gemini', gpose: 'GPose', founder: 'Founder' })[roleId] || roleId || 'Unassigned';
+  }
+
+  function taskProgress(state) {
+    const complete = (state.tasks || []).filter((task) => ['complete', 'completed'].includes(task.status)).length;
+    return `${complete} of ${(state.tasks || []).length} steps complete`;
+  }
+
+  function renderFounderOverview(cards, actions) {
+    cards.innerHTML = [
+      statusCard('Platform usability', 'Live-state review', 'Founder OS is being checked page by page.', 'progress'),
+      statusCard('AI orchestration', 'Providers online', 'Protected dispatch, failover, audit, and synchronous completion are enabled.', 'success'),
+      statusCard('Release readiness', 'Production verification', 'The first complete live work cycle still needs verification.', 'progress')
+    ].join('');
+    actions.innerHTML = `<div class="ux-action-list">
+      <article class="ux-next-action"><span>Recommended now</span><strong>Verify the live Natural Nation work cycle</strong><p>Open Build Work, confirm the current owner and next handoff, then run the ready task through the protected Gateway.</p></article>
+      <button class="generate" type="button" data-ux-open="build">Open Live Build Work</button>
+      <button type="button" data-ux-open="ai">Review Assigned AI Team</button>
+    </div>`;
+  }
+
+  async function renderNaturalNationOverview(cards, actions, workspace) {
+    cards.innerHTML = [
+      statusCard('Gateway', 'Checking', 'Loading live production status.', 'progress'),
+      statusCard('AI providers', 'Checking', 'Loading provider readiness.', 'progress'),
+      statusCard('Current owner', 'Checking', 'Loading the canonical task chain.', 'progress'),
+      statusCard('Build progress', 'Checking', 'Loading verified task status.', 'progress')
+    ].join('');
+    actions.innerHTML = '<p class="muted">Loading the current objective and live task...</p>';
+
+    try {
+      const [health, providers, orchestration] = await Promise.all([
+        fetchJson(`${GATEWAY_URL}/health`),
+        fetchJson(`${GATEWAY_URL}/v1/ai/providers`),
+        fetchJson(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(workspace.activePackageId)}/orchestration`)
+      ]);
+
+      const state = orchestration.state;
+      const currentTask = (state.tasks || []).find((task) => task.status === 'ready' && task.owner === state.currentOwner)
+        || (state.tasks || []).find((task) => task.owner === state.currentOwner && !['complete', 'completed'].includes(task.status))
+        || null;
+      const connectedProviders = Object.entries(providers.providers || {}).filter(([name, ready]) => ['openai', 'google'].includes(name) && ready).map(([name]) => name === 'openai' ? 'OpenAI' : 'Google');
+      const completed = (state.tasks || []).filter((task) => ['complete', 'completed'].includes(task.status)).length;
+      const total = (state.tasks || []).length;
+      const blockers = (state.tasks || []).filter((task) => task.status === 'blocked').length;
+      const approvals = (state.tasks || []).filter((task) => task.owner === 'founder' && !['complete', 'completed'].includes(task.status)).length;
+
+      cards.innerHTML = [
+        statusCard('Gateway', 'Online', `v${health.version || '0.5.3'}`, 'success'),
+        statusCard('AI providers', `${connectedProviders.length} connected`, connectedProviders.join(' • ') || 'No direct providers ready', connectedProviders.length ? 'success' : 'warning'),
+        statusCard('Current owner', roleName(state.currentOwner), currentTask?.title || 'No active task', 'progress'),
+        statusCard('Build progress', `${completed}/${total}`, taskProgress(state), completed === total ? 'success' : 'progress')
+      ].join('');
+
+      actions.innerHTML = `<div class="ux-action-list">
+        <article class="ux-next-action">
+          <span>Current objective</span>
+          <strong>Build the first production-ready Natural Nation member experience.</strong>
+          <p>Use the approved product direction and complete the canonical work chain in order.</p>
+        </article>
+        <article class="module-card">
+          <div class="eyebrow">Current task</div>
+          <div class="section-title">${esc(currentTask?.title || 'No task is ready')}</div>
+          <div class="record-row"><span>Owner</span><strong>${esc(roleName(state.currentOwner))}</strong></div>
+          <div class="record-row"><span>Next handoff</span><strong>${esc(roleName(state.nextOwner))}</strong></div>
+          <div class="record-row"><span>Status</span><strong>${esc(currentTask?.status || state.status)}</strong></div>
+        </article>
+        <article class="module-card">
+          <div class="eyebrow">Project health</div>
+          <div class="record-row"><span>Approved direction</span><strong>Locked</strong></div>
+          <div class="record-row"><span>Open decisions</span><strong>0</strong></div>
+          <div class="record-row"><span>Blocked tasks</span><strong>${blockers}</strong></div>
+          <div class="record-row"><span>Founder approvals pending</span><strong>${approvals}</strong></div>
+        </article>
+        <div class="ux-button-row">
+          <button class="generate" type="button" data-ux-open="build">Open Build Work</button>
+          <button type="button" data-ux-open="ai">Review Assigned AI Team</button>
+        </div>
+      </div>`;
+    } catch (error) {
+      cards.innerHTML = [
+        statusCard('Gateway', 'Needs attention', 'Live overview data could not be loaded.', 'warning'),
+        statusCard('Customer application', 'Not production-ready', 'The member experience remains incomplete.', 'warning')
+      ].join('');
+      actions.innerHTML = `<article class="ux-next-action"><span>Refresh required</span><strong>Live project status could not be loaded</strong><p>${esc(error.message)}</p></article>`;
+    }
   }
 
   function renderOverview(workspace) {
     const cards = $('[data-mission-cards]');
     const actions = $('[data-action-queue]');
     if (!cards || !actions) return;
-
-    if (workspace.id === 'founder-os') {
-      cards.innerHTML = [
-        statusCard('Platform usability', 'Live-state review', 'Founder OS is being checked page by page so every status and action reflects the canonical live system.', 'progress'),
-        statusCard('AI orchestration', 'Providers online', 'Protected dispatch, direct OpenAI and Google execution, failover, audit recording, and synchronous completion are enabled.', 'success'),
-        statusCard('Release readiness', 'Production verification', 'The Gateway is deployed. Founder OS page behavior and the first live orchestration cycle must still be verified before final lock.', 'progress')
-      ].join('');
-      actions.innerHTML = `<div class="ux-action-list">
-        <article class="ux-next-action"><span>Recommended now</span><strong>Verify the live Natural Nation work cycle</strong><p>Open Build Work, confirm the current owner and next handoff, then run the ready task through the protected Gateway.</p></article>
-        <button class="generate" type="button" data-ux-open="build">Open Live Build Work</button>
-        <button type="button" data-ux-open="ai">Review Assigned AI Team</button>
-      </div>`;
-      return;
-    }
-
-    cards.innerHTML = [
-      statusCard('Product definition', 'Approved foundation', 'The MVP blueprint, Duey role, navigation, protocol system, and score standards are documented.', 'success'),
-      statusCard('Customer application', 'Not production-ready', 'The real Natural Nation member experience is still incomplete. Current screens are planning and review artifacts.', 'warning'),
-      statusCard('Build package', 'Live orchestration ready', 'NN-BUILD-001 is connected to the Gateway task chain. Each role must complete its current canonical step in order.', 'success')
-    ].join('');
-
-    actions.innerHTML = `<div class="ux-product-overview">
-      <article class="ux-next-action"><span>Recommended now</span><strong>Run the current canonical build task</strong><p>Build Work now follows the live Gateway state, beginning with architecture and moving through implementation, review, and Founder approval.</p></article>
-      <div class="ux-preview-shell" aria-label="Natural Nation customer experience preview">
-        <div class="ux-phone-preview">
-          <div class="ux-preview-header"><span>Natural Nation</span><strong>Day 1</strong></div>
-          <section class="ux-welcome-card"><small>GOOD AFTERNOON</small><h3>Your wellness plan starts here.</h3><p>Duey has prepared a simple first-day mission based on your goals.</p></section>
-          <div class="ux-score-row"><article><small>Wellness</small><strong>72</strong><span>Feeling steady</span></article><article><small>Rejuvenation</small><strong>40</strong><span>2 of 5 complete</span></article></div>
-          <section class="ux-protocol-preview"><div><strong>Today’s protocol</strong><span>Next: Hydration</span></div><ol><li class="done">Morning check-in</li><li class="now">Hydration and minerals</li><li>Whole-food lunch</li><li>10-minute walk</li></ol></section>
-          <button type="button" disabled>Customer app preview only</button>
-        </div>
-        <div class="ux-preview-notes"><strong>What is real today</strong><p>The approved product structure, live orchestration path, content rules, and implementation package.</p><strong>What is still being built</strong><p>Authentication, saved member data, live Duey conversations, protocol completion, scores, and customer production deployment.</p></div>
-      </div>
-      <div class="ux-button-row"><button class="generate" type="button" data-ux-open="build">Open Live Build Work</button><button type="button" data-ux-open="ai">See Assigned Team</button></div>
-    </div>`;
+    if (workspace.id === 'founder-os') return renderFounderOverview(cards, actions);
+    return renderNaturalNationOverview(cards, actions, workspace);
   }
 
   function renderBuild(workspace) {
     if (workspace.id !== 'natural-nation') return;
     const impact = $('[data-impact-statement]');
-    if (impact) impact.textContent = 'This work should produce a testable member-facing MVP—not another planning screen. The current owner, task status, next handoff, and primary action must come from the live Gateway state.';
+    if (impact) impact.textContent = 'This work should produce a testable member-facing MVP. The current owner, task status, next handoff, and primary action come from the live Gateway state.';
   }
 
   function renderRepo(workspace) {
@@ -58,15 +121,15 @@
     const checklist = $('[data-repo-checklist]');
     if (!status || !checklist) return;
     status.innerHTML = [
-      statusCard('Canonical repository', 'Connected', 'GitHub main is the source of truth for code, approvals, build packages, orchestration state, and verified task results.', 'success'),
-      statusCard('Gateway release', 'v0.5.3 deployed', 'The protected Gateway is online with direct providers and corrected configuration readiness.', 'success'),
-      statusCard('Customer application', 'Still in development', 'Gateway readiness and repository checks do not mean the Natural Nation member application is complete.', 'warning')
+      statusCard('Canonical repository', 'Connected', 'GitHub main is the source of truth.', 'success'),
+      statusCard('Gateway release', 'v0.5.3 deployed', 'Direct providers and corrected readiness are live.', 'success'),
+      statusCard('Customer application', 'Still in development', 'Infrastructure readiness does not mean the member application is complete.', 'warning')
     ].join('');
     checklist.innerHTML = `<div class="ux-checklist">
       <p><strong>Repository:</strong> Natural-Nation-MVP/natural-nation-mvp</p>
       <p><strong>Workspace:</strong> ${esc(workspace.name)}</p>
-      <p><strong>Live architecture:</strong> GitHub main → Cloudflare deployment → protected provider execution → canonical result commit.</p>
-      <p><strong>Before customer release:</strong> verify authentication, data persistence, full user journeys, error handling, responsive behavior, accessibility, and member deployment.</p>
+      <p><strong>Live architecture:</strong> GitHub main → Cloudflare → protected provider execution → canonical result commit.</p>
+      <p><strong>Before customer release:</strong> verify authentication, saved data, complete user journeys, responsive behavior, accessibility, and production deployment.</p>
     </div>`;
   }
 
@@ -77,14 +140,14 @@
     window.setTimeout(() => {
       if (!roles.children.length || /could not|loading/i.test(roles.textContent)) {
         roles.innerHTML = [
-          statusCard('Art', 'Architecture role', 'Defines architecture and prepares implementation boundaries. The active provider executes this stable role identity.', 'neutral'),
-          statusCard('Codex', 'Implementation role', 'Writes and tests approved code after Art completes the current canonical handoff.', 'neutral'),
-          statusCard('Gemini', 'Review role', 'Reviews design and responsive behavior after a working preview exists.', 'neutral'),
-          statusCard('GPose', 'Founder summary role', 'Translates verified results into a clear review package for the Founder.', 'neutral')
+          statusCard('Art', 'Architecture role', 'Defines architecture and implementation boundaries.', 'neutral'),
+          statusCard('Codex', 'Implementation role', 'Writes and tests approved code after a valid handoff.', 'neutral'),
+          statusCard('Gemini', 'Review role', 'Reviews usability and responsive behavior.', 'neutral'),
+          statusCard('GPose', 'Founder summary role', 'Translates verified results into a clear Founder review.', 'neutral')
         ].join('');
       }
       if (!handoffs.children.length || /could not|loading/i.test(handoffs.textContent)) {
-        handoffs.innerHTML = `<article class="ux-next-action"><span>Needs attention</span><strong>Live orchestration status could not be displayed</strong><p>The Gateway providers are configured. Reload this page or review Build Work to restore the current canonical task view.</p></article>`;
+        handoffs.innerHTML = '<article class="ux-next-action"><span>Needs attention</span><strong>Live orchestration status could not be displayed</strong><p>Reload this page or review Build Work to restore the canonical task view.</p></article>';
       }
     }, 700);
   }
