@@ -105,6 +105,14 @@ assert(gatewayTransaction.includes('deliverToProvider'), 'Queued work must pass 
 assert(gatewayTransaction.includes('delivery.synchronous === true'), 'Direct-provider results must enter synchronous completion handling.');
 assert(gatewayTransaction.includes('completedResult'), 'Synchronous provider delivery must include a verified completion result.');
 
+assert(providerAdapters.includes('PROVIDER_REGISTRY'), 'Providers must be added and removed through a central registry.');
+assert(providerAdapters.includes('FAILOVER_CATEGORIES'), 'Failover behavior must be governed by normalized error categories.');
+assert(providerAdapters.includes('providerOrder'), 'The router must order preferred and fallback providers centrally.');
+assert(providerAdapters.includes('capabilities'), 'Registered providers must declare supported capabilities.');
+assert(providerAdapters.includes('fallbackUsed'), 'Provider delivery must record whether fallback occurred.');
+assert(providerAdapters.includes('attempts'), 'Provider delivery must preserve an audit trail of routing attempts.');
+assert(providerAdapters.includes('QUOTA_EXCEEDED'), 'Quota failures must use a normalized failover category.');
+assert(providerAdapters.includes('AUTHENTICATION_FAILED'), 'Authentication failures must use a terminal normalized category.');
 assert(providerAdapters.includes('OPENAI_API_KEY'), 'The direct OpenAI adapter must use OPENAI_API_KEY.');
 assert(providerAdapters.includes('GOOGLE_AI_API_KEY'), 'The direct Google adapter must use GOOGLE_AI_API_KEY.');
 assert(providerAdapters.includes('api.openai.com/v1/responses'), 'The direct OpenAI adapter must call the Responses API.');
