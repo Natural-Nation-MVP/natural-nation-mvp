@@ -1,13 +1,45 @@
 (() => {
   const pageMeta = {
-    registry: { title: 'Command Center', subtitle: 'Choose a workspace, resume progress, or begin a new product.', badge: 'Workspace Registry' },
-    discovery: { title: 'Workspace Discovery', subtitle: 'Review canonical workspace intelligence and resolved Founder decisions.', badge: 'Discovery' },
-    blueprint: { title: 'Workspace Blueprint', subtitle: 'Review the canonical execution contract and approval state.', badge: 'Blueprint' },
-    build: { title: 'Build Studio', subtitle: 'Open the selected workspace’s canonical execution package.', badge: 'Build Studio' },
-    mission: { title: 'Workspace Overview', subtitle: 'Review operating status, priorities, risks, and next actions.', badge: 'Overview' },
-    knowledge: { title: 'Knowledge', subtitle: 'Review canonical knowledge for the selected workspace.', badge: 'Knowledge' },
-    repo: { title: 'Repository', subtitle: 'Review repository status for the selected workspace.', badge: 'Repository' },
-    ai: { title: 'AI Team', subtitle: 'Review AI roles and handoffs for the selected workspace.', badge: 'AI Team' }
+    registry: {
+      title: 'Your Workspaces',
+      subtitle: 'Choose what you want to work on.',
+      badge: 'Workspaces'
+    },
+    discovery: {
+      title: 'What We Know',
+      subtitle: 'See what is confirmed and whether anything still needs your decision.',
+      badge: 'Understanding'
+    },
+    blueprint: {
+      title: 'Build Plan',
+      subtitle: 'Review what will be built, what comes later, and what has been approved.',
+      badge: 'Approved Plan'
+    },
+    build: {
+      title: 'Build Package',
+      subtitle: 'Review the work package that is ready for the build team.',
+      badge: 'Ready to Build'
+    },
+    mission: {
+      title: 'What Needs Attention',
+      subtitle: 'See current progress, priorities, risks, and your next action.',
+      badge: 'Overview'
+    },
+    knowledge: {
+      title: 'Project Records',
+      subtitle: 'Find approved decisions, plans, and project information.',
+      badge: 'Records'
+    },
+    repo: {
+      title: 'Code & Deployments',
+      subtitle: 'See whether the code, deployment, and source records are healthy.',
+      badge: 'Technical Status'
+    },
+    ai: {
+      title: 'Build Team',
+      subtitle: 'See who is assigned, what they are doing, and what is waiting.',
+      badge: 'Team'
+    }
   };
 
   function setText(selector, value) {
@@ -37,11 +69,15 @@
     const workspace = window.NNOSActiveWorkspace;
     const meta = pageMeta[safeTarget] || pageMeta.registry;
     const workspaceName = workspace?.name || 'Founder OS';
-    setText('[data-workspace-title]', safeTarget === 'registry' ? meta.title : `${workspaceName} · ${meta.title}`);
+
+    setText('[data-workspace-title]', safeTarget === 'registry' ? meta.title : meta.title);
     setText('[data-workspace-subtitle]', meta.subtitle);
     setText('[data-workspace-badge]', safeTarget === 'registry' ? meta.badge : `${workspaceName} · ${meta.badge}`);
-    window.NNOSShowExecutionBar?.(safeTarget);
 
+    document.body.dataset.activeWorkspace = workspace?.id || 'registry';
+    document.body.dataset.activeView = safeTarget;
+
+    window.NNOSShowExecutionBar?.(safeTarget);
     window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', {
       detail: { workspace, target: safeTarget }
     }));
