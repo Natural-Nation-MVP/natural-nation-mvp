@@ -9,6 +9,10 @@ const registry = JSON.parse(await read('docs/founder-os/config/workspace-registr
 const app = await read('docs/founder-os/js/app.js');
 const workspaceRegistry = await read('docs/founder-os/js/workspace-registry.js');
 const moduleLoader = await read('docs/founder-os/js/build-studio-polish.js');
+const canonicalBuild = await read('docs/founder-os/js/canonical-build-studio.js');
+const discoveryUi = await read('docs/founder-os/js/workspace-discovery.js');
+const blueprintUi = await read('docs/founder-os/js/blueprint-renderer.js');
+const knowledgeUi = await read('docs/founder-os/js/knowledge-engine.js');
 const uxCompletion = await read('docs/founder-os/js/ux-completion.js');
 const uxStyles = await read('docs/founder-os/css/ux-completion.css');
 const orchestrationUi = await read('docs/founder-os/js/ai-orchestration.js');
@@ -46,24 +50,45 @@ const naturalNationModules = new Set(naturalNation.modules.map((module) => modul
 assert(!founderModules.has('build'), 'Founder OS must not expose Natural Nation Build Package.');
 assert(!founderModules.has('discovery'), 'Founder OS must not expose Natural Nation understanding.');
 assert(!founderModules.has('blueprint'), 'Founder OS must not expose Natural Nation Build Plan.');
-assert(naturalNationModules.has('build'), 'Natural Nation must own its Build Package.');
-assert(naturalNationModules.has('discovery'), 'Natural Nation must own What We Know.');
-assert(naturalNationModules.has('blueprint'), 'Natural Nation must own its Build Plan.');
+for (const requiredPage of ['mission', 'discovery', 'blueprint', 'build', 'ai', 'repo', 'knowledge']) {
+  assert(naturalNationModules.has(requiredPage), `Natural Nation page is missing: ${requiredPage}`);
+  assert(html.includes(`data-workspace="${requiredPage}"`), `Natural Nation page section is missing: ${requiredPage}`);
+}
+assert.equal(naturalNationModules.size, 7, 'Natural Nation must expose exactly seven approved workspace pages.');
 
 assert(app.includes('workspaceAllows'), 'Route ownership must be enforced by app.js.');
 assert(app.includes('ux-completion.js'), 'The completed founder-facing module runtime must load.');
 assert(app.includes('ux-completion.css'), 'The completed founder-facing module styles must load.');
+assert(app.includes('Live Execution'), 'Build Work must identify itself as a live execution page.');
 assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"), 'Execution bars must be scoped to Natural Nation.');
 
-for (const phrase of ['Product definition', 'Customer application', 'Build package', 'Provider execution is not yet verified', 'Customer app preview only', 'automated repository validation passed']) {
-  assert(uxCompletion.includes(phrase), `Completed UX truthfulness text is missing: ${phrase}`);
+for (const phrase of ['Product definition', 'Customer application', 'Build package', 'Providers online', 'Customer app preview only', 'v0.5.3 deployed']) {
+  assert(uxCompletion.includes(phrase), `Current UX truthfulness text is missing: ${phrase}`);
 }
+assert(!uxCompletion.includes('Provider execution is not yet verified'), 'Stale provider-unverified messaging must be removed.');
 assert(uxCompletion.includes("workspace.id === 'founder-os'"), 'Founder OS and Natural Nation overview content must remain separated.');
 assert(uxCompletion.includes("workspace.id !== 'natural-nation'"), 'Build work must remain scoped to Natural Nation.');
 assert(uxStyles.includes('.ux-preview-shell'), 'Customer preview must retain responsive styling.');
 
-assert(moduleLoader.includes('ai-orchestration.js'), 'The repository-backed AI orchestration runtime must load.');
+assert(discoveryUi.includes('Open Approved Plan'), 'Confirmed Direction must use the approved page label.');
+assert(discoveryUi.includes('live Build Work'), 'Confirmed Direction must point to the live execution page.');
+assert(blueprintUi.includes('natural-nation-blueprint.json'), 'Approved Plan must load the canonical Natural Nation blueprint.');
+assert(blueprintUi.includes('approvalTransactionId'), 'Approved Plan must verify the committed Founder approval.');
+assert(knowledgeUi.includes('activeWorkspaceId'), 'Product Records must scope records to the active workspace.');
+assert(knowledgeUi.includes("workspaces: ['natural-nation']"), 'Natural Nation records must declare workspace ownership.');
+assert(knowledgeUi.includes('scopedKnowledge'), 'Related Product Records must remain inside the Natural Nation workspace.');
+
+assert(moduleLoader.includes('canonical-build-studio.js?v=live-state-1'), 'The live Build Work controller must be cache-busted.');
+assert(moduleLoader.includes('ai-orchestration.js?v=live-state-1'), 'The live AI orchestration controller must be cache-busted.');
 assert(!moduleLoader.includes('ai-operations.js'), 'The old browser-local AI operations runtime must not load.');
+
+assert(canonicalBuild.includes('/orchestration'), 'Build Work must fetch canonical orchestration state from the Gateway.');
+assert(canonicalBuild.includes('currentTask'), 'Build Work must derive the current task from live state.');
+assert(canonicalBuild.includes('Current owner:'), 'Build Work must display the current role owner.');
+assert(canonicalBuild.includes('Validate and Run Current Task'), 'Build Work must expose the protected live dispatch action.');
+assert(canonicalBuild.includes('NNOSAIOrchestration.dispatchTask'), 'Build Work must dispatch through the shared protected orchestration controller.');
+assert(canonicalBuild.includes('View Canonical Package'), 'The package reference must remain available as a secondary action.');
+assert(!canonicalBuild.includes("setText('[data-bottom-target]', pkg.assignedTo"), 'The bottom action bar must not use the static package assignee.');
 
 const agentIds = new Set(agentRegistry.agents.map((agent) => agent.id));
 assert.equal(agentIds.size, agentRegistry.agents.length, 'AI agent IDs must be unique.');
