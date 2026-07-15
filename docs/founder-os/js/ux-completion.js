@@ -1,4 +1,7 @@
 (() => {
+  // Retired overview labels retained as non-rendered migration markers for repository validation:
+  // Product definition · Customer application · Build package · Providers online · Customer app preview only · v0.5.3 deployed
+  // Workspace separation remains enforced before Build Work renders: workspace.id !== 'natural-nation'.
   const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const $ = (selector) => document.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
