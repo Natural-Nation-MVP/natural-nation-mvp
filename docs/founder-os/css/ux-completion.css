@@ -1,0 +1,31 @@
+.ux-status-card[data-tone='success']{border-color:rgba(48,126,75,.24)}
+.ux-status-card[data-tone='warning']{border-color:rgba(166,111,34,.28)}
+.ux-status-card[data-tone='progress']{border-color:rgba(70,101,166,.25)}
+.ux-action-list,.ux-product-overview{display:grid;gap:14px}
+.ux-next-action{padding:18px;border-radius:14px;background:rgba(255,255,255,.55);border:1px solid var(--nn-line)}
+.ux-next-action span{display:block;font-size:11px;color:var(--nn-muted);margin-bottom:6px}
+.ux-next-action strong{display:block;font-size:18px;line-height:1.25}
+.ux-next-action p{margin-bottom:0}
+.ux-button-row{display:flex;gap:10px;flex-wrap:wrap}
+.ux-preview-shell{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:20px;align-items:start}
+.ux-phone-preview{border:1px solid rgba(47,80,54,.18);border-radius:26px;padding:18px;background:linear-gradient(180deg,rgba(246,251,245,.98),rgba(235,244,237,.98));box-shadow:0 18px 40px rgba(35,63,43,.12)}
+.ux-preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.ux-welcome-card,.ux-protocol-preview{background:#fff;border-radius:18px;padding:16px;margin-bottom:14px;border:1px solid rgba(47,80,54,.1)}
+.ux-welcome-card h3{margin:6px 0 8px;font-size:22px}
+.ux-welcome-card p{margin:0}
+.ux-score-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ux-score-row article{background:#fff;border:1px solid rgba(47,80,54,.1);border-radius:16px;padding:14px}
+.ux-score-row small,.ux-score-row span{display:block;color:var(--nn-muted)}
+.ux-score-row strong{font-size:30px;display:block;margin:4px 0}
+.ux-protocol-preview>div{display:flex;justify-content:space-between;gap:10px}
+.ux-protocol-preview ol{margin:14px 0 0;padding-left:22px}
+.ux-protocol-preview li{padding:7px 0}
+.ux-protocol-preview li.done{text-decoration:line-through;opacity:.65}
+.ux-protocol-preview li.now{font-weight:700}
+.ux-phone-preview>button{width:100%}
+.ux-preview-notes{display:grid;gap:8px;padding-top:8px}
+.ux-preview-notes p{margin:0 0 10px}
+.ux-checklist{display:grid;gap:8px}
+.ux-checklist p{margin:0;padding:12px;border-bottom:1px solid var(--nn-line)}
+@media(max-width:820px){.ux-preview-shell{grid-template-columns:1fr}.ux-phone-preview{max-width:520px}}
+@media(max-width:560px){.ux-score-row{grid-template-columns:1fr}.ux-button-row>*{width:100%}}

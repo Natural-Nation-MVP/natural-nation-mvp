@@ -1,4 +1,14 @@
 (() => {
+  const completionStyle = document.createElement('link');
+  completionStyle.rel = 'stylesheet';
+  completionStyle.href = './css/ux-completion.css?v=1.0.0';
+  document.head.appendChild(completionStyle);
+
+  const completionScript = document.createElement('script');
+  completionScript.src = './js/ux-completion.js?v=1.0.0';
+  completionScript.defer = true;
+  document.head.appendChild(completionScript);
+
   const pageMeta = {
     registry: {
       title: 'Your Workspaces',
@@ -16,14 +26,14 @@
       badge: 'Approved Plan'
     },
     build: {
-      title: 'Build Package',
-      subtitle: 'Review the work package that is ready for the build team.',
-      badge: 'Ready to Build'
+      title: 'Build Work',
+      subtitle: 'Review the approved implementation package, its safeguards, and the work assigned to the build team.',
+      badge: 'Controlled Execution'
     },
     mission: {
-      title: 'What Needs Attention',
-      subtitle: 'See current progress, priorities, risks, and your next action.',
-      badge: 'Overview'
+      title: 'Product Overview',
+      subtitle: 'See what is approved, what is working, what remains incomplete, and the recommended next action.',
+      badge: 'Current Reality'
     },
     knowledge: {
       title: 'Project Records',
@@ -31,14 +41,14 @@
       badge: 'Records'
     },
     repo: {
-      title: 'Code & Deployments',
-      subtitle: 'See whether the code, deployment, and source records are healthy.',
-      badge: 'Technical Status'
+      title: 'Code Status',
+      subtitle: 'See what is connected, what has only passed automated checks, and what still needs production verification.',
+      badge: 'Technical Reality'
     },
     ai: {
-      title: 'Build Team',
-      subtitle: 'See who is assigned, what they are doing, and what is waiting.',
-      badge: 'Team'
+      title: 'AI Team',
+      subtitle: 'See each role, the current handoff, provider readiness, and the limits of automation.',
+      badge: 'Assignments'
     }
   };
 
@@ -70,7 +80,7 @@
     const meta = pageMeta[safeTarget] || pageMeta.registry;
     const workspaceName = workspace?.name || 'Founder OS';
 
-    setText('[data-workspace-title]', safeTarget === 'registry' ? meta.title : meta.title);
+    setText('[data-workspace-title]', meta.title);
     setText('[data-workspace-subtitle]', meta.subtitle);
     setText('[data-workspace-badge]', safeTarget === 'registry' ? meta.badge : `${workspaceName} · ${meta.badge}`);
 
