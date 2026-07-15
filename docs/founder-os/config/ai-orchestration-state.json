@@ -1,0 +1,67 @@
+{
+  "stateVersion": "1.0.0",
+  "workspaceId": "natural-nation",
+  "packageId": "NN-BUILD-001",
+  "status": "ready-for-architecture",
+  "currentOwner": "art",
+  "nextOwner": "codex",
+  "founderApprovalRequired": false,
+  "updatedAt": "2026-07-15T01:15:00Z",
+  "tasks": [
+    {
+      "id": "AI-TASK-001",
+      "workspaceId": "natural-nation",
+      "packageId": "NN-BUILD-001",
+      "title": "Confirm the build approach",
+      "owner": "art",
+      "status": "ready",
+      "requiredInput": "Canonical package NN-BUILD-001",
+      "expectedOutput": "Implementation plan with boundaries, risks, tests, and handoff notes",
+      "nextRole": "codex"
+    },
+    {
+      "id": "AI-TASK-002",
+      "workspaceId": "natural-nation",
+      "packageId": "NN-BUILD-001",
+      "title": "Implement the approved package",
+      "owner": "codex",
+      "status": "waiting",
+      "requiredInput": "Art-approved implementation plan",
+      "expectedOutput": "Tested repository changes in a pull request",
+      "nextRole": "gemini"
+    },
+    {
+      "id": "AI-TASK-003",
+      "workspaceId": "natural-nation",
+      "packageId": "NN-BUILD-001",
+      "title": "Review the experience",
+      "owner": "gemini",
+      "status": "waiting",
+      "requiredInput": "Working preview and acceptance criteria",
+      "expectedOutput": "Usability and responsive design findings",
+      "nextRole": "gpose"
+    },
+    {
+      "id": "AI-TASK-004",
+      "workspaceId": "natural-nation",
+      "packageId": "NN-BUILD-001",
+      "title": "Prepare the Founder review",
+      "owner": "gpose",
+      "status": "waiting",
+      "requiredInput": "Implementation results and review findings",
+      "expectedOutput": "Plain-English summary of what changed, what passed, and what needs approval",
+      "nextRole": "founder"
+    },
+    {
+      "id": "AI-TASK-005",
+      "workspaceId": "natural-nation",
+      "packageId": "NN-BUILD-001",
+      "title": "Approve or request changes",
+      "owner": "founder",
+      "status": "waiting",
+      "requiredInput": "Verified build and review summary",
+      "expectedOutput": "Approve, reject, or request changes",
+      "nextRole": null
+    }
+  ]
+}

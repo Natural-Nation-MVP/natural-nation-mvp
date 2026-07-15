@@ -4,13 +4,16 @@ on:
   pull_request:
     paths:
       - 'docs/founder-os/**'
+      - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
   push:
     branches:
-      - 'stabilization/founder-os-runtime-v1'
+      - 'main'
+      - 'agent/orchestration-main-integration'
     paths:
       - 'docs/founder-os/**'
+      - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
 
@@ -28,5 +31,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate runtime, labels, and workspace isolation
+      - name: Validate runtime, UX, workspace isolation, and AI dispatch
         run: node scripts/validate-founder-os.mjs

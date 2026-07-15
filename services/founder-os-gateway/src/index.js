@@ -1,15 +1,15 @@
 /**
- * Founder OS Gateway Worker v0.4.4
+ * Founder OS Gateway Worker v0.5.1
  *
- * Canonical source for the Cloudflare Worker.
- * v0.4.4 adds safe runtime-binding name diagnostics so deployment binding
- * mismatches can be identified without exposing any secret values.
+ * Canonical Cloudflare Worker source for protected Founder approvals and
+ * repository-backed AI orchestration.
  */
 
 import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
+import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 
-const VERSION = "0.4.4";
+const VERSION = "0.5.1";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -34,6 +34,9 @@ export default {
     const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
     if (approvalResponse) return approvalResponse;
 
+    const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
+    if (orchestrationResponse) return orchestrationResponse;
+
     if (url.pathname === "/health") {
       return json(request, {
         service: "Founder OS Gateway",
@@ -53,8 +56,11 @@ export default {
           blueprintApproval: "canonical-commit-enabled",
           blueprintApprovalDryRun: "enabled",
           idempotentApprovalRecovery: "enabled",
-          preservedRuntimeBindings: "enabled",
-          safeBindingDiagnostics: "enabled"
+          aiOrchestration: "repository-backed",
+          aiDispatchDryRun: "enabled",
+          providerReadiness: "enabled",
+          verifiedResultCallbacks: "enabled",
+          workspaceIsolation: "enabled"
         }
       });
     }
@@ -65,7 +71,11 @@ export default {
         githubToken: Boolean(env.GITHUB_TOKEN),
         githubOwner: Boolean(env.GITHUB_OWNER),
         githubRepository: Boolean(env.GITHUB_REPOSITORY),
-        githubBranch: Boolean(env.GITHUB_BRANCH)
+        githubBranch: Boolean(env.GITHUB_BRANCH),
+        openAiProvider: Boolean(env.OPENAI_AGENT_ENDPOINT && env.OPENAI_AGENT_TOKEN),
+        googleProvider: Boolean(env.GOOGLE_AGENT_ENDPOINT && env.GOOGLE_AGENT_TOKEN),
+        aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
+        gatewayPublicUrl: Boolean(env.GATEWAY_PUBLIC_URL)
       };
 
       return json(request, {
