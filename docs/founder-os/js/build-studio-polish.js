@@ -20,12 +20,12 @@ function updateBottomActionBar() {
 }
 
 function loadWorkspaceModules() {
-  loadScriptOnce('./js/canonical-build-studio.js?v=workspace-scope-1', 'data-canonical-build-loader');
+  loadScriptOnce('./js/canonical-build-studio.js?v=live-state-1', 'data-canonical-build-loader');
   loadScriptOnce('./js/founder-actions.js?v=r3-actions-1', 'data-founder-actions-loader');
   loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-5', 'data-knowledge-engine-loader');
   loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
   loadScriptOnce('./js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
-  loadScriptOnce('./js/ai-orchestration.js?v=orchestration-1.2', 'data-ai-orchestration-loader');
+  loadScriptOnce('./js/ai-orchestration.js?v=live-state-1', 'data-ai-orchestration-loader');
 }
 
 loadWorkspaceModules();
