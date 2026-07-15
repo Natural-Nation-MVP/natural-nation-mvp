@@ -1,0 +1,32 @@
+name: Founder OS Stabilization
+
+on:
+  pull_request:
+    paths:
+      - 'docs/founder-os/**'
+      - 'scripts/validate-founder-os.mjs'
+      - '.github/workflows/founder-os-stabilization.yml'
+  push:
+    branches:
+      - 'stabilization/founder-os-runtime-v1'
+    paths:
+      - 'docs/founder-os/**'
+      - 'scripts/validate-founder-os.mjs'
+      - '.github/workflows/founder-os-stabilization.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-founder-os:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate runtime, labels, and workspace isolation
+        run: node scripts/validate-founder-os.mjs
