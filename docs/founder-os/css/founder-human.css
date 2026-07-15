@@ -1,0 +1,186 @@
+/* Founder-first interface refinements.
+   The goal is to show only the information needed to understand status and act. */
+
+:root {
+  --founder-readable-width: 1180px;
+}
+
+.main {
+  max-width: var(--founder-readable-width);
+  margin-inline: auto;
+}
+
+.hero {
+  align-items: center;
+}
+
+.hero h1 {
+  max-width: 760px;
+  letter-spacing: -0.04em;
+}
+
+.hero .muted {
+  max-width: 720px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.compact-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric {
+  min-height: 82px;
+}
+
+.metric span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+
+.metric strong {
+  font-size: clamp(22px, 4vw, 32px);
+}
+
+.workspace-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.workspace-card > p {
+  min-height: 0;
+}
+
+.workspace-next-step {
+  border: 1px solid rgba(47, 80, 54, 0.14);
+  background: rgba(255, 255, 255, 0.46);
+  border-radius: 9px;
+  padding: 12px;
+  margin: 4px 0 12px;
+}
+
+.workspace-next-step span,
+.workspace-next-step strong {
+  display: block;
+}
+
+.workspace-next-step span {
+  color: var(--nn-muted);
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.workspace-next-step strong {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.workspace-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--nn-muted);
+  font-size: 11px;
+  margin: 0 0 14px;
+}
+
+.workspace-card .generate {
+  margin-top: auto;
+}
+
+.section-title {
+  line-height: 1.2;
+}
+
+.glass-panel > p,
+.glass-panel .muted,
+.discovery-card p,
+.module-card p {
+  line-height: 1.55;
+}
+
+.founder-details {
+  padding: 0;
+  overflow: hidden;
+}
+
+.founder-details > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 15px 16px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.founder-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.founder-details > summary::after {
+  content: '+';
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.founder-details[open] > summary::after {
+  content: '−';
+}
+
+.founder-details[open] > summary {
+  border-bottom: 1px solid var(--nn-line);
+}
+
+.founder-details > :not(summary) {
+  margin: 16px;
+}
+
+.output-box {
+  max-height: 440px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.nav-context small {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sidebar-note small {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+body[data-active-workspace='founder-os'] [data-execution-bar],
+body[data-active-workspace='registry'] [data-execution-bar] {
+  display: none !important;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .compact-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .compact-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .workspace-card-footer {
+    flex-direction: column;
+  }
+
+  .hero .pill {
+    align-self: flex-start;
+  }
+}
