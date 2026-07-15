@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Founder OS — Image Production Center Pilot</title>
+  <link rel="stylesheet" href="../css/theme.css?v=image-pilot-1" />
+  <link rel="stylesheet" href="../css/components.css?v=image-pilot-1" />
+  <link rel="stylesheet" href="./image-production.css?v=0.1.0" />
+</head>
+<body>
+  <main class="asset-center">
+    <header class="asset-header">
+      <div>
+        <a class="back-link" href="../">← Founder OS</a>
+        <div class="eyebrow">Pilot Workspace</div>
+        <h1>Image Production Center</h1>
+        <p>Turn approved product needs into controlled, reusable production assets.</p>
+      </div>
+      <div class="header-status">
+        <span class="pill">Pilot v0.1</span>
+        <span class="status-note" data-center-status>Local pilot · no external AI call</span>
+      </div>
+    </header>
+
+    <section class="metric-row" aria-label="Production metrics">
+      <article class="metric"><span>Jobs</span><strong data-metric-jobs>4</strong></article>
+      <article class="metric"><span>Ready</span><strong data-metric-ready>2</strong></article>
+      <article class="metric"><span>In Review</span><strong data-metric-review>1</strong></article>
+      <article class="metric"><span>Approved</span><strong data-metric-approved>1</strong></article>
+    </section>
+
+    <section class="production-layout">
+      <aside class="glass-panel queue-panel">
+        <div class="panel-heading">
+          <div><div class="eyebrow">Production Queue</div><h2>Asset Jobs</h2></div>
+          <button class="secondary-button" type="button" data-new-job>New Job</button>
+        </div>
+        <div class="job-list" data-job-list></div>
+      </aside>
+
+      <section class="production-main">
+        <article class="glass-panel brief-panel">
+          <div class="panel-heading">
+            <div>
+              <div class="eyebrow">Selected Job</div>
+              <h2 data-job-title>Brand Hero Image</h2>
+              <p class="muted" data-job-id>IMG-WEB-R03-001</p>
+            </div>
+            <span class="status-pill" data-job-status>Ready</span>
+          </div>
+
+          <div class="form-grid">
+            <label>Region<input data-field="region" /></label>
+            <label>Asset type<input data-field="assetType" /></label>
+            <label class="wide">Purpose<textarea rows="3" data-field="purpose"></textarea></label>
+            <label class="wide">Visual direction<textarea rows="4" data-field="visualDirection"></textarea></label>
+            <label class="wide">Composition and safe area<textarea rows="3" data-field="composition"></textarea></label>
+            <label class="wide">Do not include<textarea rows="3" data-field="prohibited"></textarea></label>
+          </div>
+
+          <div class="action-row">
+            <button class="secondary-button" type="button" data-save-brief>Save Brief</button>
+            <button class="generate" type="button" data-generate-prompt>Generate Production Prompt</button>
+          </div>
+        </article>
+
+        <article class="glass-panel prompt-panel">
+          <div class="panel-heading">
+            <div><div class="eyebrow">Production Prompt</div><h2>AI-Ready Brief</h2></div>
+            <button class="secondary-button" type="button" data-copy-prompt>Copy Prompt</button>
+          </div>
+          <pre class="prompt-output" data-prompt-output>Select “Generate Production Prompt” to create the controlled image brief.</pre>
+          <div class="pilot-message">Pilot boundary: this version prepares and tracks prompts. It does not yet send requests to an external image-generation API.</div>
+        </article>
+
+        <article class="glass-panel candidate-panel">
+          <div class="panel-heading">
+            <div><div class="eyebrow">Founder Review</div><h2>Candidate Board</h2></div>
+            <span class="muted">Select one finalist</span>
+          </div>
+          <div class="candidate-grid" data-candidate-grid></div>
+          <div class="action-row">
+            <button class="secondary-button" type="button" data-request-revision>Request Revision</button>
+            <button class="generate" type="button" data-approve-asset disabled>Approve Selected Asset</button>
+          </div>
+        </article>
+
+        <article class="glass-panel asset-record-panel">
+          <div class="eyebrow">Asset Registration</div>
+          <h2>Approved Asset Record</h2>
+          <pre class="asset-record" data-asset-record>No production asset has been approved in this pilot session.</pre>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script src="./image-production.js?v=0.1.0"></script>
+</body>
+</html>
