@@ -8,6 +8,9 @@ const html = await read('docs/founder-os/index.html');
 const registry = JSON.parse(await read('docs/founder-os/config/workspace-registry.json'));
 const app = await read('docs/founder-os/js/app.js');
 const workspaceRegistry = await read('docs/founder-os/js/workspace-registry.js');
+const moduleLoader = await read('docs/founder-os/js/build-studio-polish.js');
+const agentRegistry = JSON.parse(await read('docs/founder-os/config/ai-agent-registry.json'));
+const orchestrationState = JSON.parse(await read('docs/founder-os/config/ai-orchestration-state.json'));
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scriptSources).size, scriptSources.length, 'Each runtime script must load once.');
@@ -49,5 +52,22 @@ assert(naturalNationModules.has('blueprint'), 'Natural Nation must own its Build
 
 assert(app.includes('workspaceAllows'), 'Route ownership must be enforced by app.js.');
 assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"), 'Execution bars must be scoped to Natural Nation.');
+assert(moduleLoader.includes('ai-orchestration.js'), 'The repository-backed AI orchestration runtime must load.');
+assert(!moduleLoader.includes('ai-operations.js'), 'The old hard-coded AI operations runtime must not load.');
+
+const agentIds = new Set(agentRegistry.agents.map((agent) => agent.id));
+assert.equal(agentIds.size, agentRegistry.agents.length, 'AI agent IDs must be unique.');
+for (const requiredAgent of ['art', 'codex', 'gemini', 'gpose', 'founder']) {
+  assert(agentIds.has(requiredAgent), `Required AI role is missing: ${requiredAgent}`);
+}
+assert.equal(orchestrationState.workspaceId, 'natural-nation', 'The initial orchestration state must belong to Natural Nation.');
+assert.equal(orchestrationState.packageId, naturalNation.activePackageId, 'The orchestration package must match the active workspace package.');
+for (const task of orchestrationState.tasks) {
+  assert.equal(task.workspaceId, orchestrationState.workspaceId, `${task.id} has the wrong workspace.`);
+  assert.equal(task.packageId, orchestrationState.packageId, `${task.id} has the wrong package.`);
+  assert(agentIds.has(task.owner), `${task.id} has an unknown owner.`);
+  if (task.nextRole) assert(agentIds.has(task.nextRole), `${task.id} has an unknown next role.`);
+  assert(task.requiredInput && task.expectedOutput, `${task.id} must define its input and output.`);
+}
 
 console.log('Founder OS validation passed.');
