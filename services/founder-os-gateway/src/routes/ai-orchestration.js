@@ -2,6 +2,7 @@ import { authenticateAgentCallback, authenticateFounder } from "../lib/auth.js";
 import { completeTask, dispatchTask, readOrchestrationState } from "../lib/ai-orchestration.js";
 import { providerReadiness } from "../lib/ai-provider-adapters.js";
 import { readRepositoryJson } from "../lib/github.js";
+import { executeRepositoryPlan } from "../lib/repository-execution.js";
 import { errorResponse, json } from "../lib/http.js";
 
 function parseStateRoute(pathname) {
@@ -73,7 +74,8 @@ export async function handleAiOrchestration(request, env, pathname) {
   const dispatchRoute = parseTaskRoute(pathname, "dispatch");
   const resultRoute = parseTaskRoute(pathname, "result");
   const recoverRoute = parseTaskRoute(pathname, "recover");
-  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute) return null;
+  const repositoryExecutionRoute = parseTaskRoute(pathname, "repository-execution");
+  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !repositoryExecutionRoute) return null;
 
   if (stateRoute) {
     if (request.method !== "GET") {
@@ -119,6 +121,35 @@ export async function handleAiOrchestration(request, env, pathname) {
       return json(request, { ok: true, status: "completed", ...completed });
     } catch (error) {
       return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", error.message || "The synchronous result could not be verified.");
+    }
+  }
+
+  if (repositoryExecutionRoute) {
+    if (request.method !== "POST") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to execute approved repository work.");
+    }
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
+      return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
+    }
+    const body = await readJson(request);
+    try {
+      const execution = await executeRepositoryPlan({
+        env,
+        ...repositoryExecutionRoute,
+        plan: body.plan,
+        actor: auth.actor
+      });
+      return json(request, { ok: true, status: "pull-request-created", execution });
+    } catch (error) {
+      const conflict = error.status === 409 || error.status === 422;
+      return errorResponse(
+        request,
+        conflict ? 409 : 422,
+        conflict ? "REPOSITORY_EXECUTION_CONFLICT" : "REPOSITORY_EXECUTION_REJECTED",
+        error.message || "The approved repository work could not be executed."
+      );
     }
   }
 
