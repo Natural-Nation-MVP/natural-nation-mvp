@@ -1,6 +1,7 @@
 import { authenticateAgentCallback, authenticateFounder } from "../lib/auth.js";
 import { completeTask, dispatchTask, readOrchestrationState } from "../lib/ai-orchestration.js";
 import { providerReadiness } from "../lib/ai-provider-adapters.js";
+import { readRepositoryJson } from "../lib/github.js";
 import { errorResponse, json } from "../lib/http.js";
 
 function parseStateRoute(pathname) {
@@ -8,8 +9,8 @@ function parseStateRoute(pathname) {
   return match ? { workspaceId: decodeURIComponent(match[1]), packageId: decodeURIComponent(match[2]) } : null;
 }
 
-function parseDispatchRoute(pathname) {
-  const match = pathname.match(/^\/v1\/workspaces\/([^/]+)\/packages\/([^/]+)\/tasks\/([^/]+)\/dispatch$/);
+function parseTaskRoute(pathname, action) {
+  const match = pathname.match(new RegExp(`^/v1/workspaces/([^/]+)/packages/([^/]+)/tasks/([^/]+)/${action}$`));
   return match ? {
     workspaceId: decodeURIComponent(match[1]),
     packageId: decodeURIComponent(match[2]),
@@ -17,13 +18,8 @@ function parseDispatchRoute(pathname) {
   } : null;
 }
 
-function parseResultRoute(pathname) {
-  const match = pathname.match(/^\/v1\/workspaces\/([^/]+)\/packages\/([^/]+)\/tasks\/([^/]+)\/result$/);
-  return match ? {
-    workspaceId: decodeURIComponent(match[1]),
-    packageId: decodeURIComponent(match[2]),
-    taskId: decodeURIComponent(match[3])
-  } : null;
+function taskRecordPath({ workspaceId, packageId, taskId }) {
+  return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.json`;
 }
 
 async function readJson(request) {
@@ -32,6 +28,37 @@ async function readJson(request) {
   } catch {
     return {};
   }
+}
+
+function validateCompletionEvidence(task, result) {
+  const summary = String(result?.summary || "");
+  if (!summary.trim()) throw new Error("The provider result is empty and cannot be verified.");
+  if (/simulated|pretend|hypothetical/i.test(summary)) {
+    throw new Error("The provider returned simulated work instead of verifiable repository changes.");
+  }
+  if (/pull request/i.test(task.expectedOutput || "")) {
+    const pullRequestUrl = result.pullRequestUrl || result.repositoryEvidence?.pullRequestUrl;
+    if (!/^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+$/i.test(String(pullRequestUrl || ""))) {
+      throw new Error("Implementation completion requires a real GitHub pull request URL.");
+    }
+  }
+}
+
+async function recoverSynchronousResult(env, route, actor) {
+  const [{ content: state }, { content: record }] = await Promise.all([
+    readRepositoryJson(env, "docs/founder-os/config/ai-orchestration-state.json"),
+    readRepositoryJson(env, taskRecordPath(route))
+  ]);
+  const task = state.tasks.find((item) => item.id === route.taskId);
+  const result = record?.delivery?.completedResult;
+  if (!task || task.status !== "working" || task.providerStatus !== "delivered") {
+    throw new Error("This task is not waiting for synchronous result recovery.");
+  }
+  if (!record?.delivery?.synchronous || !result) {
+    throw new Error("No synchronous provider result is available to recover.");
+  }
+  validateCompletionEvidence(task, result);
+  return completeTask({ env, ...route, result, actor });
 }
 
 export async function handleAiOrchestration(request, env, pathname) {
@@ -43,9 +70,10 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   const stateRoute = parseStateRoute(pathname);
-  const dispatchRoute = parseDispatchRoute(pathname);
-  const resultRoute = parseResultRoute(pathname);
-  if (!stateRoute && !dispatchRoute && !resultRoute) return null;
+  const dispatchRoute = parseTaskRoute(pathname, "dispatch");
+  const resultRoute = parseTaskRoute(pathname, "result");
+  const recoverRoute = parseTaskRoute(pathname, "recover");
+  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute) return null;
 
   if (stateRoute) {
     if (request.method !== "GET") {
@@ -70,10 +98,27 @@ export async function handleAiOrchestration(request, env, pathname) {
       return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include a summary and dispatchId.");
     }
     try {
+      const state = await readOrchestrationState({ env, workspaceId: resultRoute.workspaceId, packageId: resultRoute.packageId });
+      const task = state.tasks.find((item) => item.id === resultRoute.taskId);
+      validateCompletionEvidence(task, body);
       const completed = await completeTask({ env, ...resultRoute, result: body, actor: auth.actor });
       return json(request, { ok: true, status: "completed", ...completed });
     } catch (error) {
       return errorResponse(request, 422, "RESULT_REJECTED", error.message || "The AI result could not be recorded.");
+    }
+  }
+
+  if (recoverRoute) {
+    if (request.method !== "POST") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to recover a synchronous AI result.");
+    }
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    try {
+      const completed = await recoverSynchronousResult(env, recoverRoute, auth.actor);
+      return json(request, { ok: true, status: "completed", ...completed });
+    } catch (error) {
+      return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", error.message || "The synchronous result could not be verified.");
     }
   }
 
@@ -89,18 +134,23 @@ export async function handleAiOrchestration(request, env, pathname) {
 
   const body = await readJson(request);
   try {
-    const result = await dispatchTask({
-      env,
-      ...dispatchRoute,
-      actor: auth.actor,
-      dryRun: body.dryRun === true
-    });
+    const result = await dispatchTask({ env, ...dispatchRoute, actor: auth.actor, dryRun: body.dryRun === true });
     return json(request, {
       ok: true,
       status: result.dryRun ? "dry-run-passed" : result.dispatch.status,
       ...result
     });
   } catch (error) {
+    if (body.dryRun !== true) {
+      try {
+        const recovered = await recoverSynchronousResult(env, dispatchRoute, auth.actor);
+        return json(request, { ok: true, status: "completed", recovered: true, ...recovered });
+      } catch (recoveryError) {
+        if (/simulated|pull request URL|verifiable repository/i.test(recoveryError.message || "")) {
+          return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", recoveryError.message);
+        }
+      }
+    }
     const conflict = /already|not ready|blocked|current orchestration role/i.test(error.message || "");
     return errorResponse(
       request,

@@ -97,9 +97,17 @@ for (const requiredAgent of ['art', 'codex', 'gemini', 'gpose', 'founder']) {
 }
 for (const agent of agentRegistry.agents) assert(agent.provider, `${agent.id} must define a provider adapter.`);
 
-assert.equal(orchestrationState.workspaceId, 'natural-nation', 'The initial orchestration state must belong to Natural Nation.');
+assert.equal(orchestrationState.workspaceId, 'natural-nation', 'The orchestration state must belong to Natural Nation.');
 assert.equal(orchestrationState.packageId, naturalNation.activePackageId, 'The orchestration package must match the active workspace package.');
-assert.equal(orchestrationState.tasks.filter((task) => task.status === 'ready').length, 1, 'Exactly one initial task may be ready.');
+const readyTasks = orchestrationState.tasks.filter((task) => task.status === 'ready');
+const blockedTasks = orchestrationState.tasks.filter((task) => task.status === 'blocked');
+assert(readyTasks.length <= 1, 'No more than one task may be ready.');
+assert(blockedTasks.length <= 1, 'No more than one task may be blocked as the current canonical step.');
+assert(readyTasks.length + blockedTasks.length === 1 || orchestrationState.status === 'complete', 'The orchestration must expose one actionable or truthfully blocked current step unless complete.');
+if (blockedTasks.length === 1) {
+  assert.equal(orchestrationState.currentOwner, blockedTasks[0].owner, 'The blocked task must remain owned by the current role.');
+  assert(blockedTasks[0].blockedReason, 'A blocked task must explain why it cannot advance.');
+}
 for (const task of orchestrationState.tasks) {
   assert.equal(task.workspaceId, orchestrationState.workspaceId, `${task.id} has the wrong workspace.`);
   assert.equal(task.packageId, orchestrationState.packageId, `${task.id} has the wrong package.`);
