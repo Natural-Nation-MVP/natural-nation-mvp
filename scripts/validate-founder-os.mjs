@@ -9,8 +9,12 @@ const registry = JSON.parse(await read('docs/founder-os/config/workspace-registr
 const app = await read('docs/founder-os/js/app.js');
 const workspaceRegistry = await read('docs/founder-os/js/workspace-registry.js');
 const moduleLoader = await read('docs/founder-os/js/build-studio-polish.js');
+const orchestrationUi = await read('docs/founder-os/js/ai-orchestration.js');
 const agentRegistry = JSON.parse(await read('docs/founder-os/config/ai-agent-registry.json'));
 const orchestrationState = JSON.parse(await read('docs/founder-os/config/ai-orchestration-state.json'));
+const gatewayIndex = await read('services/founder-os-gateway/src/index.js');
+const gatewayRoute = await read('services/founder-os-gateway/src/routes/ai-orchestration.js');
+const gatewayTransaction = await read('services/founder-os-gateway/src/lib/ai-orchestration.js');
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scriptSources).size, scriptSources.length, 'Each runtime script must load once.');
@@ -20,14 +24,8 @@ assert(!html.includes('workspace-blueprint.js'), 'Legacy Blueprint execution con
 assert.equal(scriptSources.filter((src) => src.includes('gateway-client')).length, 1, 'Only one Gateway client may load.');
 
 for (const phrase of [
-  'Your Workspaces',
-  'What We Know',
-  'Build Plan',
-  'Build Package',
-  'What Needs Attention',
-  'Project Records',
-  'Code & Deployments',
-  'Build Team'
+  'Your Workspaces', 'What We Know', 'Build Plan', 'Build Package',
+  'What Needs Attention', 'Project Records', 'Code & Deployments', 'Build Team'
 ]) {
   assert(html.includes(phrase), `Founder-facing label is missing: ${phrase}`);
 }
@@ -69,5 +67,14 @@ for (const task of orchestrationState.tasks) {
   if (task.nextRole) assert(agentIds.has(task.nextRole), `${task.id} has an unknown next role.`);
   assert(task.requiredInput && task.expectedOutput, `${task.id} must define its input and output.`);
 }
+
+assert(gatewayIndex.includes('handleAiOrchestration'), 'The Gateway must activate AI orchestration routes.');
+assert(gatewayIndex.includes('0.5.0'), 'The Gateway version must identify the orchestration release.');
+assert(gatewayRoute.includes('authenticateFounder'), 'AI task dispatch must require Founder authentication.');
+assert(gatewayRoute.includes('dryRun'), 'AI task dispatch must support a no-write validation.');
+assert(gatewayTransaction.includes('commitFilesAtomically'), 'Live dispatch must use an atomic repository transaction.');
+assert(gatewayTransaction.includes('workspaceId !== workspaceId'), 'Dispatch must reject cross-workspace requests.');
+assert(orchestrationUi.includes('data-start-ai-task'), 'The Founder must have a clear Start Work control.');
+assert(orchestrationUi.includes('dryRun: true'), 'The UI must validate before starting live work.');
 
 console.log('Founder OS validation passed.');
