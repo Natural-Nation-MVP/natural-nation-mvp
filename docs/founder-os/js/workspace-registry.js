@@ -1,5 +1,5 @@
 (() => {
-  const registryPath = './config/workspace-registry.json?v=1.4.0';
+  const registryPath = './config/workspace-registry.json?v=1.5.0';
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -37,30 +37,35 @@
     const metrics = registry?.commandCenterMetrics;
     const container = $('[data-system-metrics]');
     if (!metrics || !container) return;
+
     const items = [
-      ['Active Workspaces', metrics.activeWorkspaces],
-      ['Approvals Waiting', metrics.approvalsWaiting],
-      ['Automations Running', metrics.automationsRunning],
-      ['Blocked Items', metrics.blockedItems],
-      ['Deployments', metrics.deployments],
-      ['System Health', metrics.systemHealth]
+      ['Workspaces', metrics.activeWorkspaces],
+      ['Waiting for You', metrics.approvalsWaiting],
+      ['Blocked', metrics.blockedItems],
+      ['System', metrics.systemHealth]
     ];
-    container.innerHTML = items.map(([label, value]) => `<div class="metric metric-enter"><span>${label}</span><strong>${value}</strong></div>`).join('');
+
+    container.innerHTML = items
+      .map(([label, value]) => `<div class="metric metric-enter"><span>${label}</span><strong>${value}</strong></div>`)
+      .join('');
   }
 
   function renderHomeNavigation() {
     const nav = $('.nav');
-    if (nav) nav.innerHTML = '<button class="nav-link active" type="button" data-command-center-home>Workspaces</button>';
+    if (nav) nav.innerHTML = '<button class="nav-link active" type="button" data-command-center-home>All Workspaces</button>';
   }
 
   function renderWorkspaceNavigation(workspace) {
     const nav = $('.nav');
     if (!nav) return;
     const activeTarget = workspace.resumeWorkspace || 'mission';
+
     nav.innerHTML = `
-      <button class="nav-link back-link" type="button" data-command-center-home>← Workspaces</button>
-      <div class="nav-context"><small>Current Workspace</small><strong>${workspace.name}</strong></div>
-      ${(workspace.modules || []).map((module) => `<button class="nav-link${module.target === activeTarget ? ' active' : ''}" type="button" data-context-module="${module.target}">${module.label}</button>`).join('')}
+      <button class="nav-link back-link" type="button" data-command-center-home>← All Workspaces</button>
+      <div class="nav-context"><small>Working in</small><strong>${workspace.name}</strong></div>
+      ${(workspace.modules || [])
+        .map((module) => `<button class="nav-link${module.target === activeTarget ? ' active' : ''}" type="button" data-context-module="${module.target}">${module.label}</button>`)
+        .join('')}
     `;
   }
 
@@ -68,17 +73,19 @@
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
+
     const labels = {
-      discovery: ['Workspace Discovery', 'Review canonical intelligence and resolved Founder decisions.'],
-      blueprint: ['Workspace Blueprint', 'Review the approved execution contract and protected transaction state.'],
-      mission: ['Workspace Overview', 'Review workspace operations, priorities, and next actions.'],
-      build: ['Build Studio', 'Open the canonical execution package for this workspace.'],
-      knowledge: ['Knowledge', 'Review canonical knowledge for this workspace.'],
-      repo: ['Repository', 'Review repository status for this workspace.'],
-      ai: ['AI Team', 'Review AI roles and handoffs for this workspace.']
+      discovery: ['What We Know', 'See what is confirmed and whether anything still needs your decision.'],
+      blueprint: ['Build Plan', 'Review what will be built, what comes later, and what has been approved.'],
+      mission: ['What Needs Attention', 'See progress, priorities, risks, and your next action.'],
+      build: ['Build Package', 'Review the work package that is ready for the build team.'],
+      knowledge: ['Project Records', 'Find approved decisions, plans, and project information.'],
+      repo: ['Code & Deployments', 'See whether the code, deployment, and source records are healthy.'],
+      ai: ['Build Team', 'See who is assigned, what they are doing, and what is waiting.']
     };
-    const [pageTitle, pageSubtitle] = labels[target] || [workspace.name, `${workspace.type} · ${workspace.progress}% complete`];
-    if (title) title.textContent = `${workspace.name} · ${pageTitle}`;
+
+    const [pageTitle, pageSubtitle] = labels[target] || [workspace.name, workspace.nextAction];
+    if (title) title.textContent = pageTitle;
     if (subtitle) subtitle.textContent = pageSubtitle;
     if (badge) badge.textContent = `${workspace.name} · ${workspace.stage}`;
   }
@@ -88,14 +95,21 @@
     $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === 'registry'));
     renderHomeNavigation();
     renderMetrics();
+
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
     if (title) title.textContent = `${greeting()}, Dewane`;
-    if (subtitle) subtitle.textContent = 'Your workspaces are ready. Continue the recommended next step or begin a new product.';
-    if (badge) badge.textContent = 'Command Center';
+    if (subtitle) subtitle.textContent = 'Choose a workspace and continue from its recommended next step.';
+    if (badge) badge.textContent = 'Founder OS';
+
     showExecutionBar('none');
-    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace: null, target: 'registry' } }));
+    document.body.dataset.activeWorkspace = 'registry';
+    document.body.dataset.activeView = 'registry';
+
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', {
+      detail: { workspace: null, target: 'registry' }
+    }));
   }
 
   function openWorkspace(workspace) {
@@ -111,16 +125,37 @@
     const list = $('[data-workspace-registry-list]');
     const count = $('[data-workspace-registry-count]');
     if (!list || !registry) return;
-    if (count) count.textContent = `${registry.workspaces.length} active workspaces`;
-    list.innerHTML = registry.workspaces.map((workspace, index) => `
-      <article class="workspace-card card-enter" data-workspace-id="${workspace.id}" style="--card-order:${index}">
-        <div class="workspace-card-top"><div><div class="eyebrow">Workspace #${workspace.number}</div><h2>${workspace.name}</h2></div><span class="status">${workspace.stage}</span></div>
-        <p>${workspace.description}</p>
-        <div class="workspace-progress"><div class="workspace-progress-copy"><span>Progress</span><strong>${workspace.progress}%</strong></div><div class="workspace-progress-track"><span style="width:${workspace.progress}%"></span></div></div>
-        <div class="workspace-meta-grid"><div><span>Health</span><strong>${workspace.health}</strong></div><div><span>Last Activity</span><strong>${workspace.lastActivity}</strong></div><div><span>Next Action</span><strong>${workspace.nextAction}</strong></div><div><span>Approvals</span><strong>${workspace.pendingApprovals}</strong></div></div>
-        <button class="generate" type="button" data-resume-workspace="${workspace.id}">Resume ${workspace.name}</button>
-      </article>
-    `).join('');
+
+    if (count) count.textContent = `${registry.workspaces.length} workspaces`;
+
+    list.innerHTML = registry.workspaces.map((workspace, index) => {
+      const approvals = workspace.pendingApprovals > 0
+        ? `${workspace.pendingApprovals} waiting for you`
+        : 'Nothing waiting for you';
+
+      return `
+        <article class="workspace-card card-enter" data-workspace-id="${workspace.id}" style="--card-order:${index}">
+          <div class="workspace-card-top">
+            <div><div class="eyebrow">${workspace.type}</div><h2>${workspace.name}</h2></div>
+            <span class="status">${workspace.stage}</span>
+          </div>
+          <p>${workspace.description}</p>
+          <div class="workspace-progress" aria-label="${workspace.progress}% complete">
+            <div class="workspace-progress-copy"><span>Progress</span><strong>${workspace.progress}%</strong></div>
+            <div class="workspace-progress-track"><span style="width:${workspace.progress}%"></span></div>
+          </div>
+          <div class="workspace-next-step">
+            <span>Next step</span>
+            <strong>${workspace.nextAction}</strong>
+          </div>
+          <div class="workspace-card-footer">
+            <span>${approvals}</span>
+            <span>${workspace.health}</span>
+          </div>
+          <button class="generate" type="button" data-resume-workspace="${workspace.id}">Open ${workspace.name}</button>
+        </article>
+      `;
+    }).join('');
   }
 
   async function loadRegistry() {
@@ -171,6 +206,6 @@
   loadRegistry().then(activateRegistry).catch((error) => {
     console.error(error);
     const status = $('[data-workspace-registry-status]');
-    if (status) status.textContent = 'Workspace Registry could not be loaded.';
+    if (status) status.textContent = 'Founder OS could not load your workspaces.';
   });
 })();
