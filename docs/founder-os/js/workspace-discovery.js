@@ -75,7 +75,7 @@
     const heading = container.closest('.glass-panel')?.querySelector('.section-title');
     if (heading) heading.textContent = 'Approved Founder Decisions';
     const eyebrow = container.closest('.glass-panel')?.querySelector('.eyebrow');
-    if (eyebrow) eyebrow.textContent = 'Discovery Complete';
+    if (eyebrow) eyebrow.textContent = 'Direction Confirmed';
   }
 
   function renderAction() {
@@ -83,11 +83,11 @@
     if (!button || !discovery) return;
     const hasOpenQuestions = (discovery.uncertainties || []).length > 0;
     button.disabled = hasOpenQuestions;
-    button.textContent = hasOpenQuestions ? 'Resolve Decisions to Continue' : 'Open Approved Blueprint →';
+    button.textContent = hasOpenQuestions ? 'Resolve Decisions to Continue' : 'Open Approved Plan →';
     const actionCopy = button.closest('.discovery-actions')?.querySelector('strong');
     if (actionCopy) actionCopy.textContent = hasOpenQuestions
       ? 'Resolve the remaining Founder decisions.'
-      : 'Discovery is complete. Review the approved Blueprint or continue to Build Studio.';
+      : 'Direction is confirmed. Review the approved plan before moving into live Build Work.';
   }
 
   function renderDiscovery() {
@@ -98,8 +98,8 @@
     if (summary) summary.textContent = discovery.summary;
     if (confidence) confidence.textContent = `${discovery.overallConfidence}% understood`;
     if (status) status.textContent = (discovery.uncertainties || []).length
-      ? 'Founder input is still required before the Blueprint can advance.'
-      : 'Discovery is synchronized with the approved Blueprint. No Founder decisions are pending.';
+      ? 'Founder input is still required before the approved plan can advance.'
+      : 'Confirmed Direction is synchronized with the approved plan. No Founder decisions are pending.';
     renderKnown();
     renderReadiness();
     renderQuestionsOrDecisions();
@@ -109,12 +109,12 @@
   async function loadDiscovery() {
     try {
       const response = await fetch(`${discoveryPath}&verify=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Discovery data returned ${response.status}`);
+      if (!response.ok) throw new Error(`Confirmed Direction data returned ${response.status}`);
       discovery = await response.json();
       renderDiscovery();
     } catch (error) {
       const status = $('[data-discovery-status]');
-      if (status) status.textContent = 'Workspace Discovery could not be loaded.';
+      if (status) status.textContent = 'Confirmed Direction could not be loaded.';
       console.error(error);
     }
   }
