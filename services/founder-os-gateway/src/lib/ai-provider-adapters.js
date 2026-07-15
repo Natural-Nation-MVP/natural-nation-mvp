@@ -17,9 +17,35 @@ class ProviderExecutionError extends Error {
   }
 }
 
-function buildProviderPrompt(agent, dispatch) {
+function roleSnapshot(agent) {
+  return {
+    id: agent.id,
+    name: agent.name || agent.id,
+    role: agent.role || "Assigned AI role",
+    purpose: agent.purpose || null,
+    allowedActions: agent.allowedActions || [],
+    requiresFounderApprovalFor: agent.requiresFounderApprovalFor || []
+  };
+}
+
+function buildProviderPrompt(agent, dispatch, { executingProvider, temporaryRoleAssumption }) {
+  const role = roleSnapshot(agent);
+
   return [
-    `You are operating as the ${agent.name || agent.id || "assigned AI agent"}.`,
+    `You are the ${executingProvider} provider temporarily executing the Founder OS role "${role.name}" (${role.role}).`,
+    temporaryRoleAssumption
+      ? `This is a temporary role assumption because the preferred provider could not complete the request.`
+      : `You are the preferred provider for this request.`,
+    "",
+    "For this request, fully step into the assigned role. Preserve its identity, responsibilities, standards, and boundaries.",
+    "When the request is complete, the temporary role assumption ends. Do not claim permanent ownership of the role.",
+    "",
+    `Assigned role ID: ${role.id}`,
+    `Assigned role name: ${role.name}`,
+    `Assigned role title: ${role.role}`,
+    `Role purpose: ${role.purpose || "Complete the assigned task faithfully."}`,
+    `Allowed actions: ${role.allowedActions.length ? role.allowedActions.join(", ") : "Complete the assigned task only."}`,
+    `Founder approval required for: ${role.requiresFounderApprovalFor.length ? role.requiresFounderApprovalFor.join(", ") : "None specified."}`,
     "",
     "Complete the following Founder OS task.",
     "",
@@ -211,27 +237,33 @@ export function providerReadiness(env) {
 
 export async function deliverToProvider({ env, agent, dispatch }) {
   const preferredProvider = agent.provider || "manual";
+  const assignedRole = roleSnapshot(agent);
 
   if (preferredProvider === "manual") {
     return {
       provider: "manual",
+      assignedRole,
       preferredProvider,
       status: "manual-review-required",
       delivered: false,
       synchronous: false,
       fallbackUsed: false,
+      temporaryRoleAssumption: false,
       attempts: [],
       message: "This step requires direct Founder action."
     };
   }
 
-  const prompt = buildProviderPrompt(agent, dispatch);
   const attempts = [];
 
   for (const provider of providerOrder(preferredProvider)) {
+    const temporaryRoleAssumption = provider.id !== preferredProvider;
+
     if (!provider.configured(env)) {
       attempts.push({
         provider: provider.id,
+        assignedRole: assignedRole.id,
+        temporaryRoleAssumption,
         status: "skipped",
         errorCategory: "PROVIDER_UNAVAILABLE",
         errorCode: "MISSING_SECRET"
@@ -239,20 +271,34 @@ export async function deliverToProvider({ env, agent, dispatch }) {
       continue;
     }
 
+    const prompt = buildProviderPrompt(agent, dispatch, {
+      executingProvider: provider.id,
+      temporaryRoleAssumption
+    });
+
     try {
       const result = await provider.execute(env, prompt);
-      const fallbackUsed = provider.id !== preferredProvider;
+      const fallbackUsed = temporaryRoleAssumption;
 
-      attempts.push({ provider: provider.id, status: "completed", model: result.model });
+      attempts.push({
+        provider: provider.id,
+        assignedRole: assignedRole.id,
+        temporaryRoleAssumption,
+        status: "completed",
+        model: result.model
+      });
 
       return {
         provider: provider.id,
+        assignedRole,
         preferredProvider,
         executingProvider: provider.id,
         status: "delivered",
         delivered: true,
         synchronous: true,
         fallbackUsed,
+        temporaryRoleAssumption,
+        roleRelinquishedAfterCompletion: temporaryRoleAssumption,
         fallbackReason: fallbackUsed
           ? attempts.find((attempt) => attempt.provider === preferredProvider)?.errorCategory || "PREFERRED_PROVIDER_UNAVAILABLE"
           : null,
@@ -264,9 +310,12 @@ export async function deliverToProvider({ env, agent, dispatch }) {
           model: result.model,
           usage: result.usage,
           routing: {
+            assignedRole,
             preferredProvider,
             executingProvider: provider.id,
             fallbackUsed,
+            temporaryRoleAssumption,
+            roleRelinquishedAfterCompletion: temporaryRoleAssumption,
             attempts
           }
         },
@@ -276,6 +325,8 @@ export async function deliverToProvider({ env, agent, dispatch }) {
       const category = error.category || "PROVIDER_UNAVAILABLE";
       attempts.push({
         provider: provider.id,
+        assignedRole: assignedRole.id,
+        temporaryRoleAssumption,
         status: "failed",
         errorCategory: category,
         errorCode: error.code || null,
@@ -286,12 +337,14 @@ export async function deliverToProvider({ env, agent, dispatch }) {
       if (!FAILOVER_CATEGORIES.has(category)) {
         return {
           provider: provider.id,
+          assignedRole,
           preferredProvider,
           executingProvider: null,
           status: category === "AUTHENTICATION_FAILED" ? "authentication-failed" : "delivery-failed",
           delivered: false,
           synchronous: true,
-          fallbackUsed: provider.id !== preferredProvider,
+          fallbackUsed: temporaryRoleAssumption,
+          temporaryRoleAssumption,
           attempts,
           message: error.message
         };
@@ -302,12 +355,14 @@ export async function deliverToProvider({ env, agent, dispatch }) {
   const finalAttempt = attempts.at(-1);
   return {
     provider: preferredProvider,
+    assignedRole,
     preferredProvider,
     executingProvider: null,
     status: "delivery-failed",
     delivered: false,
     synchronous: true,
     fallbackUsed: attempts.some((attempt) => attempt.provider !== preferredProvider && attempt.status !== "skipped"),
+    temporaryRoleAssumption: false,
     attempts,
     message: finalAttempt?.message || "No configured AI provider could complete the task."
   };
