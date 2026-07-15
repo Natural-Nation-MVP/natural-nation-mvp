@@ -15,6 +15,8 @@ const orchestrationState = JSON.parse(await read('docs/founder-os/config/ai-orch
 const gatewayIndex = await read('services/founder-os-gateway/src/index.js');
 const gatewayRoute = await read('services/founder-os-gateway/src/routes/ai-orchestration.js');
 const gatewayTransaction = await read('services/founder-os-gateway/src/lib/ai-orchestration.js');
+const providerAdapters = await read('services/founder-os-gateway/src/lib/ai-provider-adapters.js');
+const gatewayAuth = await read('services/founder-os-gateway/src/lib/auth.js');
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scriptSources).size, scriptSources.length, 'Each runtime script must load once.');
@@ -23,10 +25,7 @@ assert(!html.includes('command-engine.js'), 'Deleted local package generator mus
 assert(!html.includes('workspace-blueprint.js'), 'Legacy Blueprint execution controller must not be loaded.');
 assert.equal(scriptSources.filter((src) => src.includes('gateway-client')).length, 1, 'Only one Gateway client may load.');
 
-for (const phrase of [
-  'Your Workspaces', 'What We Know', 'Build Plan', 'Build Package',
-  'What Needs Attention', 'Project Records', 'Code & Deployments', 'Build Team'
-]) {
+for (const phrase of ['Your Workspaces', 'What We Know', 'Build Plan', 'Build Package', 'What Needs Attention', 'Project Records', 'Code & Deployments', 'Build Team']) {
   assert(html.includes(phrase), `Founder-facing label is missing: ${phrase}`);
 }
 
@@ -55,9 +54,8 @@ assert(!moduleLoader.includes('ai-operations.js'), 'The old hard-coded AI operat
 
 const agentIds = new Set(agentRegistry.agents.map((agent) => agent.id));
 assert.equal(agentIds.size, agentRegistry.agents.length, 'AI agent IDs must be unique.');
-for (const requiredAgent of ['art', 'codex', 'gemini', 'gpose', 'founder']) {
-  assert(agentIds.has(requiredAgent), `Required AI role is missing: ${requiredAgent}`);
-}
+for (const requiredAgent of ['art', 'codex', 'gemini', 'gpose', 'founder']) assert(agentIds.has(requiredAgent), `Required AI role is missing: ${requiredAgent}`);
+for (const agent of agentRegistry.agents) assert(agent.provider, `${agent.id} must define a provider adapter.`);
 assert.equal(orchestrationState.workspaceId, 'natural-nation', 'The initial orchestration state must belong to Natural Nation.');
 assert.equal(orchestrationState.packageId, naturalNation.activePackageId, 'The orchestration package must match the active workspace package.');
 for (const task of orchestrationState.tasks) {
@@ -69,11 +67,16 @@ for (const task of orchestrationState.tasks) {
 }
 
 assert(gatewayIndex.includes('handleAiOrchestration'), 'The Gateway must activate AI orchestration routes.');
-assert(gatewayIndex.includes('0.5.0'), 'The Gateway version must identify the orchestration release.');
+assert(gatewayIndex.includes('0.5.1'), 'The Gateway version must identify the provider orchestration release.');
 assert(gatewayRoute.includes('authenticateFounder'), 'AI task dispatch must require Founder authentication.');
+assert(gatewayRoute.includes('authenticateAgentCallback'), 'AI results must require callback authentication.');
+assert(gatewayRoute.includes('/v1/ai/providers'), 'The Gateway must expose safe provider readiness.');
 assert(gatewayRoute.includes('dryRun'), 'AI task dispatch must support a no-write validation.');
-assert(gatewayTransaction.includes('commitFilesAtomically'), 'Live dispatch must use an atomic repository transaction.');
+assert(gatewayTransaction.includes('commitFilesAtomically'), 'Live dispatch must use repository transactions.');
 assert(gatewayTransaction.includes('workspaceId !== workspaceId'), 'Dispatch must reject cross-workspace requests.');
+assert(gatewayTransaction.includes('deliverToProvider'), 'Queued work must pass through the provider adapter.');
+assert(providerAdapters.includes('awaiting-configuration'), 'Unconfigured providers must remain truthful and blocked.');
+assert(providerAdapters.includes('AI_CALLBACK_TOKEN') || gatewayAuth.includes('AI_CALLBACK_TOKEN'), 'Provider callbacks must use a dedicated secret.');
 assert(orchestrationUi.includes('data-start-ai-task'), 'The Founder must have a clear Start Work control.');
 assert(orchestrationUi.includes('dryRun: true'), 'The UI must validate before starting live work.');
 
