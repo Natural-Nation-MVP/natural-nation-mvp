@@ -5,7 +5,7 @@
   document.head.appendChild(completionStyle);
 
   const completionScript = document.createElement('script');
-  completionScript.src = './js/ux-completion.js?v=live-state-1';
+  completionScript.src = './js/ux-completion.js?v=live-overview-1';
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 
@@ -32,8 +32,8 @@
     },
     mission: {
       title: 'Product Overview',
-      subtitle: 'See what is approved, what is working, what remains incomplete, and the recommended next action.',
-      badge: 'Current Reality'
+      subtitle: 'See the current objective, live task, project health, and safest next action.',
+      badge: 'Executive Status'
     },
     knowledge: {
       title: 'Project Records',
