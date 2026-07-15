@@ -1,5 +1,6 @@
 import { commitFilesAtomically, readRepositoryJson } from "./github.js";
 import { deliverToProvider } from "./ai-provider-adapters.js";
+import { structuredLog } from "./structured-log.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const AGENT_PATH = "docs/founder-os/config/ai-agent-registry.json";
@@ -10,6 +11,10 @@ function taskPath(workspaceId, packageId, taskId) {
 
 function resultPath(workspaceId, packageId, taskId) {
   return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.result.json`;
+}
+
+function routingContext({ workspaceId, packageId, taskId, dispatchId = null, assignedRole = null }) {
+  return { workspaceId, packageId, taskId, dispatchId, assignedRole };
 }
 
 function validateScope(state, workspaceId, packageId, taskId) {
@@ -79,6 +84,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   if (!agent) throw new Error("The assigned AI role is not registered.");
 
   const dispatchId = `AI-DISPATCH-${crypto.randomUUID().toUpperCase()}`;
+  const context = routingContext({ workspaceId, packageId, taskId, dispatchId, assignedRole: agent.id });
   const updatedState = queuedState(state, task, actor, dispatchId);
   const dispatchRecord = {
     dispatchVersion: "1.3.0",
@@ -95,6 +101,13 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     nextRole: task.nextRole,
     provider: agent.provider || "manual"
   };
+
+  structuredLog(dryRun ? "dispatch.validated" : "dispatch.started", {
+    ...context,
+    requestedBy: actor.id,
+    preferredProvider: dispatchRecord.provider,
+    dryRun
+  });
 
   if (dryRun) {
     return {
@@ -115,6 +128,41 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   });
 
   const delivery = await deliverToProvider({ env, agent, dispatch: dispatchRecord });
+  for (const attempt of delivery.attempts || []) {
+    structuredLog("provider.attempt", {
+      ...context,
+      preferredProvider: delivery.preferredProvider,
+      executingProvider: attempt.provider,
+      temporaryRoleAssumption: attempt.temporaryRoleAssumption,
+      status: attempt.status,
+      model: attempt.model || null,
+      errorCategory: attempt.errorCategory || null,
+      errorCode: attempt.errorCode || null,
+      httpStatus: attempt.httpStatus || null
+    });
+  }
+
+  if (delivery.fallbackUsed) {
+    structuredLog("provider.failover", {
+      ...context,
+      preferredProvider: delivery.preferredProvider,
+      executingProvider: delivery.executingProvider,
+      fallbackReason: delivery.fallbackReason,
+      temporaryRoleAssumption: delivery.temporaryRoleAssumption
+    });
+  }
+
+  structuredLog(delivery.delivered ? "provider.completed" : "provider.terminal_failure", {
+    ...context,
+    preferredProvider: delivery.preferredProvider,
+    executingProvider: delivery.executingProvider,
+    status: delivery.status,
+    fallbackUsed: delivery.fallbackUsed,
+    fallbackReason: delivery.fallbackReason || null,
+    temporaryRoleAssumption: delivery.temporaryRoleAssumption,
+    roleRelinquishedAfterCompletion: delivery.roleRelinquishedAfterCompletion || false
+  });
+
   const finalState = deliveredState(updatedState, taskId, delivery);
   const deliveredRecord = {
     ...dispatchRecord,
@@ -222,6 +270,14 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
       { path: STATE_PATH, content: completedState },
       { path: resultPath(workspaceId, packageId, taskId), content: resultRecord }
     ]
+  });
+
+  structuredLog("result.completed", {
+    ...routingContext({ workspaceId, packageId, taskId, dispatchId: result.dispatchId, assignedRole: task.owner }),
+    receivedBy: actor.id,
+    provider: result.provider || null,
+    model: result.model || null,
+    nextRole: task.nextRole || null
   });
 
   return { state: completedState, result: resultRecord, repository };
