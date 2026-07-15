@@ -1,5 +1,5 @@
 /**
- * Founder OS Gateway Worker v0.5.2
+ * Founder OS Gateway Worker v0.5.3
  *
  * Canonical Cloudflare Worker source for protected Founder approvals and
  * repository-backed AI orchestration.
@@ -9,7 +9,7 @@ import { json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 
-const VERSION = "0.5.2";
+const VERSION = "0.5.3";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -20,6 +20,33 @@ function safeBindingDiagnostics(env) {
   return {
     receivedBindingNames,
     founderBindingCandidates: normalizedFounderCandidates
+  };
+}
+
+export function gatewayConfiguration(env) {
+  const required = {
+    founderAuthentication: Boolean(env.FOUNDER_API_KEY),
+    githubToken: Boolean(env.GITHUB_TOKEN),
+    githubOwner: Boolean(env.GITHUB_OWNER),
+    githubRepository: Boolean(env.GITHUB_REPOSITORY),
+    githubBranch: Boolean(env.GITHUB_BRANCH)
+  };
+  const providers = {
+    openAiProvider: Boolean(env.OPENAI_API_KEY),
+    googleProvider: Boolean(env.GOOGLE_AI_API_KEY)
+  };
+  const optionalLegacy = {
+    aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
+    gatewayPublicUrl: Boolean(env.GATEWAY_PUBLIC_URL)
+  };
+
+  return {
+    configured: Object.values(required).every(Boolean) && Object.values(providers).some(Boolean),
+    directProviderReady: Object.values(providers).some(Boolean),
+    required,
+    providers,
+    optionalLegacy,
+    bindings: { ...required, ...providers, ...optionalLegacy }
   };
 }
 
@@ -60,6 +87,7 @@ export default {
           aiDispatchDryRun: "enabled",
           directAiProviders: "enabled",
           providerReadiness: "enabled",
+          structuredObservability: "enabled",
           verifiedResultCallbacks: "legacy-compatible",
           workspaceIsolation: "enabled"
         }
@@ -67,23 +95,11 @@ export default {
     }
 
     if (url.pathname === "/configuration") {
-      const bindings = {
-        founderAuthentication: Boolean(env.FOUNDER_API_KEY),
-        githubToken: Boolean(env.GITHUB_TOKEN),
-        githubOwner: Boolean(env.GITHUB_OWNER),
-        githubRepository: Boolean(env.GITHUB_REPOSITORY),
-        githubBranch: Boolean(env.GITHUB_BRANCH),
-        openAiProvider: Boolean(env.OPENAI_API_KEY),
-        googleProvider: Boolean(env.GOOGLE_AI_API_KEY),
-        aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
-        gatewayPublicUrl: Boolean(env.GATEWAY_PUBLIC_URL)
-      };
-
+      const configuration = gatewayConfiguration(env);
       return json(request, {
         service: "Founder OS Gateway",
         version: VERSION,
-        configured: Object.values(bindings).every(Boolean),
-        bindings,
+        ...configuration,
         diagnostics: safeBindingDiagnostics(env)
       });
     }

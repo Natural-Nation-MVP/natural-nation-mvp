@@ -18,6 +18,7 @@ const gatewayIndex = await read('services/founder-os-gateway/src/index.js');
 const gatewayRoute = await read('services/founder-os-gateway/src/routes/ai-orchestration.js');
 const gatewayTransaction = await read('services/founder-os-gateway/src/lib/ai-orchestration.js');
 const providerAdapters = await read('services/founder-os-gateway/src/lib/ai-provider-adapters.js');
+const structuredLog = await read('services/founder-os-gateway/src/lib/structured-log.js');
 const gatewayAuth = await read('services/founder-os-gateway/src/lib/auth.js');
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
@@ -83,7 +84,12 @@ for (const task of orchestrationState.tasks) {
 }
 
 assert(gatewayIndex.includes('handleAiOrchestration'), 'The Gateway must activate AI orchestration routes.');
-assert(gatewayIndex.includes('0.5.2'), 'The Gateway version must identify the direct-provider orchestration release.');
+assert(gatewayIndex.includes('0.5.3'), 'The Gateway version must identify the stabilization release.');
+assert(gatewayIndex.includes('gatewayConfiguration'), 'Gateway configuration readiness must be calculated centrally.');
+assert(gatewayIndex.includes('Object.values(required).every(Boolean)'), 'All protected Gateway and GitHub bindings must be required.');
+assert(gatewayIndex.includes('Object.values(providers).some(Boolean)'), 'At least one direct AI provider must be ready.');
+assert(gatewayIndex.includes('optionalLegacy'), 'Legacy callback bindings must be reported separately from direct-provider readiness.');
+assert(gatewayIndex.includes('structuredObservability'), 'The Gateway must advertise structured observability.');
 assert(gatewayIndex.includes('OPENAI_API_KEY'), 'Gateway configuration must recognize the direct OpenAI secret.');
 assert(gatewayIndex.includes('GOOGLE_AI_API_KEY'), 'Gateway configuration must recognize the direct Google AI secret.');
 assert(gatewayRoute.includes('authenticateFounder'), 'AI task dispatch must require Founder authentication.');
@@ -104,6 +110,7 @@ assert(gatewayTransaction.includes('status: successful ? "working" : "blocked"')
 assert(gatewayTransaction.includes('deliverToProvider'), 'Queued work must pass through the provider adapter.');
 assert(gatewayTransaction.includes('delivery.synchronous === true'), 'Direct-provider results must enter synchronous completion handling.');
 assert(gatewayTransaction.includes('completedResult'), 'Synchronous provider delivery must include a verified completion result.');
+assert(gatewayTransaction.includes('structuredLog'), 'Orchestration must emit structured audit events.');
 
 assert(providerAdapters.includes('PROVIDER_REGISTRY'), 'Providers must be added and removed through a central registry.');
 assert(providerAdapters.includes('FAILOVER_CATEGORIES'), 'Failover behavior must be governed by normalized error categories.');
@@ -120,6 +127,14 @@ assert(providerAdapters.includes('generativelanguage.googleapis.com'), 'The dire
 assert(providerAdapters.includes('synchronous: true'), 'Direct providers must identify immediate completion semantics.');
 assert(providerAdapters.includes('delivery-failed'), 'Provider failures must remain truthful and blocked.');
 assert(providerAdapters.includes('AI_CALLBACK_TOKEN') || gatewayAuth.includes('AI_CALLBACK_TOKEN'), 'Legacy provider callbacks must use a dedicated secret.');
+
+assert(structuredLog.includes('console.log(JSON.stringify'), 'Structured logs must be emitted as JSON.');
+assert(structuredLog.includes('sanitize'), 'Structured logging must sanitize nested data.');
+assert(structuredLog.includes('[REDACTED]'), 'Structured logging must replace protected values.');
+for (const protectedKey of ['OPENAI_API_KEY', 'GOOGLE_AI_API_KEY', 'GITHUB_TOKEN', 'FOUNDER_API_KEY']) {
+  assert(structuredLog.includes(protectedKey), `${protectedKey} must be explicitly covered by the redaction policy.`);
+}
+assert(structuredLog.includes('/token|secret|authorization|api.?key/i'), 'Structured logging must redact dynamically named secret fields.');
 
 assert(orchestrationUi.includes('data-start-ai-task'), 'The Founder must have a clear dispatch control.');
 assert(orchestrationUi.includes('dryRun: true'), 'The UI must validate before dispatching live work.');
