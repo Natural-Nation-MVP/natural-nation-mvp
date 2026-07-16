@@ -25,6 +25,10 @@ function taskRecordPath({ workspaceId, packageId, taskId }) {
   return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.json`;
 }
 
+function resultRecordPath({ workspaceId, packageId, taskId }) {
+  return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.result.json`;
+}
+
 async function readJson(request) {
   try {
     return await request.json();
@@ -79,12 +83,12 @@ async function resetTask(env, route, actor, reason) {
     status: "ready",
     currentOwner: current.owner,
     nextOwner: current.nextRole || null,
-    founderApprovalRequired: false,
+    founderApprovalRequired: current.owner === "founder",
     updatedAt: now,
     tasks: state.tasks.map((task) => task.id === route.taskId ? {
       ...task,
       status: "ready",
-      providerStatus: "ready",
+      providerStatus: task.owner === "founder" ? "manual-review-required" : "ready",
       blockedReason: null,
       startedAt: null,
       startedBy: null,
@@ -108,11 +112,120 @@ async function resetTask(env, route, actor, reason) {
   return { state: resetState, repository };
 }
 
+async function recordFounderDecision(env, route, actor, body) {
+  const decision = String(body.decision || "").trim();
+  if (!["approve", "request_changes"].includes(decision)) {
+    throw new Error("Founder decision must be approve or request_changes.");
+  }
+
+  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  if (state.workspaceId !== route.workspaceId || state.packageId !== route.packageId) {
+    throw new Error("No orchestration state exists for this workspace and package.");
+  }
+  const task = state.tasks.find((item) => item.id === route.taskId);
+  if (!task || task.owner !== "founder") throw new Error("The requested task is not a Founder decision task.");
+  if (!['ready', 'blocked'].includes(task.status) || task.providerStatus !== "manual-review-required") {
+    throw new Error("This Founder decision is not currently awaiting manual review.");
+  }
+
+  const now = new Date().toISOString();
+  const note = String(body.note || "").trim();
+  const decisionRecord = {
+    resultVersion: "2.1.0",
+    workspaceId: route.workspaceId,
+    packageId: route.packageId,
+    taskId: route.taskId,
+    decision,
+    note,
+    decidedAt: now,
+    decidedBy: actor.id,
+    pullRequestUrl: body.pullRequestUrl || null,
+    sourceReviewTask: "AI-TASK-004"
+  };
+
+  let nextState;
+  if (decision === "approve") {
+    nextState = {
+      ...state,
+      status: "complete",
+      currentOwner: "founder",
+      nextOwner: null,
+      founderApprovalRequired: false,
+      updatedAt: now,
+      finalDecision: decisionRecord,
+      tasks: state.tasks.map((item) => item.id === task.id ? {
+        ...item,
+        status: "complete",
+        providerStatus: "founder-approved",
+        blockedReason: null,
+        completedAt: now,
+        completedBy: actor.id,
+        resultSummary: note || "Founder approved the implementation slice."
+      } : item)
+    };
+  } else {
+    nextState = {
+      ...state,
+      status: "ready",
+      currentOwner: "codex",
+      nextOwner: "gemini",
+      founderApprovalRequired: false,
+      updatedAt: now,
+      finalDecision: decisionRecord,
+      cycle: Number(state.cycle || 1) + 1,
+      tasks: state.tasks.map((item) => {
+        if (item.id === "AI-TASK-002") return {
+          ...item,
+          status: "ready",
+          providerStatus: "ready",
+          blockedReason: null,
+          startedAt: null,
+          startedBy: null,
+          dispatchId: null,
+          completedAt: null,
+          completedBy: null,
+          resultSummary: null,
+          requiredInput: `${item.requiredInput} FOUNDER CORRECTION REQUEST: ${note || 'Apply the verified Gemini and GPose changes before returning for review.'}`,
+          retryContext: {
+            ...(item.retryContext || {}),
+            previousOutcome: "founder-requested-changes",
+            reason: note || "Founder requested the verified corrections.",
+            requiredCorrection: "Implement the requested corrections on the existing implementation pull request or a successor pull request with fresh validation evidence."
+          }
+        };
+        if (["AI-TASK-003", "AI-TASK-004", "AI-TASK-005"].includes(item.id)) return {
+          ...item,
+          status: "waiting",
+          providerStatus: item.owner === "founder" ? "manual-review-required" : null,
+          blockedReason: null,
+          startedAt: null,
+          startedBy: null,
+          dispatchId: null,
+          completedAt: null,
+          completedBy: null,
+          resultSummary: null
+        };
+        return item;
+      })
+    };
+  }
+
+  const repository = await commitFilesAtomically(env, {
+    message: decision === "approve"
+      ? `founder: approve ${route.packageId} implementation slice`
+      : `founder: request changes for ${route.packageId}`,
+    files: [
+      { path: STATE_PATH, content: nextState },
+      { path: resultRecordPath(route), content: decisionRecord }
+    ]
+  });
+
+  return { state: nextState, decision: decisionRecord, repository };
+}
+
 export async function handleAiOrchestration(request, env, pathname) {
   if (pathname === "/v1/ai/providers") {
-    if (request.method !== "GET") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to check AI provider readiness.");
-    }
+    if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to check AI provider readiness.");
     return json(request, { ok: true, providers: providerReadiness(env) });
   }
 
@@ -121,13 +234,12 @@ export async function handleAiOrchestration(request, env, pathname) {
   const resultRoute = parseTaskRoute(pathname, "result");
   const recoverRoute = parseTaskRoute(pathname, "recover");
   const resetRoute = parseTaskRoute(pathname, "reset");
+  const decisionRoute = parseTaskRoute(pathname, "decision");
   const repositoryExecutionRoute = parseTaskRoute(pathname, "repository-execution");
-  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !repositoryExecutionRoute) return null;
+  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !decisionRoute && !repositoryExecutionRoute) return null;
 
   if (stateRoute) {
-    if (request.method !== "GET") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
-    }
+    if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
     try {
       const state = await readOrchestrationState({ env, ...stateRoute });
       return json(request, { ok: true, state });
@@ -136,10 +248,21 @@ export async function handleAiOrchestration(request, env, pathname) {
     }
   }
 
-  if (resetRoute) {
-    if (request.method !== "POST") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to reset a blocked AI task.");
+  if (decisionRoute) {
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to record a Founder decision.");
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    const body = await readJson(request);
+    try {
+      const recorded = await recordFounderDecision(env, decisionRoute, auth.actor, body);
+      return json(request, { ok: true, status: body.decision === "approve" ? "founder-approved" : "changes-requested", ...recorded });
+    } catch (error) {
+      return errorResponse(request, 409, "FOUNDER_DECISION_REJECTED", error.message || "The Founder decision could not be recorded.");
     }
+  }
+
+  if (resetRoute) {
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to reset a blocked AI task.");
     const auth = authenticateFounder(request, env);
     if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
     const body = await readJson(request);
@@ -152,15 +275,11 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   if (resultRoute) {
-    if (request.method !== "POST") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to return AI work results.");
-    }
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to return AI work results.");
     const auth = authenticateAgentCallback(request, env);
     if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
     const body = await readJson(request);
-    if (!body.summary || !body.dispatchId) {
-      return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include a summary and dispatchId.");
-    }
+    if (!body.summary || !body.dispatchId) return errorResponse(request, 422, "RESULT_INVALID", "The AI result must include a summary and dispatchId.");
     try {
       const state = await readOrchestrationState({ env, workspaceId: resultRoute.workspaceId, packageId: resultRoute.packageId });
       const task = state.tasks.find((item) => item.id === resultRoute.taskId);
@@ -173,9 +292,7 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   if (recoverRoute) {
-    if (request.method !== "POST") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to recover a synchronous AI result.");
-    }
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to recover a synchronous AI result.");
     const auth = authenticateFounder(request, env);
     if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
     try {
@@ -187,14 +304,10 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   if (repositoryExecutionRoute) {
-    if (request.method !== "POST") {
-      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to execute approved repository work.");
-    }
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to execute approved repository work.");
     const auth = authenticateFounder(request, env);
     if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
-    if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
-      return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
-    }
+    if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
     const body = await readJson(request);
     try {
       const execution = await executeRepositoryPlan({ env, ...repositoryExecutionRoute, plan: body.plan, actor: auth.actor });
@@ -205,15 +318,10 @@ export async function handleAiOrchestration(request, env, pathname) {
     }
   }
 
-  if (request.method !== "POST") {
-    return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to dispatch AI work.");
-  }
-
+  if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to dispatch AI work.");
   const auth = authenticateFounder(request, env);
   if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
-  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
-    return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
-  }
+  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
 
   const body = await readJson(request);
   try {
