@@ -2,11 +2,11 @@
   "stateVersion": "1.2.3",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T14:09:25.348Z",
+  "updatedAt": "2026-07-16T14:34:51.999Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -58,7 +58,7 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "The real AI-TASK-002 pull request, changed files, validation script, and responsive Day 1 dashboard preview produced from the approved execution contract",
       "expectedOutput": "Concrete usability, mobile/tablet/desktop responsive, accessibility, and non-medical language findings with pass/fail evidence and cited file paths",
       "nextRole": "gpose",
@@ -66,7 +66,11 @@
         "previousDispatchId": "AI-DISPATCH-7BE9F888-1CF2-4448-8CBD-5555FF731F78",
         "previousOutcome": "invalid-result",
         "reason": "The provider requested the preview and acceptance criteria instead of performing a review."
-      }
+      },
+      "startedAt": "2026-07-16T14:34:51.999Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-F06D65CD-C971-4220-BB3C-2F1692B8F18D",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-004",
