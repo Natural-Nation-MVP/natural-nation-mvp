@@ -5,11 +5,60 @@
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-002",
   "agentId": "codex",
-  "status": "dispatching",
+  "status": "delivery-failed",
   "requestedBy": "founder",
   "requestedAt": "2026-07-16T05:28:56.487Z",
   "requiredInput": "CANONICAL EXECUTION CONTRACT — Repository: Natural-Nation-MVP/natural-nation-mvp. Package NN-BUILD-001 objective: implement the Founder-approved Natural Nation Blueprint. Approved product: a mobile-first holistic wellness platform with a public brand website and Duey, a non-medical AI wellness mentor. Phase 1 requires onboarding, personalized blueprint, Day 1 dashboard, Daily Protocol Timeline, Wellness Score, Rejuvenation Score, progress tracking, Duey guidance, guest-first identity, and account upgrade without data loss. Billing is excluded from MVP. For this first implementation slice, create a testable member-facing static web foundation under app/frontend/ only: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. The page must present a responsive Day 1 dashboard preview with Duey identified as an AI wellness mentor, Wellness and Rejuvenation scores, a time-based protocol list, progress check-in controls, non-medical language, and mobile/tablet/desktop responsive behavior. The validation script must inspect the files and fail when the required experience elements are absent. Do not modify architecture decisions, secrets, Cloudflare configuration, GitHub workflows, or Founder OS. The provider response is constrained by the Gateway's repository_execution_plan JSON schema. Do not add markdown fences or narrative text outside that schema. Do not claim a pull request already exists; the protected repository adapter will create the real branch, commit, and pull request from the validated plan.",
   "expectedOutput": "A schema-valid repository execution plan that creates the five approved app/frontend files; the Gateway must convert it into a real GitHub pull request and record changed-file plus validation evidence",
   "nextRole": "gemini",
-  "provider": "openai"
+  "provider": "openai",
+  "delivery": {
+    "provider": "google",
+    "assignedRole": {
+      "id": "codex",
+      "name": "Codex",
+      "role": "Implementation Lead",
+      "purpose": "Writes and updates code from approved build packages.",
+      "allowedActions": [
+        "implement",
+        "test",
+        "prepare-pull-request"
+      ],
+      "requiresFounderApprovalFor": [
+        "merge",
+        "production-deploy"
+      ]
+    },
+    "preferredProvider": "openai",
+    "executingProvider": null,
+    "status": "delivery-failed",
+    "delivered": false,
+    "synchronous": true,
+    "fallbackUsed": true,
+    "temporaryRoleAssumption": true,
+    "attempts": [
+      {
+        "provider": "openai",
+        "assignedRole": "codex",
+        "temporaryRoleAssumption": false,
+        "status": "failed",
+        "errorCategory": "BILLING_NOT_ENABLED",
+        "errorCode": "insufficient_quota",
+        "httpStatus": 429,
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
+      },
+      {
+        "provider": "google",
+        "assignedRole": "codex",
+        "temporaryRoleAssumption": true,
+        "status": "failed",
+        "errorCategory": "INVALID_REQUEST",
+        "errorCode": 400,
+        "httpStatus": 400,
+        "message": "Invalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema': Cannot find field.\nInvalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema.properties[2].value.items': Cannot find field."
+      }
+    ],
+    "message": "Invalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema': Cannot find field.\nInvalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema.properties[2].value.items': Cannot find field."
+  },
+  "executionConfirmed": false
 }
