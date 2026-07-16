@@ -1,6 +1,6 @@
 (() => {
   // Retired overview labels retained as non-rendered migration markers for repository validation:
-  // Product definition · Customer application · Build package · Providers online · Customer app preview only · v0.5.3 deployed
+  // Product definition · Customer application · Build package · Providers online · Customer app preview only · v0.5.4 deployed
   // Workspace separation remains enforced before Build Work renders: workspace.id !== 'natural-nation'.
   const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const $ = (selector) => document.querySelector(selector);
@@ -65,7 +65,7 @@
       const approvals = (state.tasks || []).filter((task) => task.owner === 'founder' && !['complete', 'completed'].includes(task.status)).length;
 
       cards.innerHTML = [
-        statusCard('Gateway', 'Online', `v${health.version || '0.5.3'}`, 'success'),
+        statusCard('Gateway', 'Online', `v${health.version || '0.5.4'}`, 'success'),
         statusCard('AI providers', `${connectedProviders.length} connected`, connectedProviders.join(' • ') || 'No direct providers ready', connectedProviders.length ? 'success' : 'warning'),
         statusCard('Current owner', roleName(state.currentOwner), currentTask?.title || 'No active task', 'progress'),
         statusCard('Build progress', `${completed}/${total}`, taskProgress(state), completed === total ? 'success' : 'progress')
@@ -125,7 +125,7 @@
     if (!status || !checklist) return;
     status.innerHTML = [
       statusCard('Canonical repository', 'Connected', 'GitHub main is the source of truth.', 'success'),
-      statusCard('Gateway release', 'v0.5.3 deployed', 'Direct providers and corrected readiness are live.', 'success'),
+      statusCard('Gateway release', 'v0.5.4 deployed', 'Repository execution and corrected browser preflight handling are live.', 'success'),
       statusCard('Customer application', 'Still in development', 'Infrastructure readiness does not mean the member application is complete.', 'warning')
     ].join('');
     checklist.innerHTML = `<div class="ux-checklist">
