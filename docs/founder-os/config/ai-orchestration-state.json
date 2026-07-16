@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "blocked",
+  "status": "in-progress",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-15T22:00:00.000Z",
+  "updatedAt": "2026-07-16T02:30:00.000Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,15 +33,18 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "blocked",
+      "status": "ready",
       "requiredInput": "Art-approved implementation plan",
       "expectedOutput": "Tested repository changes in a pull request",
       "nextRole": "gemini",
-      "startedAt": "2026-07-15T21:55:22.080Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-E3C28F2B-5492-466C-A701-4005E8FD77D0",
-      "providerStatus": "verification-failed",
-      "blockedReason": "The provider returned a simulated implementation narrative without real repository changes or a verifiable GitHub pull request. The task was not completed."
+      "providerStatus": "ready",
+      "blockedReason": null,
+      "retryContext": {
+        "previousDispatchId": "AI-DISPATCH-E3C28F2B-5492-466C-A701-4005E8FD77D0",
+        "previousOutcome": "verification-failed",
+        "reason": "The prior provider response contained a simulated implementation narrative and no verifiable GitHub pull request.",
+        "requiredCorrection": "Use the protected repository-execution path and return a real GitHub pull request URL with tested repository changes."
+      }
     },
     {
       "id": "AI-TASK-003",
