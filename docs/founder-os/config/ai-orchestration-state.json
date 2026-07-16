@@ -2,11 +2,11 @@
   "stateVersion": "2.0.2",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "blocked",
+  "status": "ready",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T18:21:59.887Z",
+  "updatedAt": "2026-07-16T18:22:46.810Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -57,25 +57,27 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "blocked",
+      "status": "ready",
       "requiredInput": "Review only PR #30 and these exact files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs.",
       "expectedOutput": "A schema-valid experience_review JSON object containing passes, issues, merge blockers, recommendation, and file-based evidence",
       "nextRole": "gpose",
-      "providerStatus": "verification-failed",
-      "blockedReason": "Provider output must contain valid experience_review JSON: Unexpected token 'A', \"As Gemini,\"... is not valid JSON",
-      "startedAt": "2026-07-16T18:21:41.651Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-A06F9DB4-6893-41A1-8B4F-95B277B11E22",
+      "providerStatus": "ready",
+      "blockedReason": null,
+      "startedAt": null,
+      "startedBy": null,
+      "dispatchId": null,
       "completedAt": null,
       "completedBy": null,
       "resultSummary": null,
       "retryContext": {
         "previousDispatchId": "AI-DISPATCH-19BD44D1-F382-4E0F-9546-F8CD115E0AB7",
         "previousOutcome": "verification-failed",
-        "reason": "The verifier incorrectly treated legitimate review findings containing words such as placeholder and incomplete as provider execution failure.",
-        "requiredCorrection": "Structured contracts are now validated before generic narrative heuristics."
+        "reason": "Provider output must contain valid experience_review JSON: Unexpected token 'A', \"As Gemini,\"... is not valid JSON",
+        "requiredCorrection": "Retry using the task's deterministic provider contract and canonical evidence."
       },
-      "verificationFailedAt": "2026-07-16T18:21:59.887Z"
+      "verificationFailedAt": null,
+      "resetAt": "2026-07-16T18:22:46.810Z",
+      "resetBy": "founder"
     },
     {
       "id": "AI-TASK-004",
