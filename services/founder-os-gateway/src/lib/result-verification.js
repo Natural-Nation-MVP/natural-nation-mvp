@@ -5,7 +5,7 @@ const INCOMPLETE_PATTERNS = [
   /cannot (?:perform|proceed|complete|review|implement)/i,
   /unable to (?:perform|proceed|complete|review|implement)/i,
   /placeholder/i,
-  /simulated (?:pull request|implementation|result)/i,
+  /\bsimulat(?:ed|ion)\b/i,
   /once (?:the|this) input is provided/i
 ];
 
@@ -16,7 +16,7 @@ function summaryText(result) {
 function genericFailure(summary) {
   if (summary.length < 80) return "The provider result is too short to verify as completed work.";
   const matched = INCOMPLETE_PATTERNS.find((pattern) => pattern.test(summary));
-  return matched ? "The provider explicitly reported missing input, incomplete work, a placeholder, or a simulated result." : null;
+  return matched ? "The provider explicitly reported missing input, incomplete work, a placeholder, or simulated evidence." : null;
 }
 
 function verifyImplementation(summary) {
@@ -30,7 +30,10 @@ function verifyImplementation(summary) {
 function verifyDesignReview(summary) {
   const reviewEvidence = /\b(usability|responsive|accessibility|visual|interaction|viewport|mobile|tablet|desktop)\b/i.test(summary);
   const findings = /\b(finding|findings|passed|failed|issue|issues|recommendation|recommendations)\b/i.test(summary);
-  if (!reviewEvidence || !findings) return "Design review completion requires concrete usability or responsive findings.";
+  const realPaths = /app\/frontend\/(?:index\.html|styles\.css|app\.js|README\.md|tests\/validate-foundation\.mjs)/i.test(summary);
+  if (!reviewEvidence || !findings || !realPaths) {
+    return "Design review completion requires concrete findings tied to the actual app/frontend pull-request files.";
+  }
   return null;
 }
 
