@@ -4,8 +4,6 @@ const INCOMPLETE_PATTERNS = [
   /please provide/i,
   /cannot (?:perform|proceed|complete|review|implement)/i,
   /unable to (?:perform|proceed|complete|review|implement)/i,
-  /placeholder/i,
-  /\bsimulat(?:ed|ion)\b/i,
   /once (?:the|this) input is provided/i
 ];
 
@@ -36,7 +34,7 @@ function parseStructuredSummary(result, type) {
 function genericFailure(summary) {
   if (summary.length < 40) return "The provider result is too short to verify as completed work.";
   const matched = INCOMPLETE_PATTERNS.find((pattern) => pattern.test(summary));
-  return matched ? "The provider explicitly reported missing input, incomplete work, a placeholder, or simulated evidence." : null;
+  return matched ? "The provider explicitly reported missing input or inability to complete the assigned work." : null;
 }
 
 function verifyImplementation(summary) {
@@ -68,7 +66,9 @@ function verifyExperienceReview(result) {
 
   for (const evidence of review.evidence) {
     const path = typeof evidence === "string" ? evidence : evidence?.path;
+    const finding = typeof evidence === "string" ? evidence : evidence?.finding;
     if (!ALLOWED_REVIEW_PATHS.has(path)) return `Experience review cited an unapproved path: ${path || "missing path"}.`;
+    if (!String(finding || "").trim()) return `Experience review evidence for ${path} is missing a concrete finding.`;
   }
 
   const serialized = JSON.stringify(review);
@@ -100,13 +100,22 @@ function verifyFounderReview(result) {
 
 export function verifyTaskResult(task, result) {
   const summary = summaryText(result);
+
+  // Structured contracts must be parsed and validated before any narrative heuristics.
+  // Words such as "placeholder" or "incomplete" can be legitimate findings inside a review.
+  if (task.id === "AI-TASK-003") {
+    const reason = verifyExperienceReview(result);
+    return reason ? { ok: false, reason } : { ok: true };
+  }
+  if (task.id === "AI-TASK-004") {
+    const reason = verifyFounderReview(result);
+    return reason ? { ok: false, reason } : { ok: true };
+  }
+
   const generalFailure = genericFailure(summary);
   if (generalFailure) return { ok: false, reason: generalFailure };
 
   let reason = null;
   if (task.id === "AI-TASK-002") reason = verifyImplementation(summary);
-  if (task.id === "AI-TASK-003") reason = verifyExperienceReview(result);
-  if (task.id === "AI-TASK-004") reason = verifyFounderReview(result);
-
   return reason ? { ok: false, reason } : { ok: true };
 }
