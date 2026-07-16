@@ -2,11 +2,11 @@
   "stateVersion": "1.2.4",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T14:50:00.000Z",
+  "updatedAt": "2026-07-16T14:58:59.608Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -52,18 +52,21 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "REVIEW THE REAL IMPLEMENTATION ONLY. Pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Branch: codex/ai-task-002-f8a3628a. Actual changed files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs. Actual implementation evidence: index.html contains a Day 1 Journey heading, Wellness Score 85, Rejuvenation Score 92, Duey labeled as an AI wellness mentor, five timed Daily Protocol items with checkboxes, and Daily Check-in controls. styles.css uses a single-column mobile layout, two columns at 768px, three columns at 1024px, green wellness styling, and no explicit focus-visible rules. app.js uses browser alerts, toggles check-in buttons twice because duplicate click listeners are registered, logs check-in data only, and does not persist state. The Duey image uses an external placeholder URL. Review these exact facts and paths. Do not invent src/components, React files, screenshots, user reports, medical metrics, or any simulated evidence. Cite only the five actual app/frontend paths. Identify pass/fail findings for usability, mobile/tablet/desktop responsiveness, accessibility, interaction behavior, non-medical language, and readiness to merge.",
       "expectedOutput": "A real evidence-based design review citing only app/frontend paths, clearly separating passes, failures, merge blockers, and recommended corrections",
       "nextRole": "gpose",
-      "providerStatus": "ready",
+      "providerStatus": "dispatching",
       "blockedReason": null,
       "retryContext": {
         "previousDispatchId": "AI-DISPATCH-F06D65CD-C971-4220-BB3C-2F1692B8F18D",
         "previousOutcome": "simulated-review-rejected",
         "reason": "The provider returned simulated files and invented evidence instead of reviewing PR #30.",
         "requiredCorrection": "Use the embedded real PR #30 evidence and cite only actual app/frontend files."
-      }
+      },
+      "startedAt": "2026-07-16T14:58:59.608Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-19BD44D1-F382-4E0F-9546-F8CD115E0AB7"
     },
     {
       "id": "AI-TASK-004",
