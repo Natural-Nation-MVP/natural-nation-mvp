@@ -35,4 +35,14 @@ jobs:
         run: node scripts/validate-founder-os.mjs
       - name: Test direct AI provider routing and failover
         working-directory: services/founder-os-gateway
-        run: npm test
+        shell: bash
+        run: |
+          set +e
+          npm test > /tmp/provider-tests.log 2>&1
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "Provider routing tests failed. Showing the final 120 log lines:"
+            tail -n 120 /tmp/provider-tests.log
+            exit "$status"
+          fi
+          echo "Provider routing tests passed."
