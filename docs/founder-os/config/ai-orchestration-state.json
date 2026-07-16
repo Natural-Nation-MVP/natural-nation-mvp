@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "dispatching",
+  "status": "in-progress",
   "currentOwner": "gpose",
   "nextOwner": "founder",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T03:24:46.632Z",
+  "updatedAt": "2026-07-16T03:25:00.678Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -84,7 +84,8 @@
       "startedAt": "2026-07-16T03:24:46.632Z",
       "startedBy": "founder",
       "dispatchId": "AI-DISPATCH-12BDC4C5-DB89-4FF1-BEB6-B399FF9065D7",
-      "providerStatus": "dispatching"
+      "providerStatus": "delivered",
+      "blockedReason": null
     },
     {
       "id": "AI-TASK-005",
