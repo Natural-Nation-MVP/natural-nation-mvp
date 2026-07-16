@@ -2,11 +2,11 @@
   "stateVersion": "1.1.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "in-progress",
+  "status": "blocked",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T03:50:42.412Z",
+  "updatedAt": "2026-07-16T03:50:44.442Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,12 +33,12 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "working",
+      "status": "blocked",
       "requiredInput": "Art-approved implementation plan, canonical NN-BUILD-001 package, repository access, and acceptance criteria",
       "expectedOutput": "Tested repository changes with a verifiable GitHub pull request URL and CI or test evidence",
       "nextRole": "gemini",
-      "providerStatus": "delivered",
-      "blockedReason": null,
+      "providerStatus": "verification-failed",
+      "blockedReason": "The provider explicitly reported missing input, incomplete work, a placeholder, or a simulated result.",
       "retryContext": {
         "previousDispatchId": "AI-DISPATCH-610B64DF-82DC-4B83-905C-9DA06187EC71",
         "previousOutcome": "invalid-result",
@@ -47,7 +47,8 @@
       },
       "startedAt": "2026-07-16T03:50:23.101Z",
       "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-D5CC11E2-F0ED-4F84-9686-451728C83F96"
+      "dispatchId": "AI-DISPATCH-D5CC11E2-F0ED-4F84-9686-451728C83F96",
+      "verificationFailedAt": "2026-07-16T03:50:44.442Z"
     },
     {
       "id": "AI-TASK-003",
