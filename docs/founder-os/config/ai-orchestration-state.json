@@ -1,12 +1,12 @@
 {
-  "stateVersion": "1.2.4",
+  "stateVersion": "2.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "blocked",
+  "status": "ready",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T14:59:22.815Z",
+  "updatedAt": "2026-07-16T15:30:00.000Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -44,7 +44,7 @@
       "dispatchId": "AI-DISPATCH-FDD5EB7E-AF05-4C16-8BB1-92E5E9570490",
       "completedAt": "2026-07-16T14:09:25.348Z",
       "completedBy": "codex",
-      "resultSummary": "Implementation created through the protected repository adapter. GitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Changed files: app/frontend/README.md, app/frontend/app.js, app/frontend/index.html, app/frontend/styles.css, app/frontend/tests/validate-foundation.mjs."
+      "resultSummary": "Implementation created through the protected repository adapter. GitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Changed files: app/frontend/README.md, app/frontend/app.js, app/frontend/index.html, app/frontend/styles.css, app/frontend/tests/validate-foundation.mjs. Validation evidence is included in app/frontend/tests/validate-foundation.mjs."
     },
     {
       "id": "AI-TASK-003",
@@ -52,22 +52,22 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "blocked",
-      "requiredInput": "REVIEW THE REAL IMPLEMENTATION ONLY. Pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Branch: codex/ai-task-002-f8a3628a. Actual changed files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs. Actual implementation evidence: index.html contains a Day 1 Journey heading, Wellness Score 85, Rejuvenation Score 92, Duey labeled as an AI wellness mentor, five timed Daily Protocol items with checkboxes, and Daily Check-in controls. styles.css uses a single-column mobile layout, two columns at 768px, three columns at 1024px, green wellness styling, and no explicit focus-visible rules. app.js uses browser alerts, toggles check-in buttons twice because duplicate click listeners are registered, logs check-in data only, and does not persist state. The Duey image uses an external placeholder URL. Review these exact facts and paths. Do not invent src/components, React files, screenshots, user reports, medical metrics, or any simulated evidence. Cite only the five actual app/frontend paths. Identify pass/fail findings for usability, mobile/tablet/desktop responsiveness, accessibility, interaction behavior, non-medical language, and readiness to merge.",
-      "expectedOutput": "A real evidence-based design review citing only app/frontend paths, clearly separating passes, failures, merge blockers, and recommended corrections",
+      "status": "ready",
+      "requiredInput": "Review only PR #30 and these exact files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs. Known facts: the dashboard contains Day 1 Journey, Wellness Score 85, Rejuvenation Score 92, Duey identified as an AI wellness mentor, five timed protocol items, and Daily Check-in controls. styles.css has responsive breakpoints at 768px and 1024px but no explicit focus-visible rules. app.js uses browser alerts, duplicate click listeners, console-only check-in data, and no persistence. The Duey image uses an external placeholder URL. Do not invent React, src/ files, screenshots, user testing, or simulated evidence. Return ONLY valid JSON with this exact contract: {\"type\":\"experience_review\",\"summary\":\"plain-English review\",\"passes\":[\"finding\"],\"issues\":[\"finding\"],\"mergeBlockers\":[\"blocker\"],\"recommendation\":\"approve|changes_required\",\"evidence\":[{\"path\":\"app/frontend/index.html\",\"finding\":\"specific evidence\"}]}. Every evidence path must be one of the five approved app/frontend paths.",
+      "expectedOutput": "A schema-valid experience_review JSON object containing passes, issues, merge blockers, recommendation, and file-based evidence",
       "nextRole": "gpose",
-      "providerStatus": "verification-failed",
-      "blockedReason": "The provider explicitly reported missing input, incomplete work, a placeholder, or simulated evidence.",
+      "providerStatus": "ready",
+      "blockedReason": null,
+      "startedAt": null,
+      "startedBy": null,
+      "dispatchId": null,
+      "verificationFailedAt": null,
       "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-F06D65CD-C971-4220-BB3C-2F1692B8F18D",
-        "previousOutcome": "simulated-review-rejected",
-        "reason": "The provider returned simulated files and invented evidence instead of reviewing PR #30.",
-        "requiredCorrection": "Use the embedded real PR #30 evidence and cite only actual app/frontend files."
-      },
-      "startedAt": "2026-07-16T14:58:59.608Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-19BD44D1-F382-4E0F-9546-F8CD115E0AB7",
-      "verificationFailedAt": "2026-07-16T14:59:22.815Z"
+        "previousDispatchId": "AI-DISPATCH-19BD44D1-F382-4E0F-9546-F8CD115E0AB7",
+        "previousOutcome": "verification-failed",
+        "reason": "Gemini returned incomplete or simulated narrative evidence.",
+        "requiredCorrection": "Return only the deterministic experience_review JSON contract tied to the five real app/frontend files."
+      }
     },
     {
       "id": "AI-TASK-004",
@@ -76,8 +76,8 @@
       "title": "Prepare the Founder review",
       "owner": "gpose",
       "status": "waiting",
-      "requiredInput": "Verified PR #30 implementation evidence and a real Gemini review tied to app/frontend files",
-      "expectedOutput": "A completed plain-English summary of what changed, what passed, remaining risks, and the exact Founder decision required",
+      "requiredInput": "Verified PR #30 implementation evidence and the schema-valid Gemini experience_review result. Return ONLY valid JSON: {\"type\":\"founder_review\",\"decision\":\"approve|request_changes|reject\",\"comments\":[\"what changed and what passed\"],\"risks\":[\"remaining risk\"],\"nextAction\":\"exact Founder action required\"}.",
+      "expectedOutput": "A schema-valid founder_review JSON object with decision, comments, risks, and nextAction",
       "nextRole": "founder"
     },
     {
@@ -87,7 +87,7 @@
       "title": "Approve or request changes",
       "owner": "founder",
       "status": "waiting",
-      "requiredInput": "Verified build pull request, validation evidence, design findings, and Founder summary",
+      "requiredInput": "Verified build pull request, validation evidence, deterministic experience review, and deterministic Founder summary",
       "expectedOutput": "Approve, reject, or request changes",
       "nextRole": null
     }

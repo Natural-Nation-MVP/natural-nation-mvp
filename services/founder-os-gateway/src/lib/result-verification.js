@@ -9,12 +9,32 @@ const INCOMPLETE_PATTERNS = [
   /once (?:the|this) input is provided/i
 ];
 
+const ALLOWED_REVIEW_PATHS = new Set([
+  "app/frontend/index.html",
+  "app/frontend/styles.css",
+  "app/frontend/app.js",
+  "app/frontend/README.md",
+  "app/frontend/tests/validate-foundation.mjs"
+]);
+
 function summaryText(result) {
   return typeof result?.summary === "string" ? result.summary.trim() : "";
 }
 
+function parseStructuredSummary(result, type) {
+  if (result?.structured && typeof result.structured === "object") return result.structured;
+  const summary = summaryText(result).replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  try {
+    const parsed = JSON.parse(summary);
+    if (parsed?.type !== type) throw new Error(`Expected contract type ${type}.`);
+    return parsed;
+  } catch (error) {
+    throw new Error(`Provider output must be valid ${type} JSON: ${error.message}`);
+  }
+}
+
 function genericFailure(summary) {
-  if (summary.length < 80) return "The provider result is too short to verify as completed work.";
+  if (summary.length < 40) return "The provider result is too short to verify as completed work.";
   const matched = INCOMPLETE_PATTERNS.find((pattern) => pattern.test(summary));
   return matched ? "The provider explicitly reported missing input, incomplete work, a placeholder, or simulated evidence." : null;
 }
@@ -27,22 +47,53 @@ function verifyImplementation(summary) {
   return null;
 }
 
-function verifyDesignReview(summary) {
-  const reviewEvidence = /\b(usability|responsive|accessibility|visual|interaction|viewport|mobile|tablet|desktop)\b/i.test(summary);
-  const findings = /\b(finding|findings|passed|failed|issue|issues|recommendation|recommendations)\b/i.test(summary);
-  const realPaths = /app\/frontend\/(?:index\.html|styles\.css|app\.js|README\.md|tests\/validate-foundation\.mjs)/i.test(summary);
-  if (!reviewEvidence || !findings || !realPaths) {
-    return "Design review completion requires concrete findings tied to the actual app/frontend pull-request files.";
+function verifyExperienceReview(result) {
+  let review;
+  try {
+    review = parseStructuredSummary(result, "experience_review");
+  } catch (error) {
+    return error.message;
+  }
+
+  for (const key of ["summary", "passes", "issues", "mergeBlockers", "recommendation", "evidence"]) {
+    if (!(key in review)) return `Experience review is missing required field: ${key}.`;
+  }
+  if (!Array.isArray(review.passes) || !Array.isArray(review.issues) || !Array.isArray(review.mergeBlockers) || !Array.isArray(review.evidence)) {
+    return "Experience review arrays are malformed.";
+  }
+  if (!["approve", "changes_required"].includes(review.recommendation)) {
+    return "Experience review recommendation must be approve or changes_required.";
+  }
+  if (review.evidence.length === 0) return "Experience review requires file-based evidence.";
+
+  for (const evidence of review.evidence) {
+    const path = typeof evidence === "string" ? evidence : evidence?.path;
+    if (!ALLOWED_REVIEW_PATHS.has(path)) return `Experience review cited an unapproved path: ${path || "missing path"}.`;
+  }
+
+  const serialized = JSON.stringify(review);
+  if (/src\/|react|screenshot|simulated|hypothetical/i.test(serialized)) {
+    return "Experience review contains invented framework, screenshot, or simulated evidence.";
   }
   return null;
 }
 
-function verifyFounderSummary(summary) {
-  const hasChanges = /what changed|changes? (?:made|implemented)|implementation results?/i.test(summary);
-  const hasValidation = /what passed|tests? passed|validated|review findings?/i.test(summary);
-  const hasDecision = /needs approval|approval required|recommend(?:ed|ation)/i.test(summary);
-  if (!hasChanges || !hasValidation || !hasDecision) {
-    return "Founder review completion requires populated change, validation, and approval sections.";
+function verifyFounderReview(result) {
+  let review;
+  try {
+    review = parseStructuredSummary(result, "founder_review");
+  } catch (error) {
+    return error.message;
+  }
+
+  for (const key of ["decision", "comments", "risks", "nextAction"]) {
+    if (!(key in review)) return `Founder review is missing required field: ${key}.`;
+  }
+  if (!["approve", "request_changes", "reject"].includes(review.decision)) {
+    return "Founder review decision must be approve, request_changes, or reject.";
+  }
+  if (!Array.isArray(review.comments) || !Array.isArray(review.risks) || !String(review.nextAction || "").trim()) {
+    return "Founder review must include populated comments, risks, and nextAction fields.";
   }
   return null;
 }
@@ -54,8 +105,8 @@ export function verifyTaskResult(task, result) {
 
   let reason = null;
   if (task.id === "AI-TASK-002") reason = verifyImplementation(summary);
-  if (task.id === "AI-TASK-003") reason = verifyDesignReview(summary);
-  if (task.id === "AI-TASK-004") reason = verifyFounderSummary(summary);
+  if (task.id === "AI-TASK-003") reason = verifyExperienceReview(result);
+  if (task.id === "AI-TASK-004") reason = verifyFounderReview(result);
 
   return reason ? { ok: false, reason } : { ok: true };
 }

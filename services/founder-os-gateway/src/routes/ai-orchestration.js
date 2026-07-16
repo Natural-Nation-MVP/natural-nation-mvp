@@ -1,9 +1,11 @@
 import { authenticateAgentCallback, authenticateFounder } from "../lib/auth.js";
 import { completeTask, dispatchTask, readOrchestrationState } from "../lib/ai-orchestration.js";
 import { providerReadiness } from "../lib/ai-provider-adapters.js";
-import { readRepositoryJson } from "../lib/github.js";
+import { commitFilesAtomically, readRepositoryJson } from "../lib/github.js";
 import { executeRepositoryPlan } from "../lib/repository-execution.js";
 import { errorResponse, json } from "../lib/http.js";
+
+const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 
 function parseStateRoute(pathname) {
   const match = pathname.match(/^\/v1\/workspaces\/([^/]+)\/packages\/([^/]+)\/orchestration$/);
@@ -47,7 +49,7 @@ function validateCompletionEvidence(task, result) {
 
 async function recoverSynchronousResult(env, route, actor) {
   const [{ content: state }, { content: record }] = await Promise.all([
-    readRepositoryJson(env, "docs/founder-os/config/ai-orchestration-state.json"),
+    readRepositoryJson(env, STATE_PATH),
     readRepositoryJson(env, taskRecordPath(route))
   ]);
   const task = state.tasks.find((item) => item.id === route.taskId);
@@ -62,6 +64,50 @@ async function recoverSynchronousResult(env, route, actor) {
   return completeTask({ env, ...route, result, actor });
 }
 
+async function resetTask(env, route, actor, reason) {
+  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  if (state.workspaceId !== route.workspaceId || state.packageId !== route.packageId) {
+    throw new Error("No orchestration state exists for this workspace and package.");
+  }
+  const current = state.tasks.find((item) => item.id === route.taskId);
+  if (!current) throw new Error("The requested AI task does not exist.");
+  if (current.status === "complete") throw new Error("Completed tasks cannot be reset through the retry endpoint.");
+
+  const now = new Date().toISOString();
+  const resetState = {
+    ...state,
+    status: "ready",
+    currentOwner: current.owner,
+    nextOwner: current.nextRole || null,
+    founderApprovalRequired: false,
+    updatedAt: now,
+    tasks: state.tasks.map((task) => task.id === route.taskId ? {
+      ...task,
+      status: "ready",
+      providerStatus: "ready",
+      blockedReason: null,
+      startedAt: null,
+      startedBy: null,
+      dispatchId: null,
+      verificationFailedAt: null,
+      resetAt: now,
+      resetBy: actor.id,
+      retryContext: {
+        ...(task.retryContext || {}),
+        previousOutcome: task.providerStatus || task.status,
+        reason: reason || task.blockedReason || "Founder-authorized retry",
+        requiredCorrection: "Retry using the task's deterministic provider contract and canonical evidence."
+      }
+    } : task)
+  };
+
+  const repository = await commitFilesAtomically(env, {
+    message: `orchestration: reset ${route.taskId} for verified retry`,
+    files: [{ path: STATE_PATH, content: resetState }]
+  });
+  return { state: resetState, repository };
+}
+
 export async function handleAiOrchestration(request, env, pathname) {
   if (pathname === "/v1/ai/providers") {
     if (request.method !== "GET") {
@@ -74,8 +120,9 @@ export async function handleAiOrchestration(request, env, pathname) {
   const dispatchRoute = parseTaskRoute(pathname, "dispatch");
   const resultRoute = parseTaskRoute(pathname, "result");
   const recoverRoute = parseTaskRoute(pathname, "recover");
+  const resetRoute = parseTaskRoute(pathname, "reset");
   const repositoryExecutionRoute = parseTaskRoute(pathname, "repository-execution");
-  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !repositoryExecutionRoute) return null;
+  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !repositoryExecutionRoute) return null;
 
   if (stateRoute) {
     if (request.method !== "GET") {
@@ -86,6 +133,21 @@ export async function handleAiOrchestration(request, env, pathname) {
       return json(request, { ok: true, state });
     } catch (error) {
       return errorResponse(request, 404, "ORCHESTRATION_NOT_FOUND", error.message);
+    }
+  }
+
+  if (resetRoute) {
+    if (request.method !== "POST") {
+      return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to reset a blocked AI task.");
+    }
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    const body = await readJson(request);
+    try {
+      const reset = await resetTask(env, resetRoute, auth.actor, body.reason);
+      return json(request, { ok: true, status: "ready", retryAllowed: true, ...reset });
+    } catch (error) {
+      return errorResponse(request, 409, "AI_RESET_REJECTED", error.message || "The task could not be reset.");
     }
   }
 
@@ -106,7 +168,7 @@ export async function handleAiOrchestration(request, env, pathname) {
       const completed = await completeTask({ env, ...resultRoute, result: body, actor: auth.actor });
       return json(request, { ok: true, status: "completed", ...completed });
     } catch (error) {
-      return errorResponse(request, 422, "RESULT_REJECTED", error.message || "The AI result could not be recorded.");
+      return errorResponse(request, 422, "RESULT_REJECTED", error.message || "The AI result could not be recorded.", { retryAllowed: true });
     }
   }
 
@@ -120,7 +182,7 @@ export async function handleAiOrchestration(request, env, pathname) {
       const completed = await recoverSynchronousResult(env, recoverRoute, auth.actor);
       return json(request, { ok: true, status: "completed", ...completed });
     } catch (error) {
-      return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", error.message || "The synchronous result could not be verified.");
+      return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", error.message || "The synchronous result could not be verified.", { retryAllowed: true });
     }
   }
 
@@ -135,21 +197,11 @@ export async function handleAiOrchestration(request, env, pathname) {
     }
     const body = await readJson(request);
     try {
-      const execution = await executeRepositoryPlan({
-        env,
-        ...repositoryExecutionRoute,
-        plan: body.plan,
-        actor: auth.actor
-      });
+      const execution = await executeRepositoryPlan({ env, ...repositoryExecutionRoute, plan: body.plan, actor: auth.actor });
       return json(request, { ok: true, status: "pull-request-created", execution });
     } catch (error) {
       const conflict = error.status === 409 || error.status === 422;
-      return errorResponse(
-        request,
-        conflict ? 409 : 422,
-        conflict ? "REPOSITORY_EXECUTION_CONFLICT" : "REPOSITORY_EXECUTION_REJECTED",
-        error.message || "The approved repository work could not be executed."
-      );
+      return errorResponse(request, conflict ? 409 : 422, conflict ? "REPOSITORY_EXECUTION_CONFLICT" : "REPOSITORY_EXECUTION_REJECTED", error.message || "The approved repository work could not be executed.");
     }
   }
 
@@ -166,28 +218,19 @@ export async function handleAiOrchestration(request, env, pathname) {
   const body = await readJson(request);
   try {
     const result = await dispatchTask({ env, ...dispatchRoute, actor: auth.actor, dryRun: body.dryRun === true });
-    return json(request, {
-      ok: true,
-      status: result.dryRun ? "dry-run-passed" : result.dispatch.status,
-      ...result
-    });
+    return json(request, { ok: true, status: result.dryRun ? "dry-run-passed" : result.dispatch.status, ...result });
   } catch (error) {
     if (body.dryRun !== true) {
       try {
         const recovered = await recoverSynchronousResult(env, dispatchRoute, auth.actor);
         return json(request, { ok: true, status: "completed", recovered: true, ...recovered });
       } catch (recoveryError) {
-        if (/simulated|pull request URL|verifiable repository/i.test(recoveryError.message || "")) {
-          return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", recoveryError.message);
+        if (/simulated|pull request URL|verifiable repository|valid .* JSON|unapproved path/i.test(recoveryError.message || "")) {
+          return errorResponse(request, 422, "RESULT_VERIFICATION_FAILED", recoveryError.message, { retryAllowed: true });
         }
       }
     }
     const conflict = /already|not ready|blocked|current orchestration role/i.test(error.message || "");
-    return errorResponse(
-      request,
-      conflict ? 409 : 422,
-      conflict ? "AI_DISPATCH_CONFLICT" : "AI_DISPATCH_BLOCKED",
-      error.message || "The AI task could not be dispatched."
-    );
+    return errorResponse(request, conflict ? 409 : 422, conflict ? "AI_DISPATCH_CONFLICT" : "AI_DISPATCH_BLOCKED", error.message || "The AI task could not be dispatched.");
   }
 }
