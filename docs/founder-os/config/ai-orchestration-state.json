@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "in-progress",
+  "status": "dispatching",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T02:30:00.000Z",
+  "updatedAt": "2026-07-16T02:57:31.243Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,18 +33,21 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Art-approved implementation plan",
       "expectedOutput": "Tested repository changes in a pull request",
       "nextRole": "gemini",
-      "providerStatus": "ready",
+      "providerStatus": "dispatching",
       "blockedReason": null,
       "retryContext": {
         "previousDispatchId": "AI-DISPATCH-E3C28F2B-5492-466C-A701-4005E8FD77D0",
         "previousOutcome": "verification-failed",
         "reason": "The prior provider response contained a simulated implementation narrative and no verifiable GitHub pull request.",
         "requiredCorrection": "Use the protected repository-execution path and return a real GitHub pull request URL with tested repository changes."
-      }
+      },
+      "startedAt": "2026-07-16T02:57:31.243Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-610B64DF-82DC-4B83-905C-9DA06187EC71"
     },
     {
       "id": "AI-TASK-003",
