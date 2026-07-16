@@ -1,4 +1,8 @@
-import { commitFilesAtomically, readRepositoryJson } from "./github.js";
+import {
+  commitFilesAtomically,
+  readPullRequestReviewEvidence,
+  readRepositoryJson
+} from "./github.js";
 import { deliverToProvider } from "./ai-provider-adapters.js";
 import { executeCodexRepositoryResult } from "./codex-repository-bridge.js";
 import { structuredLog } from "./structured-log.js";
@@ -25,9 +29,7 @@ function validateScope(state, workspaceId, packageId, taskId) {
   }
   const task = state.tasks.find((item) => item.id === taskId);
   if (!task) throw new Error("The requested AI task does not exist.");
-  if (task.workspaceId !== workspaceId || task.packageId !== packageId) {
-    throw new Error("The task scope is invalid.");
-  }
+  if (task.workspaceId !== workspaceId || task.packageId !== packageId) throw new Error("The task scope is invalid.");
   return task;
 }
 
@@ -54,7 +56,8 @@ function queuedState(state, task, actor, dispatchId) {
       startedAt: now,
       startedBy: actor.id,
       dispatchId,
-      providerStatus: "dispatching"
+      providerStatus: "dispatching",
+      blockedReason: null
     } : item)
   };
 }
@@ -90,39 +93,114 @@ function verificationFailedState(state, taskId, reason) {
   };
 }
 
-async function recordVerificationFailure({ env, state, task, result, actor, reason }) {
-  const failedState = verificationFailedState(state, task.id, reason);
-  const failedResult = {
-    resultVersion: "1.4.0",
+function completedState(state, task, result, actor) {
+  const now = new Date().toISOString();
+  const nextTask = state.tasks.find((item) => item.owner === task.nextRole && item.status === "waiting");
+  return {
+    ...state,
+    status: nextTask ? "ready" : "complete",
+    currentOwner: nextTask?.owner || task.nextRole || "founder",
+    nextOwner: nextTask?.nextRole || null,
+    updatedAt: now,
+    tasks: state.tasks.map((item) => {
+      if (item.id === task.id) {
+        return {
+          ...item,
+          status: "complete",
+          providerStatus: "result-verified",
+          blockedReason: null,
+          completedAt: now,
+          completedBy: actor.id,
+          resultSummary: result.summary
+        };
+      }
+      if (nextTask && item.id === nextTask.id) return { ...item, status: "ready" };
+      return item;
+    })
+  };
+}
+
+function resultRecord(state, task, result, actor, verificationStatus, verificationReason = null) {
+  return {
+    resultVersion: "1.5.0",
     workspaceId: state.workspaceId,
     packageId: state.packageId,
     taskId: task.id,
     dispatchId: result.dispatchId,
     receivedAt: new Date().toISOString(),
     receivedBy: actor.id,
-    verificationStatus: "failed",
-    verificationReason: reason,
+    verificationStatus,
+    ...(verificationReason ? { verificationReason } : {}),
     ...result
   };
+}
+
+async function enrichDispatchWithEvidence(env, task, dispatchRecord) {
+  if (task.id !== "AI-TASK-003") return dispatchRecord;
+  const source = `${task.requiredInput || ""} ${task.expectedOutput || ""}`;
+  const pullNumber = Number(source.match(/PR\s*#(\d+)/i)?.[1]);
+  const paths = [...new Set(source.match(/app\/frontend\/[A-Za-z0-9_./-]+/g) || [])];
+  if (!pullNumber || paths.length === 0) throw new Error("Gemini review requires a current pull request number and explicit evidence paths.");
+  const evidence = await readPullRequestReviewEvidence(env, pullNumber, paths);
+  return {
+    ...dispatchRecord,
+    requiredInput: {
+      instructions: task.requiredInput,
+      pullRequestEvidence: evidence
+    },
+    evidenceContract: {
+      pullRequestNumber: pullNumber,
+      allowedPaths: paths,
+      headSha: evidence.pullRequest.headSha
+    }
+  };
+}
+
+async function recordSynchronousOutcome({ env, state, task, dispatchRecord, delivery, result, actor }) {
+  const deliveredRecord = {
+    ...dispatchRecord,
+    status: delivery.status,
+    delivery,
+    executionConfirmed: delivery.delivered === true
+  };
+  const verification = verifyTaskResult(task, result);
+  if (!verification.ok) {
+    const failedState = verificationFailedState(state, task.id, verification.reason);
+    const failedResult = resultRecord(state, task, result, actor, "failed", verification.reason);
+    const repository = await commitFilesAtomically(env, {
+      message: `orchestration: reject unverifiable result for ${task.id}`,
+      files: [
+        { path: STATE_PATH, content: failedState },
+        { path: taskPath(state.workspaceId, state.packageId, task.id), content: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false } },
+        { path: resultPath(state.workspaceId, state.packageId, task.id), content: failedResult }
+      ]
+    });
+    return {
+      state: failedState,
+      result: failedResult,
+      repository,
+      verificationFailed: true,
+      dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false }
+    };
+  }
+
+  const passedState = completedState(state, task, result, actor);
+  const passedResult = resultRecord(state, task, result, actor, "passed");
   const repository = await commitFilesAtomically(env, {
-    message: `orchestration: reject unverifiable result for ${task.id}`,
+    message: `orchestration: verify and complete ${task.id}`,
     files: [
-      { path: STATE_PATH, content: failedState },
-      { path: resultPath(state.workspaceId, state.packageId, task.id), content: failedResult }
+      { path: STATE_PATH, content: passedState },
+      { path: taskPath(state.workspaceId, state.packageId, task.id), content: { ...deliveredRecord, status: "completed", executionConfirmed: true } },
+      { path: resultPath(state.workspaceId, state.packageId, task.id), content: passedResult }
     ]
   });
-  structuredLog("result.verification_failed", {
-    ...routingContext({
-      workspaceId: state.workspaceId,
-      packageId: state.packageId,
-      taskId: task.id,
-      dispatchId: result.dispatchId,
-      assignedRole: task.owner
-    }),
-    receivedBy: actor.id,
-    reason
-  });
-  return { state: failedState, result: failedResult, repository, verificationFailed: true };
+  return {
+    state: passedState,
+    result: passedResult,
+    repository,
+    verificationFailed: false,
+    dispatch: { ...deliveredRecord, status: "completed", executionConfirmed: true }
+  };
 }
 
 export async function dispatchTask({ env, workspaceId, packageId, taskId, actor, dryRun = false }) {
@@ -138,8 +216,8 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   const dispatchId = `AI-DISPATCH-${crypto.randomUUID().toUpperCase()}`;
   const context = routingContext({ workspaceId, packageId, taskId, dispatchId, assignedRole: agent.id });
   const updatedState = queuedState(state, task, actor, dispatchId);
-  const dispatchRecord = {
-    dispatchVersion: "1.5.0",
+  let dispatchRecord = {
+    dispatchVersion: "1.6.0",
     dispatchId,
     workspaceId,
     packageId,
@@ -153,6 +231,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     nextRole: task.nextRole,
     provider: agent.provider || "manual"
   };
+  dispatchRecord = await enrichDispatchWithEvidence(env, task, dispatchRecord);
 
   structuredLog(dryRun ? "dispatch.validated" : "dispatch.started", {
     ...context,
@@ -192,25 +271,57 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       httpStatus: attempt.httpStatus || null
     });
   }
-  if (delivery.fallbackUsed) {
-    structuredLog("provider.failover", {
-      ...context,
-      preferredProvider: delivery.preferredProvider,
-      executingProvider: delivery.executingProvider,
-      fallbackReason: delivery.fallbackReason,
-      temporaryRoleAssumption: delivery.temporaryRoleAssumption
+
+  if (delivery.synchronous === true && delivery.completedResult) {
+    let completedResult = delivery.completedResult;
+    try {
+      completedResult = await executeCodexRepositoryResult({ env, workspaceId, packageId, taskId, result: completedResult, actor });
+    } catch (error) {
+      const failure = await recordSynchronousOutcome({
+        env,
+        state: deliveredState(updatedState, taskId, delivery),
+        task: { ...task, status: "working", providerStatus: "delivered", dispatchId },
+        dispatchRecord,
+        delivery,
+        result: completedResult,
+        actor: { id: agent.id || `${delivery.provider}-direct` }
+      });
+      return {
+        dryRun: false,
+        writesPerformed: true,
+        dispatch: failure.dispatch,
+        state: failure.state,
+        result: failure.result,
+        repository: failure.repository,
+        queuedRepository,
+        message: `The provider returned a result, but protected repository execution rejected it: ${error.message}`
+      };
+    }
+
+    const outcome = await recordSynchronousOutcome({
+      env,
+      state: deliveredState(updatedState, taskId, delivery),
+      task: { ...task, status: "working", providerStatus: "delivered", dispatchId },
+      dispatchRecord,
+      delivery,
+      result: completedResult,
+      actor: { id: agent.id || `${delivery.provider}-direct` }
     });
+    return {
+      dryRun: false,
+      writesPerformed: true,
+      dispatch: outcome.dispatch,
+      state: outcome.state,
+      result: outcome.result,
+      repository: outcome.repository,
+      queuedRepository,
+      message: outcome.verificationFailed
+        ? `The provider returned a result, but verification rejected it: ${outcome.result.verificationReason}`
+        : taskId === "AI-TASK-002"
+          ? "Codex produced a repository plan, the protected adapter created a real GitHub pull request, and the evidence was recorded."
+          : "The AI task was dispatched, completed, verified, and recorded in one canonical completion transaction."
+    };
   }
-  structuredLog(delivery.delivered ? "provider.completed" : "provider.terminal_failure", {
-    ...context,
-    preferredProvider: delivery.preferredProvider,
-    executingProvider: delivery.executingProvider,
-    status: delivery.status,
-    fallbackUsed: delivery.fallbackUsed,
-    fallbackReason: delivery.fallbackReason || null,
-    temporaryRoleAssumption: delivery.temporaryRoleAssumption,
-    roleRelinquishedAfterCompletion: delivery.roleRelinquishedAfterCompletion || false
-  });
 
   const finalState = deliveredState(updatedState, taskId, delivery);
   const deliveredRecord = {
@@ -226,76 +337,6 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       { path: taskPath(workspaceId, packageId, taskId), content: deliveredRecord }
     ]
   });
-
-  if (delivery.synchronous === true && delivery.completedResult) {
-    let completedResult = delivery.completedResult;
-    try {
-      completedResult = await executeCodexRepositoryResult({
-        env,
-        workspaceId,
-        packageId,
-        taskId,
-        result: completedResult,
-        actor
-      });
-    } catch (error) {
-      const completion = await recordVerificationFailure({
-        env,
-        state: finalState,
-        task: finalState.tasks.find((item) => item.id === taskId),
-        result: completedResult,
-        actor: { id: agent.id || `${delivery.provider}-direct` },
-        reason: error.message || "The repository execution plan could not be verified."
-      });
-      return {
-        dryRun: false,
-        writesPerformed: true,
-        dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false },
-        state: completion.state,
-        result: completion.result,
-        repository: completion.repository,
-        deliveryRepository,
-        queuedRepository,
-        message: `The provider returned a result, but protected repository execution rejected it: ${completion.result.verificationReason}`
-      };
-    }
-
-    const completion = await completeTask({
-      env,
-      workspaceId,
-      packageId,
-      taskId,
-      result: completedResult,
-      actor: { id: agent.id || `${delivery.provider}-direct` }
-    });
-    if (completion.verificationFailed) {
-      return {
-        dryRun: false,
-        writesPerformed: true,
-        dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false },
-        state: completion.state,
-        result: completion.result,
-        repository: completion.repository,
-        deliveryRepository,
-        queuedRepository,
-        message: `The provider returned a result, but verification rejected it: ${completion.result.verificationReason}`
-      };
-    }
-    return {
-      dryRun: false,
-      writesPerformed: true,
-      dispatch: { ...deliveredRecord, status: "completed", executionConfirmed: true },
-      state: completion.state,
-      result: completion.result,
-      repository: completion.repository,
-      deliveryRepository,
-      queuedRepository,
-      message: taskId === "AI-TASK-002"
-        ? "Codex produced a repository plan, the protected adapter created a real GitHub pull request, and the evidence was recorded."
-        : "The AI task was dispatched, completed, verified, and recorded in the canonical repository."
-    };
-  }
-
   return {
     dryRun: false,
     writesPerformed: true,
@@ -304,7 +345,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     repository: deliveryRepository,
     queuedRepository,
     message: delivery.delivered
-      ? "The handoff was recorded and the provider accepted the task. Execution is not complete until a verified result is received."
+      ? "The handoff was recorded and the provider accepted the asynchronous task."
       : "The handoff was recorded, but the provider did not accept the task. The task is blocked and has not started execution."
   };
 }
@@ -315,71 +356,34 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
   if (task.status === "complete") throw new Error("This task is already complete.");
   if (task.status !== "working") throw new Error("Only a dispatched task with confirmed provider delivery can be completed.");
   if (task.providerStatus !== "delivered") throw new Error("The provider has not confirmed delivery for this task.");
-  if (!task.dispatchId || result.dispatchId !== task.dispatchId) {
-    throw new Error("The result dispatch ID does not match the active task dispatch.");
-  }
+  if (!task.dispatchId || result.dispatchId !== task.dispatchId) throw new Error("The result dispatch ID does not match the active task dispatch.");
 
-  const verification = verifyTaskResult(task, result);
-  if (!verification.ok) {
-    return recordVerificationFailure({ env, state, task, result, actor, reason: verification.reason });
-  }
-
-  const now = new Date().toISOString();
-  const nextTask = state.tasks.find((item) => item.owner === task.nextRole && item.status === "waiting");
-  const completedState = {
-    ...state,
-    status: nextTask ? "ready" : "complete",
-    currentOwner: nextTask?.owner || task.nextRole || "founder",
-    nextOwner: nextTask?.nextRole || null,
-    updatedAt: now,
-    tasks: state.tasks.map((item) => {
-      if (item.id === taskId) {
-        return {
-          ...item,
-          status: "complete",
-          providerStatus: "result-verified",
-          blockedReason: null,
-          completedAt: now,
-          completedBy: actor.id,
-          resultSummary: result.summary
-        };
-      }
-      if (nextTask && item.id === nextTask.id) return { ...item, status: "ready" };
-      return item;
-    })
-  };
-  const resultRecord = {
-    resultVersion: "1.4.0",
-    workspaceId,
-    packageId,
-    taskId,
-    dispatchId: result.dispatchId,
-    receivedAt: now,
-    receivedBy: actor.id,
-    verificationStatus: "passed",
-    ...result
-  };
-  const repository = await commitFilesAtomically(env, {
-    message: `orchestration: verify and complete ${taskId}`,
-    files: [
-      { path: STATE_PATH, content: completedState },
-      { path: resultPath(workspaceId, packageId, taskId), content: resultRecord }
-    ]
+  const outcome = await recordSynchronousOutcome({
+    env,
+    state,
+    task,
+    dispatchRecord: {
+      dispatchId: task.dispatchId,
+      workspaceId,
+      packageId,
+      taskId,
+      agentId: task.owner,
+      status: "delivered"
+    },
+    delivery: { delivered: true, status: "delivered", completedResult: result },
+    result,
+    actor
   });
-  structuredLog("result.completed", {
-    ...routingContext({ workspaceId, packageId, taskId, dispatchId: result.dispatchId, assignedRole: task.owner }),
-    receivedBy: actor.id,
-    provider: result.provider || null,
-    model: result.model || null,
-    nextRole: task.nextRole || null
-  });
-  return { state: completedState, result: resultRecord, repository, verificationFailed: false };
+  return {
+    state: outcome.state,
+    result: outcome.result,
+    repository: outcome.repository,
+    verificationFailed: outcome.verificationFailed
+  };
 }
 
 export async function readOrchestrationState({ env, workspaceId, packageId }) {
   const { content: state } = await readRepositoryJson(env, STATE_PATH);
-  if (state.workspaceId !== workspaceId || state.packageId !== packageId) {
-    throw new Error("No orchestration state exists for this workspace and package.");
-  }
+  if (state.workspaceId !== workspaceId || state.packageId !== packageId) throw new Error("No orchestration state exists for this workspace and package.");
   return state;
 }
