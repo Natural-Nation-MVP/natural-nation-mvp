@@ -19,16 +19,38 @@ function summaryText(result) {
   return typeof result?.summary === "string" ? result.summary.trim() : "";
 }
 
-function parseStructuredSummary(result, type) {
-  if (result?.structured && typeof result.structured === "object") return result.structured;
-  const summary = summaryText(result).replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  try {
-    const parsed = JSON.parse(summary);
-    if (parsed?.type !== type) throw new Error(`Expected contract type ${type}.`);
-    return parsed;
-  } catch (error) {
-    throw new Error(`Provider output must be valid ${type} JSON: ${error.message}`);
+function structuredCandidates(summary) {
+  const candidates = [];
+  const fenced = [...summary.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)];
+  for (const match of fenced) candidates.push(match[1].trim());
+
+  const firstBrace = summary.indexOf("{");
+  const lastBrace = summary.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    candidates.push(summary.slice(firstBrace, lastBrace + 1).trim());
   }
+  candidates.push(summary.trim());
+  return [...new Set(candidates.filter(Boolean))];
+}
+
+function parseStructuredSummary(result, type) {
+  if (result?.structured && typeof result.structured === "object") {
+    if (result.structured.type !== type) throw new Error(`Expected contract type ${type}.`);
+    return result.structured;
+  }
+
+  const summary = summaryText(result);
+  let lastError = null;
+  for (const candidate of structuredCandidates(summary)) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (parsed?.type !== type) throw new Error(`Expected contract type ${type}.`);
+      return parsed;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new Error(`Provider output must contain valid ${type} JSON: ${lastError?.message || "no JSON object found"}`);
 }
 
 function genericFailure(summary) {
@@ -92,7 +114,7 @@ function verifyFounderReview(result) {
   if (!["approve", "request_changes", "reject"].includes(review.decision)) {
     return "Founder review decision must be approve, request_changes, or reject.";
   }
-  if (!Array.isArray(review.comments) || !Array.isArray(review.risks) || !String(review.nextAction || "").trim()) {
+  if (!Array.isArray(review.comments) || review.comments.length === 0 || !Array.isArray(review.risks) || review.risks.length === 0 || !String(review.nextAction || "").trim()) {
     return "Founder review must include populated comments, risks, and nextAction fields.";
   }
   return null;
@@ -101,8 +123,6 @@ function verifyFounderReview(result) {
 export function verifyTaskResult(task, result) {
   const summary = summaryText(result);
 
-  // Structured contracts must be parsed and validated before any narrative heuristics.
-  // Words such as "placeholder" or "incomplete" can be legitimate findings inside a review.
   if (task.id === "AI-TASK-003") {
     const reason = verifyExperienceReview(result);
     return reason ? { ok: false, reason } : { ok: true };
