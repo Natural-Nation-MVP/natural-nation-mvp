@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "dispatching",
+  "status": "blocked",
   "currentOwner": "founder",
   "nextOwner": null,
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T03:25:51.696Z",
+  "updatedAt": "2026-07-16T03:25:53.715Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -96,14 +96,15 @@
       "packageId": "NN-BUILD-001",
       "title": "Approve or request changes",
       "owner": "founder",
-      "status": "working",
+      "status": "blocked",
       "requiredInput": "Verified build and review summary",
       "expectedOutput": "Approve, reject, or request changes",
       "nextRole": null,
       "startedAt": "2026-07-16T03:25:51.696Z",
       "startedBy": "founder",
       "dispatchId": "AI-DISPATCH-FADB2BB0-40FF-49A4-9BDD-20789AB48232",
-      "providerStatus": "dispatching"
+      "providerStatus": "manual-review-required",
+      "blockedReason": "This step requires direct Founder action."
     }
   ]
 }
