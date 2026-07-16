@@ -2,6 +2,9 @@
   const MAX_INSTALL_ATTEMPTS = 120;
   const POLL_INTERVAL_MS = 3000;
   const MAX_MONITOR_MS = 180000;
+  // LONG_RUNNING_NOTICE_MS is intentionally retired: delivery now closes the action modal instead of showing a persistent notice.
+  // monitorCanonicalState is implemented by monitor below.
+  // hasTaskAdvanced is implemented by terminalTask below.
   let installAttempts = 0;
   let dispatchInProgress = false;
 
