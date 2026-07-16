@@ -28,6 +28,7 @@
     dispatching: 'Recording handoff',
     'awaiting-configuration': 'Provider unavailable',
     'delivery-failed': 'Delivery failed',
+    'verification-failed': 'Verification failed',
     'result-verified': 'Result verified',
     'ready-for-architecture': 'Ready for architecture',
     'in-progress': 'In progress'
@@ -96,7 +97,7 @@
 
   async function loadCanonicalState(workspace) {
     const endpoint = `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(workspace.activePackageId)}/orchestration`;
-    const response = await fetch(endpoint, { cache: 'no-store' });
+    const response = await fetch(`${endpoint}?v=${Date.now()}`, { cache: 'no-store' });
     if (response.ok) {
       const body = await response.json();
       return body.state;
@@ -104,35 +105,47 @@
     return fetchJson(STATE_URL);
   }
 
+  async function responseBody(response) {
+    const text = await response.text();
+    if (!text) return {};
+    try { return JSON.parse(text); } catch { return { error: { message: text } }; }
+  }
+
   async function dispatchTask(taskId) {
     const workspace = window.NNOSActiveWorkspace;
-    if (!workspace || !currentState) return;
+    if (!workspace || !currentState) throw new Error('The canonical workspace state is not loaded.');
 
     const task = currentState.tasks.find((item) => item.id === taskId);
     if (!task || task.status !== 'ready' || currentState.currentOwner !== task.owner) {
-      window.alert('This task is no longer eligible for dispatch. Reloading canonical state.');
       await render();
-      return;
+      throw new Error('This task is no longer eligible for dispatch. The canonical state has been refreshed.');
     }
 
     const key = window.prompt('Enter your Founder Key to validate this handoff.');
-    if (!key) return;
+    if (!key) return { cancelled: true };
 
     const button = document.querySelector(`[data-start-ai-task="${CSS.escape(taskId)}"]`);
     if (button) {
       button.disabled = true;
-      button.textContent = 'Validating task...';
+      button.setAttribute('aria-busy', 'true');
+      button.textContent = 'Validating task…';
     }
 
     const endpoint = `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(currentState.packageId)}/tasks/${encodeURIComponent(taskId)}/dispatch`;
 
     try {
+      window.NNOSProcessing?.update({
+        title: 'Validating current task',
+        message: 'Checking Founder authorization, ownership, package scope, and provider readiness.',
+        stage: 'Validation'
+      });
+
       const dryRun = await fetch(endpoint, {
         method: 'POST',
         headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
         body: JSON.stringify({ dryRun: true })
       });
-      const dryRunBody = await dryRun.json();
+      const dryRunBody = await responseBody(dryRun);
       if (!dryRun.ok || !dryRunBody.ok) {
         throw new Error(dryRunBody?.error?.message || 'The handoff validation failed.');
       }
@@ -140,33 +153,31 @@
       const confirmed = window.confirm(
         'Validation passed. This will record the handoff in GitHub and call the configured provider. Direct providers may complete and record the task during this request. Continue?'
       );
-      if (!confirmed) return;
+      if (!confirmed) return { cancelled: true };
 
-      if (button) button.textContent = 'Running provider task...';
+      window.NNOSProcessing?.update({
+        title: 'Running provider task',
+        message: 'The Gateway is recording the handoff and waiting for a verified repository result.',
+        stage: 'Provider execution'
+      });
+      if (button) button.textContent = 'Running provider task…';
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
         body: JSON.stringify({ dryRun: false })
       });
-      const body = await response.json();
+      const body = await responseBody(response);
       if (!response.ok || !body.ok) {
         throw new Error(body?.error?.message || 'The handoff could not be dispatched.');
       }
 
-      window.alert(body.message || (
-        body.dispatch?.status === 'completed'
-          ? 'The provider completed the task and the verified result was recorded.'
-          : body.dispatch?.executionConfirmed
-            ? 'The provider accepted the task. A verified result is still pending.'
-            : 'The handoff was recorded, but provider execution did not start.'
-      ));
       await render();
-    } catch (error) {
-      window.alert(error.message || 'The handoff could not be dispatched.');
-      await render();
+      return body;
     } finally {
       if (button) {
         button.disabled = false;
+        button.setAttribute('aria-busy', 'false');
         button.textContent = 'Validate and run task';
       }
     }
@@ -175,19 +186,19 @@
   async function render() {
     const roles = document.querySelector('[data-ai-roles]');
     const handoffs = document.querySelector('[data-ai-handoffs]');
-    if (!roles || !handoffs) return;
+    if (!roles || !handoffs) return currentState;
 
     const workspace = window.NNOSActiveWorkspace;
     if (!workspace) {
       roles.innerHTML = '<p class="muted">Open a workspace to see its AI team.</p>';
       handoffs.innerHTML = '<p class="muted">No workspace selected.</p>';
-      return;
+      return null;
     }
 
     if (workspace.id !== 'natural-nation' || !workspace.activePackageId) {
       roles.innerHTML = '<p class="muted">No product execution package is assigned to this workspace.</p>';
       handoffs.innerHTML = '<article class="module-card"><strong>No active orchestration chain</strong><p>Founder OS management work is reviewed through its own platform backlog.</p></article>';
-      return;
+      return null;
     }
 
     roles.innerHTML = '<p class="muted">Loading the AI team...</p>';
@@ -197,7 +208,7 @@
       const [registry, state, providersResponse] = await Promise.all([
         fetchJson(REGISTRY_URL),
         loadCanonicalState(workspace),
-        fetch(`${GATEWAY_URL}/v1/ai/providers`, { cache: 'no-store' })
+        fetch(`${GATEWAY_URL}/v1/ai/providers?v=${Date.now()}`, { cache: 'no-store' })
           .then((response) => response.ok ? response.json() : null)
           .catch(() => null)
       ]);
@@ -217,21 +228,29 @@
           <div class="record-row"><span>Next handoff</span><strong>${escapeHtml(registry.agents.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div>
         </article>
         <div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, registry)).join('')}</div>`;
+      return state;
     } catch (error) {
       console.error(error);
       roles.innerHTML = '<p class="muted">The AI team could not be loaded.</p>';
       handoffs.innerHTML = `<article class="module-card"><strong>Needs attention</strong><p>${escapeHtml(error.message)}</p></article>`;
+      throw error;
     }
   }
 
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-start-ai-task]');
-    if (button) dispatchTask(button.dataset.startAiTask);
+    if (button) dispatchTask(button.dataset.startAiTask).catch((error) => {
+      window.NNOSProcessing?.error({ title: 'Dispatch failed', message: error.message, stage: 'Stopped' });
+    });
   });
 
-  window.NNOSAIOrchestration = { reload: render, dispatchTask };
+  window.NNOSAIOrchestration = {
+    reload: render,
+    dispatchTask,
+    get state() { return currentState; }
+  };
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
-    if (event.detail?.target === 'ai') render();
+    if (event.detail?.target === 'ai') render().catch(() => null);
   });
-  render();
+  render().catch(() => null);
 })();
