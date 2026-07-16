@@ -2,11 +2,11 @@
   "stateVersion": "2.0.2",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "dispatching",
+  "status": "in-progress",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T18:20:49.772Z",
+  "updatedAt": "2026-07-16T18:21:01.885Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -37,7 +37,7 @@
       "requiredInput": "Founder-approved Natural Nation Day 1 member-facing foundation under app/frontend. FOUNDER CORRECTION REQUEST: Send the five verified corrections back to Codex before Founder approval.",
       "expectedOutput": "A real GitHub pull request with implementation and validation evidence.",
       "nextRole": "gemini",
-      "providerStatus": "dispatching",
+      "providerStatus": "delivered",
       "blockedReason": null,
       "startedAt": "2026-07-16T18:20:49.772Z",
       "startedBy": "founder",
