@@ -1,123 +1,15 @@
 {
   "dispatchVersion": "1.5.0",
-  "dispatchId": "AI-DISPATCH-FDD5EB7E-AF05-4C16-8BB1-92E5E9570490",
+  "dispatchId": "AI-DISPATCH-9F344D08-4A82-4555-9AC5-6E6E2D92B9B3",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-002",
   "agentId": "codex",
-  "status": "delivered",
+  "status": "dispatching",
   "requestedBy": "founder",
-  "requestedAt": "2026-07-16T14:07:40.224Z",
-  "requiredInput": "CANONICAL EXECUTION CONTRACT — Repository: Natural-Nation-MVP/natural-nation-mvp. Package NN-BUILD-001 objective: implement the Founder-approved Natural Nation Blueprint. Approved product: a mobile-first holistic wellness platform with a public brand website and Duey, a non-medical AI wellness mentor. Phase 1 requires onboarding, personalized blueprint, Day 1 dashboard, Daily Protocol Timeline, Wellness Score, Rejuvenation Score, progress tracking, Duey guidance, guest-first identity, and account upgrade without data loss. Billing is excluded from MVP. For this first implementation slice, create a testable member-facing static web foundation under app/frontend/ only: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. The page must present a responsive Day 1 dashboard preview with Duey identified as an AI wellness mentor, Wellness and Rejuvenation scores, a time-based protocol list, progress check-in controls, non-medical language, and mobile/tablet/desktop responsive behavior. The validation script must inspect the files and fail when the required experience elements are absent. Do not modify architecture decisions, secrets, Cloudflare configuration, GitHub workflows, or Founder OS. The provider response is constrained by the Gateway's repository_execution_plan JSON schema. Do not add markdown fences or narrative text outside that schema. Do not claim a pull request already exists; the protected repository adapter will create the real branch, commit, and pull request from the validated plan.",
-  "expectedOutput": "A schema-valid repository execution plan that creates the five approved app/frontend files; the Gateway must convert it into a real GitHub pull request and record changed-file plus validation evidence",
+  "requestedAt": "2026-07-16T18:20:49.772Z",
+  "requiredInput": "Founder-approved Natural Nation Day 1 member-facing foundation under app/frontend. FOUNDER CORRECTION REQUEST: Send the five verified corrections back to Codex before Founder approval.",
+  "expectedOutput": "A real GitHub pull request with implementation and validation evidence.",
   "nextRole": "gemini",
-  "provider": "openai",
-  "delivery": {
-    "provider": "google",
-    "assignedRole": {
-      "id": "codex",
-      "name": "Codex",
-      "role": "Implementation Lead",
-      "purpose": "Writes and updates code from approved build packages.",
-      "allowedActions": [
-        "implement",
-        "test",
-        "prepare-pull-request"
-      ],
-      "requiresFounderApprovalFor": [
-        "merge",
-        "production-deploy"
-      ]
-    },
-    "preferredProvider": "openai",
-    "executingProvider": "google",
-    "status": "delivered",
-    "delivered": true,
-    "synchronous": true,
-    "fallbackUsed": true,
-    "temporaryRoleAssumption": true,
-    "roleRelinquishedAfterCompletion": true,
-    "fallbackReason": "BILLING_NOT_ENABLED",
-    "attempts": [
-      {
-        "provider": "openai",
-        "assignedRole": "codex",
-        "temporaryRoleAssumption": false,
-        "status": "failed",
-        "errorCategory": "BILLING_NOT_ENABLED",
-        "errorCode": "insufficient_quota",
-        "httpStatus": 429,
-        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-      },
-      {
-        "provider": "google",
-        "assignedRole": "codex",
-        "temporaryRoleAssumption": true,
-        "status": "completed",
-        "model": "gemini-2.5-flash"
-      }
-    ],
-    "completedResult": {
-      "dispatchId": "AI-DISPATCH-FDD5EB7E-AF05-4C16-8BB1-92E5E9570490",
-      "summary": "{\n  \"title\": \"Natural Nation MVP Frontend Foundation Implementation\",\n  \"summary\": \"Initial implementation of the Natural Nation MVP frontend foundation, including a responsive Day 1 Dashboard preview, core styling, minimal interactivity, and a validation script, as per package NN-BUILD-001. This creates app/frontend/index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs.\",\n  \"files\": [\n    {\n      \"path\": \"app/frontend/index.html\",\n      \"content\": \"<!DOCTYPE html><html lang=\\\"en\\\"><head><meta charset=\\\"UTF-8\\\"><meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\"><title>Natural Nation - Day 1 Dashboard Preview</title><link rel=\\\"stylesheet\\\" href=\\\"styles.css\\\"></head><body><header><div class=\\\"container\\\"><h1>Natural Nation</h1></div></header><main class=\\\"container\\\"><section class=\\\"dashboard-header\\\"><h2>Your Day 1 Journey</h2><p>Welcome to your personalized wellness path!</p></section><section class=\\\"score-cards\\\"><div class=\\\"card wellness-score\\\"><h3>Wellness Score</h3><p class=\\\"score-value\\\">85</p><p class=\\\"score-insight\\\">Keep up the great work!</p></div><div class=\\\"card rejuvenation-score\\\"><h3>Rejuvenation Score</h3><p class=\\\"score-value\\\">92</p><p class=\\\"score-insight\\\">Feeling refreshed and ready!</p></div></section><section class=\\\"duey-section\\\"><img src=\\\"https://via.placeholder.com/50\\\" alt=\\\"Duey icon\\\" class=\\\"duey-icon\\\"><div class=\\\"duey-message\\\"><h3>Meet Duey, your AI wellness mentor!</h3><p>\\\"Let's start your journey to a balanced lifestyle. I'm here to support you every step of the way!\\\"</p><button class=\\\"duey-chat-button\\\">Chat with Duey</button></div></section><section class=\\\"daily-protocol\\\"><h3>Your Daily Protocol</h3><ul class=\\\"protocol-list\\\"><li><span class=\\\"protocol-time\\\">7:00 AM</span><span class=\\\"protocol-activity\\\">Mindful Awakening</span><label class=\\\"protocol-checkbox\\\"><input type=\\\"checkbox\\\"> Done</label></li><li><span class=\\\"protocol-time\\\">8:00 AM</span><span class=\\\"protocol-activity\\\">Nourishing Breakfast</span><label class=\\\"protocol-checkbox\\\"><input type=\\\"checkbox\\\"> Done</label></li><li><span class=\\\"protocol-time\\\">1:00 PM</span><span class=\\\"protocol-activity\\\">Movement Break</span><label class=\\\"protocol-checkbox\\\"><input type=\\\"checkbox\\\"> Done</label></li><li><span class=\\\"protocol-time\\\">6:00 PM</span><span class=\\\"protocol-activity\\\">Balanced Evening Meal</span><label class=\\\"protocol-checkbox\\\"><input type=\\\"checkbox\\\"> Done</label></li><li><span class=\\\"protocol-time\\\">9:00 PM</span><span class=\\\"protocol-activity\\\">Relaxation & Reflection</span><label class=\\\"protocol-checkbox\\\"><input type=\\\"checkbox\\\"> Done</label></li></ul></section><section class=\\\"progress-check-in\\\"><h3>Daily Check-in</h3><p>How are you feeling today?</p><div class=\\\"check-in-controls\\\"><button class=\\\"check-in-button\\\">Energized</button><button class=\\\"check-in-button\\\">Balanced</button><button class=\\\"check-in-button\\\">Calm</button></div><textarea placeholder=\\\"Any thoughts to share? (Optional)\\\" rows=\\\"3\\\"></textarea><button class=\\\"submit-check-in\\\">Submit Progress</button></section></main><footer><div class=\\\"container\\\"><p>&copy; 2024 Natural Nation. All rights reserved.</p></div></footer><script src=\\\"app.js\\\"></script></body></html>\"\n    },\n    {\n      \"path\": \"app/frontend/styles.css\",\n      \"content\": \"* {box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,BlinkMacSystemFont,\\\"Segoe UI\\\",Roboto,Oxygen,Ubuntu,Cantarell,\\\"Open Sans\\\",\\\"Helvetica Neue\\\",sans-serif;line-height:1.6;color:#333;background-color:#f4f7f6;}.container{max-width:1200px;margin:0 auto;padding:0 1rem;}header{background:#2c5f2d;color:#fff;padding:1rem 0;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);}header h1{font-size:1.8rem;}main{padding:2rem 0;display:grid;gap:1.5rem;grid-template-columns:1fr;}section{background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}section h2,section h3{color:#2c5f2d;margin-bottom:1rem;}.score-cards{display:flex;flex-direction:column;gap:1rem;}.score-cards .card{flex:1;text-align:center;border:1px solid #e0e0e0;}.score-value{font-size:2.5rem;font-weight:bold;color:#4CAF50;margin-bottom:.5rem;}.score-insight{font-style:italic;color:#555;}.duey-section{display:flex;flex-direction:column;align-items:center;text-align:center;background-color:#e6f4ea;border-left:5px solid #4CAF50;padding:1.5rem;}.duey-icon{border-radius:50%;margin-bottom:1rem;width:60px;height:60px;object-fit:cover;}.duey-message h3{margin-top:0;color:#2c5f2d;}.duey-chat-button{background-color:#4CAF50;color:white;padding:.75rem 1.25rem;border:none;border-radius:5px;cursor:pointer;margin-top:1rem;font-size:1rem;transition:background-color .3s ease;}.duey-chat-button:hover{background-color:#45a049;}.protocol-list{list-style:none;}.protocol-list li{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid #eee;}.protocol-list li:last-child{border-bottom:none;}.protocol-time{font-weight:bold;color:#555;flex-basis:25%;}.protocol-activity{flex-grow:1;margin:0 1rem;}.protocol-checkbox input[type=\\\"checkbox\\\"]{width:1.2rem;height:1.2rem;cursor:pointer;}.check-in-controls{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;}.check-in-button{background-color:#e0f2f1;color:#00796B;border:1px solid #00796B;padding:.5rem 1rem;border-radius:20px;cursor:pointer;transition:background-color .3s ease,color .3s ease;}.check-in-button:hover{background-color:#00796B;color:white;}textarea{width:100%;padding:.75rem;border:1px solid #ccc;border-radius:4px;resize:vertical;margin-bottom:1rem;font-family:inherit;}.submit-check-in{background-color:#00796B;color:white;padding:.75rem 1.5rem;border:none;border-radius:5px;cursor:pointer;font-size:1rem;transition:background-color .3s ease;}.submit-check-in:hover{background-color:#004d40;}footer{text-align:center;padding:1.5rem 0;margin-top:2rem;background:#333;color:#bbb;font-size:.9rem;}@media (min-width:600px){.score-cards{flex-direction:row;}.duey-section{flex-direction:row;text-align:left;align-items:flex-start;}.duey-icon{margin-right:1.5rem;margin-bottom:0;}.duey-message{flex-grow:1;}}@media (min-width:768px){main{grid-template-columns:repeat(2,1fr);grid-template-areas:\\\"header header\\\" \\\"scores scores\\\" \\\"duey protocol\\\" \\\"checkin checkin\\\";}.dashboard-header{grid-area:header;}.score-cards{grid-area:scores;}.duey-section{grid-area:duey;}.daily-protocol{grid-area:protocol;}.progress-check-in{grid-area:checkin;}}@media (min-width:1024px){header h1{font-size:2.2rem;}main{gap:2rem;padding:3rem 0;grid-template-columns:1fr 1fr 1fr;grid-template-areas:\\\"header header header\\\" \\\"scores scores scores\\\" \\\"duey protocol checkin\\\";}.score-cards{flex-direction:row;justify-content:space-around;}.score-cards .card{flex-basis:48%;}.protocol-list li{padding:1rem 0;}\"\n    },\n    {\n      \"path\": \"app/frontend/app.js\",\n      \"content\": \"document.addEventListener('DOMContentLoaded', () => {console.log('Natural Nation Day 1 Dashboard frontend foundation loaded!');const chatButton = document.querySelector('.duey-chat-button');if (chatButton) {chatButton.addEventListener('click', () => {alert('Duey chat coming soon! Your AI wellness mentor is ready to connect.');});}const submitCheckinButton = document.querySelector('.submit-check-in');if (submitCheckinButton) {submitCheckinButton.addEventListener('click', () => {const feelings = Array.from(document.querySelectorAll('.check-in-button.active')).map(btn => btn.textContent);const thoughts = document.querySelector('.progress-check-in textarea').value;console.log('Daily Check-in submitted!');console.log('Feelings:', feelings);console.log('Thoughts:', thoughts);alert('Check-in submitted! We appreciate your progress.');});}document.querySelectorAll('.check-in-button').forEach(button => {button.addEventListener('click', function() {this.classList.toggle('active');});});const checkInButtons = document.querySelectorAll('.check-in-button');checkInButtons.forEach(button => {button.addEventListener('click', function() {this.classList.toggle('active');});});});\"\n    },\n    {\n      \"path\": \"app/frontend/README.md\",\n      \"content\": \"# Natural Nation MVP Frontend Foundation\\\\n\\\\nThis directory (`app/frontend/`) contains the foundational static web files for the Natural Nation mobile-first holistic wellness platform's MVP. This initial implementation slice focuses on presenting a testable member-facing \\\"Day 1 Dashboard\\\" preview.\\\\n\\\\n## Files Included:\\\\n\\\\n- `index.html`: The main HTML structure for the Day 1 Dashboard, featuring:\\\\n    - A welcoming header.\\\\n    - Displays for \\\"Wellness Score\\\" and \\\"Rejuvenation Score\\\".\\\\n    - An introduction to \\\"Duey, your AI wellness mentor\\\".\\\\n    - A \\\"Daily Protocol\\\" timeline with placeholder activities.\\\\n    - \\\"Progress Check-in\\\" controls.\\\\n    - Designed with non-medical language and responsive layouts for various screen sizes.\\\\n- `styles.css`: Provides the styling for `index.html`, implementing a mobile-first approach and media queries for tablet and desktop responsiveness.\\\\n- `app.js`: A minimal JavaScript file for basic interactions and console logging, confirming the script's loading and providing a placeholder for future dynamic features.\\\\n- `README.md`: This file, describing the purpose and contents of the frontend foundation.\\\\n- `tests/validate-foundation.mjs`: A Node.js validation script to ensure the presence of required experience elements within these foundational files.\\\\n\\\\n## Day 1 Dashboard Preview Features:\\\\n\\\\n- **Responsive Design**: Adapts seamlessly across mobile, tablet, and desktop devices.\\\\n- **AI Wellness Mentor (Duey)**: Clearly identifies Duey as a non-medical AI wellness mentor.\\\\n- **Wellness and Rejuvenation Scores**: Visual representation of user scores.\\\\n- **Daily Protocol Timeline**: A structured list of activities for the day.\\\\n- **Progress Check-in Controls**: Interactive elements for users to log their daily feelings and thoughts.\\\\n- **Non-Medical Language**: All content is phrased to be supportive and wellness-focused, avoiding clinical or medical terminology.\\\\n\\\\n## How to View:\\\\n\\\\nSimply open `app/frontend/index.html` in your web browser. Resize your browser window or use developer tools to test its responsiveness across different device views.\\\\n\\\\n## Validation:\\\\n\\\\nThe `tests/validate-foundation.mjs` script can be run using Node.js to verify that this foundation meets the specified requirements.\"\n    },\n    {\n      \"path\": \"app/frontend/tests/validate-foundation.mjs\",\n      \"content\": \"import { promises as fs } from 'fs';import { resolve } from 'path';import { JSDOM } from 'jsdom';import assert from 'assert';async function validateFoundation() {console.log('Starting frontend foundation validation...');const frontendPath = resolve(process.cwd(), 'app', 'frontend');const indexPath = resolve(frontendPath, 'index.html');const stylesPath = resolve(frontendPath, 'styles.css');const appJsPath = resolve(frontendPath, 'app.js');const readmePath = resolve(frontendPath, 'README.md');let validationErrors = [];const filesToExist = [{ path: indexPath, name: 'index.html' },{ path: stylesPath, name: 'styles.css' },{ path: appJsPath, name: 'app.js' },{ path: readmePath, name: 'README.md' }];for (const file of filesToExist) {try {await fs.access(file.path);console.log(`✓ ${file.name} exists.`);} catch (error) {validationErrors.push(`✗ ${file.name} is missing.`);}}if (validationErrors.length > 0) {console.error('Critical files missing. Aborting further validation.');validationErrors.forEach(err => console.error(err));process.exit(1);}try {const htmlContent = await fs.readFile(indexPath, 'utf-8');const dom = new JSDOM(htmlContent);const document = dom.window.document;console.log('Validating index.html content...');const viewportMeta = document.querySelector('meta[name=\\\"viewport\\\"]');assert.ok(viewportMeta && viewportMeta.content.includes('width=device-width'), 'Viewport meta tag for responsiveness is missing or incorrect.');console.log('✓ Viewport meta tag present.');const styleLink = document.querySelector('link[rel=\\\"stylesheet\\\"][href=\\\"styles.css\\\"]');assert.ok(styleLink, 'Link to styles.css is missing.');console.log('✓ Link to styles.css present.');const appJsScript = document.querySelector('script[src=\\\"app.js\\\"]');assert.ok(appJsScript, 'Script link to app.js is missing.');console.log('✓ Script link to app.js present.');const day1DashboardTitle = document.querySelector('h2');assert.ok(day1DashboardTitle && (day1DashboardTitle.textContent.includes('Day 1') || day1DashboardTitle.textContent.includes('Journey')), 'Day 1 Dashboard title is missing.');console.log('✓ Day 1 Dashboard title present.');const dueySection = document.querySelector('.duey-section');assert.ok(dueySection, 'Duey section is missing.');assert.ok(dueySection.textContent.includes('Duey') && dueySection.textContent.includes('AI wellness mentor'), 'Duey identified as AI wellness mentor is missing.');console.log('✓ Duey identified as AI wellness mentor.');const wellnessScore = document.querySelector('.wellness-score');assert.ok(wellnessScore && wellnessScore.textContent.includes('Wellness Score'), 'Wellness Score display is missing.');console.log('✓ Wellness Score display present.');const rejuvenationScore = document.querySelector('.rejuvenation-score');assert.ok(rejuvenationScore && rejuvenationScore.textContent.includes('Rejuvenation Score'), 'Rejuvenation Score display is missing.');console.log('✓ Rejuvenation Score display present.');const protocolList = document.querySelector('.daily-protocol .protocol-list');assert.ok(protocolList && protocolList.children.length > 0, 'Time-based protocol list is missing or empty.');assert.ok(Array.from(protocolList.querySelectorAll('.protocol-time')).some(el => el.textContent.match(/\\\\d{1,2}:\\\\d{2}\\\\s(AM|PM)/i)), 'Protocol list items do not contain time indicators.');console.log('✓ Time-based protocol list present.');const progressCheckin = document.querySelector('.progress-check-in');assert.ok(progressCheckin, 'Progress check-in section is missing.');assert.ok(progressCheckin.querySelector('.check-in-controls') || progressCheckin.querySelector('input[type=\\\"checkbox\\\"]') || progressCheckin.querySelector('textarea'), 'Progress check-in controls (buttons, checkboxes, textarea) are missing.');console.log('✓ Progress check-in controls present.');const medicalKeywords = ['patient', 'diagnosis', 'therapy', 'treatment', 'symptom', 'clinic', 'medical condition'];const textContent = document.body.textContent.toLowerCase();for (const keyword of medicalKeywords) {assert.ok(!textContent.includes(keyword), `Medical keyword \\\"${keyword}\\\" found in content. Use non-medical language.`);}console.log('✓ Non-medical language appears to be used.');} catch (error) {validationErrors.push(`✗ Error validating index.html: ${error.message}`);}try {const cssContent = await fs.readFile(stylesPath, 'utf-8');console.log('Validating styles.css for responsiveness indicators...');const hasMediaQueries = /@media\\\\s+\\\\(min-width:\\\\s*\\\\d+(px|em|rem)\\\\)/.test(cssContent);const hasFlexOrGrid = /(display:\\\\s*flex)|(display:\\\\s*grid)/.test(cssContent);assert.ok(hasMediaQueries, 'styles.css does not appear to contain media queries for responsiveness.');assert.ok(hasFlexOrGrid, 'styles.css does not appear to use flexbox or grid for layout responsiveness.');console.log('✓ styles.css contains media queries and flex/grid for responsiveness.');} catch (error) {validationErrors.push(`✗ Error validating styles.css: ${error.message}`);}if (validationErrors.length > 0) {console.error('\\\\nValidation FAILED with the following issues:');validationErrors.forEach(err => console.error(err));process.exit(1);} else {console.log('\\\\nAll frontend foundation validations PASSED!');process.exit(0);}}validateFoundation().catch(error => {console.error('An unexpected error occurred during validation:', error);process.exit(1);});\"\n    }\n  ]\n}",
-      "provider": "google",
-      "model": "gemini-2.5-flash",
-      "usage": {
-        "promptTokenCount": 576,
-        "candidatesTokenCount": 4431,
-        "totalTokenCount": 22249,
-        "promptTokensDetails": [
-          {
-            "modality": "TEXT",
-            "tokenCount": 576
-          }
-        ],
-        "thoughtsTokenCount": 17242,
-        "serviceTier": "standard"
-      },
-      "routing": {
-        "assignedRole": {
-          "id": "codex",
-          "name": "Codex",
-          "role": "Implementation Lead",
-          "purpose": "Writes and updates code from approved build packages.",
-          "allowedActions": [
-            "implement",
-            "test",
-            "prepare-pull-request"
-          ],
-          "requiresFounderApprovalFor": [
-            "merge",
-            "production-deploy"
-          ]
-        },
-        "preferredProvider": "openai",
-        "executingProvider": "google",
-        "fallbackUsed": true,
-        "temporaryRoleAssumption": true,
-        "roleRelinquishedAfterCompletion": true,
-        "attempts": [
-          {
-            "provider": "openai",
-            "assignedRole": "codex",
-            "temporaryRoleAssumption": false,
-            "status": "failed",
-            "errorCategory": "BILLING_NOT_ENABLED",
-            "errorCode": "insufficient_quota",
-            "httpStatus": 429,
-            "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-          },
-          {
-            "provider": "google",
-            "assignedRole": "codex",
-            "temporaryRoleAssumption": true,
-            "status": "completed",
-            "model": "gemini-2.5-flash"
-          }
-        ]
-      }
-    },
-    "deliveredAt": "2026-07-16T14:09:16.914Z"
-  },
-  "executionConfirmed": true
+  "provider": "openai"
 }
