@@ -1,0 +1,15 @@
+{
+  "dispatchVersion": "1.3.0",
+  "dispatchId": "AI-DISPATCH-FADB2BB0-40FF-49A4-9BDD-20789AB48232",
+  "workspaceId": "natural-nation",
+  "packageId": "NN-BUILD-001",
+  "taskId": "AI-TASK-005",
+  "agentId": "founder",
+  "status": "dispatching",
+  "requestedBy": "founder",
+  "requestedAt": "2026-07-16T03:25:51.696Z",
+  "requiredInput": "Verified build and review summary",
+  "expectedOutput": "Approve, reject, or request changes",
+  "nextRole": null,
+  "provider": "manual"
+}
