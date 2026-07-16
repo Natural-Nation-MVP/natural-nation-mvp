@@ -1,6 +1,7 @@
 import { commitFilesAtomically, readRepositoryJson } from "./github.js";
 import { deliverToProvider } from "./ai-provider-adapters.js";
 import { structuredLog } from "./structured-log.js";
+import { verifyTaskResult } from "./result-verification.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const AGENT_PATH = "docs/founder-os/config/ai-agent-registry.json";
@@ -72,12 +73,62 @@ function deliveredState(state, taskId, delivery) {
   };
 }
 
+function verificationFailedState(state, taskId, reason) {
+  const now = new Date().toISOString();
+  return {
+    ...state,
+    status: "blocked",
+    updatedAt: now,
+    tasks: state.tasks.map((item) => item.id === taskId ? {
+      ...item,
+      status: "blocked",
+      providerStatus: "verification-failed",
+      blockedReason: reason,
+      verificationFailedAt: now
+    } : item)
+  };
+}
+
+async function recordVerificationFailure({ env, state, task, result, actor, reason }) {
+  const failedState = verificationFailedState(state, task.id, reason);
+  const failedResult = {
+    resultVersion: "1.3.0",
+    workspaceId: state.workspaceId,
+    packageId: state.packageId,
+    taskId: task.id,
+    dispatchId: result.dispatchId,
+    receivedAt: new Date().toISOString(),
+    receivedBy: actor.id,
+    verificationStatus: "failed",
+    verificationReason: reason,
+    ...result
+  };
+  const repository = await commitFilesAtomically(env, {
+    message: `orchestration: reject unverifiable result for ${task.id}`,
+    files: [
+      { path: STATE_PATH, content: failedState },
+      { path: resultPath(state.workspaceId, state.packageId, task.id), content: failedResult }
+    ]
+  });
+  structuredLog("result.verification_failed", {
+    ...routingContext({
+      workspaceId: state.workspaceId,
+      packageId: state.packageId,
+      taskId: task.id,
+      dispatchId: result.dispatchId,
+      assignedRole: task.owner
+    }),
+    receivedBy: actor.id,
+    reason
+  });
+  return { state: failedState, result: failedResult, repository, verificationFailed: true };
+}
+
 export async function dispatchTask({ env, workspaceId, packageId, taskId, actor, dryRun = false }) {
   const [{ content: state }, { content: registry }] = await Promise.all([
     readRepositoryJson(env, STATE_PATH),
     readRepositoryJson(env, AGENT_PATH)
   ]);
-
   const task = validateScope(state, workspaceId, packageId, taskId);
   validateDispatchEligibility(state, task);
   const agent = registry.agents.find((item) => item.id === task.owner);
@@ -87,7 +138,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   const context = routingContext({ workspaceId, packageId, taskId, dispatchId, assignedRole: agent.id });
   const updatedState = queuedState(state, task, actor, dispatchId);
   const dispatchRecord = {
-    dispatchVersion: "1.3.0",
+    dispatchVersion: "1.4.0",
     dispatchId,
     workspaceId,
     packageId,
@@ -108,7 +159,6 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     preferredProvider: dispatchRecord.provider,
     dryRun
   });
-
   if (dryRun) {
     return {
       dryRun: true,
@@ -141,7 +191,6 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       httpStatus: attempt.httpStatus || null
     });
   }
-
   if (delivery.fallbackUsed) {
     structuredLog("provider.failover", {
       ...context,
@@ -151,7 +200,6 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       temporaryRoleAssumption: delivery.temporaryRoleAssumption
     });
   }
-
   structuredLog(delivery.delivered ? "provider.completed" : "provider.terminal_failure", {
     ...context,
     preferredProvider: delivery.preferredProvider,
@@ -170,7 +218,6 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     delivery,
     executionConfirmed: delivery.delivered === true
   };
-
   const deliveryRepository = await commitFilesAtomically(env, {
     message: `orchestration: record ${taskId} provider delivery status`,
     files: [
@@ -188,15 +235,23 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       result: delivery.completedResult,
       actor: { id: agent.id || `${delivery.provider}-direct` }
     });
-
+    if (completion.verificationFailed) {
+      return {
+        dryRun: false,
+        writesPerformed: true,
+        dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false },
+        state: completion.state,
+        result: completion.result,
+        repository: completion.repository,
+        deliveryRepository,
+        queuedRepository,
+        message: `The provider returned a result, but verification rejected it: ${completion.result.verificationReason}`
+      };
+    }
     return {
       dryRun: false,
       writesPerformed: true,
-      dispatch: {
-        ...deliveredRecord,
-        status: "completed",
-        executionConfirmed: true
-      },
+      dispatch: { ...deliveredRecord, status: "completed", executionConfirmed: true },
       state: completion.state,
       result: completion.result,
       repository: completion.repository,
@@ -229,6 +284,11 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
     throw new Error("The result dispatch ID does not match the active task dispatch.");
   }
 
+  const verification = verifyTaskResult(task, result);
+  if (!verification.ok) {
+    return recordVerificationFailure({ env, state, task, result, actor, reason: verification.reason });
+  }
+
   const now = new Date().toISOString();
   const nextTask = state.tasks.find((item) => item.owner === task.nextRole && item.status === "waiting");
   const completedState = {
@@ -243,6 +303,7 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
           ...item,
           status: "complete",
           providerStatus: "result-verified",
+          blockedReason: null,
           completedAt: now,
           completedBy: actor.id,
           resultSummary: result.summary
@@ -252,18 +313,17 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
       return item;
     })
   };
-
   const resultRecord = {
-    resultVersion: "1.2.0",
+    resultVersion: "1.3.0",
     workspaceId,
     packageId,
     taskId,
     dispatchId: result.dispatchId,
     receivedAt: now,
     receivedBy: actor.id,
+    verificationStatus: "passed",
     ...result
   };
-
   const repository = await commitFilesAtomically(env, {
     message: `orchestration: verify and complete ${taskId}`,
     files: [
@@ -271,7 +331,6 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
       { path: resultPath(workspaceId, packageId, taskId), content: resultRecord }
     ]
   });
-
   structuredLog("result.completed", {
     ...routingContext({ workspaceId, packageId, taskId, dispatchId: result.dispatchId, assignedRole: task.owner }),
     receivedBy: actor.id,
@@ -279,8 +338,7 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
     model: result.model || null,
     nextRole: task.nextRole || null
   });
-
-  return { state: completedState, result: resultRecord, repository };
+  return { state: completedState, result: resultRecord, repository, verificationFailed: false };
 }
 
 export async function readOrchestrationState({ env, workspaceId, packageId }) {
