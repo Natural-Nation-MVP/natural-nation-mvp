@@ -5,11 +5,35 @@
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-005",
   "agentId": "founder",
-  "status": "dispatching",
+  "status": "manual-review-required",
   "requestedBy": "founder",
   "requestedAt": "2026-07-16T17:52:16.101Z",
   "requiredInput": "Verified build pull request, validation evidence, deterministic experience review, and deterministic Founder summary",
   "expectedOutput": "Approve, reject, or request changes",
   "nextRole": null,
-  "provider": "manual"
+  "provider": "manual",
+  "delivery": {
+    "provider": "manual",
+    "assignedRole": {
+      "id": "founder",
+      "name": "Founder",
+      "role": "Protected Approval",
+      "purpose": "Approves protected decisions, releases, merges, and deployments.",
+      "allowedActions": [
+        "approve",
+        "reject",
+        "request-changes"
+      ],
+      "requiresFounderApprovalFor": []
+    },
+    "preferredProvider": "manual",
+    "status": "manual-review-required",
+    "delivered": false,
+    "synchronous": false,
+    "fallbackUsed": false,
+    "temporaryRoleAssumption": false,
+    "attempts": [],
+    "message": "This step requires direct Founder action."
+  },
+  "executionConfirmed": false
 }
