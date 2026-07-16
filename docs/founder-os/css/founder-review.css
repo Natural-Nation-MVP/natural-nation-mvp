@@ -1,0 +1,133 @@
+.founder-review-panel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.founder-review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.founder-review-header h2 {
+  margin: .2rem 0 .35rem;
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+}
+
+.founder-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+}
+
+.founder-review-card {
+  border: 1px solid rgba(20, 58, 37, .14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .46);
+  padding: 1rem;
+}
+
+.founder-review-card.full {
+  grid-column: 1 / -1;
+}
+
+.founder-review-card h3 {
+  margin: 0 0 .65rem;
+  font-size: 1rem;
+}
+
+.founder-review-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.founder-review-card li + li {
+  margin-top: .4rem;
+}
+
+.founder-review-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-weight: 700;
+  color: #155f2d;
+}
+
+.founder-review-recommendation {
+  border-left: 4px solid #8a6a19;
+}
+
+.founder-review-recommendation.approve {
+  border-left-color: #1d7a38;
+}
+
+.founder-review-note {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  border: 1px solid rgba(20, 58, 37, .2);
+  border-radius: 10px;
+  padding: .75rem;
+  font: inherit;
+  background: rgba(255,255,255,.78);
+}
+
+.founder-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+}
+
+.founder-review-actions button {
+  min-height: 46px;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  font-weight: 750;
+}
+
+.founder-review-actions .approve-action {
+  background: #176b31;
+  color: #fff;
+  border: 1px solid #176b31;
+}
+
+.founder-review-actions .changes-action {
+  background: #fff8e8;
+  color: #5d4611;
+  border: 1px solid rgba(138, 106, 25, .45);
+}
+
+.founder-review-actions button:focus-visible,
+.founder-review-note:focus-visible,
+.founder-review-link:focus-visible {
+  outline: 3px solid rgba(39, 126, 62, .45);
+  outline-offset: 3px;
+}
+
+.founder-review-warning {
+  margin: 0;
+  font-size: .9rem;
+  color: #6f5416;
+}
+
+@media (max-width: 760px) {
+  .founder-review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .founder-review-card.full {
+    grid-column: auto;
+  }
+
+  .founder-review-header {
+    flex-direction: column;
+  }
+
+  .founder-review-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
