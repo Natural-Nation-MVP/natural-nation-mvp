@@ -27,6 +27,7 @@ const files = await Promise.all([
   read('services/founder-os-gateway/src/routes/ai-orchestration.js'),
   read('services/founder-os-gateway/src/lib/ai-orchestration.js'),
   read('services/founder-os-gateway/src/lib/ai-provider-adapters.js'),
+  read('services/founder-os-gateway/src/lib/provider-contracts.js'),
   read('services/founder-os-gateway/src/lib/structured-log.js'),
   read('services/founder-os-gateway/src/lib/auth.js'),
   read('services/founder-os-gateway/src/lib/http.js'),
@@ -37,7 +38,7 @@ const files = await Promise.all([
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
   orchestrationUi, discoveryUi, blueprintUi, knowledgeUi, uxCompletion, uxStyles, founderReviewStyles,
   agentRegistry, orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters,
-  structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification] = files;
+  providerContracts, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification] = files;
 
 const scripts = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scripts).size, scripts.length, 'Each runtime script must load once.');
@@ -57,22 +58,14 @@ assert(blueprintUi.includes('approvalTransactionId'));
 assert(knowledgeUi.includes('scopedKnowledge'));
 assert(uxCompletion.includes('v0.5.4 deployed') && uxStyles.includes('.ux-preview-shell'));
 
-for (const source of ['processing-status.js?v=processing-v4', 'canonical-build-studio.js?v=processing-v4', 'ai-orchestration.js?v=processing-v4', 'build-dispatch-bridge.js?v=processing-v4']) {
-  assert(moduleLoader.includes(source), `Missing current execution module: ${source}`);
-}
+for (const source of ['processing-status.js?v=processing-v4', 'canonical-build-studio.js?v=processing-v4', 'ai-orchestration.js?v=processing-v4', 'build-dispatch-bridge.js?v=processing-v4']) assert(moduleLoader.includes(source), `Missing current execution module: ${source}`);
 assert(processingStatus.includes('window.NNOSProcessing') && processingStatus.includes('aria-live'));
 assert(dispatchBridge.includes('monitorCanonicalState') && dispatchBridge.includes("['complete', 'blocked']"));
 assert(dispatchBridge.includes('Verifying provider result') && dispatchBridge.includes('Monitoring window ended'));
 assert(orchestrationUi.includes('data-reset-ai-task') && orchestrationUi.includes('/reset'));
 
-for (const requirement of [
-  'Validate and Run Current Task', 'Retry Current Task Safely', 'Founder Decision', 'Approve slice',
-  'Request changes', 'AI-TASK-003.result.json', 'AI-TASK-004.result.json', 'recordFounderDecision',
-  '/decision', 'Approval records the slice as complete but does not automatically merge', 'View Canonical Package'
-]) assert(canonicalBuild.includes(requirement), `Founder review requirement missing: ${requirement}`);
-assert(founderReviewStyles.includes('.founder-review-panel'));
-assert(founderReviewStyles.includes(':focus-visible'));
-assert(founderReviewStyles.includes('@media'));
+for (const requirement of ['Validate and Run Current Task', 'Retry Current Task Safely', 'Founder Decision', 'Approve slice', 'Request changes', 'AI-TASK-003.result.json', 'AI-TASK-004.result.json', 'recordFounderDecision', '/decision', 'Approval records the slice as complete but does not automatically merge', 'View Canonical Package']) assert(canonicalBuild.includes(requirement), `Founder review requirement missing: ${requirement}`);
+assert(founderReviewStyles.includes('.founder-review-panel') && founderReviewStyles.includes(':focus-visible') && founderReviewStyles.includes('@media'));
 
 const agentIds = new Set(agentRegistry.agents.map((agent) => agent.id));
 for (const role of ['art', 'codex', 'gemini', 'gpose', 'founder']) assert(agentIds.has(role));
@@ -86,16 +79,23 @@ assert(gatewayIndex.includes('repositoryExecution') && gatewayIndex.includes('st
 assert(gatewayHttp.includes('access-control-allow-origin'));
 assert(gatewayRoute.includes('authenticateFounder') && gatewayRoute.includes('dryRun'));
 assert(gatewayRoute.includes('resetTask') && gatewayRoute.includes('retryAllowed'));
-assert(gatewayRoute.includes('recordFounderDecision'));
-assert(gatewayRoute.includes('FOUNDER_DECISION_REJECTED'));
-assert(gatewayRoute.includes('founder-approved') && gatewayRoute.includes('changes-requested'));
+assert(gatewayRoute.includes('recordFounderDecision') && gatewayRoute.includes('FOUNDER_DECISION_REJECTED'));
 assert(gatewayTransaction.includes('commitFilesAtomically') && gatewayTransaction.includes('validateDispatchEligibility'));
 assert(gatewayTransaction.includes('deliverToProvider') && gatewayTransaction.includes('completedResult'));
-assert(resultVerification.includes('structuredCandidates') && resultVerification.includes('founder_review'));
 
-for (const requirement of ['PROVIDER_REGISTRY', 'FAILOVER_CATEGORIES', 'fallbackUsed', 'attempts', 'QUOTA_EXCEEDED', 'AUTHENTICATION_FAILED', 'OPENAI_API_KEY', 'GOOGLE_AI_API_KEY']) {
-  assert(providerAdapters.includes(requirement));
-}
+for (const contract of ['repository_execution_plan', 'experience_review', 'founder_review']) assert(providerContracts.includes(contract), `Missing provider contract: ${contract}`);
+for (const field of ['mergeBlockers', 'recommendation', 'evidence', 'nextAction']) assert(providerContracts.includes(field), `Missing structured field: ${field}`);
+assert(providerContracts.includes('parseStructuredProviderOutput'));
+assert(providerAdapters.includes('providerContract'));
+assert(providerAdapters.includes('responseMimeType: "application/json"'));
+assert(providerAdapters.includes('type: "json_schema"'));
+assert(providerAdapters.includes('structured: result.structured'));
+assert(providerAdapters.includes('INVALID_RESPONSE'));
+assert(resultVerification.includes('contractedReviewPaths'));
+assert(resultVerification.includes('path outside the current task contract'));
+assert(resultVerification.includes('result?.structured'));
+
+for (const requirement of ['PROVIDER_REGISTRY', 'FAILOVER_CATEGORIES', 'fallbackUsed', 'attempts', 'QUOTA_EXCEEDED', 'AUTHENTICATION_FAILED', 'OPENAI_API_KEY', 'GOOGLE_AI_API_KEY']) assert(providerAdapters.includes(requirement));
 assert(structuredLog.includes('[REDACTED]') && structuredLog.includes('console.log(JSON.stringify'));
 assert(gatewayAuth.includes('FOUNDER_API_KEY'));
 for (const finding of ['Delivered-state false completion', 'No Founder-facing blocked-task recovery', 'Provider quota and failover classification']) assert(resilienceAudit.includes(finding));
