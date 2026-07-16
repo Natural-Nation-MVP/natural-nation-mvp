@@ -24,6 +24,7 @@ const gatewayTransaction = await read('services/founder-os-gateway/src/lib/ai-or
 const providerAdapters = await read('services/founder-os-gateway/src/lib/ai-provider-adapters.js');
 const structuredLog = await read('services/founder-os-gateway/src/lib/structured-log.js');
 const gatewayAuth = await read('services/founder-os-gateway/src/lib/auth.js');
+const gatewayHttp = await read('services/founder-os-gateway/src/lib/http.js');
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scriptSources).size, scriptSources.length, 'Each runtime script must load once.');
@@ -62,7 +63,7 @@ assert(app.includes('ux-completion.css'), 'The completed founder-facing module s
 assert(app.includes('Live Execution'), 'Build Work must identify itself as a live execution page.');
 assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"), 'Execution bars must be scoped to Natural Nation.');
 
-for (const phrase of ['Product definition', 'Customer application', 'Build package', 'Providers online', 'Customer app preview only', 'v0.5.3 deployed']) {
+for (const phrase of ['Product definition', 'Customer application', 'Build package', 'Providers online', 'Customer app preview only', 'v0.5.4 deployed']) {
   assert(uxCompletion.includes(phrase), `Current UX truthfulness text is missing: ${phrase}`);
 }
 assert(!uxCompletion.includes('Provider execution is not yet verified'), 'Stale provider-unverified messaging must be removed.');
@@ -117,7 +118,9 @@ for (const task of orchestrationState.tasks) {
 }
 
 assert(gatewayIndex.includes('handleAiOrchestration'), 'The Gateway must activate AI orchestration routes.');
-assert(gatewayIndex.includes('0.5.3'), 'The Gateway version must identify the stabilization release.');
+assert(gatewayIndex.includes('0.5.4'), 'The Gateway version must identify the live network correction release.');
+assert(gatewayIndex.includes('emptyResponse(request, 204)'), 'OPTIONS requests must use a bodyless preflight response.');
+assert(gatewayIndex.includes('repositoryExecution'), 'The Gateway must advertise repository execution.');
 assert(gatewayIndex.includes('gatewayConfiguration'), 'Gateway configuration readiness must be calculated centrally.');
 assert(gatewayIndex.includes('Object.values(required).every(Boolean)'), 'All protected Gateway and GitHub bindings must be required.');
 assert(gatewayIndex.includes('Object.values(providers).some(Boolean)'), 'At least one direct AI provider must be ready.');
@@ -125,6 +128,8 @@ assert(gatewayIndex.includes('optionalLegacy'), 'Legacy callback bindings must b
 assert(gatewayIndex.includes('structuredObservability'), 'The Gateway must advertise structured observability.');
 assert(gatewayIndex.includes('OPENAI_API_KEY'), 'Gateway configuration must recognize the direct OpenAI secret.');
 assert(gatewayIndex.includes('GOOGLE_AI_API_KEY'), 'Gateway configuration must recognize the direct Google AI secret.');
+assert(gatewayHttp.includes('new Response(null'), 'HTTP 204 preflight responses must not include a body.');
+assert(gatewayHttp.includes('access-control-allow-origin'), 'Gateway responses must preserve explicit CORS headers.');
 assert(gatewayRoute.includes('authenticateFounder'), 'AI task dispatch must require Founder authentication.');
 assert(gatewayRoute.includes('authenticateAgentCallback'), 'Legacy AI result callbacks must require callback authentication.');
 assert(gatewayRoute.includes('/v1/ai/providers'), 'The Gateway must expose safe provider readiness.');

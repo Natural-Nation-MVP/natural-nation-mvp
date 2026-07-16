@@ -1,15 +1,15 @@
 /**
- * Founder OS Gateway Worker v0.5.3
+ * Founder OS Gateway Worker v0.5.4
  *
  * Canonical Cloudflare Worker source for protected Founder approvals and
  * repository-backed AI orchestration.
  */
 
-import { json } from "./lib/http.js";
+import { emptyResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 
-const VERSION = "0.5.3";
+const VERSION = "0.5.4";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -55,7 +55,7 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
-      return json(request, { ok: true }, 204);
+      return emptyResponse(request, 204);
     }
 
     const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
@@ -77,7 +77,7 @@ export default {
       return json(request, {
         service: "Founder OS Gateway",
         version: VERSION,
-        environment: "development",
+        environment: "production",
         deployment: "github-managed",
         capabilities: {
           blueprintApproval: "canonical-commit-enabled",
@@ -87,6 +87,7 @@ export default {
           aiDispatchDryRun: "enabled",
           directAiProviders: "enabled",
           providerReadiness: "enabled",
+          repositoryExecution: "enabled",
           structuredObservability: "enabled",
           verifiedResultCallbacks: "legacy-compatible",
           workspaceIsolation: "enabled"
