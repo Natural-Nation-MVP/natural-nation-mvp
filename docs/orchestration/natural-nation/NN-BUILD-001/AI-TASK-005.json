@@ -1,39 +1,15 @@
 {
-  "dispatchVersion": "1.3.0",
-  "dispatchId": "AI-DISPATCH-FADB2BB0-40FF-49A4-9BDD-20789AB48232",
+  "dispatchVersion": "1.5.0",
+  "dispatchId": "AI-DISPATCH-966CABAF-2FA6-4713-B289-2228B02626D2",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-005",
   "agentId": "founder",
-  "status": "manual-review-required",
+  "status": "dispatching",
   "requestedBy": "founder",
-  "requestedAt": "2026-07-16T03:25:51.696Z",
-  "requiredInput": "Verified build and review summary",
+  "requestedAt": "2026-07-16T17:52:16.101Z",
+  "requiredInput": "Verified build pull request, validation evidence, deterministic experience review, and deterministic Founder summary",
   "expectedOutput": "Approve, reject, or request changes",
   "nextRole": null,
-  "provider": "manual",
-  "delivery": {
-    "provider": "manual",
-    "assignedRole": {
-      "id": "founder",
-      "name": "Founder",
-      "role": "Protected Approval",
-      "purpose": "Approves protected decisions, releases, merges, and deployments.",
-      "allowedActions": [
-        "approve",
-        "reject",
-        "request-changes"
-      ],
-      "requiresFounderApprovalFor": []
-    },
-    "preferredProvider": "manual",
-    "status": "manual-review-required",
-    "delivered": false,
-    "synchronous": false,
-    "fallbackUsed": false,
-    "temporaryRoleAssumption": false,
-    "attempts": [],
-    "message": "This step requires direct Founder action."
-  },
-  "executionConfirmed": false
+  "provider": "manual"
 }
