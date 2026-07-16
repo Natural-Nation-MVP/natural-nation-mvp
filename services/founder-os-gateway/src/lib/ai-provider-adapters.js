@@ -141,8 +141,20 @@ async function callOpenAI(env, prompt, dispatch) {
 }
 
 const PROVIDER_REGISTRY = {
-  openai: { id: "openai", priority: 10, configured: (env) => Boolean(env.OPENAI_API_KEY), execute: callOpenAI },
-  google: { id: "google", priority: 20, configured: (env) => Boolean(env.GOOGLE_AI_API_KEY), execute: callGoogleAI }
+  openai: {
+    id: "openai",
+    priority: 10,
+    capabilities: ["architecture", "coding", "documentation", "reasoning"],
+    configured: (env) => Boolean(env.OPENAI_API_KEY),
+    execute: callOpenAI
+  },
+  google: {
+    id: "google",
+    priority: 20,
+    capabilities: ["design-review", "documentation", "reasoning"],
+    configured: (env) => Boolean(env.GOOGLE_AI_API_KEY),
+    execute: callGoogleAI
+  }
 };
 
 function providerOrder(preferredProvider) {
