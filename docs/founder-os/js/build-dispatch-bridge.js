@@ -1,10 +1,7 @@
 (() => {
   const MAX_INSTALL_ATTEMPTS = 120;
   const POLL_INTERVAL_MS = 3000;
-  const MAX_MONITOR_MS = 180000;
-  // LONG_RUNNING_NOTICE_MS is intentionally retired: delivery now closes the action modal instead of showing a persistent notice.
-  // monitorCanonicalState is implemented by monitor below.
-  // hasTaskAdvanced is implemented by terminalTask below.
+  const MAX_MONITOR_MS = 300000;
   let installAttempts = 0;
   let dispatchInProgress = false;
 
@@ -15,7 +12,7 @@
   };
 
   function setBusy(isBusy, label) {
-    $$('[data-action="generate"], [data-start-ai-task]').forEach((button) => {
+    $$('[data-action="generate"], [data-start-ai-task], [data-reset-ai-task]').forEach((button) => {
       button.disabled = isBusy;
       button.setAttribute('aria-busy', String(isBusy));
       if (label && button.dataset.action === 'generate') button.textContent = label;
@@ -40,22 +37,28 @@
     return state || window.NNOSCanonicalBuild?.state || null;
   }
 
-  async function monitor(taskId, startedAt) {
+  async function monitorCanonicalState(taskId, startedAt) {
+    let lastTask = null;
     while (Date.now() - startedAt < MAX_MONITOR_MS) {
       await new Promise((resolve) => window.setTimeout(resolve, POLL_INTERVAL_MS));
       const state = await refreshCanonical().catch(() => null);
       const task = taskFromState(state, taskId);
-      if (terminalTask(task) || deliveryRecorded(task)) return { state, task };
+      if (task) lastTask = task;
+      if (terminalTask(task)) return { state, task, expired: false };
+
+      const delivered = deliveryRecorded(task);
       window.NNOSProcessing?.update({
-        title: 'Running provider task',
-        message: 'Founder OS is waiting for the provider response and canonical GitHub record.',
-        stage: task?.providerStatus === 'dispatching' ? 'Recording handoff' : 'Provider execution'
+        title: delivered ? 'Verifying provider result' : 'Running provider task',
+        message: delivered
+          ? 'The provider response is recorded. Founder OS is validating evidence and committing the canonical result.'
+          : 'Founder OS is waiting for the provider response and canonical GitHub record.',
+        stage: delivered ? 'Verification' : (task?.providerStatus === 'dispatching' ? 'Recording handoff' : 'Provider execution')
       });
     }
-    return { state: await refreshCanonical().catch(() => null), task: null, expired: true };
+    return { state: await refreshCanonical().catch(() => null), task: lastTask, expired: true };
   }
 
-  function showOutcome(task, dispatchResult, dispatchError) {
+  function showOutcome(task, dispatchResult, dispatchError, expired) {
     if (task?.status === 'complete') {
       window.NNOSProcessing?.success({
         title: 'Verified result recorded',
@@ -68,18 +71,8 @@
     if (task?.status === 'blocked') {
       window.NNOSProcessing?.error({
         title: 'Task needs attention',
-        message: task.blockedReason || 'The provider result could not be verified.',
+        message: task.blockedReason || 'The provider result could not be verified. Use Retry Current Task after reviewing the reason.',
         stage: task.providerStatus || 'Blocked'
-      });
-      return;
-    }
-
-    if (deliveryRecorded(task)) {
-      window.NNOSProcessing?.success({
-        title: 'Provider response received',
-        message: 'The provider response was recorded. Founder OS is finalizing verification in the canonical repository.',
-        stage: 'Delivery recorded',
-        hideAfter: 2600
       });
       return;
     }
@@ -93,10 +86,19 @@
       return;
     }
 
-    window.NNOSProcessing?.success({
-      title: 'Request recorded',
-      message: dispatchResult?.message || 'Founder OS refreshed the canonical task state.',
-      stage: 'Recorded'
+    if (expired) {
+      window.NNOSProcessing?.error({
+        title: 'Monitoring window ended',
+        message: 'Founder OS did not receive a terminal canonical state within five minutes. The task was not marked complete. Refresh the state, then use recovery or reset instead of dispatching a duplicate request.',
+        stage: task?.providerStatus || task?.status || 'Needs review'
+      });
+      return;
+    }
+
+    window.NNOSProcessing?.error({
+      title: 'Canonical result pending',
+      message: dispatchResult?.message || 'The request returned without a verified or blocked canonical result. Refresh before taking another action.',
+      stage: task?.providerStatus || task?.status || 'Pending'
     });
   }
 
@@ -110,7 +112,6 @@
     if (controller.dispatchTask.__processingBridgeReady) return;
 
     const originalDispatch = controller.dispatchTask.bind(controller);
-
     const bridgedDispatch = async (taskId) => {
       if (dispatchInProgress) return null;
       dispatchInProgress = true;
@@ -135,14 +136,8 @@
         setBusy(true, 'Validating and running provider…');
 
         const dispatchPromise = Promise.resolve(originalDispatch(taskId))
-          .then((result) => {
-            dispatchResult = result;
-            return result;
-          })
-          .catch((error) => {
-            dispatchError = error;
-            return null;
-          });
+          .then((result) => { dispatchResult = result; return result; })
+          .catch((error) => { dispatchError = error; return null; });
 
         window.NNOSProcessing.update({
           title: 'Running provider task',
@@ -151,19 +146,15 @@
         });
         setText('[data-validation-status]', 'The action is executing. Founder OS is monitoring the canonical GitHub state.');
 
-        const monitored = await monitor(taskId, startedAt);
-        await Promise.race([dispatchPromise, Promise.resolve()]);
+        const monitored = await monitorCanonicalState(taskId, startedAt);
+        await Promise.race([dispatchPromise, new Promise((resolve) => window.setTimeout(resolve, 1000))]);
         const state = monitored.state || await refreshCanonical().catch(() => null);
         const task = monitored.task || taskFromState(state, taskId);
-        showOutcome(task, dispatchResult, dispatchError);
+        showOutcome(task, dispatchResult, dispatchError, monitored.expired);
         return dispatchResult;
       } catch (error) {
         console.error('Build Work dispatch failed', error);
-        window.NNOSProcessing.error({
-          title: 'Dispatch failed',
-          message: error?.message || 'The task could not be dispatched.',
-          stage: 'Stopped'
-        });
+        window.NNOSProcessing.error({ title: 'Dispatch failed', message: error?.message || 'The task could not be dispatched.', stage: 'Stopped' });
         await refreshCanonical().catch(() => null);
         return null;
       } finally {
@@ -176,7 +167,9 @@
             ? 'Validate and Run Current Task →'
             : task?.status === 'complete'
               ? 'Result verified'
-              : task?.providerStatus || task?.status || 'Refresh Current Task';
+              : task?.status === 'blocked'
+                ? 'Task needs attention'
+                : task?.providerStatus || task?.status || 'Refresh Current Task';
         });
       }
     };
@@ -188,11 +181,7 @@
   window.addEventListener('unhandledrejection', (event) => {
     if (!dispatchInProgress) return;
     console.error('Unhandled Build Work dispatch rejection', event.reason);
-    window.NNOSProcessing?.error({
-      title: 'Unexpected processing error',
-      message: event.reason?.message || 'The operation stopped unexpectedly.',
-      stage: 'Stopped'
-    });
+    window.NNOSProcessing?.error({ title: 'Unexpected processing error', message: event.reason?.message || 'The operation stopped unexpectedly.', stage: 'Stopped' });
   });
 
   installBridge();
