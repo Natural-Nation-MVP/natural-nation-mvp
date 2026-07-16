@@ -1,5 +1,6 @@
 import { commitFilesAtomically, readRepositoryJson } from "./github.js";
 import { deliverToProvider } from "./ai-provider-adapters.js";
+import { executeCodexRepositoryResult } from "./codex-repository-bridge.js";
 import { structuredLog } from "./structured-log.js";
 import { verifyTaskResult } from "./result-verification.js";
 
@@ -92,7 +93,7 @@ function verificationFailedState(state, taskId, reason) {
 async function recordVerificationFailure({ env, state, task, result, actor, reason }) {
   const failedState = verificationFailedState(state, task.id, reason);
   const failedResult = {
-    resultVersion: "1.3.0",
+    resultVersion: "1.4.0",
     workspaceId: state.workspaceId,
     packageId: state.packageId,
     taskId: task.id,
@@ -138,7 +139,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   const context = routingContext({ workspaceId, packageId, taskId, dispatchId, assignedRole: agent.id });
   const updatedState = queuedState(state, task, actor, dispatchId);
   const dispatchRecord = {
-    dispatchVersion: "1.4.0",
+    dispatchVersion: "1.5.0",
     dispatchId,
     workspaceId,
     packageId,
@@ -227,12 +228,44 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
   });
 
   if (delivery.synchronous === true && delivery.completedResult) {
+    let completedResult = delivery.completedResult;
+    try {
+      completedResult = await executeCodexRepositoryResult({
+        env,
+        workspaceId,
+        packageId,
+        taskId,
+        result: completedResult,
+        actor
+      });
+    } catch (error) {
+      const completion = await recordVerificationFailure({
+        env,
+        state: finalState,
+        task: finalState.tasks.find((item) => item.id === taskId),
+        result: completedResult,
+        actor: { id: agent.id || `${delivery.provider}-direct` },
+        reason: error.message || "The repository execution plan could not be verified."
+      });
+      return {
+        dryRun: false,
+        writesPerformed: true,
+        dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false },
+        state: completion.state,
+        result: completion.result,
+        repository: completion.repository,
+        deliveryRepository,
+        queuedRepository,
+        message: `The provider returned a result, but protected repository execution rejected it: ${completion.result.verificationReason}`
+      };
+    }
+
     const completion = await completeTask({
       env,
       workspaceId,
       packageId,
       taskId,
-      result: delivery.completedResult,
+      result: completedResult,
       actor: { id: agent.id || `${delivery.provider}-direct` }
     });
     if (completion.verificationFailed) {
@@ -257,7 +290,9 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       repository: completion.repository,
       deliveryRepository,
       queuedRepository,
-      message: "The AI task was dispatched, completed, verified, and recorded in the canonical repository."
+      message: taskId === "AI-TASK-002"
+        ? "Codex produced a repository plan, the protected adapter created a real GitHub pull request, and the evidence was recorded."
+        : "The AI task was dispatched, completed, verified, and recorded in the canonical repository."
     };
   }
 
@@ -314,7 +349,7 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
     })
   };
   const resultRecord = {
-    resultVersion: "1.3.0",
+    resultVersion: "1.4.0",
     workspaceId,
     packageId,
     taskId,
