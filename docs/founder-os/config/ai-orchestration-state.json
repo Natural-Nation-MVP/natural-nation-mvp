@@ -1,12 +1,12 @@
 {
-  "stateVersion": "2.0.2",
+  "stateVersion": "2.1.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "blocked",
+  "status": "ready",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T18:24:31.759Z",
+  "updatedAt": "2026-07-16T18:35:00.000Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -44,11 +44,11 @@
       "dispatchId": "AI-DISPATCH-9F344D08-4A82-4555-9AC5-6E6E2D92B9B3",
       "completedAt": "2026-07-16T18:21:09.606Z",
       "completedBy": "codex",
-      "resultSummary": "Implementation created through the protected repository-execution adapter.\nGitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/38\nChanged files: app/frontend/index.html, app/frontend/package.json, app/frontend/src/App.js, app/frontend/src/assets/styles.css, app/frontend/src/main.js\nValidation evidence: the pull request records a real branch and commit; CI must pass before Founder merge approval.",
+      "resultSummary": "Implementation created through the protected repository-execution adapter. GitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/38. Changed files: app/frontend/index.html, app/frontend/package.json, app/frontend/src/App.js, app/frontend/src/assets/styles.css, app/frontend/src/main.js. Validation evidence is recorded in PR #38 and its CI checks.",
       "retryContext": {
         "previousOutcome": "founder-requested-changes",
         "reason": "Send the five verified corrections back to Codex before Founder approval.",
-        "requiredCorrection": "Implement the requested corrections on the existing implementation pull request or a successor pull request with fresh validation evidence."
+        "requiredCorrection": "Implement the requested corrections on a successor pull request with fresh validation evidence."
       }
     },
     {
@@ -57,27 +57,27 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "blocked",
-      "requiredInput": "Review only PR #30 and these exact files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs.",
-      "expectedOutput": "A schema-valid experience_review JSON object containing passes, issues, merge blockers, recommendation, and file-based evidence",
+      "status": "ready",
+      "requiredInput": "Review only GitHub PR #38 and these exact changed files: app/frontend/index.html, app/frontend/package.json, app/frontend/src/App.js, app/frontend/src/assets/styles.css, app/frontend/src/main.js. Evaluate the actual corrected Natural Nation Day 1 implementation. Do not review PR #30, do not invent files, and do not include full file contents. Return only the provider-native experience_review contract.",
+      "expectedOutput": "A provider-native experience_review JSON object with exact camelCase fields: type, summary, passes, issues, mergeBlockers, recommendation, and evidence. Evidence paths must be selected from the five exact PR #38 paths.",
       "nextRole": "gpose",
-      "providerStatus": "verification-failed",
-      "blockedReason": "Provider output must contain valid experience_review JSON: Unexpected token '`', \"```json\n{\n\"... is not valid JSON",
-      "startedAt": "2026-07-16T18:23:21.870Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-B780E1A7-9E11-4BF7-BC0D-BFCAA40DADD7",
+      "providerStatus": "ready",
+      "blockedReason": null,
+      "startedAt": null,
+      "startedBy": null,
+      "dispatchId": null,
       "completedAt": null,
       "completedBy": null,
       "resultSummary": null,
+      "verificationFailedAt": null,
+      "resetAt": "2026-07-16T18:35:00.000Z",
+      "resetBy": "founder",
       "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-19BD44D1-F382-4E0F-9546-F8CD115E0AB7",
+        "previousDispatchId": "AI-DISPATCH-B780E1A7-9E11-4BF7-BC0D-BFCAA40DADD7",
         "previousOutcome": "verification-failed",
-        "reason": "Provider output must contain valid experience_review JSON: Unexpected token 'A', \"As Gemini,\"... is not valid JSON",
-        "requiredCorrection": "Retry using the task's deterministic provider contract and canonical evidence."
-      },
-      "verificationFailedAt": "2026-07-16T18:24:31.759Z",
-      "resetAt": "2026-07-16T18:22:46.810Z",
-      "resetBy": "founder"
+        "reason": "Gemini was not given a provider-native schema for AI-TASK-003 and the task still referenced obsolete PR #30 evidence. It returned fenced JSON with snake_case fields and stale file assumptions.",
+        "requiredCorrection": "Enforce the experience_review schema at the provider API, normalize the structured result before verification, and validate against current PR #38 evidence paths."
+      }
     },
     {
       "id": "AI-TASK-004",
@@ -86,8 +86,8 @@
       "title": "Prepare the Founder review",
       "owner": "gpose",
       "status": "waiting",
-      "requiredInput": "VERIFIED IMPLEMENTATION: PR #30 created five files under app/frontend: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. GEMINI VERIFIED REVIEW: passes include semantic dashboard structure and responsive breakpoints. Required changes before merge: add persistent state, replace browser alerts with in-UI feedback, add keyboard focus-visible styling, remove possible duplicate click listeners, and replace the external placeholder Duey image. Recommendation: changes_required. Prepare the Founder decision package from this evidence. Return ONLY one valid JSON object with no introduction and no markdown fence: {\"type\":\"founder_review\",\"decision\":\"request_changes\",\"comments\":[\"what was built and what passed\"],\"risks\":[\"remaining merge blockers\"],\"nextAction\":\"Send the five verified corrections back to Codex before Founder approval.\"}",
-      "expectedOutput": "A schema-valid founder_review JSON object with decision, comments, risks, and nextAction",
+      "requiredInput": "Use the verified PR #38 implementation evidence and the next verified Gemini review. Return only the provider-native founder_review contract.",
+      "expectedOutput": "A provider-native founder_review JSON object with exact fields: type, decision, comments, risks, and nextAction.",
       "nextRole": "founder",
       "providerStatus": null,
       "blockedReason": null,
@@ -95,12 +95,6 @@
       "startedBy": null,
       "dispatchId": null,
       "verificationFailedAt": null,
-      "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-8A6B0E33-22F6-4E92-B9E6-C44919C4B0AA",
-        "previousOutcome": "verification-failed",
-        "reason": "GPose fallback wrapped valid JSON in narrative and incorrectly claimed verified upstream evidence was missing.",
-        "requiredCorrection": "Embed the verified implementation and Gemini findings directly in the task, require one JSON object, and accept recoverable provider wrappers around that object."
-      },
       "completedAt": null,
       "completedBy": null,
       "resultSummary": null
