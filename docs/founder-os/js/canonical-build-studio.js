@@ -28,16 +28,10 @@
 
   function statusLabel(status) {
     return ({
-      ready: 'Ready to run',
-      waiting: 'Waiting',
-      working: 'Provider accepted',
-      complete: 'Result verified',
-      completed: 'Result verified',
-      blocked: 'Blocked',
-      dispatching: 'Recording handoff',
-      'result-verified': 'Result verified',
-      'ready-for-architecture': 'Ready for architecture',
-      'in-progress': 'In progress'
+      ready: 'Ready to run', waiting: 'Waiting', working: 'Provider accepted', complete: 'Result verified',
+      completed: 'Result verified', blocked: 'Blocked', dispatching: 'Recording handoff',
+      'result-verified': 'Result verified', 'verification-failed': 'Verification failed',
+      'ready-for-architecture': 'Ready for architecture', 'in-progress': 'In progress'
     })[status] || status || 'Unknown';
   }
 
@@ -46,6 +40,7 @@
     return orchestrationState.tasks.find((task) => task.owner === orchestrationState.currentOwner && ['ready', 'working', 'blocked'].includes(task.status))
       || orchestrationState.tasks.find((task) => task.status === 'ready')
       || orchestrationState.tasks.find((task) => task.status === 'working')
+      || orchestrationState.tasks.find((task) => task.status === 'blocked')
       || null;
   }
 
@@ -156,58 +151,47 @@
     setText('[data-selected-meta]', task
       ? `Current owner: ${owner?.name || task.owner} · Task: ${task.id} · Status: ${statusLabel(task.providerStatus || task.status)}`
       : `Package ${pkg.packageId} · No active AI task`);
-    setText('[data-validation-status]', task
-      ? `Live Gateway state loaded. ${owner?.name || task.owner} owns the current canonical step.`
-      : 'All recorded orchestration tasks are complete.');
+    setText('[data-validation-status]', task?.status === 'blocked'
+      ? task.blockedReason || 'The current task is blocked and may be safely reset.'
+      : task
+        ? `Live Gateway state loaded. ${owner?.name || task.owner} owns the current canonical step.`
+        : 'All recorded orchestration tasks are complete.');
     setText('[data-build-approval]', task?.status === 'ready' ? 'Ready to Run' : statusLabel(task?.providerStatus || task?.status || state.status));
     setText('[data-approval]', task?.status === 'ready' ? 'Ready to Run' : statusLabel(task?.providerStatus || task?.status || state.status));
     setText('[data-bottom-target]', owner?.name || task?.owner || 'Founder');
     setText('[data-delivery]', task ? `${next?.name || task.nextRole || 'Founder'} is next` : 'Workflow complete');
     setText('[data-execution-order]', 'Architecture → Build → Review → Founder');
 
-    if (task) renderAssignedRole(task);
-    else clearAssignedRole();
-
+    if (task) renderAssignedRole(task); else clearAssignedRole();
     const preview = $('[data-package-preview]');
     if (preview) preview.textContent = JSON.stringify({ package: pkg, liveOrchestration: state }, null, 2);
-
     renderQueue(state);
 
     const history = $('[data-package-history]');
     if (history) history.innerHTML = `<div class="record-row"><span>Live orchestration updated ${esc(state.updatedAt || 'now')}</span><span class="status">${esc(statusLabel(state.status))}</span></div>`;
 
     const canDispatch = task?.status === 'ready' && state.currentOwner === task.owner;
-    setPrimaryAction(canDispatch ? 'Validate and Run Current Task →' : statusLabel(task?.providerStatus || task?.status || state.status), !canDispatch);
+    const canReset = task?.status === 'blocked' && state.currentOwner === task.owner;
+    setPrimaryAction(canDispatch ? 'Validate and Run Current Task →' : canReset ? 'Retry Current Task Safely →' : statusLabel(task?.providerStatus || task?.status || state.status), !(canDispatch || canReset));
   }
 
-  async function fetchJson(url) {
-    const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`${url} returned ${response.status}.`);
-    return response.json();
+  async function fetchJson(url, options) {
+    const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, { cache: 'no-store', ...options });
+    const text = await response.text();
+    let body = {};
+    try { body = text ? JSON.parse(text) : {}; } catch { body = { error: { message: text } }; }
+    if (!response.ok) throw new Error(body?.error?.message || `${url} returned ${response.status}.`);
+    return body;
   }
 
   async function loadLiveBuild() {
-    if (!isNaturalNationActive()) {
-      renderUnscoped();
-      return null;
-    }
-
+    if (!isNaturalNationActive()) { renderUnscoped(); return null; }
     try {
       const workspace = window.NNOSActiveWorkspace;
       const stateUrl = `${gatewayUrl}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(workspace.activePackageId)}/orchestration`;
-      const [pkg, registry, stateBody] = await Promise.all([
-        fetchJson(packagePath),
-        fetchJson(registryPath),
-        fetchJson(stateUrl)
-      ]);
-
-      if (pkg?.packageId !== workspace.activePackageId || pkg?.workspaceId !== workspace.id || pkg?.status !== 'ready') {
-        throw new Error('The canonical package does not match the active Natural Nation workspace.');
-      }
-      if (stateBody?.state?.workspaceId !== workspace.id || stateBody?.state?.packageId !== pkg.packageId) {
-        throw new Error('The Gateway returned orchestration state for a different workspace or package.');
-      }
-
+      const [pkg, registry, stateBody] = await Promise.all([fetchJson(packagePath), fetchJson(registryPath), fetchJson(stateUrl)]);
+      if (pkg?.packageId !== workspace.activePackageId || pkg?.workspaceId !== workspace.id || pkg?.status !== 'ready') throw new Error('The canonical package does not match the active Natural Nation workspace.');
+      if (stateBody?.state?.workspaceId !== workspace.id || stateBody?.state?.packageId !== pkg.packageId) throw new Error('The Gateway returned orchestration state for a different workspace or package.');
       renderLive(pkg, registry, stateBody.state);
       return stateBody.state;
     } catch (error) {
@@ -227,16 +211,37 @@
     await loadLiveBuild();
   }
 
+  async function resetCurrentTask() {
+    const task = currentTask();
+    if (!task || task.status !== 'blocked' || orchestrationState?.currentOwner !== task.owner) return;
+    const key = window.prompt('Enter your Founder Key to safely reset this blocked task.');
+    if (!key) return;
+    const workspace = window.NNOSActiveWorkspace;
+    const endpoint = `${gatewayUrl}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(orchestrationState.packageId)}/tasks/${encodeURIComponent(task.id)}/reset`;
+    window.NNOSProcessing?.update({ title: 'Resetting blocked task', message: 'Preserving completed work and returning only the current task to Ready.', stage: 'Recovery' });
+    try {
+      await fetchJson(endpoint, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ reason: task.blockedReason || 'Founder-authorized safe retry' })
+      });
+      await loadLiveBuild();
+      window.NNOSProcessing?.success({ title: 'Task ready to retry', message: 'Completed upstream work was preserved.', stage: 'Recovered' });
+    } catch (error) {
+      window.NNOSProcessing?.error({ title: 'Recovery failed', message: error.message, stage: 'Stopped' });
+      throw error;
+    }
+  }
+
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-action]');
     if (!button) return;
-
     if (button.dataset.action === 'generate') {
       event.preventDefault();
       event.stopImmediatePropagation();
-      runCurrentTask();
+      const task = currentTask();
+      if (task?.status === 'blocked') resetCurrentTask(); else runCurrentTask();
     }
-
     if (button.dataset.action === 'view-package') {
       event.preventDefault();
       window.open(githubPackageUrl, '_blank', 'noopener');
@@ -249,12 +254,6 @@
   });
   window.addEventListener('founder-os:canonical-blueprint-approved', loadLiveBuild);
 
-  window.NNOSCanonicalBuild = {
-    reload: loadLiveBuild,
-    runCurrentTask,
-    get package() { return canonicalPackage; },
-    get state() { return orchestrationState; }
-  };
-
+  window.NNOSCanonicalBuild = { reload: loadLiveBuild, runCurrentTask, resetCurrentTask, get package() { return canonicalPackage; }, get state() { return orchestrationState; } };
   renderUnscoped();
 })();
