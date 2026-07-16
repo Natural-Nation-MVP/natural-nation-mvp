@@ -2,11 +2,11 @@
   "stateVersion": "2.0.2",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "in-progress",
+  "status": "blocked",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T18:21:57.025Z",
+  "updatedAt": "2026-07-16T18:21:59.887Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -57,12 +57,12 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "working",
+      "status": "blocked",
       "requiredInput": "Review only PR #30 and these exact files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs.",
       "expectedOutput": "A schema-valid experience_review JSON object containing passes, issues, merge blockers, recommendation, and file-based evidence",
       "nextRole": "gpose",
-      "providerStatus": "delivered",
-      "blockedReason": null,
+      "providerStatus": "verification-failed",
+      "blockedReason": "Provider output must contain valid experience_review JSON: Unexpected token 'A', \"As Gemini,\"... is not valid JSON",
       "startedAt": "2026-07-16T18:21:41.651Z",
       "startedBy": "founder",
       "dispatchId": "AI-DISPATCH-A06F9DB4-6893-41A1-8B4F-95B277B11E22",
@@ -74,7 +74,8 @@
         "previousOutcome": "verification-failed",
         "reason": "The verifier incorrectly treated legitimate review findings containing words such as placeholder and incomplete as provider execution failure.",
         "requiredCorrection": "Structured contracts are now validated before generic narrative heuristics."
-      }
+      },
+      "verificationFailedAt": "2026-07-16T18:21:59.887Z"
     },
     {
       "id": "AI-TASK-004",
