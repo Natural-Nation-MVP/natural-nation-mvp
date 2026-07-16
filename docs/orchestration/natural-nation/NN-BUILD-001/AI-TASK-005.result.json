@@ -5,8 +5,8 @@
   "taskId": "AI-TASK-005",
   "decision": "request_changes",
   "note": "Send the five verified corrections back to Codex before Founder approval.",
-  "decidedAt": "2026-07-16T18:09:01.216Z",
+  "decidedAt": "2026-07-16T20:18:06.843Z",
   "decidedBy": "founder",
-  "pullRequestUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30",
+  "pullRequestUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/38",
   "sourceReviewTask": "AI-TASK-004"
 }
