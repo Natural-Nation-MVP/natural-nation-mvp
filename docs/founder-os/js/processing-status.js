@@ -7,27 +7,27 @@
     let root = document.querySelector('[data-processing-status]');
     if (root) return root;
 
-    root = document.createElement('section');
-    root.className = 'processing-status';
+    root = document.createElement('div');
+    root.className = 'processing-modal';
     root.dataset.processingStatus = 'idle';
     root.hidden = true;
-    root.setAttribute('role', 'status');
+    root.setAttribute('role', 'dialog');
+    root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-live', 'polite');
     root.innerHTML = `
-      <div class="processing-status__inner">
-        <div class="processing-status__copy">
-          <span class="processing-status__spinner" aria-hidden="true"></span>
+      <div class="processing-modal__backdrop"></div>
+      <section class="processing-modal__card" aria-labelledby="processing-modal-title">
+        <div class="processing-modal__header">
+          <span class="processing-modal__spinner" aria-hidden="true"></span>
           <div>
-            <strong data-processing-title>Processing</strong>
-            <span data-processing-message>Founder OS is working.</span>
+            <strong id="processing-modal-title" data-processing-title>Processing</strong>
+            <span data-processing-stage>Starting</span>
           </div>
+          <span class="processing-modal__elapsed" data-processing-elapsed>0s</span>
         </div>
-        <div class="processing-status__meta">
-          <span data-processing-stage>Starting</span>
-          <span data-processing-elapsed>0s</span>
-        </div>
-      </div>
-      <div class="processing-status__track" aria-hidden="true"><span></span></div>`;
+        <p data-processing-message>Founder OS is working.</p>
+        <div class="processing-modal__track" aria-hidden="true"><span></span></div>
+      </section>`;
     document.body.appendChild(root);
     return root;
   }
@@ -37,35 +37,33 @@
     const style = document.createElement('style');
     style.dataset.processingStatusStyles = 'true';
     style.textContent = `
-      .processing-status{position:fixed;z-index:10000;top:0;left:0;right:0;background:#102c18;color:#fff;box-shadow:0 8px 26px rgba(7,25,12,.24);font-family:inherit}
-      .processing-status[hidden]{display:none!important}
-      .processing-status__inner{min-height:58px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:18px;max-width:1600px;margin:0 auto}
-      .processing-status__copy{display:flex;align-items:center;gap:12px;min-width:0}
-      .processing-status__copy div{display:grid;gap:2px;min-width:0}
-      .processing-status__copy strong{font-size:14px;line-height:1.2}
-      .processing-status__copy span:not(.processing-status__spinner){font-size:12px;line-height:1.3;color:rgba(255,255,255,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .processing-status__spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;animation:nnos-spin .85s linear infinite;flex:0 0 auto}
-      .processing-status__meta{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:800;color:rgba(255,255,255,.78);white-space:nowrap}
-      .processing-status__track{height:4px;background:rgba(255,255,255,.15);overflow:hidden}
-      .processing-status__track span{display:block;width:34%;height:100%;background:#a8d99c;animation:nnos-progress 1.45s ease-in-out infinite}
-      .processing-status[data-processing-status="success"]{background:#174f25}
-      .processing-status[data-processing-status="error"]{background:#7a211d}
-      .processing-status[data-processing-status="success"] .processing-status__spinner,.processing-status[data-processing-status="error"] .processing-status__spinner{animation:none;border-color:#fff}
-      body.processing-active{padding-top:62px}
-      button[aria-busy="true"]{cursor:progress;opacity:.78}
+      .processing-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px;font-family:inherit}
+      .processing-modal[hidden]{display:none!important}
+      .processing-modal__backdrop{position:absolute;inset:0;background:rgba(8,24,13,.42);backdrop-filter:blur(2px)}
+      .processing-modal__card{position:relative;width:min(460px,calc(100vw - 32px));background:#fffdf7;color:#142119;border:1px solid rgba(38,91,47,.22);border-radius:14px;box-shadow:0 24px 70px rgba(8,30,14,.28);padding:20px;display:grid;gap:14px}
+      .processing-modal__header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+      .processing-modal__header div{display:grid;gap:2px}
+      .processing-modal__header strong{font-size:17px;line-height:1.2}
+      .processing-modal__header div span,.processing-modal__elapsed{font-size:11px;font-weight:800;color:#617065}
+      .processing-modal__card p{margin:0;color:#4b5a4e;font-size:14px;line-height:1.5}
+      .processing-modal__spinner{width:22px;height:22px;border:3px solid rgba(31,102,43,.2);border-top-color:#1d6b2e;border-radius:50%;animation:nnos-spin .85s linear infinite}
+      .processing-modal__track{height:5px;border-radius:999px;background:rgba(34,105,47,.12);overflow:hidden}
+      .processing-modal__track span{display:block;width:35%;height:100%;background:#3b8d49;animation:nnos-progress 1.4s ease-in-out infinite}
+      .processing-modal[data-processing-status="success"] .processing-modal__card{border-color:rgba(38,122,55,.35)}
+      .processing-modal[data-processing-status="error"] .processing-modal__card{border-color:rgba(150,47,40,.4)}
+      .processing-modal[data-processing-status="success"] .processing-modal__spinner,.processing-modal[data-processing-status="error"] .processing-modal__spinner{animation:none}
+      body.processing-active{overflow:hidden}
+      button[aria-busy="true"]{cursor:progress;opacity:.72}
       @keyframes nnos-spin{to{transform:rotate(360deg)}}
       @keyframes nnos-progress{0%{transform:translateX(-110%)}50%{transform:translateX(190%)}100%{transform:translateX(430%)}}
-      @media(max-width:700px){.processing-status__inner{align-items:flex-start;padding:9px 12px}.processing-status__meta{display:none}.processing-status__copy span:not(.processing-status__spinner){white-space:normal}.processing-status__spinner{margin-top:2px}}
-      @media(prefers-reduced-motion:reduce){.processing-status__spinner,.processing-status__track span{animation-duration:2.8s}}
+      @media(prefers-reduced-motion:reduce){.processing-modal__spinner,.processing-modal__track span{animation-duration:2.8s}}
     `;
     document.head.appendChild(style);
   }
 
   function elapsedLabel() {
     const seconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ${seconds % 60}s`;
+    return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
   }
 
   function render({ state = 'running', title, message, stage }) {
@@ -73,14 +71,10 @@
     const root = ensureUi();
     root.hidden = false;
     root.dataset.processingStatus = state;
-    const titleNode = root.querySelector('[data-processing-title]');
-    const messageNode = root.querySelector('[data-processing-message]');
-    const stageNode = root.querySelector('[data-processing-stage]');
-    const elapsedNode = root.querySelector('[data-processing-elapsed]');
-    if (titleNode && title) titleNode.textContent = title;
-    if (messageNode && message) messageNode.textContent = message;
-    if (stageNode && stage) stageNode.textContent = stage;
-    if (elapsedNode) elapsedNode.textContent = elapsedLabel();
+    root.querySelector('[data-processing-title]').textContent = title || 'Processing request';
+    root.querySelector('[data-processing-message]').textContent = message || 'Founder OS is working.';
+    root.querySelector('[data-processing-stage]').textContent = stage || 'Processing';
+    root.querySelector('[data-processing-elapsed]').textContent = elapsedLabel();
     document.body.classList.add('processing-active');
   }
 
@@ -88,42 +82,31 @@
     clearTimeout(active?.hideTimer);
     startedAt = Date.now();
     active = { ...options };
-    render({
-      state: 'running',
-      title: options.title || 'Processing request',
-      message: options.message || 'Founder OS is preparing the operation.',
-      stage: options.stage || 'Starting'
-    });
+    render({ state: 'running', title: options.title, message: options.message, stage: options.stage });
     clearInterval(timer);
     timer = window.setInterval(() => {
-      const elapsedNode = document.querySelector('[data-processing-elapsed]');
-      if (elapsedNode) elapsedNode.textContent = elapsedLabel();
+      const node = document.querySelector('[data-processing-elapsed]');
+      if (node) node.textContent = elapsedLabel();
     }, 1000);
   }
 
   function update(options = {}) {
-    if (!active) start(options);
+    if (!active) return start(options);
     active = { ...active, ...options };
-    render({
-      state: 'running',
-      title: active.title || 'Processing request',
-      message: active.message || 'Founder OS is working.',
-      stage: active.stage || 'Processing'
-    });
+    render({ state: 'running', title: active.title, message: active.message, stage: active.stage });
   }
 
   function finish(state, options = {}) {
     clearInterval(timer);
     timer = null;
-    active = { ...active, ...options };
     render({
       state,
       title: options.title || (state === 'success' ? 'Completed' : 'Needs attention'),
       message: options.message || (state === 'success' ? 'The operation completed successfully.' : 'The operation could not be completed.'),
       stage: options.stage || (state === 'success' ? 'Complete' : 'Stopped')
     });
-    const delay = Number.isFinite(options.hideAfter) ? options.hideAfter : (state === 'success' ? 4200 : 8000);
-    active.hideTimer = window.setTimeout(hide, delay);
+    const delay = Number.isFinite(options.hideAfter) ? options.hideAfter : (state === 'success' ? 2200 : 5000);
+    active = { ...active, ...options, hideTimer: window.setTimeout(hide, delay) };
   }
 
   function hide() {
