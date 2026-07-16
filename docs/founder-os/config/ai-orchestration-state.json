@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T02:57:41.418Z",
+  "updatedAt": "2026-07-16T03:23:08.488Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -58,10 +58,14 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Working preview and acceptance criteria",
       "expectedOutput": "Usability and responsive design findings",
-      "nextRole": "gpose"
+      "nextRole": "gpose",
+      "startedAt": "2026-07-16T03:23:08.488Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-7BE9F888-1CF2-4448-8CBD-5555FF731F78",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-004",

@@ -1,0 +1,15 @@
+{
+  "dispatchVersion": "1.3.0",
+  "dispatchId": "AI-DISPATCH-7BE9F888-1CF2-4448-8CBD-5555FF731F78",
+  "workspaceId": "natural-nation",
+  "packageId": "NN-BUILD-001",
+  "taskId": "AI-TASK-003",
+  "agentId": "gemini",
+  "status": "dispatching",
+  "requestedBy": "founder",
+  "requestedAt": "2026-07-16T03:23:08.488Z",
+  "requiredInput": "Working preview and acceptance criteria",
+  "expectedOutput": "Usability and responsive design findings",
+  "nextRole": "gpose",
+  "provider": "google"
+}
