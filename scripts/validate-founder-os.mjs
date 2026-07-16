@@ -9,7 +9,7 @@ const [
   html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
   orchestrationUi, discoveryUi, blueprintUi, knowledgeUi, uxCompletion, uxStyles, agentRegistry,
   orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters, structuredLog,
-  gatewayAuth, gatewayHttp, resilienceAudit
+  gatewayAuth, gatewayHttp, resilienceAudit, resultVerification
 ] = await Promise.all([
   read('docs/founder-os/index.html'),
   json('docs/founder-os/config/workspace-registry.json'),
@@ -34,7 +34,8 @@ const [
   read('services/founder-os-gateway/src/lib/structured-log.js'),
   read('services/founder-os-gateway/src/lib/auth.js'),
   read('services/founder-os-gateway/src/lib/http.js'),
-  read('docs/founder-os/reports/FOUNDER-OS-RESILIENCE-AUDIT-2026-07-16.md')
+  read('docs/founder-os/reports/FOUNDER-OS-RESILIENCE-AUDIT-2026-07-16.md'),
+  read('services/founder-os-gateway/src/lib/result-verification.js')
 ]);
 
 const scriptSources = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
@@ -68,7 +69,7 @@ assert(discoveryUi.includes('Open Approved Plan') && discoveryUi.includes('live 
 assert(blueprintUi.includes('natural-nation-blueprint.json') && blueprintUi.includes('approvalTransactionId'), 'Approved Plan must verify canonical Founder approval.');
 assert(knowledgeUi.includes('activeWorkspaceId') && knowledgeUi.includes('scopedKnowledge'), 'Product Records must remain workspace-scoped.');
 
-for (const source of ['processing-status.js?v=processing-v2', 'canonical-build-studio.js?v=processing-v2', 'ai-orchestration.js?v=processing-v2', 'build-dispatch-bridge.js?v=processing-v2']) assert(moduleLoader.includes(source), `Current execution module must be cache-busted: ${source}`);
+for (const source of ['processing-status.js?v=processing-v3', 'canonical-build-studio.js?v=processing-v3', 'ai-orchestration.js?v=processing-v3', 'build-dispatch-bridge.js?v=processing-v3']) assert(moduleLoader.includes(source), `Current execution module must be cache-busted: ${source}`);
 assert(!moduleLoader.includes('ai-operations.js'), 'The old browser-local AI operations runtime must not load.');
 
 assert(processingStatus.includes('window.NNOSProcessing'), 'Founder OS must expose a shared processing status API.');
@@ -78,12 +79,13 @@ assert(dispatchBridge.includes("['complete', 'blocked']"), 'Only terminal canoni
 assert(dispatchBridge.includes('Verifying provider result'), 'Delivered provider output must remain in verification monitoring.');
 assert(dispatchBridge.includes('Monitoring window ended'), 'Long-running tasks must produce an actionable non-terminal recovery message.');
 assert(!dispatchBridge.includes('Provider response received'), 'Delivery alone must never be presented as successful completion.');
-assert(orchestrationUi.includes('data-reset-ai-task') && orchestrationUi.includes('/reset'), 'Blocked current tasks must expose protected safe retry.');
+assert(orchestrationUi.includes('data-reset-ai-task') && orchestrationUi.includes('/reset'), 'Blocked AI Team tasks must expose protected safe retry.');
 assert(orchestrationUi.includes('Completed upstream work and failure history will be preserved'), 'Reset confirmation must explain preservation guarantees.');
 
 assert(canonicalBuild.includes('/orchestration') && canonicalBuild.includes('currentTask'), 'Build Work must derive the current task from Gateway state.');
 assert(canonicalBuild.includes('Validate and Run Current Task'), 'Build Work must expose protected dispatch.');
 assert(canonicalBuild.includes('NNOSAIOrchestration.dispatchTask'), 'Build Work must use the shared orchestration controller.');
+assert(canonicalBuild.includes('Retry Current Task Safely') && canonicalBuild.includes('resetCurrentTask') && canonicalBuild.includes('/reset'), 'Build Work must expose a real protected recovery action.');
 assert(canonicalBuild.includes('View Canonical Package'), 'The canonical package must remain available as a secondary action.');
 
 const agentIds = new Set(agentRegistry.agents.map((agent) => agent.id));
@@ -110,6 +112,7 @@ assert(gatewayRoute.includes('resetTask') && gatewayRoute.includes('retryAllowed
 assert(gatewayTransaction.includes('commitFilesAtomically') && gatewayTransaction.includes('validateDispatchEligibility'), 'Dispatch must use canonical transactions and eligibility checks.');
 assert(gatewayTransaction.includes('providerStatus !== "delivered"') && gatewayTransaction.includes('result.dispatchId !== task.dispatchId'), 'Completion must verify provider delivery and dispatch identity.');
 assert(gatewayTransaction.includes('deliverToProvider') && gatewayTransaction.includes('completedResult'), 'Direct provider delivery must enter verified completion handling.');
+assert(resultVerification.includes('structuredCandidates') && resultVerification.includes('founder_review'), 'Structured verification must recover JSON contracts from provider wrappers.');
 
 for (const requirement of ['PROVIDER_REGISTRY', 'FAILOVER_CATEGORIES', 'providerOrder', 'fallbackUsed', 'attempts', 'QUOTA_EXCEEDED', 'AUTHENTICATION_FAILED', 'OPENAI_API_KEY', 'GOOGLE_AI_API_KEY', 'api.openai.com/v1/responses', 'generativelanguage.googleapis.com', 'synchronous: true', 'delivery-failed']) assert(providerAdapters.includes(requirement), `Provider adapter requirement is missing: ${requirement}`);
 assert(structuredLog.includes('console.log(JSON.stringify') && structuredLog.includes('sanitize') && structuredLog.includes('[REDACTED]'), 'Structured logging must remain JSON and sanitized.');
