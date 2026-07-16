@@ -1,121 +1,15 @@
 {
-  "dispatchVersion": "1.5.0",
-  "dispatchId": "AI-DISPATCH-48D026E0-993C-4BFA-B17B-1C90C5257AF1",
+  "dispatchVersion": "1.6.0",
+  "dispatchId": "AI-DISPATCH-16EBAF8E-401C-4A73-9349-547F4803111E",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-004",
   "agentId": "gpose",
-  "status": "delivered",
+  "status": "dispatching",
   "requestedBy": "founder",
-  "requestedAt": "2026-07-16T17:48:03.703Z",
-  "requiredInput": "VERIFIED IMPLEMENTATION: PR #30 created five files under app/frontend: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. GEMINI VERIFIED REVIEW: passes include semantic dashboard structure and responsive breakpoints. Required changes before merge: add persistent state, replace browser alerts with in-UI feedback, add keyboard focus-visible styling, remove possible duplicate click listeners, and replace the external placeholder Duey image. Recommendation: changes_required. Prepare the Founder decision package from this evidence. Return ONLY one valid JSON object with no introduction and no markdown fence: {\"type\":\"founder_review\",\"decision\":\"request_changes\",\"comments\":[\"what was built and what passed\"],\"risks\":[\"remaining merge blockers\"],\"nextAction\":\"Send the five verified corrections back to Codex before Founder approval.\"}",
-  "expectedOutput": "A schema-valid founder_review JSON object with decision, comments, risks, and nextAction",
+  "requestedAt": "2026-07-16T20:12:31.066Z",
+  "requiredInput": "Use the verified PR #38 implementation evidence and the next grounded Gemini review. Return only the provider-native founder_review contract.",
+  "expectedOutput": "A provider-native founder_review JSON object with exact fields: type, decision, comments, risks, and nextAction.",
   "nextRole": "founder",
-  "provider": "openai",
-  "delivery": {
-    "provider": "google",
-    "assignedRole": {
-      "id": "gpose",
-      "name": "GPose",
-      "role": "Strategy and Documentation",
-      "purpose": "Maintains prompts, summaries, operating guidance, and release communication.",
-      "allowedActions": [
-        "prepare-prompt",
-        "update-documentation",
-        "summarize"
-      ],
-      "requiresFounderApprovalFor": [
-        "governance-lock"
-      ]
-    },
-    "preferredProvider": "openai",
-    "executingProvider": "google",
-    "status": "delivered",
-    "delivered": true,
-    "synchronous": true,
-    "fallbackUsed": true,
-    "temporaryRoleAssumption": true,
-    "roleRelinquishedAfterCompletion": true,
-    "fallbackReason": "BILLING_NOT_ENABLED",
-    "attempts": [
-      {
-        "provider": "openai",
-        "assignedRole": "gpose",
-        "temporaryRoleAssumption": false,
-        "status": "failed",
-        "errorCategory": "BILLING_NOT_ENABLED",
-        "errorCode": "insufficient_quota",
-        "httpStatus": 429,
-        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-      },
-      {
-        "provider": "google",
-        "assignedRole": "gpose",
-        "temporaryRoleAssumption": true,
-        "status": "completed",
-        "model": "gemini-2.5-flash"
-      }
-    ],
-    "completedResult": {
-      "dispatchId": "AI-DISPATCH-48D026E0-993C-4BFA-B17B-1C90C5257AF1",
-      "summary": "{\"type\":\"founder_review\",\"decision\":\"request_changes\",\"comments\":[\"PR #30 created five foundational frontend files (index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs) under app/frontend. The Gemini review confirms a semantic dashboard structure and responsive breakpoints have been successfully implemented.\"],\"risks\":[\"Persistent state needs to be added, browser alerts must be replaced with in-UI feedback, keyboard focus-visible styling is required, possible duplicate click listeners should be removed, and the external placeholder Duey image must be replaced.\"],\"nextAction\":\"Send the five verified corrections back to Codex before Founder approval.\"}",
-      "provider": "google",
-      "model": "gemini-2.5-flash",
-      "usage": {
-        "promptTokenCount": 405,
-        "candidatesTokenCount": 138,
-        "totalTokenCount": 1205,
-        "promptTokensDetails": [
-          {
-            "modality": "TEXT",
-            "tokenCount": 405
-          }
-        ],
-        "thoughtsTokenCount": 662,
-        "serviceTier": "standard"
-      },
-      "routing": {
-        "assignedRole": {
-          "id": "gpose",
-          "name": "GPose",
-          "role": "Strategy and Documentation",
-          "purpose": "Maintains prompts, summaries, operating guidance, and release communication.",
-          "allowedActions": [
-            "prepare-prompt",
-            "update-documentation",
-            "summarize"
-          ],
-          "requiresFounderApprovalFor": [
-            "governance-lock"
-          ]
-        },
-        "preferredProvider": "openai",
-        "executingProvider": "google",
-        "fallbackUsed": true,
-        "temporaryRoleAssumption": true,
-        "roleRelinquishedAfterCompletion": true,
-        "attempts": [
-          {
-            "provider": "openai",
-            "assignedRole": "gpose",
-            "temporaryRoleAssumption": false,
-            "status": "failed",
-            "errorCategory": "BILLING_NOT_ENABLED",
-            "errorCode": "insufficient_quota",
-            "httpStatus": 429,
-            "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-          },
-          {
-            "provider": "google",
-            "assignedRole": "gpose",
-            "temporaryRoleAssumption": true,
-            "status": "completed",
-            "model": "gemini-2.5-flash"
-          }
-        ]
-      }
-    },
-    "deliveredAt": "2026-07-16T17:48:11.695Z"
-  },
-  "executionConfirmed": true
+  "provider": "openai"
 }
