@@ -21,14 +21,14 @@ function updateBottomActionBar() {
 }
 
 function loadExecutionModules() {
-  loadScriptOnce('./js/processing-status.js?v=processing-v1', 'data-processing-status-loader');
-  loadScriptOnce('./js/canonical-build-studio.js?v=processing-v1', 'data-canonical-build-loader');
+  loadScriptOnce('./js/processing-status.js?v=modal-processing-v2', 'data-processing-status-loader');
+  loadScriptOnce('./js/canonical-build-studio.js?v=modal-processing-v2', 'data-canonical-build-loader');
   loadScriptOnce('./js/founder-actions.js?v=r3-actions-1', 'data-founder-actions-loader');
   loadScriptOnce('./js/knowledge-engine.js?v=kb-wave-5', 'data-knowledge-engine-loader');
   loadScriptOnce('./js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
   loadScriptOnce('./js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
-  loadScriptOnce('./js/ai-orchestration.js?v=processing-v1', 'data-ai-orchestration-loader');
-  loadScriptOnce('./js/build-dispatch-bridge.js?v=processing-v1', 'data-build-dispatch-bridge-loader');
+  loadScriptOnce('./js/ai-orchestration.js?v=modal-processing-v2', 'data-ai-orchestration-loader');
+  loadScriptOnce('./js/build-dispatch-bridge.js?v=modal-processing-v2', 'data-build-dispatch-bridge-loader');
   loadScriptOnce('./js/natural-nation-final-pass.js?v=workspace-review-1', 'data-natural-nation-final-pass-loader');
 }
 
