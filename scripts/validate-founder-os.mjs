@@ -28,6 +28,7 @@ const files = await Promise.all([
   read('services/founder-os-gateway/src/lib/ai-orchestration.js'),
   read('services/founder-os-gateway/src/lib/ai-provider-adapters.js'),
   read('services/founder-os-gateway/src/lib/provider-contracts.js'),
+  read('services/founder-os-gateway/src/lib/github.js'),
   read('services/founder-os-gateway/src/lib/structured-log.js'),
   read('services/founder-os-gateway/src/lib/auth.js'),
   read('services/founder-os-gateway/src/lib/http.js'),
@@ -38,7 +39,7 @@ const files = await Promise.all([
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
   orchestrationUi, discoveryUi, blueprintUi, knowledgeUi, uxCompletion, uxStyles, founderReviewStyles,
   agentRegistry, orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters,
-  providerContracts, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification] = files;
+  providerContracts, githubLibrary, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification] = files;
 
 const scripts = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scripts).size, scripts.length, 'Each runtime script must load once.');
@@ -82,6 +83,13 @@ assert(gatewayRoute.includes('resetTask') && gatewayRoute.includes('retryAllowed
 assert(gatewayRoute.includes('recordFounderDecision') && gatewayRoute.includes('FOUNDER_DECISION_REJECTED'));
 assert(gatewayTransaction.includes('commitFilesAtomically') && gatewayTransaction.includes('validateDispatchEligibility'));
 assert(gatewayTransaction.includes('deliverToProvider') && gatewayTransaction.includes('completedResult'));
+assert(gatewayTransaction.includes('recordSynchronousOutcome'));
+assert(gatewayTransaction.includes('enrichDispatchWithEvidence'));
+assert(gatewayTransaction.includes('one canonical completion transaction'));
+assert(!gatewayTransaction.includes('const deliveryRepository = await commitFilesAtomically(env, {\n    message: `orchestration: record ${taskId} provider delivery status`') || gatewayTransaction.indexOf('if (delivery.synchronous === true') < gatewayTransaction.indexOf('const deliveryRepository = await commitFilesAtomically'));
+assert(githubLibrary.includes('readPullRequestReviewEvidence'));
+assert(githubLibrary.includes('patch: file.patch'));
+assert(githubLibrary.includes('No reviewable evidence was found'));
 
 for (const contract of ['repository_execution_plan', 'experience_review', 'founder_review']) assert(providerContracts.includes(contract), `Missing provider contract: ${contract}`);
 for (const field of ['mergeBlockers', 'recommendation', 'evidence', 'nextAction']) assert(providerContracts.includes(field), `Missing structured field: ${field}`);
