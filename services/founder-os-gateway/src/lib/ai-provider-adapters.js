@@ -71,10 +71,18 @@ function buildProviderPrompt(agent, dispatch, { executingProvider, temporaryRole
   ].join("\n");
 }
 
-function repositoryPlanSchema() {
-  return {
+function repositoryPlanSchema({ strict = false } = {}) {
+  const fileSchema = {
     type: "object",
-    additionalProperties: false,
+    required: ["path", "content"],
+    properties: {
+      path: { type: "string", minLength: 1 },
+      content: { type: "string", minLength: 1 }
+    }
+  };
+
+  const schema = {
+    type: "object",
     required: ["title", "summary", "files"],
     properties: {
       title: { type: "string", minLength: 1 },
@@ -82,18 +90,17 @@ function repositoryPlanSchema() {
       files: {
         type: "array",
         minItems: 1,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["path", "content"],
-          properties: {
-            path: { type: "string", minLength: 1 },
-            content: { type: "string", minLength: 1 }
-          }
-        }
+        items: fileSchema
       }
     }
   };
+
+  if (strict) {
+    schema.additionalProperties = false;
+    fileSchema.additionalProperties = false;
+  }
+
+  return schema;
 }
 
 function structuredOutputRequested(dispatch) {
@@ -210,7 +217,7 @@ async function callOpenAI(env, prompt, dispatch) {
           type: "json_schema",
           name: "repository_execution_plan",
           strict: true,
-          schema: repositoryPlanSchema()
+          schema: repositoryPlanSchema({ strict: true })
         }
       }
     : undefined;

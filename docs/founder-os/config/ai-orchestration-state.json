@@ -1,12 +1,12 @@
 {
-  "stateVersion": "1.2.2",
+  "stateVersion": "1.2.3",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "blocked",
+  "status": "ready",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T05:28:59.165Z",
+  "updatedAt": "2026-07-16T05:40:00.000Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,21 +33,18 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "blocked",
+      "status": "ready",
       "requiredInput": "CANONICAL EXECUTION CONTRACT — Repository: Natural-Nation-MVP/natural-nation-mvp. Package NN-BUILD-001 objective: implement the Founder-approved Natural Nation Blueprint. Approved product: a mobile-first holistic wellness platform with a public brand website and Duey, a non-medical AI wellness mentor. Phase 1 requires onboarding, personalized blueprint, Day 1 dashboard, Daily Protocol Timeline, Wellness Score, Rejuvenation Score, progress tracking, Duey guidance, guest-first identity, and account upgrade without data loss. Billing is excluded from MVP. For this first implementation slice, create a testable member-facing static web foundation under app/frontend/ only: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. The page must present a responsive Day 1 dashboard preview with Duey identified as an AI wellness mentor, Wellness and Rejuvenation scores, a time-based protocol list, progress check-in controls, non-medical language, and mobile/tablet/desktop responsive behavior. The validation script must inspect the files and fail when the required experience elements are absent. Do not modify architecture decisions, secrets, Cloudflare configuration, GitHub workflows, or Founder OS. The provider response is constrained by the Gateway's repository_execution_plan JSON schema. Do not add markdown fences or narrative text outside that schema. Do not claim a pull request already exists; the protected repository adapter will create the real branch, commit, and pull request from the validated plan.",
       "expectedOutput": "A schema-valid repository execution plan that creates the five approved app/frontend files; the Gateway must convert it into a real GitHub pull request and record changed-file plus validation evidence",
       "nextRole": "gemini",
-      "providerStatus": "delivery-failed",
-      "blockedReason": "Invalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema': Cannot find field.\nInvalid JSON payload received. Unknown name \"additionalProperties\" at 'generation_config.response_schema.properties[2].value.items': Cannot find field.",
+      "providerStatus": "ready",
+      "blockedReason": null,
       "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-D96B3814-F657-4792-81D3-3D164F3A9855",
-        "previousOutcome": "invalid-json",
-        "reason": "The fallback provider returned a fenced repository plan that was intended as JSON but was syntactically invalid.",
-        "requiredCorrection": "Use provider-native structured output with a strict repository plan schema before protected GitHub execution."
-      },
-      "startedAt": "2026-07-16T05:28:56.487Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-15D5E248-B0EF-4707-9709-DE104C629786"
+        "previousDispatchId": "AI-DISPATCH-15D5E248-B0EF-4707-9709-DE104C629786",
+        "previousOutcome": "provider-schema-rejected",
+        "reason": "OpenAI could not execute because billing quota was unavailable, and Google rejected unsupported additionalProperties fields in the response schema.",
+        "requiredCorrection": "Use the Google-compatible response schema for fallback while preserving strict additionalProperties enforcement for OpenAI."
+      }
     },
     {
       "id": "AI-TASK-003",
