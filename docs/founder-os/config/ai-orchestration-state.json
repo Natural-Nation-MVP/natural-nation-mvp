@@ -2,11 +2,11 @@
   "stateVersion": "1.2.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "codex",
   "nextOwner": "gemini",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T04:05:00.000Z",
+  "updatedAt": "2026-07-16T04:09:53.681Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -33,18 +33,21 @@
       "packageId": "NN-BUILD-001",
       "title": "Implement the approved package",
       "owner": "codex",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "CANONICAL EXECUTION CONTRACT — Repository: Natural-Nation-MVP/natural-nation-mvp. Package NN-BUILD-001 objective: implement the Founder-approved Natural Nation Blueprint. Approved product: a mobile-first holistic wellness platform with a public brand website and Duey, a non-medical AI wellness mentor. Phase 1 requires onboarding, personalized blueprint, Day 1 dashboard, Daily Protocol Timeline, Wellness Score, Rejuvenation Score, progress tracking, Duey guidance, guest-first identity, and account upgrade without data loss. Billing is excluded from MVP. For this first implementation slice, create a testable member-facing static web foundation under app/frontend/ only: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. The page must present a responsive Day 1 dashboard preview with Duey identified as an AI wellness mentor, Wellness and Rejuvenation scores, a time-based protocol list, progress check-in controls, non-medical language, and mobile/tablet/desktop responsive behavior. The validation script must inspect the files and fail when the required experience elements are absent. Do not modify architecture decisions, secrets, Cloudflare configuration, GitHub workflows, or Founder OS. Return ONLY valid JSON with this exact shape and no markdown fences: {\"title\":\"Implement Natural Nation Day 1 member foundation\",\"summary\":\"Plain-English implementation summary\",\"files\":[{\"path\":\"app/frontend/index.html\",\"content\":\"complete UTF-8 file content\"},{\"path\":\"app/frontend/styles.css\",\"content\":\"complete UTF-8 file content\"},{\"path\":\"app/frontend/app.js\",\"content\":\"complete UTF-8 file content\"},{\"path\":\"app/frontend/README.md\",\"content\":\"complete UTF-8 file content\"},{\"path\":\"app/frontend/tests/validate-foundation.mjs\",\"content\":\"complete UTF-8 file content\"}]}. Do not claim a pull request already exists; the protected repository adapter will create the real branch, commit, and pull request from your JSON plan.",
       "expectedOutput": "A protected repository-execution plan that creates the five approved app/frontend files; the Gateway must convert it into a real GitHub pull request and record changed-file plus validation evidence",
       "nextRole": "gemini",
-      "providerStatus": "ready",
+      "providerStatus": "dispatching",
       "blockedReason": null,
       "retryContext": {
         "previousDispatchId": "AI-DISPATCH-D5CC11E2-F0ED-4F84-9686-451728C83F96",
         "previousOutcome": "verification-failed",
         "reason": "Codex previously received labels instead of the canonical implementation contract and requested missing input.",
         "requiredCorrection": "Use the embedded canonical contract, return the exact JSON file plan, and let the protected Gateway create the real pull request."
-      }
+      },
+      "startedAt": "2026-07-16T04:09:53.681Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-4F867E56-4A8C-4BF7-9231-78DD1B6D4262"
     },
     {
       "id": "AI-TASK-003",
