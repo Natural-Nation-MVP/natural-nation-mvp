@@ -2,11 +2,11 @@
   "stateVersion": "2.0.1",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "gpose",
   "nextOwner": "founder",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T16:40:00.000Z",
+  "updatedAt": "2026-07-16T17:05:27.471Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -77,10 +77,14 @@
       "packageId": "NN-BUILD-001",
       "title": "Prepare the Founder review",
       "owner": "gpose",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Verified PR #30 implementation evidence and the schema-valid Gemini experience_review result. Return ONLY valid JSON: {\"type\":\"founder_review\",\"decision\":\"approve|request_changes|reject\",\"comments\":[\"what changed and what passed\"],\"risks\":[\"remaining risk\"],\"nextAction\":\"exact Founder action required\"}.",
       "expectedOutput": "A schema-valid founder_review JSON object with decision, comments, risks, and nextAction",
-      "nextRole": "founder"
+      "nextRole": "founder",
+      "startedAt": "2026-07-16T17:05:27.471Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-8A6B0E33-22F6-4E92-B9E6-C44919C4B0AA",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-005",
