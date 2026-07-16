@@ -2,11 +2,11 @@
   "stateVersion": "1.0.0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "ready",
+  "status": "dispatching",
   "currentOwner": "gpose",
   "nextOwner": "founder",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T03:23:13.951Z",
+  "updatedAt": "2026-07-16T03:24:46.632Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -77,10 +77,14 @@
       "packageId": "NN-BUILD-001",
       "title": "Prepare the Founder review",
       "owner": "gpose",
-      "status": "ready",
+      "status": "working",
       "requiredInput": "Implementation results and review findings",
       "expectedOutput": "Plain-English summary of what changed, what passed, and what needs approval",
-      "nextRole": "founder"
+      "nextRole": "founder",
+      "startedAt": "2026-07-16T03:24:46.632Z",
+      "startedBy": "founder",
+      "dispatchId": "AI-DISPATCH-12BDC4C5-DB89-4FF1-BEB6-B399FF9065D7",
+      "providerStatus": "dispatching"
     },
     {
       "id": "AI-TASK-005",
