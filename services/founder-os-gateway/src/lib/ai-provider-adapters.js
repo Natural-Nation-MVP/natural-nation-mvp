@@ -65,8 +65,39 @@ function buildProviderPrompt(agent, dispatch, { executingProvider, temporaryRole
     "",
     `Next role: ${dispatch.nextRole || "founder"}`,
     "",
-    "Return a clear, complete result suitable for recording in the canonical repository."
+    dispatch.taskId === "AI-TASK-002"
+      ? "Return only the repository plan object required by the structured output schema. Do not add markdown fences, commentary, or explanatory text."
+      : "Return a clear, complete result suitable for recording in the canonical repository."
   ].join("\n");
+}
+
+function repositoryPlanSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["title", "summary", "files"],
+    properties: {
+      title: { type: "string", minLength: 1 },
+      summary: { type: "string", minLength: 1 },
+      files: {
+        type: "array",
+        minItems: 1,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["path", "content"],
+          properties: {
+            path: { type: "string", minLength: 1 },
+            content: { type: "string", minLength: 1 }
+          }
+        }
+      }
+    }
+  };
+}
+
+function structuredOutputRequested(dispatch) {
+  return dispatch?.taskId === "AI-TASK-002";
 }
 
 async function readProviderResponse(response) {
@@ -108,13 +139,20 @@ function classifyProviderError(providerId, response, data) {
   return new ProviderExecutionError(message, { category: "PROVIDER_UNAVAILABLE", code, httpStatus: response.status });
 }
 
-async function callGoogleAI(env, prompt) {
+async function callGoogleAI(env, prompt, dispatch) {
   if (!env.GOOGLE_AI_API_KEY) {
     throw new ProviderExecutionError("GOOGLE_AI_API_KEY is not configured.", {
       category: "PROVIDER_UNAVAILABLE",
       code: "MISSING_SECRET"
     });
   }
+
+  const generationConfig = structuredOutputRequested(dispatch)
+    ? {
+        responseMimeType: "application/json",
+        responseSchema: repositoryPlanSchema()
+      }
+    : undefined;
 
   let response;
   try {
@@ -127,7 +165,8 @@ async function callGoogleAI(env, prompt) {
           "content-type": "application/json"
         },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }]
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          ...(generationConfig ? { generationConfig } : {})
         })
       }
     );
@@ -157,13 +196,24 @@ async function callGoogleAI(env, prompt) {
   };
 }
 
-async function callOpenAI(env, prompt) {
+async function callOpenAI(env, prompt, dispatch) {
   if (!env.OPENAI_API_KEY) {
     throw new ProviderExecutionError("OPENAI_API_KEY is not configured.", {
       category: "PROVIDER_UNAVAILABLE",
       code: "MISSING_SECRET"
     });
   }
+
+  const text = structuredOutputRequested(dispatch)
+    ? {
+        format: {
+          type: "json_schema",
+          name: "repository_execution_plan",
+          strict: true,
+          schema: repositoryPlanSchema()
+        }
+      }
+    : undefined;
 
   let response;
   try {
@@ -173,7 +223,11 @@ async function callOpenAI(env, prompt) {
         authorization: `Bearer ${env.OPENAI_API_KEY}`,
         "content-type": "application/json"
       },
-      body: JSON.stringify({ model: "gpt-5", input: prompt })
+      body: JSON.stringify({
+        model: "gpt-5",
+        input: prompt,
+        ...(text ? { text } : {})
+      })
     });
   } catch (error) {
     throw new ProviderExecutionError(error.message || "OpenAI connection failed.", {
@@ -184,20 +238,20 @@ async function callOpenAI(env, prompt) {
   const data = await readProviderResponse(response);
   if (!response.ok) throw classifyProviderError("openai", response, data);
 
-  const text = data?.output_text || data?.output
+  const outputText = data?.output_text || data?.output
     ?.flatMap((item) => item.content || [])
     .map((item) => item.text || "")
     .join("")
     .trim();
 
-  if (!text) {
+  if (!outputText) {
     throw new ProviderExecutionError("OpenAI returned an empty result.", { category: "INVALID_RESPONSE" });
   }
 
   return {
     provider: "openai",
     model: data?.model || "gpt-5",
-    text,
+    text: outputText,
     usage: data?.usage || null
   };
 }
@@ -277,7 +331,7 @@ export async function deliverToProvider({ env, agent, dispatch }) {
     });
 
     try {
-      const result = await provider.execute(env, prompt);
+      const result = await provider.execute(env, prompt, dispatch);
       const fallbackUsed = temporaryRoleAssumption;
 
       attempts.push({
