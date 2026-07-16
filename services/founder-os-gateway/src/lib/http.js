@@ -1,8 +1,13 @@
-const ALLOWED_ORIGIN = "https://natural-nation-mvp.github.io";
+const ALLOWED_ORIGINS = new Set([
+  "https://natural-nation-mvp.github.io",
+  "https://www.natural-nation-mvp.github.io"
+]);
 
 export function corsHeaders(request) {
   const origin = request.headers.get("origin");
-  const allowOrigin = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
+  const allowOrigin = origin && ALLOWED_ORIGINS.has(origin)
+    ? origin
+    : "https://natural-nation-mvp.github.io";
 
   return {
     "content-type": "application/json; charset=utf-8",
@@ -12,6 +17,16 @@ export function corsHeaders(request) {
     "access-control-max-age": "86400",
     vary: "Origin"
   };
+}
+
+export function emptyResponse(request, status = 204, extraHeaders = {}) {
+  return new Response(null, {
+    status,
+    headers: {
+      ...corsHeaders(request),
+      ...extraHeaders
+    }
+  });
 }
 
 export function json(request, body, status = 200, extraHeaders = {}) {
