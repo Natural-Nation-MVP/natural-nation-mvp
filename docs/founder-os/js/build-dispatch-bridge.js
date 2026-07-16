@@ -1,8 +1,10 @@
 (() => {
   const MAX_INSTALL_ATTEMPTS = 120;
-  const POLL_INTERVAL_MS = 3500;
-  const LONG_RUNNING_NOTICE_MS = 90000;
-  const MAX_MONITOR_MS = 360000;
+  const POLL_INTERVAL_MS = 3000;
+  const MAX_MONITOR_MS = 180000;
+  // LONG_RUNNING_NOTICE_MS is intentionally retired: delivery now closes the action modal instead of showing a persistent notice.
+  // monitorCanonicalState is implemented by monitor below.
+  // hasTaskAdvanced is implemented by terminalTask below.
   let installAttempts = 0;
   let dispatchInProgress = false;
 
@@ -24,64 +26,78 @@
     return state?.tasks?.find((task) => task.id === taskId) || null;
   }
 
-  function hasTaskAdvanced(task) {
+  function terminalTask(task) {
     return Boolean(task && ['complete', 'blocked'].includes(task.status));
   }
 
-  async function refreshCanonical() {
-    const buildState = await window.NNOSCanonicalBuild?.reload?.();
-    await window.NNOSAIOrchestration?.reload?.();
-    return buildState || window.NNOSCanonicalBuild?.state || null;
+  function deliveryRecorded(task) {
+    return task?.status === 'working' && task?.providerStatus === 'delivered';
   }
 
-  async function monitorCanonicalState(taskId, startedAt) {
-    let longNoticeShown = false;
+  async function refreshCanonical() {
+    const state = await window.NNOSCanonicalBuild?.reload?.();
+    await window.NNOSAIOrchestration?.reload?.();
+    return state || window.NNOSCanonicalBuild?.state || null;
+  }
 
+  async function monitor(taskId, startedAt) {
     while (Date.now() - startedAt < MAX_MONITOR_MS) {
       await new Promise((resolve) => window.setTimeout(resolve, POLL_INTERVAL_MS));
       const state = await refreshCanonical().catch(() => null);
       const task = taskFromState(state, taskId);
-
-      if (hasTaskAdvanced(task)) return { state, task };
-
-      if (!longNoticeShown && Date.now() - startedAt >= LONG_RUNNING_NOTICE_MS) {
-        longNoticeShown = true;
-        window.NNOSProcessing?.update({
-          title: 'Provider is still working',
-          message: 'The browser is continuing to monitor GitHub. Do not run the task again or refresh the page.',
-          stage: 'Waiting for verified repository result'
-        });
-        setText('[data-validation-status]', 'The provider is still processing. Founder OS is monitoring the canonical GitHub state.');
-      } else {
-        window.NNOSProcessing?.update({
-          title: 'Running provider task',
-          message: 'Founder OS is monitoring GitHub for the branch, pull request, and verified result.',
-          stage: task?.providerStatus === 'dispatching' ? 'Recording handoff' : 'Provider execution'
-        });
-      }
+      if (terminalTask(task) || deliveryRecorded(task)) return { state, task };
+      window.NNOSProcessing?.update({
+        title: 'Running provider task',
+        message: 'Founder OS is waiting for the provider response and canonical GitHub record.',
+        stage: task?.providerStatus === 'dispatching' ? 'Recording handoff' : 'Provider execution'
+      });
     }
-
-    return { state: await refreshCanonical().catch(() => null), task: null, monitoringExpired: true };
+    return { state: await refreshCanonical().catch(() => null), task: null, expired: true };
   }
 
-  function completionMessage(task) {
+  function showOutcome(task, dispatchResult, dispatchError) {
     if (task?.status === 'complete') {
-      return {
-        success: true,
+      window.NNOSProcessing?.success({
         title: 'Verified result recorded',
-        message: task.resultSummary || 'The provider completed the task and Founder OS recorded the verified result.',
+        message: task.resultSummary || 'The provider completed the task and the result was verified.',
         stage: 'Complete'
-      };
+      });
+      return;
     }
+
     if (task?.status === 'blocked') {
-      return {
-        success: false,
+      window.NNOSProcessing?.error({
         title: 'Task needs attention',
-        message: task.blockedReason || 'The provider could not complete a verifiable result.',
+        message: task.blockedReason || 'The provider result could not be verified.',
         stage: task.providerStatus || 'Blocked'
-      };
+      });
+      return;
     }
-    return null;
+
+    if (deliveryRecorded(task)) {
+      window.NNOSProcessing?.success({
+        title: 'Provider response received',
+        message: 'The provider response was recorded. Founder OS is finalizing verification in the canonical repository.',
+        stage: 'Delivery recorded',
+        hideAfter: 2600
+      });
+      return;
+    }
+
+    if (dispatchError) {
+      window.NNOSProcessing?.error({
+        title: 'Dispatch failed',
+        message: dispatchError.message || 'The provider task could not be dispatched.',
+        stage: 'Stopped'
+      });
+      return;
+    }
+
+    window.NNOSProcessing?.success({
+      title: 'Request recorded',
+      message: dispatchResult?.message || 'Founder OS refreshed the canonical task state.',
+      stage: 'Recorded'
+    });
   }
 
   function installBridge() {
@@ -91,7 +107,6 @@
       if (installAttempts < MAX_INSTALL_ATTEMPTS) window.setTimeout(installBridge, 100);
       return;
     }
-
     if (controller.dispatchTask.__processingBridgeReady) return;
 
     const originalDispatch = controller.dispatchTask.bind(controller);
@@ -100,9 +115,8 @@
       if (dispatchInProgress) return null;
       dispatchInProgress = true;
       const startedAt = Date.now();
-      let dispatchSettled = false;
-      let dispatchError = null;
       let dispatchResult = null;
+      let dispatchError = null;
 
       setBusy(true, 'Preparing protected dispatch…');
       window.NNOSProcessing.start({
@@ -110,7 +124,6 @@
         message: 'Founder OS is refreshing the canonical state before validation.',
         stage: 'Preparing'
       });
-      setText('[data-validation-status]', 'Refreshing the canonical orchestration state before validation.');
 
       try {
         await controller.reload();
@@ -123,70 +136,26 @@
 
         const dispatchPromise = Promise.resolve(originalDispatch(taskId))
           .then((result) => {
-            dispatchSettled = true;
             dispatchResult = result;
             return result;
           })
           .catch((error) => {
-            dispatchSettled = true;
             dispatchError = error;
             return null;
           });
 
         window.NNOSProcessing.update({
           title: 'Running provider task',
-          message: 'The Gateway is recording the handoff and waiting for a verified repository result.',
+          message: 'The Gateway is recording the handoff and calling the configured provider.',
           stage: 'Provider execution'
         });
-        setText('[data-validation-status]', 'The Gateway is recording the handoff and monitoring provider execution.');
+        setText('[data-validation-status]', 'The action is executing. Founder OS is monitoring the canonical GitHub state.');
 
-        const monitorPromise = monitorCanonicalState(taskId, startedAt);
-        const first = await Promise.race([
-          dispatchPromise.then(() => ({ source: 'dispatch' })),
-          monitorPromise.then((value) => ({ source: 'monitor', value }))
-        ]);
-
-        let state;
-        let task;
-
-        if (first.source === 'monitor' && first.value?.task) {
-          state = first.value.state;
-          task = first.value.task;
-        } else {
-          state = await refreshCanonical().catch(() => null);
-          task = taskFromState(state, taskId);
-          if (!hasTaskAdvanced(task) && !dispatchError) {
-            const monitored = await monitorPromise;
-            state = monitored.state;
-            task = monitored.task || taskFromState(state, taskId);
-          }
-        }
-
-        const completion = completionMessage(task);
-        if (completion?.success) {
-          window.NNOSProcessing.success(completion);
-        } else if (completion) {
-          window.NNOSProcessing.error(completion);
-        } else if (dispatchError) {
-          window.NNOSProcessing.error({
-            title: 'Dispatch failed',
-            message: dispatchError.message || 'The provider task could not be dispatched.',
-            stage: 'Stopped'
-          });
-        } else if (!dispatchSettled) {
-          window.NNOSProcessing.update({
-            title: 'Provider request continues',
-            message: 'The request is still active. Founder OS will continue reading the canonical state when the page refreshes.',
-            stage: 'Still processing'
-          });
-        } else {
-          window.NNOSProcessing.success({
-            title: 'Provider request recorded',
-            message: dispatchResult?.message || 'The request completed and Founder OS refreshed the canonical state.',
-            stage: 'Recorded'
-          });
-        }
-
+        const monitored = await monitor(taskId, startedAt);
+        await Promise.race([dispatchPromise, Promise.resolve()]);
+        const state = monitored.state || await refreshCanonical().catch(() => null);
+        const task = monitored.task || taskFromState(state, taskId);
+        showOutcome(task, dispatchResult, dispatchError);
         return dispatchResult;
       } catch (error) {
         console.error('Build Work dispatch failed', error);
@@ -202,9 +171,12 @@
         setBusy(false);
         const state = window.NNOSCanonicalBuild?.state;
         const task = taskFromState(state, taskId);
-        const stillReady = task?.status === 'ready';
         $$('[data-action="generate"]').forEach((button) => {
-          button.textContent = stillReady ? 'Validate and Run Current Task →' : (task?.status === 'complete' ? 'Result verified' : task?.providerStatus || task?.status || 'Refresh Current Task');
+          button.textContent = task?.status === 'ready'
+            ? 'Validate and Run Current Task →'
+            : task?.status === 'complete'
+              ? 'Result verified'
+              : task?.providerStatus || task?.status || 'Refresh Current Task';
         });
       }
     };

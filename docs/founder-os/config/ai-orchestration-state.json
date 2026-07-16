@@ -1,12 +1,12 @@
 {
-  "stateVersion": "1.2.3",
+  "stateVersion": "1.2.4",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
-  "status": "in-progress",
+  "status": "ready",
   "currentOwner": "gemini",
   "nextOwner": "gpose",
   "founderApprovalRequired": false,
-  "updatedAt": "2026-07-16T14:35:14.871Z",
+  "updatedAt": "2026-07-16T14:50:00.000Z",
   "tasks": [
     {
       "id": "AI-TASK-001",
@@ -25,7 +25,7 @@
       "blockedReason": null,
       "completedAt": "2026-07-15T21:47:57.235Z",
       "completedBy": "art",
-      "resultSummary": "Architecture response recorded. Canonical package and approved Blueprint now control implementation scope; any conflicting provider assumptions are superseded."
+      "resultSummary": "Architecture response recorded. Canonical package and approved Blueprint control implementation scope."
     },
     {
       "id": "AI-TASK-002",
@@ -34,23 +34,17 @@
       "title": "Implement the approved package",
       "owner": "codex",
       "status": "complete",
-      "requiredInput": "CANONICAL EXECUTION CONTRACT — Repository: Natural-Nation-MVP/natural-nation-mvp. Package NN-BUILD-001 objective: implement the Founder-approved Natural Nation Blueprint. Approved product: a mobile-first holistic wellness platform with a public brand website and Duey, a non-medical AI wellness mentor. Phase 1 requires onboarding, personalized blueprint, Day 1 dashboard, Daily Protocol Timeline, Wellness Score, Rejuvenation Score, progress tracking, Duey guidance, guest-first identity, and account upgrade without data loss. Billing is excluded from MVP. For this first implementation slice, create a testable member-facing static web foundation under app/frontend/ only: index.html, styles.css, app.js, README.md, and tests/validate-foundation.mjs. The page must present a responsive Day 1 dashboard preview with Duey identified as an AI wellness mentor, Wellness and Rejuvenation scores, a time-based protocol list, progress check-in controls, non-medical language, and mobile/tablet/desktop responsive behavior. The validation script must inspect the files and fail when the required experience elements are absent. Do not modify architecture decisions, secrets, Cloudflare configuration, GitHub workflows, or Founder OS. The provider response is constrained by the Gateway's repository_execution_plan JSON schema. Do not add markdown fences or narrative text outside that schema. Do not claim a pull request already exists; the protected repository adapter will create the real branch, commit, and pull request from the validated plan.",
-      "expectedOutput": "A schema-valid repository execution plan that creates the five approved app/frontend files; the Gateway must convert it into a real GitHub pull request and record changed-file plus validation evidence",
+      "requiredInput": "Founder-approved Natural Nation Day 1 member-facing foundation under app/frontend.",
+      "expectedOutput": "A real GitHub pull request with implementation and validation evidence.",
       "nextRole": "gemini",
       "providerStatus": "result-verified",
       "blockedReason": null,
-      "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-15D5E248-B0EF-4707-9709-DE104C629786",
-        "previousOutcome": "provider-schema-rejected",
-        "reason": "OpenAI could not execute because billing quota was unavailable, and Google rejected unsupported additionalProperties fields in the response schema.",
-        "requiredCorrection": "Use the Google-compatible response schema for fallback while preserving strict additionalProperties enforcement for OpenAI."
-      },
       "startedAt": "2026-07-16T14:07:40.224Z",
       "startedBy": "founder",
       "dispatchId": "AI-DISPATCH-FDD5EB7E-AF05-4C16-8BB1-92E5E9570490",
       "completedAt": "2026-07-16T14:09:25.348Z",
       "completedBy": "codex",
-      "resultSummary": "Implementation created through the protected repository-execution adapter.\nGitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30\nChanged files: app/frontend/README.md, app/frontend/app.js, app/frontend/index.html, app/frontend/styles.css, app/frontend/tests/validate-foundation.mjs\nTest evidence included in: app/frontend/tests/validate-foundation.mjs. CI must pass before Founder merge approval."
+      "resultSummary": "Implementation created through the protected repository adapter. GitHub pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Changed files: app/frontend/README.md, app/frontend/app.js, app/frontend/index.html, app/frontend/styles.css, app/frontend/tests/validate-foundation.mjs."
     },
     {
       "id": "AI-TASK-003",
@@ -58,20 +52,18 @@
       "packageId": "NN-BUILD-001",
       "title": "Review the experience",
       "owner": "gemini",
-      "status": "working",
-      "requiredInput": "The real AI-TASK-002 pull request, changed files, validation script, and responsive Day 1 dashboard preview produced from the approved execution contract",
-      "expectedOutput": "Concrete usability, mobile/tablet/desktop responsive, accessibility, and non-medical language findings with pass/fail evidence and cited file paths",
+      "status": "ready",
+      "requiredInput": "REVIEW THE REAL IMPLEMENTATION ONLY. Pull request: https://github.com/Natural-Nation-MVP/natural-nation-mvp/pull/30. Branch: codex/ai-task-002-f8a3628a. Actual changed files: app/frontend/index.html, app/frontend/styles.css, app/frontend/app.js, app/frontend/README.md, app/frontend/tests/validate-foundation.mjs. Actual implementation evidence: index.html contains a Day 1 Journey heading, Wellness Score 85, Rejuvenation Score 92, Duey labeled as an AI wellness mentor, five timed Daily Protocol items with checkboxes, and Daily Check-in controls. styles.css uses a single-column mobile layout, two columns at 768px, three columns at 1024px, green wellness styling, and no explicit focus-visible rules. app.js uses browser alerts, toggles check-in buttons twice because duplicate click listeners are registered, logs check-in data only, and does not persist state. The Duey image uses an external placeholder URL. Review these exact facts and paths. Do not invent src/components, React files, screenshots, user reports, medical metrics, or any simulated evidence. Cite only the five actual app/frontend paths. Identify pass/fail findings for usability, mobile/tablet/desktop responsiveness, accessibility, interaction behavior, non-medical language, and readiness to merge.",
+      "expectedOutput": "A real evidence-based design review citing only app/frontend paths, clearly separating passes, failures, merge blockers, and recommended corrections",
       "nextRole": "gpose",
+      "providerStatus": "ready",
+      "blockedReason": null,
       "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-7BE9F888-1CF2-4448-8CBD-5555FF731F78",
-        "previousOutcome": "invalid-result",
-        "reason": "The provider requested the preview and acceptance criteria instead of performing a review."
-      },
-      "startedAt": "2026-07-16T14:34:51.999Z",
-      "startedBy": "founder",
-      "dispatchId": "AI-DISPATCH-F06D65CD-C971-4220-BB3C-2F1692B8F18D",
-      "providerStatus": "delivered",
-      "blockedReason": null
+        "previousDispatchId": "AI-DISPATCH-F06D65CD-C971-4220-BB3C-2F1692B8F18D",
+        "previousOutcome": "simulated-review-rejected",
+        "reason": "The provider returned simulated files and invented evidence instead of reviewing PR #30.",
+        "requiredCorrection": "Use the embedded real PR #30 evidence and cite only actual app/frontend files."
+      }
     },
     {
       "id": "AI-TASK-004",
@@ -80,14 +72,9 @@
       "title": "Prepare the Founder review",
       "owner": "gpose",
       "status": "waiting",
-      "requiredInput": "Verified implementation pull request evidence and populated Gemini design-review findings",
+      "requiredInput": "Verified PR #30 implementation evidence and a real Gemini review tied to app/frontend files",
       "expectedOutput": "A completed plain-English summary of what changed, what passed, remaining risks, and the exact Founder decision required",
-      "nextRole": "founder",
-      "retryContext": {
-        "previousDispatchId": "AI-DISPATCH-12BDC4C5-DB89-4FF1-BEB6-B399FF9065D7",
-        "previousOutcome": "invalid-result",
-        "reason": "The provider returned an unpopulated placeholder summary."
-      }
+      "nextRole": "founder"
     },
     {
       "id": "AI-TASK-005",
