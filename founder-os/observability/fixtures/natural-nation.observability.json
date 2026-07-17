@@ -1,0 +1,43 @@
+{
+  "workspace_id": "workspace-001-natural-nation",
+  "portfolio_label": "Natural Nation",
+  "health_rollup": {
+    "state": "degraded",
+    "calculated_from": ["nn-api-health", "nn-duey-provider", "nn-blueprint-verification"],
+    "freshness_seconds": 180,
+    "quality": {"status": "verified", "confidence": 0.94}
+  },
+  "records": [
+    {
+      "record_id": "nn-api-health",
+      "workspace_id": "workspace-001-natural-nation",
+      "record_type": "health_check",
+      "observed_at": "2026-07-17T14:00:00Z",
+      "source": {"kind": "service", "source_id": "natural-nation-api", "evidence_ref": "evidence://nn/api/health/2026-07-17"},
+      "classification": "internal",
+      "health_state": "healthy",
+      "severity": "info",
+      "freshness_seconds": 60,
+      "quality": {"status": "verified", "confidence": 1},
+      "founder_attention_required": false,
+      "audit_ref": "audit://workspace-001/obs/nn-api-health"
+    },
+    {
+      "record_id": "nn-duey-provider",
+      "workspace_id": "workspace-001-natural-nation",
+      "record_type": "integration_signal",
+      "observed_at": "2026-07-17T14:01:00Z",
+      "source": {"kind": "integration", "source_id": "google-ai-provider", "evidence_ref": "evidence://nn/provider/errors/2026-07-17"},
+      "classification": "internal",
+      "health_state": "degraded",
+      "severity": "high",
+      "freshness_seconds": 120,
+      "quality": {"status": "verified", "confidence": 0.98},
+      "correlation_key": "nn-blueprint-provider-errors",
+      "deduplication_key": "workspace-001:google-ai:degraded:2026-07-17",
+      "founder_attention_required": true,
+      "remediation_workflow_id": "AI-TASK-003",
+      "audit_ref": "audit://workspace-001/obs/nn-duey-provider"
+    }
+  ]
+}
