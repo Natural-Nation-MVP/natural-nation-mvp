@@ -1,0 +1,25 @@
+{
+  "manifestId": "fos-scheduling-engine-v1",
+  "version": "1.0.0",
+  "scope": "platform-capability",
+  "purpose": "Schedule workspace-owned workflows without changing their contracts or authority boundaries.",
+  "invariants": [
+    "Every automation has exactly one workspaceId.",
+    "Every trigger invokes a registered workflowId or actionId through the execution runtime.",
+    "Founder approval is never inferred from a schedule or condition.",
+    "Evidence, verification, tool permissions, and approval gates remain binding.",
+    "Cross-workspace execution and combined mutation contexts are prohibited.",
+    "Consequential runs require idempotency keys and immutable audit references."
+  ],
+  "triggerTypes": ["one_time", "recurring", "condition_watch"],
+  "automationStates": ["draft", "active", "paused", "completed", "cancelled", "blocked"],
+  "runStates": ["scheduled", "eligible", "dispatched", "skipped", "missed", "blocked", "completed", "failed"],
+  "overlapPolicies": ["forbid", "queue_one", "allow"],
+  "missedRunPolicies": ["skip", "run_once", "catch_up_limited"],
+  "approvalPolicy": {
+    "creation": "Founder approval required when the automation can lead to consequential, financial, destructive, security-sensitive, or external actions.",
+    "execution": "Any approval gate registered on the target workflow remains mandatory at run time.",
+    "modification": "Material changes to target, cadence, authority, delivery, or consequential scope require Founder approval."
+  },
+  "protectedBoundary": "FOS-DIRECTIVE-001"
+}
