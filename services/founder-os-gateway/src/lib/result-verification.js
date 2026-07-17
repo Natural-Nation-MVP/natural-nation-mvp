@@ -52,12 +52,19 @@ function verifyImplementation(summary) {
   return null;
 }
 
-function contractedReviewPaths(task) {
-  const source = `${task?.requiredInput || ""} ${task?.expectedOutput || ""}`;
-  return new Set(source.match(/app\/frontend\/[A-Za-z0-9_./-]+/g) || []);
+function evidenceMap(result) {
+  const contract = result?.evidenceContract || {};
+  if (Array.isArray(contract.items)) return new Map(contract.items.map((item) => [item.fileId, item]));
+  if (Array.isArray(contract.allowedPaths)) {
+    return new Map(contract.allowedPaths.map((path, index) => [
+      `FILE-${String(index + 1).padStart(3, "0")}`,
+      { fileId: `FILE-${String(index + 1).padStart(3, "0")}`, path: String(path).replace(/[.,;:]+$/, "") }
+    ]));
+  }
+  return new Map();
 }
 
-function verifyExperienceReview(task, result) {
+function verifyExperienceReview(result) {
   let review;
   try { review = parseStructuredSummary(result, "experience_review"); }
   catch (error) { return error.message; }
@@ -69,13 +76,17 @@ function verifyExperienceReview(task, result) {
   if (!["approve", "changes_required"].includes(review.recommendation)) return "Experience review recommendation must be approve or changes_required.";
   if (review.evidence.length === 0) return "Experience review requires file-based evidence.";
 
-  const allowedPaths = contractedReviewPaths(task);
-  if (allowedPaths.size === 0) return "Experience review task does not define any approved evidence paths.";
+  const allowedEvidence = evidenceMap(result);
+  if (allowedEvidence.size === 0) return "Experience review result does not include a valid evidence ID contract.";
   for (const evidence of review.evidence) {
-    const path = typeof evidence === "string" ? evidence : evidence?.path;
-    const finding = typeof evidence === "string" ? evidence : evidence?.finding;
-    if (!allowedPaths.has(path)) return `Experience review cited a path outside the current task contract: ${path || "missing path"}.`;
-    if (!String(finding || "").trim()) return `Experience review evidence for ${path} is missing a concrete finding.`;
+    const fileId = evidence?.fileId;
+    const fingerprint = evidence?.fingerprint;
+    const finding = evidence?.finding;
+    const contracted = allowedEvidence.get(fileId);
+    if (!contracted) return `Experience review cited an unknown evidence ID: ${fileId || "missing fileId"}.`;
+    if (!/^[a-f0-9]{64}$/i.test(String(fingerprint || ""))) return `Experience review fingerprint is invalid for ${fileId}.`;
+    if (contracted.fingerprint && fingerprint !== contracted.fingerprint) return `Experience review fingerprint mismatch for ${fileId}.`;
+    if (!String(finding || "").trim()) return `Experience review evidence for ${fileId} is missing a concrete finding.`;
   }
   if (/screenshot|simulated|hypothetical/i.test(JSON.stringify(review))) return "Experience review contains screenshot or simulated evidence.";
   return null;
@@ -94,7 +105,7 @@ function verifyFounderReview(result) {
 export function verifyTaskResult(task, result) {
   const summary = summaryText(result);
   if (task.id === "AI-TASK-003") {
-    const reason = verifyExperienceReview(task, result);
+    const reason = verifyExperienceReview(result);
     return reason ? { ok: false, reason } : { ok: true };
   }
   if (task.id === "AI-TASK-004") {

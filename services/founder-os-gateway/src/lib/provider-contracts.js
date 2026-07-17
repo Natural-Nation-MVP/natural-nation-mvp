@@ -1,11 +1,3 @@
-const REVIEW_PATHS = [
-  "app/frontend/index.html",
-  "app/frontend/styles.css",
-  "app/frontend/app.js",
-  "app/frontend/README.md",
-  "app/frontend/tests/validate-foundation.mjs"
-];
-
 function objectSchema(properties, required, { strict = false } = {}) {
   return {
     type: "object",
@@ -32,11 +24,27 @@ function repositoryPlanSchema({ strict = false } = {}) {
   }, ["title", "summary", "files"], { strict });
 }
 
-function experienceReviewSchema({ strict = false } = {}) {
+function evidenceItems(dispatch) {
+  const items = dispatch?.requiredInput?.pullRequestEvidence?.files;
+  return Array.isArray(items)
+    ? items.filter((item) => item?.fileId && item?.fingerprint)
+    : [];
+}
+
+function experienceReviewSchema(dispatch, { strict = false } = {}) {
+  const evidenceItemsForTask = evidenceItems(dispatch);
+  const fileIds = evidenceItemsForTask.map((item) => item.fileId);
+  const fingerprints = evidenceItemsForTask.map((item) => item.fingerprint);
+
   const evidence = objectSchema({
-    path: { type: "string", enum: REVIEW_PATHS },
+    fileId: fileIds.length
+      ? { type: "string", enum: fileIds }
+      : { type: "string", pattern: "^FILE-[0-9]{3}$" },
+    fingerprint: fingerprints.length
+      ? { type: "string", enum: fingerprints }
+      : { type: "string", minLength: 16 },
     finding: { type: "string", minLength: 1 }
-  }, ["path", "finding"], { strict });
+  }, ["fileId", "fingerprint", "finding"], { strict });
 
   return objectSchema({
     type: { type: "string", enum: ["experience_review"] },
@@ -63,17 +71,17 @@ const CONTRACTS = {
   "AI-TASK-002": {
     name: "repository_execution_plan",
     instruction: "Return only the repository execution plan JSON object. Do not add markdown fences or commentary.",
-    schema: repositoryPlanSchema
+    schema: (_dispatch, options) => repositoryPlanSchema(options)
   },
   "AI-TASK-003": {
     name: "experience_review",
-    instruction: "Return only the experience_review JSON object. Use camelCase field names exactly as defined. Do not add markdown fences, prose, snake_case aliases, or full file contents.",
-    schema: experienceReviewSchema
+    instruction: "Return only the experience_review JSON object. Cite supplied evidence by fileId and echo its fingerprint exactly. Never return repository paths in evidence. Use camelCase field names exactly as defined. Do not add markdown fences, prose, snake_case aliases, or full file contents.",
+    schema: (dispatch, options) => experienceReviewSchema(dispatch, options)
   },
   "AI-TASK-004": {
     name: "founder_review",
     instruction: "Return only the founder_review JSON object. Use field names exactly as defined. Do not add markdown fences or commentary.",
-    schema: founderReviewSchema
+    schema: (_dispatch, options) => founderReviewSchema(options)
   }
 };
 
@@ -83,7 +91,7 @@ export function providerContract(dispatch, { strict = false } = {}) {
   return {
     name: contract.name,
     instruction: contract.instruction,
-    schema: contract.schema({ strict })
+    schema: contract.schema(dispatch, { strict })
   };
 }
 
