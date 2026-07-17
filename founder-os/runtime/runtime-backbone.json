@@ -1,0 +1,56 @@
+{
+  "id": "FOS-RUNTIME-001",
+  "version": "1.0.0",
+  "status": "implementation_candidate",
+  "purpose": "Execute registered Founder OS work while preserving workspace isolation, governance, evidence, audit, observability, and cost controls.",
+  "constitutionalDirective": "FOS-DIRECTIVE-001",
+  "defaultDecision": "deny",
+  "requiredContext": ["requestId", "workspaceId", "actor", "action", "payloadHash", "correlationId"],
+  "pipeline": [
+    "validate_request",
+    "resolve_workspace",
+    "enforce_workspace_isolation",
+    "classify_action",
+    "run_governance_preflight",
+    "validate_policy_and_approval",
+    "resolve_registered_workflow",
+    "reserve_cost",
+    "dispatch_execution",
+    "capture_evidence",
+    "verify_result",
+    "reconcile_cost",
+    "emit_audit",
+    "emit_observability",
+    "return_governed_result"
+  ],
+  "hardStops": [
+    "missing_workspace_context",
+    "cross_workspace_reference",
+    "unregistered_workflow",
+    "changed_payload_after_approval",
+    "expired_or_revoked_approval",
+    "protected_payload_detected",
+    "authority_expansion_requested",
+    "budget_hard_stop",
+    "verification_failure_for_consequential_action"
+  ],
+  "executionClasses": {
+    "routine": {"approval": "policy_defined", "verification": "required"},
+    "strategic": {"approval": "founder_required", "verification": "required"},
+    "destructive": {"approval": "founder_required", "verification": "required"},
+    "financial": {"approval": "founder_required_or_explicit_delegation", "verification": "required"},
+    "security_sensitive": {"approval": "founder_required", "verification": "required"},
+    "external": {"approval": "policy_defined_and_connector_registered", "verification": "required"}
+  },
+  "idempotency": {"key": ["workspaceId", "action", "payloadHash", "correlationId"], "duplicateBehavior": "return_existing_run"},
+  "recovery": {"maxAutomaticRetries": 3, "requiresIdempotentHandler": true, "consequentialRetryRequiresSameApprovalBinding": true},
+  "emissions": ["execution_run", "evidence_reference", "audit_event", "health_signal", "cost_record", "notification_event"],
+  "prohibitions": [
+    "infer_founder_approval",
+    "expose_secrets_or_tokens",
+    "combine_workspace_execution_contexts",
+    "bypass_registered_workflows",
+    "bypass_policy_or_evidence",
+    "expand_provider_model_role_connector_or_tool_authority"
+  ]
+}
