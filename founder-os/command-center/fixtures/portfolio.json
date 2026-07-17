@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2026-07-17T06:50:00Z",
+  "workspaces": [
+    {
+      "workspaceId": "workspace-001-natural-nation",
+      "workspaceNumber": 1,
+      "name": "Natural Nation",
+      "lifecycleState": "active",
+      "health": "attention",
+      "currentMilestone": "MVP first-session breakthrough",
+      "pendingApprovals": 1,
+      "blockingRisks": 0,
+      "lastVerifiedAt": "2026-07-17T06:45:00Z"
+    },
+    {
+      "workspaceId": "workspace-002-contractor-estimator",
+      "workspaceNumber": 2,
+      "name": "Contractor Estimator",
+      "lifecycleState": "draft",
+      "health": "blocked",
+      "currentMilestone": "Estimate workflow validation",
+      "pendingApprovals": 0,
+      "blockingRisks": 1,
+      "lastVerifiedAt": "2026-07-17T06:40:00Z"
+    }
+  ],
+  "attentionQueue": [
+    {
+      "attentionId": "attention-001",
+      "workspaceId": "workspace-002-contractor-estimator",
+      "type": "blocking-risk",
+      "severity": "high",
+      "summary": "Estimate calculation cannot begin because required measurements are missing.",
+      "actionId": "capture-job-scope",
+      "consequenceClass": "routine"
+    },
+    {
+      "attentionId": "attention-002",
+      "workspaceId": "workspace-001-natural-nation",
+      "type": "approval-required",
+      "severity": "medium",
+      "summary": "Natural Nation MVP release candidate is ready for Founder release approval.",
+      "actionId": "approve-mvp-release",
+      "consequenceClass": "external"
+    }
+  ],
+  "approvalInbox": [
+    {
+      "approvalId": "approval-nn-release-001",
+      "workspaceId": "workspace-001-natural-nation",
+      "actionId": "approve-mvp-release",
+      "consequenceClass": "external",
+      "requestedByRole": "experience-reviewer",
+      "evidenceRefs": ["evidence/nn-mvp-verification-001"],
+      "verificationStatus": "passed",
+      "requestedAt": "2026-07-17T06:44:00Z"
+    }
+  ]
+}

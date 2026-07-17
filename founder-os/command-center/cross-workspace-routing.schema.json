@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "founder-os/cross-workspace-routing.schema.json",
+  "title": "Founder OS Cross-Workspace Operation",
+  "type": "object",
+  "required": [
+    "operationId",
+    "sourceView",
+    "workspaceId",
+    "actionId",
+    "consequenceClass",
+    "contextStatus"
+  ],
+  "properties": {
+    "operationId": { "type": "string", "minLength": 1 },
+    "sourceView": {
+      "enum": ["portfolio", "attention-queue", "approval-inbox", "risk-and-health", "recent-activity"]
+    },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "actionId": { "type": "string", "minLength": 1 },
+    "consequenceClass": {
+      "enum": ["routine", "strategic", "destructive", "financial", "security-sensitive", "external"]
+    },
+    "currentWorkspaceId": { "type": ["string", "null"] },
+    "contextStatus": {
+      "enum": ["matched", "switch-required", "blocked"]
+    },
+    "founderSwitchConfirmation": { "type": "boolean" },
+    "founderApprovalId": { "type": ["string", "null"] },
+    "evidenceRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "contextStatus": { "const": "switch-required" },
+          "consequenceClass": {
+            "enum": ["strategic", "destructive", "financial", "security-sensitive", "external"]
+          }
+        },
+        "required": ["contextStatus", "consequenceClass"]
+      },
+      "then": {
+        "properties": {
+          "founderSwitchConfirmation": { "const": true }
+        },
+        "required": ["founderSwitchConfirmation"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "consequenceClass": {
+            "enum": ["strategic", "destructive", "financial", "security-sensitive", "external"]
+          }
+        },
+        "required": ["consequenceClass"]
+      },
+      "then": {
+        "required": ["founderApprovalId"]
+      }
+    }
+  ],
+  "additionalProperties": false
+}
