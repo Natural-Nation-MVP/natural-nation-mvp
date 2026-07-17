@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "natural-nation",
+  "protectedSecurityBoundaryChanged": false,
+  "workflows": [
+    {
+      "workflowId": "natural-nation-build-review",
+      "version": "1.0.0",
+      "workspaceId": "natural-nation",
+      "purpose": "Preserve the existing Natural Nation build and review sequence through a workspace-owned workflow.",
+      "trigger": "Founder approves a Natural Nation build package.",
+      "projectTypes": ["product-build"],
+      "completionRule": "Implementation, evidence review, founder review, and final decision are recorded.",
+      "tasks": [
+        {"taskId":"clarify-package","dependsOn":[],"role":"architect","capabilities":["package.clarify"],"expectedOutput":"Clarified build package","evidenceRequired":true,"verification":"Package scope and acceptance criteria are complete.","approvalClass":"verification-gated","onFailure":"remediate"},
+        {"taskId":"plan-repository-work","dependsOn":["clarify-package"],"role":"engineer","capabilities":["repository.plan"],"expectedOutput":"Repository execution plan","evidenceRequired":true,"verification":"Plan identifies exact implementation scope.","approvalClass":"verification-gated","onFailure":"remediate"},
+        {"taskId":"implement-package","dependsOn":["plan-repository-work"],"role":"engineer","capabilities":["repository.implement"],"expectedOutput":"Reviewable pull request","evidenceRequired":true,"verification":"Implementation evidence is tied to the pull request.","approvalClass":"verification-gated","onFailure":"retry"},
+        {"taskId":"review-experience","dependsOn":["implement-package"],"role":"reviewer","capabilities":["experience.review"],"expectedOutput":"Evidence-grounded review","evidenceRequired":true,"verification":"Review cites valid evidence IDs and fingerprints.","approvalClass":"verification-gated","onFailure":"remediate"},
+        {"taskId":"founder-decision","dependsOn":["review-experience"],"role":"founder","capabilities":["approval.decide"],"expectedOutput":"Founder decision","evidenceRequired":true,"verification":"Decision is tied to the reviewed package.","approvalClass":"founder-required","onFailure":"block"}
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "actionId": "start-build-package",
+      "version": "1.0.0",
+      "workspaceId": "natural-nation",
+      "actors": ["founder"],
+      "requiredInputs": ["approvedPackage"],
+      "capabilities": ["workflow.start"],
+      "tools": ["github"],
+      "consequence": "reversible",
+      "approvalClass": "founder-required",
+      "startsWorkflowId": "natural-nation-build-review",
+      "expectedOutput": "Natural Nation workflow instance",
+      "auditRequired": true
+    }
+  ],
+  "compatibilityMappings": [
+    {"legacyTaskId":"AI-TASK-001","workflowId":"natural-nation-build-review","taskId":"clarify-package"},
+    {"legacyTaskId":"AI-TASK-002","workflowId":"natural-nation-build-review","taskId":"plan-repository-work"},
+    {"legacyTaskId":"AI-TASK-003","workflowId":"natural-nation-build-review","taskId":"implement-package"},
+    {"legacyTaskId":"AI-TASK-004","workflowId":"natural-nation-build-review","taskId":"review-experience"},
+    {"legacyTaskId":"AI-TASK-005","workflowId":"natural-nation-build-review","taskId":"founder-decision"}
+  ]
+}

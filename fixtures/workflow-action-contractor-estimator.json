@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "contractor-estimator",
+  "protectedSecurityBoundaryChanged": false,
+  "workflows": [
+    {
+      "workflowId": "estimate-to-proposal",
+      "version": "1.0.0",
+      "workspaceId": "contractor-estimator",
+      "purpose": "Turn a contractor job scope into a reviewed customer proposal.",
+      "trigger": "Founder or workspace action starts a new estimate.",
+      "projectTypes": ["job-estimate"],
+      "completionRule": "A verified estimate and Founder-approved customer proposal exist.",
+      "tasks": [
+        {
+          "taskId": "capture-job-scope",
+          "dependsOn": [],
+          "role": "requirements-analyst",
+          "capabilities": ["requirements.capture"],
+          "expectedOutput": "Structured job scope",
+          "evidenceRequired": true,
+          "verification": "Required location, dimensions, work items, and exclusions are present.",
+          "approvalClass": "verification-gated",
+          "onFailure": "remediate"
+        },
+        {
+          "taskId": "calculate-estimate",
+          "dependsOn": ["capture-job-scope"],
+          "role": "estimator",
+          "capabilities": ["materials.calculate", "labor.calculate"],
+          "expectedOutput": "Material, labor, overhead, and price calculation",
+          "evidenceRequired": true,
+          "verification": "All totals reconcile and required assumptions are disclosed.",
+          "approvalClass": "verification-gated",
+          "onFailure": "retry"
+        },
+        {
+          "taskId": "review-estimate",
+          "dependsOn": ["calculate-estimate"],
+          "role": "reviewer",
+          "capabilities": ["estimate.review"],
+          "expectedOutput": "Verified estimate review",
+          "evidenceRequired": true,
+          "verification": "Review cites the exact estimate evidence and identifies blockers.",
+          "approvalClass": "verification-gated",
+          "onFailure": "remediate"
+        },
+        {
+          "taskId": "generate-customer-proposal",
+          "dependsOn": ["review-estimate"],
+          "role": "proposal-producer",
+          "capabilities": ["proposal.generate"],
+          "expectedOutput": "Customer-ready proposal",
+          "evidenceRequired": true,
+          "verification": "Proposal matches the verified estimate and job scope.",
+          "approvalClass": "founder-required",
+          "onFailure": "block"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "actionId": "create-estimate",
+      "version": "1.0.0",
+      "workspaceId": "contractor-estimator",
+      "actors": ["founder", "ai-role"],
+      "requiredInputs": ["jobScope"],
+      "capabilities": ["requirements.capture"],
+      "tools": [],
+      "consequence": "reversible",
+      "approvalClass": "autonomous",
+      "startsWorkflowId": "estimate-to-proposal",
+      "expectedOutput": "New estimate workflow instance",
+      "auditRequired": true
+    },
+    {
+      "actionId": "send-proposal",
+      "version": "1.0.0",
+      "workspaceId": "contractor-estimator",
+      "actors": ["founder"],
+      "requiredInputs": ["approvedProposal"],
+      "capabilities": ["proposal.deliver"],
+      "tools": ["email"],
+      "consequence": "externally-consequential",
+      "approvalClass": "founder-required",
+      "expectedOutput": "Proposal delivered to customer",
+      "auditRequired": true
+    }
+  ],
+  "compatibilityMappings": []
+}
