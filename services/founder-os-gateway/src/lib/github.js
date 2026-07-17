@@ -162,23 +162,35 @@ export async function readRepositoryExecutionPullRequest(env, pullNumber) {
   };
 }
 
+async function fingerprint(value) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function readPullRequestReviewEvidence(env, pullNumber, allowedPaths = []) {
   const { owner, repository } = repositoryConfig(env);
   const [pull, files] = await Promise.all([
     githubRequest(env, `/repos/${owner}/${repository}/pulls/${pullNumber}`),
     githubRequest(env, `/repos/${owner}/${repository}/pulls/${pullNumber}/files?per_page=100`)
   ]);
-  const allowlist = new Set(allowedPaths);
-  const selected = (Array.isArray(files) ? files : [])
-    .filter((file) => allowlist.size === 0 || allowlist.has(file.filename))
-    .map((file) => ({
+  const normalizedPaths = allowedPaths.map((path) => String(path).replace(/[.,;:]+$/, ""));
+  const allowlist = new Set(normalizedPaths);
+  const candidates = (Array.isArray(files) ? files : [])
+    .filter((file) => allowlist.size === 0 || allowlist.has(file.filename));
+  const selected = await Promise.all(candidates.map(async (file, index) => {
+    const patch = file.patch || "Patch unavailable for this file.";
+    return {
+      fileId: `FILE-${String(index + 1).padStart(3, "0")}`,
+      fingerprint: await fingerprint(`${pull.head?.sha || "unknown"}\n${file.filename}\n${patch}`),
       path: file.filename,
       status: file.status,
       additions: file.additions,
       deletions: file.deletions,
       changes: file.changes,
-      patch: file.patch || "Patch unavailable for this file."
-    }));
+      patch
+    };
+  }));
   if (selected.length === 0) throw new Error(`No reviewable evidence was found for pull request #${pullNumber}.`);
   return {
     pullRequest: {
