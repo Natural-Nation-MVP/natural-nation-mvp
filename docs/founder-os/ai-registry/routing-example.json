@@ -1,0 +1,24 @@
+{
+  "workspaceId": "contractor-estimator",
+  "taskId": "calculate-estimate-001",
+  "roleId": "estimator",
+  "requiredCapabilities": ["estimate.calculation", "requirements.analysis"],
+  "permittedTools": ["estimate-engine"],
+  "routingDecision": {
+    "primaryModelId": "openai-general",
+    "selectedModelId": "google-general",
+    "fallbackUsed": true,
+    "fallbackReason": "Primary provider temporarily unavailable.",
+    "roleChanged": false,
+    "taskContractChanged": false,
+    "approvalBoundaryChanged": false,
+    "evidenceRequirementsChanged": false
+  },
+  "execution": {
+    "status": "ready",
+    "independentProviderAuthority": false,
+    "founderApprovalRequiredForExternalDelivery": true,
+    "auditReference": "audit-ai-route-contractor-estimator-001"
+  },
+  "protectedSecurityBoundaryChanged": false
+}
