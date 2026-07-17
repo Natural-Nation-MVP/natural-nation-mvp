@@ -1,0 +1,37 @@
+{
+  "package":"FOS-FOUNDATION-019",
+  "version":"1.0.0",
+  "constitutionalDirective":"FOS-DIRECTIVE-001",
+  "certificationScope":{"from":1,"to":19},
+  "rules":{
+    "noFalseRuntimeClaims":true,
+    "failedTestsCannotBeHidden":true,
+    "securityExceptionsCannotWaiveDirective":true,
+    "certificationRequiresEvidence":true,
+    "workspaceIsolationMustPass":true,
+    "approvalBoundaryMustPass":true,
+    "secretProtectionMustPass":true,
+    "recoveryEvidenceRequiredBeforeProduction":true,
+    "exceptionsExpire":true,
+    "materialChangeTriggersRecertification":true
+  },
+  "certificationStates":["draft","testing","conditional","certified","failed","expired","revoked"],
+  "testCatalog":[
+    {"testId":"cert_constitution","category":"constitutional","description":"FOS-DIRECTIVE-001 preserved across packages 001-019","required":true},
+    {"testId":"cert_dependencies","category":"dependency","description":"All package manifests and validators are present and parseable","required":true},
+    {"testId":"cert_workspace_isolation","category":"workspace-isolation","description":"Natural Nation cannot read or mutate Contractor Estimator execution context","required":true},
+    {"testId":"cert_approval_binding","category":"approval-boundary","description":"Changed payload, workspace, amount, recipient, or artifact hash invalidates approval","required":true},
+    {"testId":"cert_secret_protection","category":"secret-protection","description":"Secrets are referenced opaquely and excluded from evidence, logs, artifacts, and notifications","required":true},
+    {"testId":"cert_provider_failure","category":"degraded-mode","description":"Provider outage preserves evidence and routes bounded recovery without authority expansion","required":true},
+    {"testId":"cert_restore","category":"recovery","description":"Backup restore evidence proves RPO and RTO targets before production certification","required":true},
+    {"testId":"cert_audit_chain","category":"audit","description":"Actions retain immutable workspace, actor, policy, evidence, and outcome references","required":true}
+  ],
+  "recoveryObjectives":{"platform":{"rpoMinutes":15,"rtoMinutes":60},"workspace":{"rpoMinutes":60,"rtoMinutes":240}},
+  "drills":["provider-outage","connector-revocation","scheduler-downtime","failed-deployment","workspace-cross-access-attempt","approval-replay-attempt","artifact-corruption","backup-restore"],
+  "fixtures":[
+    {"scenarioId":"cert_nn_provider_failure","workspaceId":"natural-nation","expected":"degraded-state-with-bounded-retry-and-founder-alert","prohibited":"automatic-provider-authority-expansion"},
+    {"scenarioId":"cert_ce_cross_workspace","workspaceId":"contractor-estimator","expected":"blocked-with-audit-evidence","prohibited":"natural-nation-connection-use"}
+  ],
+  "currentCertification":{"status":"conditional","reason":"Architecture and dependency validation are defined; live runtime, backup restore, deployment, and production drills require the implemented runtime environment and real evidence before production certification.","issuedAt":"2026-07-17T00:00:00Z","expiresAt":"2026-10-17T00:00:00Z","exceptions":[]},
+  "retestTriggers":["constitutional-change","security-boundary-change","workspace-contract-change","approval-engine-change","deployment-provider-change","data-store-change","major-release","failed-drill","expired-certificate"]
+}
