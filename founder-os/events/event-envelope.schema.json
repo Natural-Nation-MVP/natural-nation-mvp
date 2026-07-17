@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/event-envelope.schema.json",
+  "title": "Founder OS Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "scope",
+    "ownerContext",
+    "severity",
+    "summary",
+    "subjectReference",
+    "correlationId",
+    "auditReference",
+    "containsProtectedData",
+    "requiresFounderAttention"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1 },
+    "eventType": { "type": "string", "minLength": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "scope": { "enum": ["platform", "workspace"] },
+    "ownerContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "enum": ["platform", "workspace"] },
+        "id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "subjectReference": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "auditReference": { "type": "string", "minLength": 1 },
+    "containsProtectedData": { "const": false },
+    "requiresFounderAttention": { "type": "boolean" },
+    "approvalReference": { "type": ["string", "null"] },
+    "deliveryPolicyId": { "type": ["string", "null"] },
+    "metadata": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "scope": { "const": "workspace" } } },
+      "then": {
+        "properties": {
+          "ownerContext": {
+            "properties": { "type": { "const": "workspace" } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "scope": { "const": "platform" } } },
+      "then": {
+        "properties": {
+          "ownerContext": {
+            "properties": { "type": { "const": "platform" } }
+          }
+        }
+      }
+    }
+  ]
+}
