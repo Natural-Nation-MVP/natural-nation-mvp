@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/workspace-registry.schema.json",
+  "title": "Founder OS Workspace Registry",
+  "type": "object",
+  "required": ["schemaVersion", "registryId", "updatedAt", "workspaces"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "registryId": { "const": "founder-os-workspace-registry" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "workspaces": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/workspace" }
+    }
+  },
+  "$defs": {
+    "location": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaceId", "displayName", "sequence", "workspaceType", "description",
+        "status", "ownerType", "isolation", "locations", "governance",
+        "capabilities", "health", "createdAt", "updatedAt"
+      ],
+      "properties": {
+        "workspaceId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "workspaceType": { "type": "string", "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$" },
+        "description": { "type": "string", "minLength": 1 },
+        "status": {
+          "enum": ["draft", "active", "paused", "archived", "restored", "scheduled_for_deletion", "deleted"]
+        },
+        "ownerType": { "const": "founder" },
+        "isolation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["namespace", "dataBoundary", "assetBoundary", "executionBoundary", "knowledgeBoundary", "deliverableBoundary"],
+          "properties": {
+            "namespace": { "type": "string", "minLength": 1 },
+            "dataBoundary": { "type": "string", "minLength": 1 },
+            "assetBoundary": { "type": "string", "minLength": 1 },
+            "executionBoundary": { "type": "string", "minLength": 1 },
+            "knowledgeBoundary": { "type": "string", "minLength": 1 },
+            "deliverableBoundary": { "type": "string", "minLength": 1 }
+          }
+        },
+        "locations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "knowledge", "assets", "deliverables"],
+          "properties": {
+            "source": { "$ref": "#/$defs/location" },
+            "knowledge": { "$ref": "#/$defs/location" },
+            "assets": { "$ref": "#/$defs/location" },
+            "deliverables": { "$ref": "#/$defs/location" }
+          }
+        },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvalPolicyRef", "auditPolicyRef", "protectedBoundaryRef"],
+          "properties": {
+            "approvalPolicyRef": { "type": "string", "minLength": 1 },
+            "auditPolicyRef": { "type": "string", "minLength": 1 },
+            "protectedBoundaryRef": { "type": "string", "minLength": 1 }
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" }
+        },
+        "health": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "summary"],
+          "properties": {
+            "state": { "enum": ["unknown", "healthy", "attention", "blocked", "inactive"] },
+            "summary": { "type": "string", "minLength": 1 }
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
