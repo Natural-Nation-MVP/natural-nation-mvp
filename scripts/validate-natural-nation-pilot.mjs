@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { runNaturalNationPilot } from '../founder-os/pilot/natural-nation/run-pilot.mjs';
+
+const report = await runNaturalNationPilot();
+assert.equal(report.pilotId, 'FOS-PILOT-001');
+assert.equal(report.evidenceClass, 'local-simulated-runtime');
+assert.equal(report.productionEvidence, false);
+assert.equal(report.workspaceId, 'workspace-natural-nation');
+assert.equal(report.results.aiResult.status, 'completed');
+assert.equal(report.results.mission.status, 'completed');
+assert.equal(report.results.mission.attempts, 2);
+assert.equal(report.results.idempotentReplaySameRun, true);
+assert.equal(report.results.approvalDenied.reason, 'APPROVAL_INVALID_OR_MISSING');
+assert.equal(report.results.publish.status, 'completed');
+assert.equal(report.results.isolation.reason, 'CROSS_WORKSPACE_WORKFLOW_ACCESS');
+assert.ok(report.emissions.audit > 0);
+assert.ok(report.emissions.observability > 0);
+assert.ok(report.emissions.cost > 0);
+assert.ok(report.emissions.evidence > 0);
+assert.equal(report.costReconciliation.connectorUsageCaptured, true);
+assert.equal(report.persistence.runs.length, 1);
+assert.equal(report.persistence.evidence.length, 1);
+assert.equal(report.releaseReadiness.localPilotPassed, true);
+assert.equal(report.releaseReadiness.liveProviderEvidenceRequired, true);
+assert.equal(report.releaseReadiness.productionDeploymentApproved, false);
+console.log('FOS-PILOT-001 validation passed');
