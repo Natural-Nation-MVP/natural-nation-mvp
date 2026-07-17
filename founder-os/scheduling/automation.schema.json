@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "founder-os/scheduling/automation.schema.json",
+  "title": "Founder OS Automation",
+  "type": "object",
+  "required": ["automationId", "workspaceId", "target", "trigger", "timezone", "state", "overlapPolicy", "missedRunPolicy", "auditRef"],
+  "properties": {
+    "automationId": {"type": "string", "minLength": 1},
+    "workspaceId": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1},
+    "target": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"enum": ["workflow", "action"]},
+        "id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "trigger": {
+      "oneOf": [
+        {"type": "object", "required": ["type", "at"], "properties": {"type": {"const": "one_time"}, "at": {"type": "string", "format": "date-time"}}, "additionalProperties": false},
+        {"type": "object", "required": ["type", "rrule"], "properties": {"type": {"const": "recurring"}, "rrule": {"type": "string", "minLength": 1}, "executionWindowMinutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false},
+        {"type": "object", "required": ["type", "condition", "checkCadence"], "properties": {"type": {"const": "condition_watch"}, "condition": {"type": "string", "minLength": 1}, "checkCadence": {"type": "string", "minLength": 1}, "cooldownMinutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false}
+      ]
+    },
+    "timezone": {"type": "string", "minLength": 1},
+    "state": {"enum": ["draft", "active", "paused", "completed", "cancelled", "blocked"]},
+    "overlapPolicy": {"enum": ["forbid", "queue_one", "allow"]},
+    "missedRunPolicy": {"enum": ["skip", "run_once", "catch_up_limited"]},
+    "maxCatchUpRuns": {"type": "integer", "minimum": 0},
+    "requiresFounderApproval": {"type": "boolean"},
+    "idempotencyScope": {"enum": ["occurrence", "calendar_day", "custom"]},
+    "auditRef": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
