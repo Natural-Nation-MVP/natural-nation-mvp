@@ -1,0 +1,99 @@
+{
+  "fixtures": [
+    {
+      "name": "Natural Nation release approval request",
+      "event": {
+        "eventId": "evt-nn-release-approval-001",
+        "eventType": "approval.requested",
+        "occurredAt": "2026-07-17T13:00:00Z",
+        "scope": "workspace",
+        "ownerContext": { "type": "workspace", "id": "workspace-001-natural-nation" },
+        "severity": "high",
+        "summary": "Natural Nation MVP release evidence is ready for Founder review.",
+        "subjectReference": "run-nn-ai-task-003",
+        "correlationId": "corr-nn-release-001",
+        "auditReference": "audit-nn-release-approval-001",
+        "containsProtectedData": false,
+        "requiresFounderAttention": true,
+        "approvalReference": "approval-nn-release-001",
+        "deliveryPolicyId": "policy-founder-approval",
+        "metadata": { "verificationStatus": "passed" }
+      },
+      "expected": {
+        "notificationMayOpenApprovalContext": true,
+        "notificationMayApprove": false,
+        "workspaceSwitchMayBeRequired": true,
+        "executionRemainsPaused": true
+      }
+    },
+    {
+      "name": "Contractor Estimator repeated provider outage",
+      "events": [
+        {
+          "eventId": "evt-ce-provider-001",
+          "eventType": "execution.provider_unavailable",
+          "occurredAt": "2026-07-17T13:05:00Z",
+          "scope": "workspace",
+          "ownerContext": { "type": "workspace", "id": "workspace-002-contractor-estimator" },
+          "severity": "medium",
+          "summary": "The primary estimate provider is temporarily unavailable.",
+          "subjectReference": "run-ce-estimate-004",
+          "correlationId": "corr-ce-provider-outage-004",
+          "auditReference": "audit-ce-provider-001",
+          "containsProtectedData": false,
+          "requiresFounderAttention": false,
+          "approvalReference": null,
+          "deliveryPolicyId": "policy-routine-attention",
+          "metadata": { "attempt": 1 }
+        },
+        {
+          "eventId": "evt-ce-provider-002",
+          "eventType": "execution.provider_unavailable",
+          "occurredAt": "2026-07-17T13:07:00Z",
+          "scope": "workspace",
+          "ownerContext": { "type": "workspace", "id": "workspace-002-contractor-estimator" },
+          "severity": "medium",
+          "summary": "The primary estimate provider is temporarily unavailable.",
+          "subjectReference": "run-ce-estimate-004",
+          "correlationId": "corr-ce-provider-outage-004",
+          "auditReference": "audit-ce-provider-002",
+          "containsProtectedData": false,
+          "requiresFounderAttention": false,
+          "approvalReference": null,
+          "deliveryPolicyId": "policy-routine-attention",
+          "metadata": { "attempt": 2 }
+        }
+      ],
+      "expected": {
+        "attentionItemsCreated": 1,
+        "occurrenceCount": 2,
+        "crossWorkspaceMutation": false
+      }
+    },
+    {
+      "name": "Protected data notification rejected",
+      "event": {
+        "eventId": "evt-invalid-secret-001",
+        "eventType": "integration.secret_exposed",
+        "occurredAt": "2026-07-17T13:10:00Z",
+        "scope": "platform",
+        "ownerContext": { "type": "platform", "id": "founder-os" },
+        "severity": "critical",
+        "summary": "A protected value was detected in an outbound notification payload.",
+        "subjectReference": "notification-attempt-001",
+        "correlationId": "corr-secret-redaction-001",
+        "auditReference": "audit-secret-redaction-001",
+        "containsProtectedData": true,
+        "requiresFounderAttention": true,
+        "approvalReference": null,
+        "deliveryPolicyId": "policy-critical-immediate",
+        "metadata": {}
+      },
+      "expected": {
+        "deliveryBlocked": true,
+        "redactionRequired": true,
+        "auditRequired": true
+      }
+    }
+  ]
+}
