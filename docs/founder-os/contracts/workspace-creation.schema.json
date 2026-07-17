@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/workspace-creation.schema.json",
+  "title": "Founder OS Workspace Creation Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "requestVersion",
+    "intent",
+    "draft",
+    "fieldSources",
+    "founderConfirmed",
+    "protectedSecurityChangeRequested"
+  ],
+  "properties": {
+    "requestVersion": { "const": "1.0.0" },
+    "intent": { "type": "string", "minLength": 10 },
+    "founderConfirmed": { "type": "boolean" },
+    "protectedSecurityChangeRequested": { "const": false },
+    "draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name", "slug", "description", "workspaceType", "purpose",
+        "intendedOutcomes", "outputTypes", "isolationBoundary",
+        "knowledgeLocations", "assetLocations", "allowedIntegrations",
+        "aiTeamPolicyRef", "approvalPolicyRef", "projectCreationWorkflowRef",
+        "supportedActions", "metrics", "healthIndicators", "deliveryTargets"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "description": { "type": "string", "minLength": 10 },
+        "workspaceType": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 10 },
+        "intendedOutcomes": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "outputTypes": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "isolationBoundary": { "type": "string", "minLength": 1 },
+        "knowledgeLocations": { "type": "array", "items": { "type": "string" } },
+        "assetLocations": { "type": "array", "items": { "type": "string" } },
+        "allowedIntegrations": { "type": "array", "items": { "type": "string" } },
+        "aiTeamPolicyRef": { "type": "string", "minLength": 1 },
+        "approvalPolicyRef": { "type": "string", "minLength": 1 },
+        "projectCreationWorkflowRef": { "type": "string", "minLength": 1 },
+        "supportedActions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "metrics": { "type": "array", "items": { "type": "string" } },
+        "healthIndicators": { "type": "array", "items": { "type": "string" } },
+        "deliveryTargets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "fieldSources": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["founder-supplied", "system-suggested", "unresolved", "approval-required"]
+      }
+    }
+  }
+}
