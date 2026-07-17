@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0",
+  "roles": [
+    {"roleId":"product-architect","name":"Product Architect","responsibility":"Define product architecture and acceptance boundaries.","authorityClass":"verified","requiredCapabilities":["architecture.design","requirements.analysis"]},
+    {"roleId":"builder","name":"Builder","responsibility":"Implement approved work packages.","authorityClass":"verified","requiredCapabilities":["code.implementation","evidence.production"]},
+    {"roleId":"experience-reviewer","name":"Experience Reviewer","responsibility":"Review usability and implementation evidence.","authorityClass":"verified","requiredCapabilities":["experience.review","evidence.review"]},
+    {"roleId":"estimator","name":"Estimator","responsibility":"Calculate material, labor, overhead, and price estimates.","authorityClass":"verified","requiredCapabilities":["estimate.calculation","requirements.analysis"]},
+    {"roleId":"proposal-writer","name":"Proposal Writer","responsibility":"Produce customer-ready proposals from verified estimates.","authorityClass":"founder-gated","requiredCapabilities":["document.generation","evidence.review"]}
+  ],
+  "capabilities": [
+    {"capabilityId":"architecture.design","name":"Architecture Design","description":"Design product and system structures."},
+    {"capabilityId":"requirements.analysis","name":"Requirements Analysis","description":"Interpret scope, constraints, and acceptance criteria."},
+    {"capabilityId":"code.implementation","name":"Code Implementation","description":"Create and modify source artifacts."},
+    {"capabilityId":"evidence.production","name":"Evidence Production","description":"Produce traceable implementation evidence."},
+    {"capabilityId":"experience.review","name":"Experience Review","description":"Evaluate user experience against evidence."},
+    {"capabilityId":"evidence.review","name":"Evidence Review","description":"Verify claims against supplied evidence."},
+    {"capabilityId":"estimate.calculation","name":"Estimate Calculation","description":"Calculate quantities, labor, overhead, and totals."},
+    {"capabilityId":"document.generation","name":"Document Generation","description":"Create structured customer-ready documents."}
+  ],
+  "providers": [
+    {"providerId":"openai","name":"OpenAI","status":"available","independentAuthority":false},
+    {"providerId":"google-ai","name":"Google AI","status":"available","independentAuthority":false}
+  ],
+  "models": [
+    {"modelId":"openai-general","providerId":"openai","modalities":["text","code","structured-data"],"capabilities":["architecture.design","requirements.analysis","code.implementation","evidence.production","experience.review","evidence.review","estimate.calculation","document.generation"]},
+    {"modelId":"google-general","providerId":"google-ai","modalities":["text","code","structured-data"],"capabilities":["architecture.design","requirements.analysis","code.implementation","experience.review","evidence.review","estimate.calculation","document.generation"]}
+  ],
+  "tools": [
+    {"toolId":"github","name":"GitHub","capabilities":["code.implementation","evidence.production"],"permissionRequired":true},
+    {"toolId":"document-renderer","name":"Document Renderer","capabilities":["document.generation"],"permissionRequired":true},
+    {"toolId":"estimate-engine","name":"Estimate Engine","capabilities":["estimate.calculation"],"permissionRequired":true}
+  ],
+  "workspaceTeams": [
+    {"workspaceId":"natural-nation","assignments":[
+      {"roleId":"product-architect","requiredCapabilities":["architecture.design","requirements.analysis"],"permittedTools":[],"routing":{"primaryModelId":"openai-general","fallbackModelIds":["google-general"],"preserveContract":true}},
+      {"roleId":"builder","requiredCapabilities":["code.implementation","evidence.production"],"permittedTools":["github"],"routing":{"primaryModelId":"openai-general","fallbackModelIds":["google-general"],"preserveContract":true}},
+      {"roleId":"experience-reviewer","requiredCapabilities":["experience.review","evidence.review"],"permittedTools":[],"routing":{"primaryModelId":"google-general","fallbackModelIds":["openai-general"],"preserveContract":true}}
+    ]},
+    {"workspaceId":"contractor-estimator","assignments":[
+      {"roleId":"estimator","requiredCapabilities":["estimate.calculation","requirements.analysis"],"permittedTools":["estimate-engine"],"routing":{"primaryModelId":"openai-general","fallbackModelIds":["google-general"],"preserveContract":true}},
+      {"roleId":"proposal-writer","requiredCapabilities":["document.generation","evidence.review"],"permittedTools":["document-renderer"],"routing":{"primaryModelId":"google-general","fallbackModelIds":["openai-general"],"preserveContract":true}}
+    ]}
+  ]
+}
