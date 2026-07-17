@@ -1,0 +1,28 @@
+{
+  "package":"FOS-FOUNDATION-015",
+  "version":"1.0.0",
+  "constitutionalDirective":"FOS-DIRECTIVE-001",
+  "rules":{
+    "oneWorkspaceContext":true,
+    "immutableArtifactIdentity":true,
+    "lockedChangesRequireFounderApproval":true,
+    "sourceOfTruthUniquePerSubject":true,
+    "supersessionPreservesHistory":true,
+    "crossWorkspaceMutationBlocked":true,
+    "rawSecretsForbidden":true,
+    "conflictsMustBeSurfaced":true,
+    "staleKnowledgeCannotMasqueradeAsCurrent":true,
+    "knowledgeDoesNotGrantExecutionAuthority":true
+  },
+  "lifecycle":["draft","active","locked","superseded","deprecated","archived"],
+  "conflictPolicy":{"action":"block-and-escalate","matchOn":["workspaceId","kind","subject"],"requiredEvidence":["candidate-version","current-source-of-truth","difference-summary"]},
+  "fixtures":[
+    {
+      "artifactId":"art_nn_duey_spec_001","workspaceId":"natural-nation","kind":"specification","title":"DUEY-SPEC-001","version":"1.1.0","status":"locked","sourceOfTruth":true,"supersedes":null,"contentRef":"docs/natural-nation/DUEY-SPEC-001.md","contentHash":"sha256:nn-duey-110","decisionAuthority":"founder","provenance":{"origin":"founder-approval","actor":"founder","recordedAt":"2026-07-17T00:00:00Z","evidenceRefs":["approval:DUEY-SPEC-001:v1.1"]},"sensitivity":"internal","retention":"indefinite","createdAt":"2026-07-17T00:00:00Z","updatedAt":"2026-07-17T00:00:00Z"
+    },
+    {
+      "artifactId":"art_ce_estimate_template_001","workspaceId":"contractor-estimator","kind":"asset","title":"Customer Estimate Template","version":"1.0.0","status":"active","sourceOfTruth":true,"supersedes":null,"contentRef":"workspaces/contractor-estimator/templates/estimate-v1.json","contentHash":"sha256:ce-template-100","decisionAuthority":"delegated","provenance":{"origin":"workspace-creation","actor":"system","recordedAt":"2026-07-17T00:00:00Z","evidenceRefs":["workspace:contractor-estimator"]},"sensitivity":"internal","retention":"workspace-life","createdAt":"2026-07-17T00:00:00Z","updatedAt":"2026-07-17T00:00:00Z"
+    }
+  ],
+  "blockingCases":["raw-secret-in-artifact","silent-locked-overwrite","duplicate-source-of-truth","cross-workspace-supersession","missing-provenance","missing-content-hash"]
+}
