@@ -1,0 +1,45 @@
+name: Deploy Founder OS Live Pilot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'founder-os/app/**'
+      - '.github/workflows/deploy-founder-os-pilot.yml'
+      - 'scripts/validate-live-pilot.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: founder-os-pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/validate-live-pilot.mjs
+
+  deploy:
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: founder-os/app
+      - name: Deploy Founder OS pilot
+        id: deployment
+        uses: actions/deploy-pages@v4
