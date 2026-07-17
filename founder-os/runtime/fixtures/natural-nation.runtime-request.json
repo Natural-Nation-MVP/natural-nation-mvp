@@ -1,0 +1,11 @@
+{
+  "requestId": "req-nn-blueprint-verify-001",
+  "workspaceId": "workspace-natural-nation",
+  "actor": {"type": "ai_role", "id": "duey-experience-verifier"},
+  "action": "verify_blueprint_experience",
+  "payloadHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "correlationId": "corr-nn-onboarding-001",
+  "executionClass": "routine",
+  "workflowId": "AI-TASK-003",
+  "estimatedCost": {"amount": 0.08, "currency": "USD"}
+}

@@ -1,0 +1,11 @@
+{
+  "requestId": "req-ce-estimate-001",
+  "workspaceId": "workspace-contractor-estimator",
+  "actor": {"type": "ai_role", "id": "estimate-preparer"},
+  "action": "prepare_draft_estimate",
+  "payloadHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "correlationId": "corr-ce-job-001",
+  "executionClass": "routine",
+  "workflowId": "CE-WORKFLOW-ESTIMATE-DRAFT",
+  "estimatedCost": {"amount": 0.04, "currency": "USD"}
+}
