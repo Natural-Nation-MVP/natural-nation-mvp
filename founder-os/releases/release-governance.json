@@ -1,0 +1,24 @@
+{
+  "package":"FOS-FOUNDATION-017",
+  "version":"1.0.0",
+  "constitutionalDirective":"FOS-DIRECTIVE-001",
+  "rules":{
+    "immutableCandidateHash":true,
+    "oneWorkspacePerRelease":true,
+    "productionRequiresFounderApproval":true,
+    "failedGateBlocksPromotion":true,
+    "rollbackPlanRequired":true,
+    "postDeployVerificationRequired":true,
+    "connectorMustBeRegistered":true,
+    "deploymentUsesExecutionRuntime":true,
+    "secretsExcludedFromReleaseEvidence":true,
+    "securityChangesRequireExplicitFounderApproval":true
+  },
+  "promotionPath":["development","preview","staging","production"],
+  "requiredGates":["build","unit-tests","integration-tests","workspace-isolation","policy-check","artifact-hash","rollback-readiness"],
+  "fixtures":[
+    {"releaseId":"rel_nn_1_0_0","workspaceId":"natural-nation","version":"1.0.0","environment":"production","artifactHash":"sha256:nn-release-100","status":"candidate","changeSummary":["Duey blueprint flow","dashboard entry"],"gates":[{"name":"build","status":"passed","evidenceRef":"ev:nn-build"},{"name":"workspace-isolation","status":"passed","evidenceRef":"ev:nn-isolation"},{"name":"rollback-readiness","status":"passed","evidenceRef":"ev:nn-rollback"}],"migrationPlan":"mig:nn-100","deploymentWindow":"founder-selected","approvalClass":"founder-production","rollback":{"strategy":"previous-artifact","artifactRef":"artifact:nn-0.9.0","tested":true},"postDeployChecks":["health","onboarding-smoke","duey-response"],"incidentRef":null},
+    {"releaseId":"rel_ce_0_1_0","workspaceId":"contractor-estimator","version":"0.1.0","environment":"staging","artifactHash":"sha256:ce-release-010","status":"validated","changeSummary":["estimate template preview"],"gates":[{"name":"build","status":"passed","evidenceRef":"ev:ce-build"},{"name":"rollback-readiness","status":"passed","evidenceRef":"ev:ce-rollback"}],"migrationPlan":null,"deploymentWindow":null,"approvalClass":"autonomous-nonproduction","rollback":{"strategy":"previous-artifact","artifactRef":"artifact:ce-0.0.9","tested":true},"postDeployChecks":["health","estimate-render"],"incidentRef":null}
+  ],
+  "blockingCases":["changed-artifact-after-approval","failed-gate","missing-rollback","cross-workspace-release","unregistered-deployer","missing-production-approval","security-change-without-explicit-approval"]
+}
