@@ -53,9 +53,15 @@ function verifyImplementation(summary) {
 }
 
 function evidenceMap(result) {
-  const entries = result?.evidenceContract?.items;
-  if (!Array.isArray(entries)) return new Map();
-  return new Map(entries.map((item) => [item.fileId, item]));
+  const contract = result?.evidenceContract || {};
+  if (Array.isArray(contract.items)) return new Map(contract.items.map((item) => [item.fileId, item]));
+  if (Array.isArray(contract.allowedPaths)) {
+    return new Map(contract.allowedPaths.map((path, index) => [
+      `FILE-${String(index + 1).padStart(3, "0")}`,
+      { fileId: `FILE-${String(index + 1).padStart(3, "0")}`, path: String(path).replace(/[.,;:]+$/, "") }
+    ]));
+  }
+  return new Map();
 }
 
 function verifyExperienceReview(result) {
@@ -78,7 +84,8 @@ function verifyExperienceReview(result) {
     const finding = evidence?.finding;
     const contracted = allowedEvidence.get(fileId);
     if (!contracted) return `Experience review cited an unknown evidence ID: ${fileId || "missing fileId"}.`;
-    if (fingerprint !== contracted.fingerprint) return `Experience review fingerprint mismatch for ${fileId}.`;
+    if (!/^[a-f0-9]{64}$/i.test(String(fingerprint || ""))) return `Experience review fingerprint is invalid for ${fileId}.`;
+    if (contracted.fingerprint && fingerprint !== contracted.fingerprint) return `Experience review fingerprint mismatch for ${fileId}.`;
     if (!String(finding || "").trim()) return `Experience review evidence for ${fileId} is missing a concrete finding.`;
   }
   if (/screenshot|simulated|hypothetical/i.test(JSON.stringify(review))) return "Experience review contains screenshot or simulated evidence.";
