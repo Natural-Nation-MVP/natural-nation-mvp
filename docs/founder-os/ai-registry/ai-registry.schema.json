@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/ai-registry.schema.json",
+  "title": "Founder OS AI Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "roles", "capabilities", "providers", "models", "tools", "workspaceTeams"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "roles": { "type": "array", "items": { "$ref": "#/$defs/role" } },
+    "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } },
+    "providers": { "type": "array", "items": { "$ref": "#/$defs/provider" } },
+    "models": { "type": "array", "items": { "$ref": "#/$defs/model" } },
+    "tools": { "type": "array", "items": { "$ref": "#/$defs/tool" } },
+    "workspaceTeams": { "type": "array", "items": { "$ref": "#/$defs/team" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+    "role": {
+      "type": "object", "additionalProperties": false,
+      "required": ["roleId", "name", "responsibility", "authorityClass", "requiredCapabilities"],
+      "properties": {
+        "roleId": { "$ref": "#/$defs/id" }, "name": { "type": "string", "minLength": 1 },
+        "responsibility": { "type": "string", "minLength": 1 },
+        "authorityClass": { "enum": ["routine", "verified", "founder-gated", "protected"] },
+        "requiredCapabilities": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "capability": {
+      "type": "object", "additionalProperties": false,
+      "required": ["capabilityId", "name", "description"],
+      "properties": { "capabilityId": { "$ref": "#/$defs/id" }, "name": { "type": "string" }, "description": { "type": "string" } }
+    },
+    "provider": {
+      "type": "object", "additionalProperties": false,
+      "required": ["providerId", "name", "status", "independentAuthority"],
+      "properties": {
+        "providerId": { "$ref": "#/$defs/id" }, "name": { "type": "string" },
+        "status": { "enum": ["available", "degraded", "unavailable"] },
+        "independentAuthority": { "const": false }
+      }
+    },
+    "model": {
+      "type": "object", "additionalProperties": false,
+      "required": ["modelId", "providerId", "modalities", "capabilities"],
+      "properties": {
+        "modelId": { "$ref": "#/$defs/id" }, "providerId": { "$ref": "#/$defs/id" },
+        "modalities": { "type": "array", "minItems": 1, "items": { "enum": ["text", "image", "audio", "video", "code", "structured-data"] } },
+        "capabilities": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "tool": {
+      "type": "object", "additionalProperties": false,
+      "required": ["toolId", "name", "capabilities", "permissionRequired"],
+      "properties": {
+        "toolId": { "$ref": "#/$defs/id" }, "name": { "type": "string" },
+        "capabilities": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+        "permissionRequired": { "type": "boolean" }
+      }
+    },
+    "team": {
+      "type": "object", "additionalProperties": false,
+      "required": ["workspaceId", "assignments"],
+      "properties": {
+        "workspaceId": { "$ref": "#/$defs/id" },
+        "assignments": { "type": "array", "minItems": 1, "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["roleId", "requiredCapabilities", "permittedTools", "routing"],
+          "properties": {
+            "roleId": { "$ref": "#/$defs/id" },
+            "requiredCapabilities": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+            "permittedTools": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+            "routing": {
+              "type": "object", "additionalProperties": false,
+              "required": ["primaryModelId", "fallbackModelIds", "preserveContract"],
+              "properties": {
+                "primaryModelId": { "$ref": "#/$defs/id" },
+                "fallbackModelIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+                "preserveContract": { "const": true }
+              }
+            }
+          }
+        } }
+      }
+    }
+  }
+}
