@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/workflow-action-registry.schema.json",
+  "title": "Founder OS Workflow and Action Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "workspaceId", "workflows", "actions", "protectedSecurityBoundaryChanged"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "workspaceId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "protectedSecurityBoundaryChanged": { "const": false },
+    "workflows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["workflowId", "version", "workspaceId", "purpose", "trigger", "projectTypes", "tasks", "completionRule"],
+        "properties": {
+          "workflowId": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+          "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "workspaceId": { "type": "string" },
+          "purpose": { "type": "string", "minLength": 1 },
+          "trigger": { "type": "string", "minLength": 1 },
+          "projectTypes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "completionRule": { "type": "string", "minLength": 1 },
+          "tasks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["taskId", "dependsOn", "role", "capabilities", "expectedOutput", "evidenceRequired", "verification", "approvalClass", "onFailure"],
+              "properties": {
+                "taskId": { "type": "string", "minLength": 1 },
+                "dependsOn": { "type": "array", "items": { "type": "string" } },
+                "role": { "type": "string", "minLength": 1 },
+                "capabilities": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                "expectedOutput": { "type": "string", "minLength": 1 },
+                "evidenceRequired": { "type": "boolean" },
+                "verification": { "type": "string", "minLength": 1 },
+                "approvalClass": { "enum": ["autonomous", "verification-gated", "founder-required", "protected"] },
+                "onFailure": { "enum": ["retry", "remediate", "block", "escalate"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actionId", "version", "workspaceId", "actors", "requiredInputs", "capabilities", "tools", "consequence", "approvalClass", "expectedOutput", "auditRequired"],
+        "properties": {
+          "actionId": { "type": "string", "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+          "version": { "type": "string" },
+          "workspaceId": { "type": "string" },
+          "actors": { "type": "array", "minItems": 1, "items": { "enum": ["founder", "ai-role", "automation", "collaborator"] } },
+          "requiredInputs": { "type": "array", "items": { "type": "string" } },
+          "capabilities": { "type": "array", "items": { "type": "string" } },
+          "tools": { "type": "array", "items": { "type": "string" } },
+          "consequence": { "enum": ["reversible", "externally-consequential", "irreversible", "protected"] },
+          "approvalClass": { "enum": ["autonomous", "verification-gated", "founder-required", "protected"] },
+          "startsWorkflowId": { "type": "string" },
+          "expectedOutput": { "type": "string", "minLength": 1 },
+          "auditRequired": { "type": "boolean" }
+        }
+      }
+    },
+    "compatibilityMappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["legacyTaskId", "workflowId", "taskId"],
+        "properties": {
+          "legacyTaskId": { "type": "string" },
+          "workflowId": { "type": "string" },
+          "taskId": { "type": "string" }
+        }
+      }
+    }
+  }
+}
