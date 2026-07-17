@@ -13,7 +13,8 @@ export function corsHeaders(request) {
     "content-type": "application/json; charset=utf-8",
     "access-control-allow-origin": allowOrigin,
     "access-control-allow-methods": "GET,POST,OPTIONS",
-    "access-control-allow-headers": "authorization,content-type,x-client-request-id",
+    // Permit the public client to pass only its non-secret workspace context.
+    "access-control-allow-headers": "authorization,content-type,x-client-request-id,x-founder-os-workspace",
     "access-control-max-age": "86400",
     vary: "Origin"
   };
