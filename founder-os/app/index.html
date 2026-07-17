@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Founder OS governed command center">
+  <title>Founder OS Command Center</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="topbar">
+    <div><p class="eyebrow">Founder OS</p><h1>Command Center</h1></div>
+    <div id="platform-health" class="status" role="status" aria-live="polite">Loading platform health…</div>
+  </header>
+  <div class="layout">
+    <nav aria-label="Workspace navigation">
+      <h2>Workspaces</h2>
+      <div id="workspace-list"></div>
+    </nav>
+    <main id="main" tabindex="-1">
+      <section class="hero" aria-labelledby="workspace-title">
+        <div><p class="eyebrow" id="workspace-number"></p><h2 id="workspace-title">Loading workspace…</h2><p id="workspace-summary"></p></div>
+        <div id="workspace-state" class="status"></div>
+      </section>
+      <section class="metrics" aria-label="Workspace metrics" id="metrics"></section>
+      <section class="grid">
+        <article><h3>Execution Runs</h3><div id="runs"></div></article>
+        <article><h3>Pending Approvals</h3><div id="approvals"></div></article>
+        <article><h3>Health & Incidents</h3><div id="health"></div></article>
+        <article><h3>Schedules</h3><div id="schedules"></div></article>
+        <article><h3>Release Status</h3><div id="release"></div></article>
+        <article><h3>Evidence & Audit</h3><div id="evidence"></div></article>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
