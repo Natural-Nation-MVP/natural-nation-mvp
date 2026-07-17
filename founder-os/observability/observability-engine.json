@@ -1,0 +1,31 @@
+{
+  "id": "FOS-OBSERVABILITY-ENGINE-001",
+  "version": "1.0.0",
+  "directive": "FOS-DIRECTIVE-001",
+  "purpose": "Provide workspace-scoped operational visibility without creating an alternate execution or approval path.",
+  "ownership": {
+    "platform": ["telemetry_contracts", "portfolio_rollups", "incident_correlation", "attention_routing"],
+    "workspace": ["product_metrics", "workspace_health_checks", "workspace_slos", "workspace_incidents"]
+  },
+  "telemetry_types": ["metric", "health_check", "execution_signal", "integration_signal", "incident_signal", "audit_reference"],
+  "health_states": ["healthy", "degraded", "at_risk", "unavailable", "unknown"],
+  "incident_states": ["detected", "triaged", "contained", "monitoring", "resolved", "closed"],
+  "severity": ["info", "low", "medium", "high", "critical"],
+  "requirements": {
+    "explicit_workspace_context": true,
+    "source_provenance": true,
+    "freshness_metadata": true,
+    "data_quality_metadata": true,
+    "immutable_audit_reference": true,
+    "protected_data_excluded": true,
+    "registered_remediation_only": true,
+    "founder_approval_preserved": true
+  },
+  "prohibitions": [
+    "infer_founder_approval",
+    "perform_unregistered_remediation",
+    "combine_workspace_execution_contexts",
+    "expose_secrets_or_protected_payloads",
+    "expand_provider_model_role_connector_or_tool_authority"
+  ]
+}
