@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "founder-os-workspace-lifecycle",
+  "states": [
+    "draft",
+    "active",
+    "paused",
+    "archived",
+    "restored",
+    "scheduled_for_deletion",
+    "deleted"
+  ],
+  "transitions": {
+    "draft": ["active", "archived", "scheduled_for_deletion"],
+    "active": ["paused", "archived", "scheduled_for_deletion"],
+    "paused": ["active", "archived", "scheduled_for_deletion"],
+    "archived": ["restored", "scheduled_for_deletion"],
+    "restored": ["active", "paused", "archived"],
+    "scheduled_for_deletion": ["restored", "deleted"],
+    "deleted": []
+  },
+  "approvalRequired": [
+    { "from": "*", "to": "scheduled_for_deletion", "approvalType": "founder_explicit" },
+    { "from": "scheduled_for_deletion", "to": "deleted", "approvalType": "founder_explicit" }
+  ],
+  "transitionEvidenceRequired": [
+    "workspaceId",
+    "from",
+    "to",
+    "actor",
+    "reason",
+    "occurredAt",
+    "auditRef"
+  ],
+  "terminalStates": ["deleted"]
+}
