@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "package": "FOS-FOUNDATION-013",
+  "constitutionalDirective": "FOS-DIRECTIVE-001",
+  "connectionStates": [
+    "pending",
+    "healthy",
+    "degraded",
+    "rate_limited",
+    "unavailable",
+    "suspended",
+    "revoked"
+  ],
+  "capabilityClasses": [
+    "read",
+    "write-routine",
+    "write-consequential"
+  ],
+  "invariants": {
+    "explicitWorkspaceContextRequired": true,
+    "rawCredentialsForbidden": true,
+    "registeredCapabilitiesOnly": true,
+    "crossWorkspaceInvocationBlocked": true,
+    "consequentialWritesRequireFounderApproval": true,
+    "protectedPayloadRequiresRedactionOrBlock": true,
+    "runtimeExecutionRequired": true,
+    "evidenceAndVerificationPreserved": true,
+    "authorityExpansionForbidden": true
+  },
+  "integrations": [
+    {
+      "integrationId": "github",
+      "displayName": "GitHub",
+      "provider": "GitHub",
+      "connectorType": "source-control",
+      "capabilities": [
+        {
+          "capabilityId": "repository.read",
+          "class": "read",
+          "approvalRequired": false,
+          "idempotencyRequired": false
+        },
+        {
+          "capabilityId": "pull-request.create",
+          "class": "write-routine",
+          "approvalRequired": false,
+          "idempotencyRequired": true
+        },
+        {
+          "capabilityId": "pull-request.merge",
+          "class": "write-consequential",
+          "approvalRequired": true,
+          "idempotencyRequired": true
+        }
+      ]
+    },
+    {
+      "integrationId": "email-delivery",
+      "displayName": "Email Delivery",
+      "provider": "registered-email-provider",
+      "connectorType": "communications",
+      "capabilities": [
+        {
+          "capabilityId": "message.preview",
+          "class": "read",
+          "approvalRequired": false,
+          "idempotencyRequired": false
+        },
+        {
+          "capabilityId": "message.send-external",
+          "class": "write-consequential",
+          "approvalRequired": true,
+          "idempotencyRequired": true
+        }
+      ]
+    }
+  ]
+}
