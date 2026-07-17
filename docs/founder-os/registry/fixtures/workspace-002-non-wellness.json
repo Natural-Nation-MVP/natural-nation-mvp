@@ -1,0 +1,41 @@
+{
+  "workspaceId": "founder-research-studio",
+  "displayName": "Founder Research Studio",
+  "sequence": 2,
+  "workspaceType": "research_media_system",
+  "description": "A non-wellness workspace that produces research briefs, media packages, and decision-support deliverables.",
+  "status": "draft",
+  "ownerType": "founder",
+  "isolation": {
+    "namespace": "workspace:founder-research-studio",
+    "dataBoundary": "workspace-owned research sources and structured findings",
+    "assetBoundary": "workspace-owned media and source assets",
+    "executionBoundary": "workspace-scoped research, analysis, production, and review tasks",
+    "knowledgeBoundary": "workspace-owned research knowledge base",
+    "deliverableBoundary": "briefs, reports, media packages, and decision records"
+  },
+  "locations": {
+    "source": "workspaces/founder-research-studio/source/",
+    "knowledge": "workspaces/founder-research-studio/knowledge/",
+    "assets": "workspaces/founder-research-studio/assets/",
+    "deliverables": "workspaces/founder-research-studio/deliverables/"
+  },
+  "governance": {
+    "approvalPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md",
+    "auditPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md#audit-and-traceability",
+    "protectedBoundaryRef": "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary"
+  },
+  "capabilities": [
+    "project.create",
+    "research.execute",
+    "media.produce",
+    "approval.request",
+    "deliverable.produce"
+  ],
+  "health": {
+    "state": "unknown",
+    "summary": "Validation fixture only; not registered as a production workspace."
+  },
+  "createdAt": "2026-07-17T03:55:00.000Z",
+  "updatedAt": "2026-07-17T03:55:00.000Z"
+}
