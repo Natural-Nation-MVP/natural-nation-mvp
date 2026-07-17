@@ -1,0 +1,38 @@
+{
+  "requestVersion": "1.0.0",
+  "intent": "Create a contractor estimating workspace that produces material lists, labor estimates, and customer-ready proposals.",
+  "founderConfirmed": true,
+  "protectedSecurityChangeRequested": false,
+  "draft": {
+    "name": "Construction Estimator",
+    "slug": "construction-estimator",
+    "description": "A workspace for planning and producing contractor estimates and proposal documents.",
+    "workspaceType": "contractor-software",
+    "purpose": "Help contractors create consistent estimates, material lists, labor calculations, and customer proposals.",
+    "intendedOutcomes": [
+      "Generate project estimates",
+      "Produce material lists",
+      "Produce customer-ready proposals"
+    ],
+    "outputTypes": ["estimate", "material-list", "proposal"],
+    "isolationBoundary": "workspace:construction-estimator",
+    "knowledgeLocations": ["knowledge/workspaces/construction-estimator"],
+    "assetLocations": ["resources/workspaces/construction-estimator"],
+    "allowedIntegrations": ["github"],
+    "aiTeamPolicyRef": "policy:ai-team:standard-product-team",
+    "approvalPolicyRef": "policy:approval:founder-controlled-release",
+    "projectCreationWorkflowRef": "workflow:project:create-standard",
+    "supportedActions": ["create-project", "generate-estimate", "generate-proposal"],
+    "metrics": ["estimate-count", "proposal-count", "completion-rate"],
+    "healthIndicators": ["configuration-readiness", "workflow-health"],
+    "deliveryTargets": ["web", "pdf"]
+  },
+  "fieldSources": {
+    "draft.name": "system-suggested",
+    "draft.slug": "system-suggested",
+    "draft.purpose": "system-suggested",
+    "draft.intendedOutcomes": "founder-supplied",
+    "draft.outputTypes": "founder-supplied",
+    "draft.approvalPolicyRef": "system-suggested"
+  }
+}
