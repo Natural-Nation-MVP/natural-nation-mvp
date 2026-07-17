@@ -1,0 +1,34 @@
+{
+  "policies": [
+    {
+      "id": "policy-critical-immediate",
+      "minimumSeverity": "critical",
+      "channels": ["command_center", "in_app", "push", "email"],
+      "quietHoursBehavior": "bypass",
+      "acknowledgementRequired": true,
+      "escalateAfterMinutes": 15,
+      "allowedActions": ["open_context", "acknowledge"],
+      "forbiddenActions": ["approve", "reject", "execute", "mutate_workspace"]
+    },
+    {
+      "id": "policy-founder-approval",
+      "eventTypes": ["approval.requested", "approval.escalated"],
+      "channels": ["command_center", "in_app", "email"],
+      "quietHoursBehavior": "respect_unless_critical",
+      "acknowledgementRequired": false,
+      "escalateAfterMinutes": 240,
+      "allowedActions": ["open_approval_context"],
+      "forbiddenActions": ["approve_from_notification", "reject_from_notification", "execute"]
+    },
+    {
+      "id": "policy-routine-attention",
+      "maximumSeverity": "medium",
+      "channels": ["command_center", "in_app"],
+      "quietHoursBehavior": "respect",
+      "acknowledgementRequired": false,
+      "escalateAfterMinutes": null,
+      "allowedActions": ["open_context", "dismiss"],
+      "forbiddenActions": ["approve", "execute", "cross_workspace_mutation"]
+    }
+  ]
+}
