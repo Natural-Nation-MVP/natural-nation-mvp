@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0.0",
+  "registryId": "founder-os-workspace-registry",
+  "updatedAt": "2026-07-17T03:55:00.000Z",
+  "workspaces": [
+    {
+      "workspaceId": "natural-nation",
+      "displayName": "Natural Nation",
+      "sequence": 1,
+      "workspaceType": "digital_wellness_product",
+      "description": "AI-guided holistic wellness product and the first workspace created and governed through Founder OS.",
+      "status": "active",
+      "ownerType": "founder",
+      "isolation": {
+        "namespace": "workspace:natural-nation",
+        "dataBoundary": "natural-nation-owned application and product data",
+        "assetBoundary": "resources/ and workspace-registered external assets",
+        "executionBoundary": "workspace-scoped projects, packages, tasks, releases, and maintenance",
+        "knowledgeBoundary": "knowledge/ and Natural Nation workspace documentation",
+        "deliverableBoundary": "Natural Nation applications, services, media, plans, and release artifacts"
+      },
+      "locations": {
+        "source": "app/",
+        "knowledge": "knowledge/",
+        "assets": "resources/",
+        "deliverables": "workspace:natural-nation:deliverables"
+      },
+      "governance": {
+        "approvalPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md",
+        "auditPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md#audit-and-traceability",
+        "protectedBoundaryRef": "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary"
+      },
+      "capabilities": [
+        "project.create",
+        "project.manage",
+        "workflow.execute",
+        "ai-team.configure",
+        "approval.request",
+        "deliverable.produce",
+        "release.manage",
+        "metrics.report"
+      ],
+      "health": {
+        "state": "attention",
+        "summary": "Active workspace undergoing migration into the canonical Founder OS workspace boundary."
+      },
+      "createdAt": "2026-07-17T03:55:00.000Z",
+      "updatedAt": "2026-07-17T03:55:00.000Z"
+    }
+  ]
+}
