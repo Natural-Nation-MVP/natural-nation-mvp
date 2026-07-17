@@ -1,15 +1,16 @@
-/**
- * Founder OS Gateway Worker v0.5.4
+/*
+ * Founder OS Gateway Worker v0.6.0
  *
- * Canonical Cloudflare Worker source for protected Founder approvals and
- * repository-backed AI orchestration.
+ * Canonical Cloudflare Worker source for protected Founder approvals,
+ * repository-backed AI orchestration, and the safe live Founder review pilot.
  */
 
-import { emptyResponse, json } from "./lib/http.js";
+import { emptyResponse, errorResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
+import { handleLivePilot } from "./routes/live-pilot.js";
 
-const VERSION = "0.5.4";
+const VERSION = "0.6.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -54,76 +55,101 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // Complete the browser preflight before any protected route handling.
     if (request.method === "OPTIONS") {
       return emptyResponse(request, 204);
     }
 
-    const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
-    if (approvalResponse) return approvalResponse;
+    try {
+      // Keep existing protected capabilities ahead of general informational routes.
+      const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
+      if (approvalResponse) return approvalResponse;
 
-    const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
-    if (orchestrationResponse) return orchestrationResponse;
+      const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
+      if (orchestrationResponse) return orchestrationResponse;
 
-    if (url.pathname === "/health") {
-      return json(request, {
-        service: "Founder OS Gateway",
-        status: "online",
-        version: VERSION,
-        time: new Date().toISOString()
-      });
+      // Add the live pilot contract without changing existing route authority.
+      const livePilotResponse = await handleLivePilot(request, env, url.pathname, VERSION);
+      if (livePilotResponse) return livePilotResponse;
+
+      if (url.pathname === "/health") {
+        return json(request, {
+          service: "Founder OS Gateway",
+          status: "online",
+          version: VERSION,
+          time: new Date().toISOString()
+        });
+      }
+
+      if (url.pathname === "/version") {
+        return json(request, {
+          service: "Founder OS Gateway",
+          version: VERSION,
+          environment: "production",
+          deployment: "github-managed",
+          capabilities: {
+            blueprintApproval: "canonical-commit-enabled",
+            blueprintApprovalDryRun: "enabled",
+            idempotentApprovalRecovery: "enabled",
+            aiOrchestration: "repository-backed",
+            aiDispatchDryRun: "enabled",
+            directAiProviders: "enabled",
+            providerReadiness: "enabled",
+            repositoryExecution: "enabled",
+            structuredObservability: "enabled",
+            verifiedResultCallbacks: "legacy-compatible",
+            workspaceIsolation: "enabled",
+            liveFounderReviewPilot: "enabled",
+            signedPilotApprovals: "enabled",
+            pilotDiagnostics: "enabled"
+          }
+        });
+      }
+
+      if (url.pathname === "/configuration") {
+        const configuration = gatewayConfiguration(env);
+        return json(request, {
+          service: "Founder OS Gateway",
+          version: VERSION,
+          ...configuration,
+          diagnostics: safeBindingDiagnostics(env)
+        });
+      }
+
+      if (url.pathname === "/") {
+        return json(request, {
+          service: "Founder OS Gateway",
+          status: "online",
+          version: VERSION,
+          message: "Founder OS secure execution gateway is running."
+        });
+      }
+
+      return json(
+        request,
+        {
+          ok: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "The requested Gateway route does not exist."
+          }
+        },
+        404
+      );
+    } catch (error) {
+      // Never allow an unhandled exception to become a browser-level Load failed response.
+      console.error(JSON.stringify({
+        service: "founder-os-gateway",
+        type: "unhandled_gateway_failure",
+        pathname: url.pathname,
+        message: error instanceof Error ? error.message : "Unknown gateway error"
+      }));
+      return errorResponse(
+        request,
+        500,
+        "GATEWAY_RUNTIME_FAILURE",
+        "The gateway request failed safely. No protected action was executed."
+      );
     }
-
-    if (url.pathname === "/version") {
-      return json(request, {
-        service: "Founder OS Gateway",
-        version: VERSION,
-        environment: "production",
-        deployment: "github-managed",
-        capabilities: {
-          blueprintApproval: "canonical-commit-enabled",
-          blueprintApprovalDryRun: "enabled",
-          idempotentApprovalRecovery: "enabled",
-          aiOrchestration: "repository-backed",
-          aiDispatchDryRun: "enabled",
-          directAiProviders: "enabled",
-          providerReadiness: "enabled",
-          repositoryExecution: "enabled",
-          structuredObservability: "enabled",
-          verifiedResultCallbacks: "legacy-compatible",
-          workspaceIsolation: "enabled"
-        }
-      });
-    }
-
-    if (url.pathname === "/configuration") {
-      const configuration = gatewayConfiguration(env);
-      return json(request, {
-        service: "Founder OS Gateway",
-        version: VERSION,
-        ...configuration,
-        diagnostics: safeBindingDiagnostics(env)
-      });
-    }
-
-    if (url.pathname === "/") {
-      return json(request, {
-        service: "Founder OS Gateway",
-        status: "online",
-        version: VERSION,
-        message: "Founder OS secure execution gateway is running."
-      });
-    }
-
-    return json(
-      request,
-      {
-        ok: false,
-        error: {
-          code: "NOT_FOUND",
-          message: "The requested Gateway route does not exist."
-        }
-      },
-      404
-    );
   }
 };
