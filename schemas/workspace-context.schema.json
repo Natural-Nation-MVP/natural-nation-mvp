@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/workspace-context.schema.json",
+  "title": "Founder OS Workspace Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contextId",
+    "scope",
+    "route",
+    "resourceType",
+    "requestedAction",
+    "auditReference",
+    "protectedSecurityBoundaryChanged"
+  ],
+  "properties": {
+    "contextId": { "type": "string", "minLength": 1 },
+    "scope": { "enum": ["platform", "workspace"] },
+    "workspaceId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "workspaceStatus": { "enum": ["draft", "active", "paused", "archived", "restored", "scheduled_for_deletion", "deleted"] },
+    "route": { "type": "string", "minLength": 1 },
+    "resourceType": { "type": "string", "minLength": 1 },
+    "resourceId": { "type": ["string", "null"] },
+    "resourceWorkspaceId": { "type": ["string", "null"] },
+    "requestedAction": { "type": "string", "minLength": 1 },
+    "executionAllowed": { "type": "boolean" },
+    "blockedReason": { "type": ["string", "null"] },
+    "auditReference": { "type": "string", "minLength": 1 },
+    "protectedSecurityBoundaryChanged": { "const": false }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "scope": { "const": "workspace" } } },
+      "then": { "required": ["workspaceId", "workspaceStatus", "resourceWorkspaceId", "executionAllowed"] }
+    },
+    {
+      "if": { "properties": { "scope": { "const": "platform" } } },
+      "then": {
+        "not": { "required": ["workspaceId"] }
+      }
+    }
+  ]
+}
