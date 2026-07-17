@@ -1,0 +1,45 @@
+{
+  "registryId": "fos-automation-policy-registry-v1",
+  "policies": [
+    {
+      "policyId": "single-workspace-context",
+      "rule": "automation.workspaceId must equal execution.workspaceId and target owner workspaceId",
+      "onViolation": "block_before_dispatch"
+    },
+    {
+      "policyId": "registered-target-only",
+      "rule": "target workflow or action must exist and be active in the workspace registry",
+      "onViolation": "block_and_escalate"
+    },
+    {
+      "policyId": "no-overlap-default",
+      "rule": "forbid a second active run for the same automation unless overlapPolicy explicitly allows it",
+      "onViolation": "skip_or_queue_by_policy"
+    },
+    {
+      "policyId": "consequential-idempotency",
+      "rule": "consequential occurrences require a stable occurrence key before dispatch",
+      "onViolation": "block_before_dispatch"
+    },
+    {
+      "policyId": "approval-preservation",
+      "rule": "scheduling never satisfies or removes a Founder approval gate",
+      "onViolation": "block_and_audit"
+    },
+    {
+      "policyId": "missed-run-bounds",
+      "rule": "catch-up execution cannot exceed maxCatchUpRuns and cannot compress consequential approvals",
+      "onViolation": "skip_excess_and_notify"
+    },
+    {
+      "policyId": "condition-watch-cooldown",
+      "rule": "a true condition cannot dispatch another run during the configured cooldown",
+      "onViolation": "deduplicate"
+    },
+    {
+      "policyId": "protected-data-exclusion",
+      "rule": "schedule metadata and notifications cannot contain secrets, tokens, credentials, or protected security material",
+      "onViolation": "block_redact_and_audit"
+    }
+  ]
+}

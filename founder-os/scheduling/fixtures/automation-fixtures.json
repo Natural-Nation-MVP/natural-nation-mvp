@@ -1,0 +1,49 @@
+{
+  "fixtures": [
+    {
+      "automationId": "automation-nn-daily-mvp-health",
+      "workspaceId": "workspace-001-natural-nation",
+      "name": "Natural Nation Daily MVP Health Review",
+      "target": {"type": "workflow", "id": "AI-TASK-003"},
+      "trigger": {"type": "recurring", "rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=0", "executionWindowMinutes": 60},
+      "timezone": "America/New_York",
+      "state": "active",
+      "overlapPolicy": "forbid",
+      "missedRunPolicy": "run_once",
+      "maxCatchUpRuns": 1,
+      "requiresFounderApproval": false,
+      "idempotencyScope": "calendar_day",
+      "auditRef": "audit://workspace-001-natural-nation/automation-nn-daily-mvp-health"
+    },
+    {
+      "automationId": "automation-ce-provider-recovery-watch",
+      "workspaceId": "workspace-002-contractor-estimator",
+      "name": "Contractor Estimator Provider Recovery Watch",
+      "target": {"type": "action", "id": "check-estimate-provider-health"},
+      "trigger": {"type": "condition_watch", "condition": "primary_estimate_provider_status == available", "checkCadence": "PT1H", "cooldownMinutes": 360},
+      "timezone": "America/New_York",
+      "state": "active",
+      "overlapPolicy": "forbid",
+      "missedRunPolicy": "skip",
+      "maxCatchUpRuns": 0,
+      "requiresFounderApproval": false,
+      "idempotencyScope": "occurrence",
+      "auditRef": "audit://workspace-002-contractor-estimator/automation-ce-provider-recovery-watch"
+    },
+    {
+      "automationId": "automation-blocked-cross-workspace",
+      "workspaceId": "workspace-001-natural-nation",
+      "name": "Invalid Cross-Workspace Estimate Run",
+      "target": {"type": "workflow", "id": "contractor-estimate-workflow"},
+      "trigger": {"type": "one_time", "at": "2026-07-18T14:00:00Z"},
+      "timezone": "UTC",
+      "state": "blocked",
+      "overlapPolicy": "forbid",
+      "missedRunPolicy": "skip",
+      "maxCatchUpRuns": 0,
+      "requiresFounderApproval": true,
+      "idempotencyScope": "occurrence",
+      "auditRef": "audit://blocked/cross-workspace-owner-mismatch"
+    }
+  ]
+}
