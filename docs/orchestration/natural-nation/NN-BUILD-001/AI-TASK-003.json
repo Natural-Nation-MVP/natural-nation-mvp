@@ -1,15 +1,15 @@
 {
   "dispatchVersion": "1.6.0",
-  "dispatchId": "AI-DISPATCH-BC51771C-B99F-436D-BC91-C57093537C4E",
+  "dispatchId": "AI-DISPATCH-D71D4692-2824-40A2-B904-2DF835ACD973",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-003",
   "agentId": "gemini",
-  "status": "verification-failed",
+  "status": "dispatching",
   "requestedBy": "founder",
-  "requestedAt": "2026-07-16T20:20:33.066Z",
+  "requestedAt": "2026-07-17T02:09:14.086Z",
   "requiredInput": {
-    "instructions": "Review only GitHub PR #38 and these exact changed files: app/frontend/index.html, app/frontend/package.json, app/frontend/src/App.js, app/frontend/src/assets/styles.css, app/frontend/src/main.js. Evaluate the actual corrected Natural Nation Day 1 implementation using only the pull-request patches injected by Founder OS. Do not review PR #30, do not invent files, and do not claim facts absent from the supplied evidence. Return only the provider-native experience_review contract.",
+    "instructions": "Review only GitHub PR #38 and these exact changed files: app/frontend/index.html, app/frontend/package.json, app/frontend/src/App.js, app/frontend/src/assets/styles.css, app/frontend/src/main.js. Evaluate the actual corrected Natural Nation Day 1 implementation using only the pull-request patches injected by Founder OS. Cite evidence only by the assigned FILE-### IDs and echo each supplied fingerprint exactly. Do not return repository paths in evidence, do not invent files, and do not claim facts absent from the supplied evidence.",
     "pullRequestEvidence": {
       "pullRequest": {
         "number": 38,
@@ -21,6 +21,8 @@
       },
       "files": [
         {
+          "fileId": "FILE-001",
+          "fingerprint": "2292ea3abb3f78e3c51992946a7636dea63ea0efab9d91b63e5072568ff89b5e",
           "path": "app/frontend/index.html",
           "status": "added",
           "additions": 1,
@@ -29,6 +31,8 @@
           "patch": "@@ -0,0 +1 @@\n+<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Natural Nation Member Portal</title><link rel=\"stylesheet\" href=\"src/assets/styles.css\"></head><body><div id=\"app\"></div><script type=\"module\" src=\"src/main.js\"></script></body></html>\n\\ No newline at end of file"
         },
         {
+          "fileId": "FILE-002",
+          "fingerprint": "5633a37327e4b3ad42d0d20d6419b69d531842b5167b2e5e6f6fee4cd89fcd97",
           "path": "app/frontend/package.json",
           "status": "added",
           "additions": 1,
@@ -37,6 +41,8 @@
           "patch": "@@ -0,0 +1 @@\n+{\"name\": \"natural-nation-frontend\",\"version\": \"0.1.0\",\"private\": true,\"scripts\": {\"start\": \"echo 'Frontend served by a static server or bundled'\"},\"dependencies\": {},\"devDependencies\": {}}\n\\ No newline at end of file"
         },
         {
+          "fileId": "FILE-003",
+          "fingerprint": "80809bfb5f1d874d3b9ef9f1584eb179dc25bcf53ff7c5dbf581e78680a1b21d",
           "path": "app/frontend/src/App.js",
           "status": "added",
           "additions": 1,
@@ -45,17 +51,29 @@
           "patch": "@@ -0,0 +1 @@\n+const App = () => `<header><nav><ul><li><a href=\"#\">Home</a></li><li><a href=\"#member-dashboard\">Member Dashboard</a></li></ul></nav></header><main><h1>Welcome, Valued Member!</h1><p>This is your personalized Natural Nation member portal.</p><img src=\"https://via.placeholder.com/150\" alt=\"Placeholder image for member portal\"><button class=\"primary-button\">View Profile</button></main><footer><p>&copy; 2024 Natural Nation</p></footer>`;export default App;\n\\ No newline at end of file"
         },
         {
+          "fileId": "FILE-004",
+          "fingerprint": "2602b6509b23aa6aa633323062fd7633138a2db250868f02fb9a72ec0edf4897",
           "path": "app/frontend/src/assets/styles.css",
           "status": "added",
           "additions": 1,
           "deletions": 0,
           "changes": 1,
           "patch": "@@ -0,0 +1 @@\n+body { font-family: sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }header { background-color: #2c3e50; color: white; padding: 1em; text-align: center; }nav ul { list-style: none; padding: 0; display: flex; justify-content: center; }nav li { margin: 0 1em; }nav a { color: white; text-decoration: none; }main { padding: 2em; text-align: center; }h1 { color: #2c3e50; }img { max-width: 100%; height: auto; margin: 1em 0; }button.primary-button { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 5px; }footer { background-color: #ddd; padding: 1em; text-align: center; position: fixed; bottom: 0; width: 100%; }\n\\ No newline at end of file"
+        },
+        {
+          "fileId": "FILE-005",
+          "fingerprint": "80cdfc65bdbde5f3d94c5705e4aec63bd4f3c2dc32f5378e21bb62ed2b0eacaf",
+          "path": "app/frontend/src/main.js",
+          "status": "added",
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1,
+          "patch": "@@ -0,0 +1 @@\n+import App from './App.js';document.getElementById('app').innerHTML = App();\n\\ No newline at end of file"
         }
       ]
     }
   },
-  "expectedOutput": "A provider-native experience_review JSON object with exact camelCase fields: type, summary, passes, issues, mergeBlockers, recommendation, and evidence. Evidence paths must be selected from the five exact PR #38 paths, and each finding must be supported by the injected patch.",
+  "expectedOutput": "A provider-native experience_review JSON object with exact camelCase fields: type, summary, passes, issues, mergeBlockers, recommendation, and evidence. Each evidence item must contain fileId, fingerprint, and finding.",
   "nextRole": "gpose",
   "provider": "google",
   "evidenceContract": {
@@ -68,125 +86,5 @@
       "app/frontend/src/main.js."
     ],
     "headSha": "aa3540d5e9bd6646464346795f682d5486b65814"
-  },
-  "delivery": {
-    "provider": "google",
-    "assignedRole": {
-      "id": "gemini",
-      "name": "Gemini",
-      "role": "Design Review",
-      "purpose": "Reviews usability, visual quality, and responsive behavior.",
-      "allowedActions": [
-        "review-design",
-        "report-findings",
-        "prepare-handoff"
-      ],
-      "requiresFounderApprovalFor": [
-        "design-lock"
-      ]
-    },
-    "preferredProvider": "google",
-    "executingProvider": "google",
-    "status": "delivered",
-    "delivered": true,
-    "synchronous": true,
-    "fallbackUsed": false,
-    "temporaryRoleAssumption": false,
-    "roleRelinquishedAfterCompletion": false,
-    "fallbackReason": null,
-    "attempts": [
-      {
-        "provider": "google",
-        "assignedRole": "gemini",
-        "temporaryRoleAssumption": false,
-        "status": "completed",
-        "model": "gemini-2.5-flash",
-        "contract": "experience_review"
-      }
-    ],
-    "completedResult": {
-      "dispatchId": "AI-DISPATCH-BC51771C-B99F-436D-BC91-C57093537C4E",
-      "summary": "{\"type\":\"experience_review\",\"summary\":\"The initial member-facing frontend foundation establishes a clear structure with user-centric content and foundational styling. Essential meta tags for responsiveness and character encoding are correctly implemented in the HTML entry point. While providing a solid base, the current design presents minor issues related to footer positioning and interactive element focus states that warrant future refinement.\",\"passes\":[\"The HTML document is well-formed with appropriate meta tags for responsiveness and character encoding.\",\"Semantic HTML elements (header, nav, main, footer) are utilized for clear content structure.\",\"User-centric welcome text and clear call to action are present.\",\"Images include descriptive 'alt' attributes for improved accessibility.\",\"A consistent basic color palette and styling rules are applied across elements.\",\"Images are set to scale responsively using 'max-width: 100%; height: auto;'.\"],\"issues\":[\"The fixed position footer (position: fixed; bottom: 0;) may overlap with main content on various screen sizes or with dynamic content lengths, potentially obscuring information.\",\"Interactive elements, such as navigation links and buttons, lack explicit focus states, which can impact keyboard navigation and overall accessibility for users.\"],\"mergeBlockers\":[],\"recommendation\":\"approve\",\"evidence\":[{\"path\":\"app/frontend/index.html\",\"finding\":\"Includes essential meta tags for responsiveness (viewport) and character encoding (UTF-8), and correctly links to stylesheets and scripts.\"},{\"path\":\"app/frontend/app.js\",\"finding\":\"Utilizes semantic HTML structure (header, nav, main, footer) and includes accessible alt text for the placeholder image. Navigation links are placeholders appropriate for an initial foundation.\"},{\"path\":\"app/frontend/styles.css\",\"finding\":\"Applies a consistent color palette and basic responsive image styling using 'max-width: 100%;'. However, the fixed footer positioning may lead to content overlap issues.\"}]}",
-      "structured": {
-        "type": "experience_review",
-        "summary": "The initial member-facing frontend foundation establishes a clear structure with user-centric content and foundational styling. Essential meta tags for responsiveness and character encoding are correctly implemented in the HTML entry point. While providing a solid base, the current design presents minor issues related to footer positioning and interactive element focus states that warrant future refinement.",
-        "passes": [
-          "The HTML document is well-formed with appropriate meta tags for responsiveness and character encoding.",
-          "Semantic HTML elements (header, nav, main, footer) are utilized for clear content structure.",
-          "User-centric welcome text and clear call to action are present.",
-          "Images include descriptive 'alt' attributes for improved accessibility.",
-          "A consistent basic color palette and styling rules are applied across elements.",
-          "Images are set to scale responsively using 'max-width: 100%; height: auto;'."
-        ],
-        "issues": [
-          "The fixed position footer (position: fixed; bottom: 0;) may overlap with main content on various screen sizes or with dynamic content lengths, potentially obscuring information.",
-          "Interactive elements, such as navigation links and buttons, lack explicit focus states, which can impact keyboard navigation and overall accessibility for users."
-        ],
-        "mergeBlockers": [],
-        "recommendation": "approve",
-        "evidence": [
-          {
-            "path": "app/frontend/index.html",
-            "finding": "Includes essential meta tags for responsiveness (viewport) and character encoding (UTF-8), and correctly links to stylesheets and scripts."
-          },
-          {
-            "path": "app/frontend/app.js",
-            "finding": "Utilizes semantic HTML structure (header, nav, main, footer) and includes accessible alt text for the placeholder image. Navigation links are placeholders appropriate for an initial foundation."
-          },
-          {
-            "path": "app/frontend/styles.css",
-            "finding": "Applies a consistent color palette and basic responsive image styling using 'max-width: 100%;'. However, the fixed footer positioning may lead to content overlap issues."
-          }
-        ]
-      },
-      "provider": "google",
-      "model": "gemini-2.5-flash",
-      "usage": {
-        "promptTokenCount": 2068,
-        "candidatesTokenCount": 405,
-        "totalTokenCount": 8664,
-        "promptTokensDetails": [
-          {
-            "modality": "TEXT",
-            "tokenCount": 2068
-          }
-        ],
-        "thoughtsTokenCount": 6191,
-        "serviceTier": "standard"
-      },
-      "routing": {
-        "assignedRole": {
-          "id": "gemini",
-          "name": "Gemini",
-          "role": "Design Review",
-          "purpose": "Reviews usability, visual quality, and responsive behavior.",
-          "allowedActions": [
-            "review-design",
-            "report-findings",
-            "prepare-handoff"
-          ],
-          "requiresFounderApprovalFor": [
-            "design-lock"
-          ]
-        },
-        "preferredProvider": "google",
-        "executingProvider": "google",
-        "fallbackUsed": false,
-        "temporaryRoleAssumption": false,
-        "roleRelinquishedAfterCompletion": false,
-        "attempts": [
-          {
-            "provider": "google",
-            "assignedRole": "gemini",
-            "temporaryRoleAssumption": false,
-            "status": "completed",
-            "model": "gemini-2.5-flash",
-            "contract": "experience_review"
-          }
-        ]
-      }
-    },
-    "deliveredAt": "2026-07-16T20:21:07.153Z"
-  },
-  "executionConfirmed": false
+  }
 }
