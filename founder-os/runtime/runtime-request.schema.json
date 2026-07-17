@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/runtime-request.schema.json",
+  "title": "Founder OS Governed Runtime Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["requestId", "workspaceId", "actor", "action", "payloadHash", "correlationId", "executionClass"],
+  "properties": {
+    "requestId": {"type": "string", "minLength": 1},
+    "workspaceId": {"type": "string", "minLength": 1},
+    "actor": {"type": "object", "required": ["type", "id"], "properties": {"type": {"enum": ["founder", "delegate", "ai_role", "system"]}, "id": {"type": "string"}}, "additionalProperties": false},
+    "action": {"type": "string", "minLength": 1},
+    "payloadHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "correlationId": {"type": "string", "minLength": 1},
+    "executionClass": {"enum": ["routine", "strategic", "destructive", "financial", "security_sensitive", "external"]},
+    "workflowId": {"type": "string"},
+    "approvalId": {"type": "string"},
+    "connectorId": {"type": "string"},
+    "estimatedCost": {"type": "object", "required": ["amount", "currency"], "properties": {"amount": {"type": "number", "minimum": 0}, "currency": {"type": "string", "pattern": "^[A-Z]{3}$"}}, "additionalProperties": false}
+  }
+}
