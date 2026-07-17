@@ -1,0 +1,61 @@
+{
+  "contexts": [
+    {
+      "contextId": "ctx-platform-workspaces",
+      "scope": "platform",
+      "route": "/founder-os/workspaces",
+      "resourceType": "workspace-registry",
+      "resourceId": null,
+      "requestedAction": "list-workspaces",
+      "executionAllowed": true,
+      "blockedReason": null,
+      "auditReference": "audit-context-platform-001",
+      "protectedSecurityBoundaryChanged": false
+    },
+    {
+      "contextId": "ctx-natural-nation-dashboard",
+      "scope": "workspace",
+      "workspaceId": "natural-nation",
+      "workspaceStatus": "active",
+      "route": "/workspaces/natural-nation/dashboard",
+      "resourceType": "workspace-dashboard",
+      "resourceId": "dashboard-natural-nation",
+      "resourceWorkspaceId": "natural-nation",
+      "requestedAction": "open-dashboard",
+      "executionAllowed": true,
+      "blockedReason": null,
+      "auditReference": "audit-context-natural-nation-001",
+      "protectedSecurityBoundaryChanged": false
+    },
+    {
+      "contextId": "ctx-contractor-estimator-project",
+      "scope": "workspace",
+      "workspaceId": "contractor-estimator",
+      "workspaceStatus": "active",
+      "route": "/workspaces/contractor-estimator/projects/first-estimate-generator",
+      "resourceType": "project",
+      "resourceId": "first-estimate-generator",
+      "resourceWorkspaceId": "contractor-estimator",
+      "requestedAction": "open-project",
+      "executionAllowed": true,
+      "blockedReason": null,
+      "auditReference": "audit-context-contractor-001",
+      "protectedSecurityBoundaryChanged": false
+    },
+    {
+      "contextId": "ctx-cross-workspace-blocked",
+      "scope": "workspace",
+      "workspaceId": "contractor-estimator",
+      "workspaceStatus": "active",
+      "route": "/workspaces/contractor-estimator/projects/natural-nation-onboarding",
+      "resourceType": "project",
+      "resourceId": "natural-nation-onboarding",
+      "resourceWorkspaceId": "natural-nation",
+      "requestedAction": "open-project",
+      "executionAllowed": false,
+      "blockedReason": "Resource belongs to natural-nation but active context is contractor-estimator.",
+      "auditReference": "audit-context-blocked-001",
+      "protectedSecurityBoundaryChanged": false
+    }
+  ]
+}
