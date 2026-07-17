@@ -1,0 +1,63 @@
+{
+  "id": "FOS-FOUNDATION-011",
+  "name": "Event, Notification, and Founder Attention Delivery System",
+  "version": "1.0.0",
+  "principles": [
+    "Every event has one explicit owner context",
+    "Notifications inform or route but never imply approval",
+    "Consequential actions remain paused until explicit Founder approval",
+    "Cross-workspace summaries preserve per-item workspace ownership",
+    "Secrets and protected security data are never included in notification payloads"
+  ],
+  "eventScopes": ["platform", "workspace"],
+  "eventCategories": [
+    "execution",
+    "approval",
+    "verification",
+    "risk",
+    "health",
+    "integration",
+    "lifecycle",
+    "audit"
+  ],
+  "severity": ["info", "low", "medium", "high", "critical"],
+  "attentionStates": [
+    "new",
+    "delivered",
+    "acknowledged",
+    "in_review",
+    "resolved",
+    "dismissed",
+    "expired"
+  ],
+  "deliveryChannels": ["command_center", "in_app", "email", "push"],
+  "requiredEnvelopeFields": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "scope",
+    "ownerContext",
+    "severity",
+    "summary",
+    "auditReference"
+  ],
+  "governance": {
+    "approvalCannotBeInferred": true,
+    "notificationCannotExecuteConsequentialAction": true,
+    "workspaceContextRequiredForWorkspaceEvents": true,
+    "crossWorkspaceMutationForbidden": true,
+    "protectedDataRedactionRequired": true,
+    "immutableAuditReferenceRequired": true
+  },
+  "deduplication": {
+    "required": true,
+    "keyParts": ["ownerContext", "eventType", "subjectReference", "correlationId"],
+    "repeatBehavior": "increment_occurrence_count_and_refresh_last_seen"
+  },
+  "escalation": {
+    "criticalBypassesQuietHours": true,
+    "highMayEscalateAfterPolicyWindow": true,
+    "mediumAndBelowRespectQuietHours": true,
+    "unresolvedApprovalRemainsPaused": true
+  }
+}
