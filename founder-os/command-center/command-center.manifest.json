@@ -1,0 +1,79 @@
+{
+  "id": "founder-command-center",
+  "version": "1.0.0",
+  "owner": "founder-os-platform",
+  "purpose": "Provide the Founder with cross-workspace visibility, attention routing, approvals, risk, and health summaries without combining workspace execution contexts.",
+  "views": [
+    "portfolio",
+    "attention-queue",
+    "approval-inbox",
+    "risk-and-health",
+    "recent-activity"
+  ],
+  "invariants": {
+    "workspaceOwnershipPreserved": true,
+    "singleExecutionContextPerAction": true,
+    "crossWorkspaceMutationForbidden": true,
+    "consequentialWorkspaceSwitchRequiresConfirmation": true,
+    "providersAndModelsReceiveNoAuthority": true,
+    "founderApprovalCannotBeInferred": true
+  },
+  "portfolioSummary": {
+    "requiredFields": [
+      "workspaceId",
+      "workspaceNumber",
+      "name",
+      "lifecycleState",
+      "health",
+      "currentMilestone",
+      "pendingApprovals",
+      "blockingRisks",
+      "lastVerifiedAt"
+    ]
+  },
+  "attentionQueue": {
+    "allowedTypes": [
+      "approval-required",
+      "blocking-risk",
+      "verification-failed",
+      "workflow-stalled",
+      "provider-degraded",
+      "advisory"
+    ],
+    "ordering": [
+      "severity",
+      "consequence",
+      "age",
+      "workspaceNumber"
+    ]
+  },
+  "approvalInbox": {
+    "requiredFields": [
+      "approvalId",
+      "workspaceId",
+      "actionId",
+      "consequenceClass",
+      "requestedByRole",
+      "evidenceRefs",
+      "verificationStatus",
+      "requestedAt"
+    ],
+    "decisions": ["approve", "reject", "request-changes"],
+    "requiresExplicitFounderDecision": true
+  },
+  "protectedBoundary": {
+    "directive": "FOS-DIRECTIVE-001",
+    "unchanged": [
+      "authentication",
+      "authorization",
+      "identity",
+      "sessions",
+      "tokens",
+      "secrets",
+      "access-control",
+      "security-middleware",
+      "preventative-security",
+      "security-sensitive-infrastructure"
+    ]
+  }
+}
