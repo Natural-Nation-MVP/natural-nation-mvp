@@ -1,0 +1,61 @@
+{
+  "id": "fos-execution-runtime-v1",
+  "package": "FOS-FOUNDATION-010",
+  "scope": "platform-runtime",
+  "workspaceContext": {
+    "required": true,
+    "singleWorkspaceOnly": true,
+    "crossWorkspaceMutation": false
+  },
+  "states": [
+    "queued",
+    "blocked",
+    "ready",
+    "running",
+    "awaiting_evidence",
+    "awaiting_verification",
+    "awaiting_founder_approval",
+    "retry_scheduled",
+    "recovering",
+    "completed",
+    "failed",
+    "cancelled"
+  ],
+  "terminalStates": ["completed", "failed", "cancelled"],
+  "transitions": {
+    "queued": ["blocked", "ready", "cancelled"],
+    "blocked": ["ready", "cancelled"],
+    "ready": ["running", "cancelled"],
+    "running": ["awaiting_evidence", "awaiting_verification", "awaiting_founder_approval", "retry_scheduled", "completed", "failed"],
+    "awaiting_evidence": ["awaiting_verification", "failed", "cancelled"],
+    "awaiting_verification": ["completed", "retry_scheduled", "failed", "awaiting_founder_approval"],
+    "awaiting_founder_approval": ["completed", "ready", "cancelled"],
+    "retry_scheduled": ["recovering", "failed", "cancelled"],
+    "recovering": ["ready", "failed"],
+    "completed": [],
+    "failed": [],
+    "cancelled": []
+  },
+  "rules": {
+    "dependenciesMustComplete": true,
+    "evidenceMustMatchRegisteredRequirement": true,
+    "verificationCannotBeSkipped": true,
+    "approvalCannotBeInferred": true,
+    "taskContractImmutableDuringRun": true,
+    "providerFallbackCannotExpandAuthority": true,
+    "idempotencyKeyRequiredForConsequentialActions": true,
+    "auditReferenceRequiredForEveryTransition": true
+  },
+  "failureClasses": [
+    "transient_provider",
+    "missing_dependency",
+    "missing_evidence",
+    "verification_failed",
+    "tool_failure",
+    "contract_violation",
+    "approval_denied",
+    "workspace_mismatch",
+    "non_retryable"
+  ],
+  "protectedBoundary": "FOS-DIRECTIVE-001"
+}
