@@ -208,6 +208,7 @@ export async function deliverToProvider({ env, agent, dispatch }) {
           dispatchId: dispatch.dispatchId,
           summary: result.text,
           structured: result.structured,
+          evidenceContract: dispatch.evidenceContract || null,
           provider: result.provider,
           model: result.model,
           usage: result.usage,
