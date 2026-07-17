@@ -1,0 +1,33 @@
+{
+  "package":"FOS-FOUNDATION-016",
+  "version":"1.0.0",
+  "constitutionalDirective":"FOS-DIRECTIVE-001",
+  "precedence":["constitutional","platform-security","founder-global","workspace","workflow","task"],
+  "rules":{
+    "denyByDefault":true,
+    "exactWorkspaceBinding":true,
+    "exactPayloadHashBinding":true,
+    "changedPayloadInvalidatesApproval":true,
+    "expiredOrRevokedApprovalBlocked":true,
+    "approvalSingleUseUnlessExplicitlyRecurring":true,
+    "securitySensitiveAlwaysFounderRequired":true,
+    "secretsNeverIncluded":true,
+    "denialCannotBeOverriddenByLowerPolicy":true,
+    "emergencyModeCannotWeakenSecurity":true,
+    "delegationCannotExceedFounderGrant":true
+  },
+  "authorityMatrix":{
+    "routine":"autonomous",
+    "strategic":"founder-required",
+    "destructive":"founder-required",
+    "financial":"threshold-policy",
+    "security-sensitive":"founder-required",
+    "external":"capability-policy"
+  },
+  "fixtures":[
+    {"policyId":"pol_nn_merge","workspaceId":"natural-nation","action":"github.pull-request.merge","actionClass":"external","authority":"founder-required","requiredEvidence":["validation-report","diff-summary","head-sha"],"separationOfDuties":true,"expiresMinutes":60},
+    {"policyId":"pol_ce_send_estimate","workspaceId":"contractor-estimator","action":"email.send-estimate","actionClass":"external","authority":"founder-required","requiredEvidence":["recipient","estimate-version","price-total","attachment-hash"],"separationOfDuties":false,"expiresMinutes":30},
+    {"policyId":"pol_ce_material_lookup","workspaceId":"contractor-estimator","action":"supplier.read-prices","actionClass":"routine","authority":"delegated","delegatedLimit":100,"requiredEvidence":["connection-health"],"expiresMinutes":1440}
+  ],
+  "blockingCases":["workspace-mismatch","payload-hash-mismatch","expired-approval","revoked-approval","missing-evidence","lower-policy-override","raw-secret","reused-single-use-approval","self-approval-when-separated"]
+}
