@@ -1,0 +1,63 @@
+{
+  "activationRequestId": "activation-contractor-estimator-001",
+  "workspaceId": "ws-contractor-estimator",
+  "currentState": "draft",
+  "requestedState": "active",
+  "readinessReport": {
+    "reportId": "readiness-contractor-estimator-001",
+    "checks": [
+      {
+        "id": "workspace-identity",
+        "severity": "blocking",
+        "passed": true,
+        "message": "Workspace name, slug, type, and purpose are complete."
+      },
+      {
+        "id": "registry-record",
+        "severity": "blocking",
+        "passed": true,
+        "message": "Workspace is registered in Draft state."
+      },
+      {
+        "id": "isolation-metadata",
+        "severity": "blocking",
+        "passed": true,
+        "message": "Workspace data, knowledge, and AI-team boundaries are declared."
+      },
+      {
+        "id": "governance-profile",
+        "severity": "blocking",
+        "passed": true,
+        "message": "Founder-controlled governance profile is assigned."
+      },
+      {
+        "id": "initial-execution-objective",
+        "severity": "blocking",
+        "passed": true,
+        "message": "First Estimate Generator is defined as the initial project."
+      },
+      {
+        "id": "optional-branding",
+        "severity": "advisory",
+        "passed": false,
+        "message": "Optional workspace branding is incomplete.",
+        "remediation": "Add logo and visual identity later; activation may proceed."
+      }
+    ],
+    "blockingFailures": 0,
+    "advisoryFindings": 1,
+    "readyForFounderDecision": true
+  },
+  "founderDecision": {
+    "status": "approved",
+    "decidedBy": "founder",
+    "decidedAt": "2026-07-17T04:45:00Z",
+    "note": "Approved to begin controlled workspace execution."
+  },
+  "transitionResult": {
+    "outcome": "activated",
+    "resultingState": "active",
+    "auditReference": "audit-activation-contractor-estimator-001"
+  },
+  "protectedSecurityBoundaryChanged": false
+}
