@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/workspace-activation.schema.json",
+  "title": "Founder OS Workspace Activation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "activationRequestId",
+    "workspaceId",
+    "currentState",
+    "requestedState",
+    "readinessReport",
+    "founderDecision",
+    "protectedSecurityBoundaryChanged"
+  ],
+  "properties": {
+    "activationRequestId": { "type": "string", "minLength": 1 },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "currentState": { "const": "draft" },
+    "requestedState": { "const": "active" },
+    "readinessReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reportId", "checks", "blockingFailures", "advisoryFindings", "readyForFounderDecision"],
+      "properties": {
+        "reportId": { "type": "string", "minLength": 1 },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "severity", "passed", "message"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "severity": { "enum": ["blocking", "advisory"] },
+              "passed": { "type": "boolean" },
+              "message": { "type": "string", "minLength": 1 },
+              "remediation": { "type": "string" }
+            }
+          }
+        },
+        "blockingFailures": { "type": "integer", "minimum": 0 },
+        "advisoryFindings": { "type": "integer", "minimum": 0 },
+        "readyForFounderDecision": { "type": "boolean" }
+      }
+    },
+    "founderDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["pending", "approved", "denied"] },
+        "decidedBy": { "type": "string" },
+        "decidedAt": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" }
+      }
+    },
+    "transitionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "resultingState", "auditReference"],
+      "properties": {
+        "outcome": { "enum": ["not-attempted", "activated", "denied", "blocked"] },
+        "resultingState": { "enum": ["draft", "active"] },
+        "auditReference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "protectedSecurityBoundaryChanged": { "const": false }
+  }
+}
