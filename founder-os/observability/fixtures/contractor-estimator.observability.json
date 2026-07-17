@@ -1,0 +1,43 @@
+{
+  "workspace_id": "workspace-002-contractor-estimator",
+  "portfolio_label": "Contractor Estimator",
+  "health_rollup": {
+    "state": "at_risk",
+    "calculated_from": ["ce-pricing-source", "ce-estimate-queue"],
+    "freshness_seconds": 420,
+    "quality": {"status": "partial", "confidence": 0.82}
+  },
+  "records": [
+    {
+      "record_id": "ce-pricing-source",
+      "workspace_id": "workspace-002-contractor-estimator",
+      "record_type": "integration_signal",
+      "observed_at": "2026-07-17T14:05:00Z",
+      "source": {"kind": "integration", "source_id": "regional-material-pricing", "evidence_ref": "evidence://ce/pricing/latency/2026-07-17"},
+      "classification": "internal",
+      "health_state": "at_risk",
+      "severity": "medium",
+      "freshness_seconds": 420,
+      "quality": {"status": "partial", "confidence": 0.82},
+      "correlation_key": "ce-pricing-latency",
+      "deduplication_key": "workspace-002:pricing:latency:2026-07-17",
+      "founder_attention_required": true,
+      "remediation_workflow_id": "CE-WORKFLOW-PROVIDER-RECOVERY",
+      "audit_ref": "audit://workspace-002/obs/ce-pricing-source"
+    },
+    {
+      "record_id": "ce-estimate-queue",
+      "workspace_id": "workspace-002-contractor-estimator",
+      "record_type": "metric",
+      "observed_at": "2026-07-17T14:06:00Z",
+      "source": {"kind": "workflow", "source_id": "CE-WORKFLOW-ESTIMATE-DRAFT"},
+      "classification": "internal",
+      "health_state": "healthy",
+      "severity": "info",
+      "freshness_seconds": 60,
+      "quality": {"status": "verified", "confidence": 1},
+      "founder_attention_required": false,
+      "audit_ref": "audit://workspace-002/obs/ce-estimate-queue"
+    }
+  ]
+}
