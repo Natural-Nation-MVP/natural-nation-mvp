@@ -1,0 +1,105 @@
+{
+  "fixtures": [
+    {
+      "name": "natural-nation-release-verification",
+      "runId": "run-nn-ai-task-003-001",
+      "workspaceId": "workspace-001-natural-nation",
+      "workflowId": "AI-TASK-003",
+      "actionId": "verify-experience",
+      "status": "awaiting_founder_approval",
+      "taskContractVersion": "1.0.0",
+      "roleId": "experience-reviewer",
+      "capabilityIds": ["experience-verification"],
+      "providerRoute": {
+        "providerId": "openai",
+        "modelId": "general-reasoning",
+        "fallbackUsed": false
+      },
+      "toolIds": ["repository-reader", "evidence-recorder"],
+      "dependencyRunIds": ["run-nn-ai-task-002-001"],
+      "evidence": [
+        {
+          "evidenceId": "ev-nn-001",
+          "requirementId": "mvp-verification-report",
+          "uri": "evidence://workspace-001-natural-nation/reports/mvp-verification-001",
+          "checksum": "sha256:fixture-natural-nation",
+          "capturedAt": "2026-07-17T07:05:00Z"
+        }
+      ],
+      "verification": {
+        "status": "passed",
+        "ruleIds": ["required-evidence-present", "locked-decisions-preserved"],
+        "verifiedAt": "2026-07-17T07:06:00Z",
+        "findings": []
+      },
+      "approval": {
+        "required": true,
+        "status": "pending",
+        "founderDecisionRef": null
+      },
+      "retry": {
+        "attempt": 0,
+        "maxAttempts": 2,
+        "nextAttemptAt": null,
+        "recoveryStrategy": null
+      },
+      "idempotencyKey": "workspace-001-natural-nation:AI-TASK-003:release-001",
+      "failure": null,
+      "auditRefs": ["audit-nn-run-created", "audit-nn-verification-passed"],
+      "createdAt": "2026-07-17T07:00:00Z",
+      "updatedAt": "2026-07-17T07:06:00Z"
+    },
+    {
+      "name": "contractor-estimator-transient-recovery",
+      "runId": "run-ce-calculate-estimate-001",
+      "workspaceId": "workspace-002-contractor-estimator",
+      "workflowId": "contractor-estimate-v1",
+      "actionId": "calculate-estimate",
+      "status": "retry_scheduled",
+      "taskContractVersion": "1.0.0",
+      "roleId": "estimator",
+      "capabilityIds": ["estimate-calculation"],
+      "providerRoute": {
+        "providerId": "google",
+        "modelId": "general-reasoning",
+        "fallbackUsed": true
+      },
+      "toolIds": ["estimate-engine"],
+      "dependencyRunIds": ["run-ce-capture-scope-001"],
+      "evidence": [],
+      "verification": {
+        "status": "pending",
+        "ruleIds": ["scope-complete", "math-consistent"],
+        "verifiedAt": null,
+        "findings": []
+      },
+      "approval": {
+        "required": false,
+        "status": "not_required",
+        "founderDecisionRef": null
+      },
+      "retry": {
+        "attempt": 1,
+        "maxAttempts": 3,
+        "nextAttemptAt": "2026-07-17T07:10:00Z",
+        "recoveryStrategy": "provider-fallback-preserve-contract"
+      },
+      "idempotencyKey": "workspace-002-contractor-estimator:calculate-estimate:job-001",
+      "failure": {
+        "class": "transient_provider",
+        "message": "Primary provider temporarily unavailable",
+        "retryable": true
+      },
+      "auditRefs": ["audit-ce-run-created", "audit-ce-provider-failed", "audit-ce-retry-scheduled"],
+      "createdAt": "2026-07-17T07:01:00Z",
+      "updatedAt": "2026-07-17T07:02:00Z"
+    },
+    {
+      "name": "workspace-mismatch-blocked",
+      "workspaceId": "workspace-001-natural-nation",
+      "requestedWorkspaceId": "workspace-002-contractor-estimator",
+      "expectedResult": "blocked",
+      "failureClass": "workspace_mismatch"
+    }
+  ]
+}

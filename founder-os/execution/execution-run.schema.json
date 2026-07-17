@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/execution-run.schema.json",
+  "title": "Founder OS Execution Run",
+  "type": "object",
+  "required": [
+    "runId",
+    "workspaceId",
+    "workflowId",
+    "status",
+    "taskContractVersion",
+    "createdAt",
+    "auditRefs"
+  ],
+  "properties": {
+    "runId": { "type": "string", "minLength": 1 },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "workflowId": { "type": "string", "minLength": 1 },
+    "actionId": { "type": ["string", "null"] },
+    "status": {
+      "enum": [
+        "queued",
+        "blocked",
+        "ready",
+        "running",
+        "awaiting_evidence",
+        "awaiting_verification",
+        "awaiting_founder_approval",
+        "retry_scheduled",
+        "recovering",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "taskContractVersion": { "type": "string", "minLength": 1 },
+    "roleId": { "type": "string" },
+    "capabilityIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "providerRoute": {
+      "type": "object",
+      "properties": {
+        "providerId": { "type": "string" },
+        "modelId": { "type": "string" },
+        "fallbackUsed": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "toolIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "dependencyRunIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidenceId", "requirementId", "uri", "capturedAt"],
+        "properties": {
+          "evidenceId": { "type": "string" },
+          "requirementId": { "type": "string" },
+          "uri": { "type": "string" },
+          "checksum": { "type": "string" },
+          "capturedAt": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "verification": {
+      "type": ["object", "null"],
+      "properties": {
+        "status": { "enum": ["pending", "passed", "failed"] },
+        "ruleIds": { "type": "array", "items": { "type": "string" } },
+        "verifiedAt": { "type": ["string", "null"] },
+        "findings": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": ["object", "null"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "status": { "enum": ["not_required", "pending", "approved", "changes_requested", "rejected"] },
+        "founderDecisionRef": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "retry": {
+      "type": "object",
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 0 },
+        "maxAttempts": { "type": "integer", "minimum": 0 },
+        "nextAttemptAt": { "type": ["string", "null"] },
+        "recoveryStrategy": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "idempotencyKey": { "type": ["string", "null"] },
+    "failure": {
+      "type": ["object", "null"],
+      "properties": {
+        "class": { "type": "string" },
+        "message": { "type": "string" },
+        "retryable": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "auditRefs": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" }
+  },
+  "additionalProperties": false
+}
