@@ -1,0 +1,97 @@
+{
+  "package": "FOS-FOUNDATION-013",
+  "fixtures": [
+    {
+      "name": "natural-nation-github-read",
+      "expected": "allowed",
+      "request": {
+        "workspaceId": "workspace-001-natural-nation",
+        "connectionWorkspaceId": "workspace-001-natural-nation",
+        "integrationId": "github",
+        "capabilityId": "repository.read",
+        "connectionState": "healthy",
+        "approvalRecord": null,
+        "payloadClassification": "internal",
+        "credentialReferenceOnly": true
+      }
+    },
+    {
+      "name": "natural-nation-github-merge-without-approval",
+      "expected": "blocked",
+      "reason": "founder-approval-required",
+      "request": {
+        "workspaceId": "workspace-001-natural-nation",
+        "connectionWorkspaceId": "workspace-001-natural-nation",
+        "integrationId": "github",
+        "capabilityId": "pull-request.merge",
+        "connectionState": "healthy",
+        "approvalRecord": null,
+        "payloadClassification": "internal",
+        "credentialReferenceOnly": true
+      }
+    },
+    {
+      "name": "contractor-estimator-external-email-with-approval",
+      "expected": "allowed",
+      "request": {
+        "workspaceId": "workspace-002-contractor-estimator",
+        "connectionWorkspaceId": "workspace-002-contractor-estimator",
+        "integrationId": "email-delivery",
+        "capabilityId": "message.send-external",
+        "connectionState": "healthy",
+        "approvalRecord": {
+          "approvalId": "approval-ce-001",
+          "workspaceId": "workspace-002-contractor-estimator",
+          "payloadDigest": "sha256:fixture"
+        },
+        "payloadClassification": "external-approved",
+        "credentialReferenceOnly": true
+      }
+    },
+    {
+      "name": "cross-workspace-connection-use",
+      "expected": "blocked",
+      "reason": "workspace-mismatch",
+      "request": {
+        "workspaceId": "workspace-001-natural-nation",
+        "connectionWorkspaceId": "workspace-002-contractor-estimator",
+        "integrationId": "github",
+        "capabilityId": "repository.read",
+        "connectionState": "healthy",
+        "approvalRecord": null,
+        "payloadClassification": "internal",
+        "credentialReferenceOnly": true
+      }
+    },
+    {
+      "name": "revoked-connection",
+      "expected": "blocked",
+      "reason": "connection-not-dispatchable",
+      "request": {
+        "workspaceId": "workspace-001-natural-nation",
+        "connectionWorkspaceId": "workspace-001-natural-nation",
+        "integrationId": "github",
+        "capabilityId": "repository.read",
+        "connectionState": "revoked",
+        "approvalRecord": null,
+        "payloadClassification": "internal",
+        "credentialReferenceOnly": true
+      }
+    },
+    {
+      "name": "raw-secret-present",
+      "expected": "blocked",
+      "reason": "raw-credential-forbidden",
+      "request": {
+        "workspaceId": "workspace-001-natural-nation",
+        "connectionWorkspaceId": "workspace-001-natural-nation",
+        "integrationId": "github",
+        "capabilityId": "repository.read",
+        "connectionState": "healthy",
+        "approvalRecord": null,
+        "payloadClassification": "protected",
+        "credentialReferenceOnly": false
+      }
+    }
+  ]
+}

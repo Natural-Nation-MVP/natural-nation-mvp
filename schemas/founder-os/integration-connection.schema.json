@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://founder-os.local/schemas/integration-connection.schema.json",
+  "title": "Founder OS Integration Connection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "connectionId",
+    "integrationId",
+    "workspaceId",
+    "credentialReference",
+    "state",
+    "allowedCapabilities",
+    "auditReference"
+  ],
+  "properties": {
+    "connectionId": { "type": "string", "minLength": 1 },
+    "integrationId": { "type": "string", "minLength": 1 },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "credentialReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["secretStore", "referenceId"],
+      "properties": {
+        "secretStore": { "type": "string", "minLength": 1 },
+        "referenceId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "state": {
+      "enum": ["pending", "healthy", "degraded", "rate_limited", "unavailable", "suspended", "revoked"]
+    },
+    "allowedCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lastSuccessfulAt": { "type": ["string", "null"], "format": "date-time" },
+        "lastFailureAt": { "type": ["string", "null"], "format": "date-time" },
+        "rateLimitResetAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "auditReference": { "type": "string", "minLength": 1 }
+  }
+}
