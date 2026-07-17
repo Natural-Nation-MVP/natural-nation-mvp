@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "workspace-001-natural-nation",
+  "migrationId": "fos-foundation-008",
+  "status": "ready-for-founder-review",
+  "compatibilityRules": [
+    {
+      "id": "NN-MIG-001",
+      "rule": "Natural Nation remains a workspace product and does not become Founder OS platform logic."
+    },
+    {
+      "id": "NN-MIG-002",
+      "rule": "Existing Natural Nation product routes may be wrapped by workspace context without changing their user-facing behavior."
+    },
+    {
+      "id": "NN-MIG-003",
+      "rule": "Guest First retains the canonical user UUID during account upgrade."
+    },
+    {
+      "id": "NN-MIG-004",
+      "rule": "AGR-001 continues to classify predictive AI, wearables, biometrics, and large-data features as Phase 2 unless Founder-approved."
+    },
+    {
+      "id": "NN-MIG-005",
+      "rule": "Duey remains a friendly AI wellness mentor, never a human and never a medical provider."
+    },
+    {
+      "id": "NN-MIG-006",
+      "rule": "Wellness Score and Rejuvenation Score remain separate MVP dashboard measures with their approved meanings."
+    },
+    {
+      "id": "NN-MIG-007",
+      "rule": "The approved bottom navigation and dashboard structure remain unchanged."
+    },
+    {
+      "id": "NN-MIG-008",
+      "rule": "FLOW-001 onboarding and first-session value decisions remain workspace-owned product behavior."
+    }
+  ],
+  "workflowBindings": [
+    {"legacyTaskId":"AI-TASK-001","workflowActionId":"natural-nation.define-product-intent"},
+    {"legacyTaskId":"AI-TASK-002","workflowActionId":"natural-nation.build-approved-scope"},
+    {"legacyTaskId":"AI-TASK-003","workflowActionId":"natural-nation.verify-experience"},
+    {"legacyTaskId":"AI-TASK-004","workflowActionId":"natural-nation.prepare-release-evidence"},
+    {"legacyTaskId":"AI-TASK-005","workflowActionId":"natural-nation.request-founder-release-approval"}
+  ],
+  "aiTeamBindings": [
+    {"roleId":"product-architect","workspaceRole":"Natural Nation Product Architect"},
+    {"roleId":"builder","workspaceRole":"Natural Nation Builder"},
+    {"roleId":"experience-reviewer","workspaceRole":"Natural Nation Experience Reviewer"}
+  ],
+  "approvalBindings": {
+    "routineWorkspaceExecution": "autonomous-with-evidence",
+    "lockedProductDecisionChange": "founder-required",
+    "externalRelease": "founder-required",
+    "financialAction": "founder-required",
+    "destructiveAction": "founder-required",
+    "securityBoundaryChange": "founder-required"
+  }
+}

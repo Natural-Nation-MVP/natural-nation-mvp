@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "workspace-001-natural-nation",
+  "workspaceNumber": 1,
+  "slug": "natural-nation",
+  "name": "Natural Nation",
+  "lifecycleState": "active",
+  "platformOwnership": {
+    "authentication": "founder-os",
+    "workspaceLifecycle": "founder-os",
+    "governance": "founder-os",
+    "aiOrchestration": "founder-os",
+    "sharedInfrastructure": "founder-os",
+    "audit": "founder-os",
+    "policies": "founder-os"
+  },
+  "workspaceOwnership": {
+    "projects": true,
+    "aiTeams": true,
+    "roadmap": true,
+    "releases": true,
+    "metrics": true,
+    "deliverables": true,
+    "execution": true
+  },
+  "lockedProductDecisions": [
+    "navigation-architecture",
+    "dashboard-structure",
+    "duey-core-role",
+    "wellness-score",
+    "rejuvenation-score",
+    "agr-001",
+    "guest-first",
+    "feature-based-repository",
+    "flow-001-onboarding"
+  ],
+  "workspaceRoutes": {
+    "base": "/workspaces/natural-nation",
+    "projects": "/workspaces/natural-nation/projects",
+    "workflows": "/workspaces/natural-nation/workflows",
+    "aiTeam": "/workspaces/natural-nation/ai-team",
+    "metrics": "/workspaces/natural-nation/metrics",
+    "approvals": "/workspaces/natural-nation/approvals",
+    "evidence": "/workspaces/natural-nation/evidence"
+  },
+  "bindings": {
+    "workflowRegistry": "natural-nation-product-delivery-v1",
+    "aiTeamRegistry": "natural-nation-ai-team-v1",
+    "governancePolicy": "natural-nation-governance-v1"
+  },
+  "migration": {
+    "mode": "compatibility-preserving",
+    "sourceProduct": "natural-nation-mvp",
+    "preserveCanonicalUserUuid": true,
+    "preserveExistingFeatureOwnership": true,
+    "requiresFounderApprovalForLockedDecisionChange": true
+  }
+}
