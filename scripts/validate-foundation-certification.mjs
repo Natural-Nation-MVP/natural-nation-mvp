@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const c=JSON.parse(fs.readFileSync('founder-os/certification/foundation-certification.json','utf8'));
+const e=[];
+if(c.package!=='FOS-FOUNDATION-019')e.push('wrong package');
+if(c.constitutionalDirective!=='FOS-DIRECTIVE-001')e.push('missing directive');
+if(c.certificationScope?.from!==1||c.certificationScope?.to!==19)e.push('scope must cover 001-019');
+for(const k of ['noFalseRuntimeClaims','failedTestsCannotBeHidden','securityExceptionsCannotWaiveDirective','workspaceIsolationMustPass','approvalBoundaryMustPass','secretProtectionMustPass','materialChangeTriggersRecertification'])if(c.rules?.[k]!==true)e.push(`rule disabled ${k}`);
+const required=['constitutional','dependency','workspace-isolation','approval-boundary','secret-protection','recovery','degraded-mode','audit'];
+const categories=new Set((c.testCatalog??[]).filter(t=>t.required).map(t=>t.category));
+for(const k of required)if(!categories.has(k))e.push(`missing test category ${k}`);
+if(c.currentCertification?.status==='certified')e.push('must not claim production certification without live evidence');
+if(!String(c.currentCertification?.reason??'').includes('live runtime'))e.push('conditional reason must disclose missing live evidence');
+if(!(c.recoveryObjectives?.platform?.rpoMinutes>0&&c.recoveryObjectives?.platform?.rtoMinutes>0))e.push('invalid recovery objectives');
+if(e.length){console.error(e.join('\n'));process.exit(1);}console.log(`Foundation certification program valid: ${c.testCatalog.length} tests, ${c.drills.length} drills, scope 001-019.`);
