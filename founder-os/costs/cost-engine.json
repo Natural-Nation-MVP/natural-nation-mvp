@@ -1,0 +1,25 @@
+{
+  "package":"FOS-FOUNDATION-018",
+  "version":"1.0.0",
+  "constitutionalDirective":"FOS-DIRECTIVE-001",
+  "rules":{
+    "workspaceAllocationRequired":true,
+    "sharedCostsPreserveAttributionMethod":true,
+    "pricingFreshnessRequired":true,
+    "estimatedAndActualSeparated":true,
+    "spendAboveThresholdRequiresFounderApproval":true,
+    "costDataCannotExposePromptsOrSecrets":true,
+    "billingMutationProhibited":true,
+    "limitIncreaseProhibitedWithoutFounderApproval":true,
+    "reservationsMustReconcile":true,
+    "anomalyDoesNotAuthorizeRemediation":true
+  },
+  "thresholds":{"warningPercent":70,"criticalPercent":90,"hardStopPercent":100},
+  "forecast":{"horizonsDays":[7,30,90],"confidenceRequired":true,"stalePricingHours":24},
+  "fixtures":[
+    {"budgetId":"bud_nn_monthly","workspaceId":"natural-nation","period":"monthly","currency":"USD","limit":500,"spent":182.40,"reserved":45,"forecast":392.10,"status":"healthy","approvalThreshold":500,"sources":["openai","google-ai","cloudflare","firebase"]},
+    {"budgetId":"bud_ce_monthly","workspaceId":"contractor-estimator","period":"monthly","currency":"USD","limit":150,"spent":61.22,"reserved":20,"forecast":138.70,"status":"warning","approvalThreshold":150,"sources":["openai","email","supplier-data"]}
+  ],
+  "allocationMethods":["direct-metering","execution-run-share","storage-share","equal-workspace-share"],
+  "blockingCases":["workspace-missing","stale-price-used-as-current","estimated-labeled-actual","threshold-exceeded-without-approval","billing-mutation","raw-secret","unreconciled-reservation","cross-workspace-charge"]
+}
