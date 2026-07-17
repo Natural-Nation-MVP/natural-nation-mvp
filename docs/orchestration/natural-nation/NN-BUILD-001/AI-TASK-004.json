@@ -1,138 +1,15 @@
 {
   "dispatchVersion": "1.6.0",
-  "dispatchId": "AI-DISPATCH-16EBAF8E-401C-4A73-9349-547F4803111E",
+  "dispatchId": "AI-DISPATCH-740CC27E-E7E3-4F32-B640-CFD94BF688C0",
   "workspaceId": "natural-nation",
   "packageId": "NN-BUILD-001",
   "taskId": "AI-TASK-004",
   "agentId": "gpose",
-  "status": "completed",
+  "status": "dispatching",
   "requestedBy": "founder",
-  "requestedAt": "2026-07-16T20:12:31.066Z",
+  "requestedAt": "2026-07-17T02:10:15.913Z",
   "requiredInput": "Use the verified PR #38 implementation evidence and the next grounded Gemini review. Return only the provider-native founder_review contract.",
   "expectedOutput": "A provider-native founder_review JSON object with exact fields: type, decision, comments, risks, and nextAction.",
   "nextRole": "founder",
-  "provider": "openai",
-  "delivery": {
-    "provider": "google",
-    "assignedRole": {
-      "id": "gpose",
-      "name": "GPose",
-      "role": "Strategy and Documentation",
-      "purpose": "Maintains prompts, summaries, operating guidance, and release communication.",
-      "allowedActions": [
-        "prepare-prompt",
-        "update-documentation",
-        "summarize"
-      ],
-      "requiresFounderApprovalFor": [
-        "governance-lock"
-      ]
-    },
-    "preferredProvider": "openai",
-    "executingProvider": "google",
-    "status": "delivered",
-    "delivered": true,
-    "synchronous": true,
-    "fallbackUsed": true,
-    "temporaryRoleAssumption": true,
-    "roleRelinquishedAfterCompletion": true,
-    "fallbackReason": "BILLING_NOT_ENABLED",
-    "attempts": [
-      {
-        "provider": "openai",
-        "assignedRole": "gpose",
-        "temporaryRoleAssumption": false,
-        "status": "failed",
-        "errorCategory": "BILLING_NOT_ENABLED",
-        "errorCode": "insufficient_quota",
-        "httpStatus": 429,
-        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-      },
-      {
-        "provider": "google",
-        "assignedRole": "gpose",
-        "temporaryRoleAssumption": true,
-        "status": "completed",
-        "model": "gemini-2.5-flash",
-        "contract": "founder_review"
-      }
-    ],
-    "completedResult": {
-      "dispatchId": "AI-DISPATCH-16EBAF8E-401C-4A73-9349-547F4803111E",
-      "summary": "{\"type\":\"founder_review\",\"decision\":\"approve\",\"comments\":[\"The implementation evidence for PR #38 has been reviewed and demonstrates strong adherence to specifications.\",\"The grounded Gemini review confirms technical soundness and strategic alignment for natural-nation:NN-BUILD-001.\",\"Documentation requirements are met, and content is ready for release preparation.\"],\"risks\":[\"Potential for minor documentation adjustments post-governance lock.\",\"Ensure final communication plan is robust for internal and external stakeholders.\",\"Dependency on successful integration testing in subsequent phases is critical.\"],\"nextAction\":\"Proceed with final documentation update and prepare for Founder's governance-lock decision.\"}",
-      "structured": {
-        "type": "founder_review",
-        "decision": "approve",
-        "comments": [
-          "The implementation evidence for PR #38 has been reviewed and demonstrates strong adherence to specifications.",
-          "The grounded Gemini review confirms technical soundness and strategic alignment for natural-nation:NN-BUILD-001.",
-          "Documentation requirements are met, and content is ready for release preparation."
-        ],
-        "risks": [
-          "Potential for minor documentation adjustments post-governance lock.",
-          "Ensure final communication plan is robust for internal and external stakeholders.",
-          "Dependency on successful integration testing in subsequent phases is critical."
-        ],
-        "nextAction": "Proceed with final documentation update and prepare for Founder's governance-lock decision."
-      },
-      "provider": "google",
-      "model": "gemini-2.5-flash",
-      "usage": {
-        "promptTokenCount": 480,
-        "candidatesTokenCount": 137,
-        "totalTokenCount": 1485,
-        "promptTokensDetails": [
-          {
-            "modality": "TEXT",
-            "tokenCount": 480
-          }
-        ],
-        "thoughtsTokenCount": 868,
-        "serviceTier": "standard"
-      },
-      "routing": {
-        "assignedRole": {
-          "id": "gpose",
-          "name": "GPose",
-          "role": "Strategy and Documentation",
-          "purpose": "Maintains prompts, summaries, operating guidance, and release communication.",
-          "allowedActions": [
-            "prepare-prompt",
-            "update-documentation",
-            "summarize"
-          ],
-          "requiresFounderApprovalFor": [
-            "governance-lock"
-          ]
-        },
-        "preferredProvider": "openai",
-        "executingProvider": "google",
-        "fallbackUsed": true,
-        "temporaryRoleAssumption": true,
-        "roleRelinquishedAfterCompletion": true,
-        "attempts": [
-          {
-            "provider": "openai",
-            "assignedRole": "gpose",
-            "temporaryRoleAssumption": false,
-            "status": "failed",
-            "errorCategory": "BILLING_NOT_ENABLED",
-            "errorCode": "insufficient_quota",
-            "httpStatus": 429,
-            "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors."
-          },
-          {
-            "provider": "google",
-            "assignedRole": "gpose",
-            "temporaryRoleAssumption": true,
-            "status": "completed",
-            "model": "gemini-2.5-flash",
-            "contract": "founder_review"
-          }
-        ]
-      }
-    },
-    "deliveredAt": "2026-07-16T20:12:39.878Z"
-  },
-  "executionConfirmed": true
+  "provider": "openai"
 }
