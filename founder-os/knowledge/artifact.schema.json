@@ -1,0 +1,26 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"fos://knowledge/artifact.schema.json",
+  "title":"Founder OS Artifact Record",
+  "type":"object",
+  "required":["artifactId","workspaceId","kind","title","version","status","sourceOfTruth","provenance","sensitivity","createdAt"],
+  "properties":{
+    "artifactId":{"type":"string","pattern":"^art_[a-z0-9_-]+$"},
+    "workspaceId":{"type":"string","minLength":1},
+    "kind":{"enum":["specification","decision","asset","evidence","report","prompt","dataset","contract","runbook"]},
+    "title":{"type":"string","minLength":1},
+    "version":{"type":"string","pattern":"^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "status":{"enum":["draft","active","locked","superseded","deprecated","archived"]},
+    "sourceOfTruth":{"type":"boolean"},
+    "supersedes":{"type":["string","null"]},
+    "contentRef":{"type":"string","minLength":1},
+    "contentHash":{"type":"string","minLength":8},
+    "decisionAuthority":{"enum":["founder","delegated","system","none"]},
+    "provenance":{"type":"object","required":["origin","actor","recordedAt"],"properties":{"origin":{"type":"string"},"actor":{"type":"string"},"recordedAt":{"type":"string"},"evidenceRefs":{"type":"array","items":{"type":"string"}}}},
+    "sensitivity":{"enum":["public","internal","confidential","restricted"]},
+    "retention":{"enum":["workspace-life","legal-hold","indefinite","expirable"]},
+    "createdAt":{"type":"string"},
+    "updatedAt":{"type":"string"}
+  },
+  "additionalProperties":false
+}
