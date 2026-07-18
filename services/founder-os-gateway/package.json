@@ -1,13 +1,13 @@
 {
   "name": "founder-os-gateway",
-  "version": "0.4.4",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "wrangler deploy --dry-run",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test --test-concurrency=1 test/*.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
