@@ -1,5 +1,5 @@
 /*
- * Founder OS Gateway Worker v0.7.0
+ * Founder OS Gateway Worker v0.6.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
  * repository-backed AI orchestration, live workflows, and governed review.
@@ -11,7 +11,7 @@ import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 
-const VERSION = "0.7.0";
+const VERSION = "0.6.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -60,7 +60,6 @@ export default {
       const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
       if (orchestrationResponse) return orchestrationResponse;
 
-      // Route named live workflows before the legacy pilot contract.
       const nnKs002Response = await handleNnKs002(request, env, url.pathname);
       if (nnKs002Response) return nnKs002Response;
 
