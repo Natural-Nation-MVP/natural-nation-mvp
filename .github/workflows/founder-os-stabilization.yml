@@ -33,16 +33,9 @@ jobs:
           node-version: '22'
       - name: Validate runtime, UX, workspace isolation, and AI dispatch
         run: node scripts/validate-founder-os.mjs
-      - name: Test direct AI provider routing and failover
+      - name: Test NN-KS-002 live workflow
         working-directory: services/founder-os-gateway
-        shell: bash
-        run: |
-          set +e
-          npm test > /tmp/provider-tests.log 2>&1
-          status=$?
-          if [ "$status" -ne 0 ]; then
-            echo "Provider routing tests failed. Showing the final 120 log lines:"
-            tail -n 120 /tmp/provider-tests.log
-            exit "$status"
-          fi
-          echo "Provider routing tests passed."
+        run: node --test test/nn-ks-002.test.mjs
+      - name: Test complete Gateway suite
+        working-directory: services/founder-os-gateway
+        run: npm test
