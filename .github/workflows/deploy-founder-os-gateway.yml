@@ -49,8 +49,47 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Deploy Worker
-        run: npm run deploy
+      - name: Ensure Founder OS runtime KV namespace
+        id: runtime-kv
+        shell: bash
+        run: |
+          set -euo pipefail
+          namespace_title="founder-os-runtime-store"
+          api="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces"
+          auth_header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+
+          list_response="$(curl --fail --silent --show-error -H "$auth_header" "$api?per_page=100")"
+          namespace_id="$(echo "$list_response" | jq -r --arg title "$namespace_title" '.result[] | select(.title == $title) | .id' | head -n 1)"
+
+          if [ -z "$namespace_id" ] || [ "$namespace_id" = "null" ]; then
+            create_response="$(curl --fail --silent --show-error \
+              -X POST \
+              -H "$auth_header" \
+              -H "Content-Type: application/json" \
+              --data "{\"title\":\"${namespace_title}\"}" \
+              "$api")"
+            namespace_id="$(echo "$create_response" | jq -r '.result.id')"
+          fi
+
+          test -n "$namespace_id" && test "$namespace_id" != "null"
+          echo "namespace_id=$namespace_id" >> "$GITHUB_OUTPUT"
+          echo "Founder OS runtime KV namespace is ready."
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Generate production Worker configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq --arg namespace_id "${{ steps.runtime-kv.outputs.namespace_id }}" \
+            '.kv_namespaces = [{"binding":"FOUNDER_OS_RUNTIME_STORE","id":$namespace_id}]' \
+            wrangler.jsonc > wrangler.deploy.json
+          jq -e '.kv_namespaces[] | select(.binding == "FOUNDER_OS_RUNTIME_STORE" and (.id | length > 0))' wrangler.deploy.json >/dev/null
+          echo "Production Worker configuration includes FOUNDER_OS_RUNTIME_STORE."
+
+      - name: Deploy Worker with durable runtime binding
+        run: npx wrangler deploy --config wrangler.deploy.json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -69,16 +108,19 @@ jobs:
           echo "Cloudflare Worker did not report the compatible v0.6.0 contract after deployment."
           exit 1
 
-      - name: Verify Founder OS health endpoint
+      - name: Verify Founder OS health and KV binding
         run: |
           RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/health)"
           echo "$RESPONSE" | grep -q '"status":"healthy"'
           echo "$RESPONSE" | grep -q '"version":"0.6.0"'
-          echo "Founder OS live health endpoint verified."
+          echo "$RESPONSE" | grep -q '"database":true'
+          echo "$RESPONSE" | grep -q '"databaseType":"kv"'
+          echo "Founder OS live health and durable KV binding verified."
 
       - name: Verify NN-KS-002 workflow endpoint
         run: |
           RESPONSE="$(curl --fail --silent --show-error -H 'x-founder-os-workspace: workspace-natural-nation' https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002)"
           echo "$RESPONSE" | grep -q '"id":"nn-ks-002"'
           echo "$RESPONSE" | grep -q '"workspaceId":"workspace-natural-nation"'
-          echo "NN-KS-002 live workflow endpoint verified."
+          echo "$RESPONSE" | grep -q '"persisted":true'
+          echo "NN-KS-002 live workflow endpoint and persistence verified."
