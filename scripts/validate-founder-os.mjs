@@ -77,7 +77,7 @@ assert.equal(orchestrationState.workspaceId, 'natural-nation');
 assert.equal(orchestrationState.packageId, naturalNation.activePackageId);
 assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(task.status)).length === 1 || orchestrationState.status === 'complete');
 
-assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002') && gatewayIndex.includes('0.7.0'));
+assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002') && gatewayIndex.includes('0.6.0'));
 assert(gatewayIndex.includes('repositoryExecution') && gatewayIndex.includes('structuredObservability'));
 assert(nnKs002Route.includes('inspectRepository') && nnKs002Route.includes('approve-nn-ks-002-scope'));
 assert(nnKs002Route.includes('FOUNDER_OS_RUNTIME_STORE') && nnKs002Route.includes('PAYLOAD_HASH_MISMATCH'));
