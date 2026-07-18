@@ -1,10 +1,12 @@
-name: Deploy Founder OS Live Pilot
+name: Deploy Founder OS Home
 
 on:
   push:
     branches: [main]
     paths:
-      - 'founder-os/app/**'
+      - 'founder-os/app/index.html'
+      - 'founder-os/app/styles.css'
+      - 'founder-os/app/app.mjs'
       - '.github/workflows/deploy-founder-os-pilot.yml'
       - 'scripts/validate-live-pilot.mjs'
   workflow_dispatch:
@@ -37,9 +39,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+
+      - name: Prepare root-only Founder OS site
+        run: |
+          rm -rf _site
+          mkdir _site
+          cp founder-os/app/index.html _site/index.html
+          cp founder-os/app/styles.css _site/styles.css
+          cp founder-os/app/app.mjs _site/app.mjs
+          touch _site/.nojekyll
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: founder-os/app
-      - name: Deploy Founder OS pilot
+          path: _site
+
+      - name: Deploy Founder OS home
         id: deployment
         uses: actions/deploy-pages@v4
