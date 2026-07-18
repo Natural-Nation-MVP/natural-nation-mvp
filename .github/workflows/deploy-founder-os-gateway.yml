@@ -59,19 +59,26 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5; do
             RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
-            if echo "$RESPONSE" | grep -q '"version":"0.6.0"'; then
-              echo "Cloudflare Worker v0.6.0 verified."
+            if echo "$RESPONSE" | grep -q '"version":"0.7.0"'; then
+              echo "Cloudflare Worker v0.7.0 verified."
               exit 0
             fi
             echo "Worker version not ready yet; retrying in 5 seconds."
             sleep 5
           done
-          echo "Cloudflare Worker did not report v0.6.0 after deployment."
+          echo "Cloudflare Worker did not report v0.7.0 after deployment."
           exit 1
 
       - name: Verify Founder OS health endpoint
         run: |
           RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/health)"
-          echo "$RESPONSE" | grep -q '"status":"online"'
-          echo "$RESPONSE" | grep -q '"version":"0.6.0"'
+          echo "$RESPONSE" | grep -q '"status":"healthy"'
+          echo "$RESPONSE" | grep -q '"version":"0.7.0"'
           echo "Founder OS live health endpoint verified."
+
+      - name: Verify NN-KS-002 workflow endpoint
+        run: |
+          RESPONSE="$(curl --fail --silent --show-error -H 'x-founder-os-workspace: workspace-natural-nation' https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002)"
+          echo "$RESPONSE" | grep -q '"id":"nn-ks-002"'
+          echo "$RESPONSE" | grep -q '"workspaceId":"workspace-natural-nation"'
+          echo "NN-KS-002 live workflow endpoint verified."
