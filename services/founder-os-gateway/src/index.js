@@ -2,13 +2,14 @@
  * Founder OS Gateway Worker v0.6.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
- * repository-backed AI orchestration, and the safe live Founder review pilot.
+ * repository-backed AI orchestration, live workflows, and governed review.
  */
 
 import { emptyResponse, errorResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
+import { handleNnKs002 } from "./routes/nn-ks-002.js";
 
 const VERSION = "0.6.0";
 
@@ -17,11 +18,7 @@ function safeBindingDiagnostics(env) {
   const normalizedFounderCandidates = receivedBindingNames.filter((name) =>
     name.replace(/[^A-Z0-9]/gi, "").toUpperCase().includes("FOUNDERAPIKEY")
   );
-
-  return {
-    receivedBindingNames,
-    founderBindingCandidates: normalizedFounderCandidates
-  };
+  return { receivedBindingNames, founderBindingCandidates: normalizedFounderCandidates };
 }
 
 export function gatewayConfiguration(env) {
@@ -30,7 +27,8 @@ export function gatewayConfiguration(env) {
     githubToken: Boolean(env.GITHUB_TOKEN),
     githubOwner: Boolean(env.GITHUB_OWNER),
     githubRepository: Boolean(env.GITHUB_REPOSITORY),
-    githubBranch: Boolean(env.GITHUB_BRANCH)
+    githubBranch: Boolean(env.GITHUB_BRANCH),
+    runtimeStore: Boolean(env.FOUNDER_OS_RUNTIME_STORE?.get && env.FOUNDER_OS_RUNTIME_STORE?.put)
   };
   const providers = {
     openAiProvider: Boolean(env.OPENAI_API_KEY),
@@ -40,7 +38,6 @@ export function gatewayConfiguration(env) {
     aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
     gatewayPublicUrl: Boolean(env.GATEWAY_PUBLIC_URL)
   };
-
   return {
     configured: Object.values(required).every(Boolean) && Object.values(providers).some(Boolean),
     directProviderReady: Object.values(providers).some(Boolean),
@@ -54,31 +51,23 @@ export function gatewayConfiguration(env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-
-    // Complete the browser preflight before any protected route handling.
-    if (request.method === "OPTIONS") {
-      return emptyResponse(request, 204);
-    }
+    if (request.method === "OPTIONS") return emptyResponse(request, 204);
 
     try {
-      // Keep existing protected capabilities ahead of general informational routes.
       const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
       if (approvalResponse) return approvalResponse;
 
       const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
       if (orchestrationResponse) return orchestrationResponse;
 
-      // Add the live pilot contract without changing existing route authority.
+      const nnKs002Response = await handleNnKs002(request, env, url.pathname);
+      if (nnKs002Response) return nnKs002Response;
+
       const livePilotResponse = await handleLivePilot(request, env, url.pathname, VERSION);
       if (livePilotResponse) return livePilotResponse;
 
       if (url.pathname === "/health") {
-        return json(request, {
-          service: "Founder OS Gateway",
-          status: "online",
-          version: VERSION,
-          time: new Date().toISOString()
-        });
+        return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, time: new Date().toISOString() });
       }
 
       if (url.pathname === "/version") {
@@ -101,55 +90,32 @@ export default {
             workspaceIsolation: "enabled",
             liveFounderReviewPilot: "enabled",
             signedPilotApprovals: "enabled",
-            pilotDiagnostics: "enabled"
+            pilotDiagnostics: "enabled",
+            liveNnKs002Workflow: "enabled",
+            durableWorkflowState: "enabled",
+            exactScopeApproval: "enabled"
           }
         });
       }
 
       if (url.pathname === "/configuration") {
         const configuration = gatewayConfiguration(env);
-        return json(request, {
-          service: "Founder OS Gateway",
-          version: VERSION,
-          ...configuration,
-          diagnostics: safeBindingDiagnostics(env)
-        });
+        return json(request, { service: "Founder OS Gateway", version: VERSION, ...configuration, diagnostics: safeBindingDiagnostics(env) });
       }
 
       if (url.pathname === "/") {
-        return json(request, {
-          service: "Founder OS Gateway",
-          status: "online",
-          version: VERSION,
-          message: "Founder OS secure execution gateway is running."
-        });
+        return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, message: "Founder OS secure execution gateway is running." });
       }
 
-      return json(
-        request,
-        {
-          ok: false,
-          error: {
-            code: "NOT_FOUND",
-            message: "The requested Gateway route does not exist."
-          }
-        },
-        404
-      );
+      return json(request, { ok: false, error: { code: "NOT_FOUND", message: "The requested Gateway route does not exist." } }, 404);
     } catch (error) {
-      // Never allow an unhandled exception to become a browser-level Load failed response.
       console.error(JSON.stringify({
         service: "founder-os-gateway",
         type: "unhandled_gateway_failure",
         pathname: url.pathname,
         message: error instanceof Error ? error.message : "Unknown gateway error"
       }));
-      return errorResponse(
-        request,
-        500,
-        "GATEWAY_RUNTIME_FAILURE",
-        "The gateway request failed safely. No protected action was executed."
-      );
+      return errorResponse(request, 500, "GATEWAY_RUNTIME_FAILURE", "The gateway request failed safely. No protected action was executed.");
     }
   }
 };

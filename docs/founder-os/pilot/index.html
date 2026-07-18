@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Founder OS guided Founder Command Center">
+  <meta name="description" content="Founder OS live governed command center">
   <meta name="theme-color" content="#102319">
   <title>Founder OS · Command Center</title>
   <link rel="stylesheet" href="./styles.css">
@@ -12,66 +12,54 @@
   <a class="skip-link" href="#main">Skip to main content</a>
   <header class="topbar">
     <div><p class="eyebrow">Founder OS</p><h1>Founder Command Center</h1></div>
-    <div class="top-actions"><span id="mode-badge" class="status warning">Connecting…</span><button id="refresh-button" class="secondary" type="button">Refresh</button></div>
+    <div class="top-actions"><span id="mode-badge" class="status warning">Connecting…</span><button id="refresh-button" class="secondary" type="button">Refresh Live State</button></div>
   </header>
   <div class="layout">
-    <nav aria-label="Workspace navigation">
+    <nav aria-label="Founder OS navigation">
       <h2>Workspaces</h2><div id="workspace-list"></div>
-      <section class="connection-panel" aria-labelledby="connection-title"><h3 id="connection-title">Runtime Connection</h3><label for="api-base">Cloudflare API URL</label><input id="api-base" type="url" inputmode="url" placeholder="https://your-worker.workers.dev"><button id="save-connection" type="button">Connect</button><p class="muted">Stored only in this browser. No secrets belong here.</p></section>
+      <h2 class="nav-heading">Pages</h2>
+      <div class="page-nav" id="page-nav">
+        <button data-page-target="overview" aria-current="page">Overview</button>
+        <button data-page-target="workflow">Workflow</button>
+        <button data-page-target="scope">Scope Package</button>
+        <button data-page-target="decisions">Founder Decisions</button>
+        <button data-page-target="evidence">Evidence</button>
+        <button data-page-target="operations">Operations</button>
+      </div>
+      <section class="connection-panel" aria-labelledby="connection-title"><h3 id="connection-title">Live Runtime</h3><label for="api-base">Cloudflare API URL</label><input id="api-base" type="url" inputmode="url"><button id="save-connection" type="button">Connect Runtime</button><p class="muted">No secrets are stored in the browser.</p></section>
     </nav>
     <main id="main" tabindex="-1">
-      <section class="hero" aria-labelledby="workspace-title"><div><p class="eyebrow" id="workspace-number"></p><h2 id="workspace-title">Loading workspace…</h2><p id="workspace-summary"></p></div><div id="workspace-state" class="status"></div></section>
-
-      <section class="next-step" aria-labelledby="next-step-title">
-        <div class="next-step-copy">
-          <p class="eyebrow">Your next step</p>
-          <h2 id="next-step-title">NN-KS-002 — Knowledge System</h2>
-          <p class="next-step-summary">Begin with a repository review so Founder OS can produce the exact scope package for your approval.</p>
-          <dl class="next-step-meta">
-            <div><dt>Current stage</dt><dd id="workflow-stage">Repository Review</dd></div>
-            <div><dt>Assigned to</dt><dd id="workflow-owner">Art · Lead Architect</dd></div>
-            <div><dt>Founder action</dt><dd id="workflow-founder-action">None required yet</dd></div>
-          </dl>
-        </div>
-        <div class="next-step-actions">
-          <button id="start-workflow" type="button">Start Repository Review</button>
-          <button id="view-workflow" class="secondary" type="button">View Workflow</button>
-        </div>
-      </section>
-
-      <section id="workflow-panel" class="workflow-panel" aria-labelledby="workflow-title">
-        <div class="article-heading"><div><p class="eyebrow">Guided workflow</p><h2 id="workflow-title">NN-KS-002 Progress</h2></div><span id="workflow-status" class="status">Ready</span></div>
-        <ol id="workflow-steps" class="workflow-steps"></ol>
-        <div id="workflow-output" class="workflow-output" aria-live="polite"></div>
-      </section>
-
       <div id="notice" class="notice" role="status" aria-live="polite"></div>
-      <section class="metrics" aria-label="Workspace metrics" id="metrics"></section>
 
-      <section class="primary-grid">
-        <article><div class="article-heading"><h3>Current Work</h3><span id="runs-count" class="count"></span></div><div id="runs"></div></article>
-        <article><div class="article-heading"><h3>Founder Decisions</h3><span id="approvals-count" class="count"></span></div><div id="approvals"></div></article>
-        <article><h3>Natural Nation Backlog</h3><div id="roadmap"></div></article>
-        <article><h3>AI Team</h3><div id="agents"></div></article>
+      <section data-page="overview">
+        <section class="hero" aria-labelledby="workspace-title"><div><p class="eyebrow" id="workspace-number"></p><h2 id="workspace-title">Loading workspace…</h2><p id="workspace-summary"></p></div><div id="workspace-state" class="status"></div></section>
+        <section class="next-step" aria-labelledby="next-step-title"><div class="next-step-copy"><p class="eyebrow">Your next step</p><h2 id="next-step-title">NN-KS-002 — Knowledge System</h2><p class="next-step-summary">Founder OS uses the live repository and server-owned workflow state.</p><dl class="next-step-meta"><div><dt>Current stage</dt><dd id="workflow-stage">Repository Review</dd></div><div><dt>Assigned to</dt><dd id="workflow-owner">Art · Lead Architect</dd></div><div><dt>Founder action</dt><dd id="workflow-founder-action">None required yet</dd></div></dl></div><div class="next-step-actions"><button id="start-workflow" type="button">Start Repository Review</button><button id="view-workflow" class="secondary" type="button">Open Workflow</button><button id="view-scope" class="ghost" type="button">Open Scope Package</button></div></section>
+        <section class="metrics" aria-label="Workspace metrics" id="metrics"></section>
+        <section class="primary-grid"><article><div class="article-heading"><h3>Current Work</h3><span id="runs-count" class="count"></span></div><div id="runs"></div></article><article><div class="article-heading"><h3>Founder Decisions</h3><span id="approvals-count" class="count"></span></div><div id="approvals"></div></article><article><h3>Natural Nation Backlog</h3><div id="roadmap"></div></article><article><h3>AI Team</h3><div id="agents"></div></article></section>
       </section>
 
-      <details class="operations-details">
-        <summary><span>Operations Details</span><small>Runtime, governance, delivery, evidence, and verification</small></summary>
-        <section class="grid operations-grid">
-          <article><h3>Governed Repository Actions</h3><div id="githubOps"></div></article>
-          <article><h3>Persistent Execution Ledger</h3><div id="evidenceHistory"></div></article>
-          <article><h3>Operational Intelligence</h3><div id="intelligence"></div></article>
-          <article><h3>Delivery Pipeline</h3><div id="delivery"></div></article>
-          <article><h3>Health & Providers</h3><div id="health"></div></article>
-          <article><h3>Recovery & Schedules</h3><div id="schedules"></div></article>
-          <article><h3>Release Readiness</h3><div id="release"></div></article>
-          <article><h3>Evidence & Audit</h3><div id="evidence"></div></article>
-        </section>
-        <section class="verification" aria-labelledby="verification-title"><h2 id="verification-title">Founder Verification Checklist</h2><div id="verification-list"></div></section>
-      </details>
+      <section data-page="workflow" hidden>
+        <section class="workflow-panel" aria-labelledby="workflow-title"><div class="article-heading"><div><p class="eyebrow">Live governed workflow</p><h2 id="workflow-title">NN-KS-002 Progress</h2></div><span id="workflow-status" class="status">Ready</span></div><ol id="workflow-steps" class="workflow-steps"></ol><div id="workflow-output" class="workflow-output" aria-live="polite"></div><div class="page-actions"><button id="workflow-refresh" type="button">Reload Workflow State</button><button id="workflow-start-secondary" class="secondary" type="button">Start Repository Review</button></div></section>
+      </section>
+
+      <section data-page="scope" hidden>
+        <section class="page-card"><div class="article-heading"><div><p class="eyebrow">Live artifact</p><h2>NN-KS-002 Production Scope Package</h2></div><span id="scope-status" class="status warning">Not ready</span></div><div id="scope-content" class="scope-content"></div><div class="page-actions"><button id="scope-refresh" type="button">Reload Scope</button><button id="scope-review-decision" class="secondary" type="button">Review Founder Decision</button></div></section>
+      </section>
+
+      <section data-page="decisions" hidden>
+        <section class="page-card"><div class="article-heading"><div><p class="eyebrow">Founder authority</p><h2>Pending Decisions</h2></div><span id="decision-count" class="count">0</span></div><div id="decision-list"></div></section>
+      </section>
+
+      <section data-page="evidence" hidden>
+        <section class="page-card"><div class="article-heading"><div><p class="eyebrow">Server-owned records</p><h2>Evidence & Audit</h2></div><button id="evidence-refresh" class="secondary" type="button">Reload Evidence</button></div><div id="evidence-page-list"></div></section>
+      </section>
+
+      <section data-page="operations" hidden>
+        <section class="page-card"><div class="article-heading"><div><p class="eyebrow">Live controls</p><h2>Operations</h2></div><span id="operations-status" class="status warning">Not checked</span></div><div class="page-actions"><button id="diagnostics-button" type="button">Run Runtime Diagnostics</button><button id="isolation-button" class="secondary" type="button">Test Workspace Isolation</button><button id="operations-refresh" class="ghost" type="button">Refresh All State</button></div><pre id="diagnostics-output" class="diagnostics-output">No live diagnostics run yet.</pre><section class="grid operations-grid"><article><h3>Governed Repository Actions</h3><div id="githubOps"></div></article><article><h3>Persistent Execution Ledger</h3><div id="evidenceHistory"></div></article><article><h3>Operational Intelligence</h3><div id="intelligence"></div></article><article><h3>Delivery Pipeline</h3><div id="delivery"></div></article><article><h3>Health & Providers</h3><div id="health"></div></article><article><h3>Recovery & Schedules</h3><div id="schedules"></div></article><article><h3>Release Readiness</h3><div id="release"></div></article><article><h3>Evidence Summary</h3><div id="evidence"></div></article></section><section class="verification" aria-labelledby="verification-title"><h2 id="verification-title">Founder Verification Checklist</h2><div id="verification-list"></div></section></section>
+      </section>
     </main>
   </div>
-  <dialog id="approval-dialog"><form method="dialog"><p class="eyebrow">Founder authority required</p><h2>Approve exact action?</h2><p id="approval-description"></p><code id="approval-hash"></code><div class="button-row dialog-actions"><button value="cancel" class="secondary">Cancel</button><button id="confirm-approval" value="approve">Approve Exact Action</button></div></form></dialog>
+  <dialog id="approval-dialog"><form method="dialog"><p class="eyebrow">Founder authority required</p><h2>Approve exact scope?</h2><p id="approval-description"></p><code id="approval-hash"></code><div class="button-row dialog-actions"><button value="cancel" class="secondary">Cancel</button><button id="confirm-approval" value="approve">Approve Exact Scope</button></div></form></dialog>
   <script type="module" src="./app.mjs"></script>
 </body>
 </html>

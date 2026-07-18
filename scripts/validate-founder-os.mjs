@@ -33,13 +33,15 @@ const files = await Promise.all([
   read('services/founder-os-gateway/src/lib/auth.js'),
   read('services/founder-os-gateway/src/lib/http.js'),
   read('docs/founder-os/reports/FOUNDER-OS-RESILIENCE-AUDIT-2026-07-16.md'),
-  read('services/founder-os-gateway/src/lib/result-verification.js')
+  read('services/founder-os-gateway/src/lib/result-verification.js'),
+  read('services/founder-os-gateway/src/routes/nn-ks-002.js')
 ]);
 
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
   orchestrationUi, discoveryUi, blueprintUi, knowledgeUi, uxCompletion, uxStyles, founderReviewStyles,
   agentRegistry, orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters,
-  providerContracts, githubLibrary, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification] = files;
+  providerContracts, githubLibrary, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit, resultVerification,
+  nnKs002Route] = files;
 
 const scripts = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scripts).size, scripts.length, 'Each runtime script must load once.');
@@ -75,8 +77,10 @@ assert.equal(orchestrationState.workspaceId, 'natural-nation');
 assert.equal(orchestrationState.packageId, naturalNation.activePackageId);
 assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(task.status)).length === 1 || orchestrationState.status === 'complete');
 
-assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('0.5.4'));
+assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002') && gatewayIndex.includes('0.6.0'));
 assert(gatewayIndex.includes('repositoryExecution') && gatewayIndex.includes('structuredObservability'));
+assert(nnKs002Route.includes('inspectRepository') && nnKs002Route.includes('approve-nn-ks-002-scope'));
+assert(nnKs002Route.includes('FOUNDER_OS_RUNTIME_STORE') && nnKs002Route.includes('PAYLOAD_HASH_MISMATCH'));
 assert(gatewayHttp.includes('access-control-allow-origin'));
 assert(gatewayRoute.includes('authenticateFounder') && gatewayRoute.includes('dryRun'));
 assert(gatewayRoute.includes('resetTask') && gatewayRoute.includes('retryAllowed'));
