@@ -4,11 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'founder-os/app/index.html'
-      - 'founder-os/app/styles.css'
-      - 'founder-os/app/app.mjs'
+      - 'docs/founder-os/**'
       - '.github/workflows/deploy-founder-os-pilot.yml'
-      - 'scripts/validate-live-pilot.mjs'
+      - 'scripts/validate-founder-os.mjs'
   workflow_dispatch:
 
 permissions:
@@ -24,11 +22,14 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: node scripts/validate-live-pilot.mjs
+          node-version: '22'
+      - name: Validate Founder OS site and runtime contracts
+        run: node scripts/validate-founder-os.mjs
 
   deploy:
     needs: validate
@@ -37,19 +38,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
-      - name: Prepare root-only Founder OS site
+      - name: Prepare Founder OS site
         run: |
           rm -rf _site
           mkdir _site
-          cp founder-os/app/index.html _site/index.html
-          cp founder-os/app/styles.css _site/styles.css
-          cp founder-os/app/app.mjs _site/app.mjs
+          cp -R docs/founder-os/. _site/
           touch _site/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload Founder OS Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
