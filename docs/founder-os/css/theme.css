@@ -1,25 +1,28 @@
 :root {
-  --nn-stone: #f2eadc;
-  --nn-stone-light: #fbf7ee;
-  --nn-ink: #101813;
-  --nn-muted: #697468;
-  --nn-green-dark: #06140d;
-  --nn-green: #2f7d32;
-  --nn-green-soft: rgba(47, 125, 50, 0.08);
-  --nn-purple: #6f4cff;
-  --nn-gold: #b98724;
-  --nn-red: #c7493d;
-  --nn-panel: rgba(255, 252, 244, 0.66);
-  --nn-panel-strong: rgba(255, 252, 244, 0.86);
-  --nn-line: rgba(31, 49, 35, 0.16);
-  --nn-shadow: 0 10px 28px rgba(38, 33, 23, 0.08);
+  --nn-stone: #e7e7e7;
+  --nn-stone-light: #f7f7f7;
+  --nn-ink: #111111;
+  --nn-muted: #666666;
+  --nn-green-dark: #151515;
+  --nn-green: #3f3f3f;
+  --nn-green-soft: rgba(45, 45, 45, 0.08);
+  --nn-purple: #595959;
+  --nn-gold: #777777;
+  --nn-red: #444444;
+  --nn-panel: rgba(248, 248, 248, 0.72);
+  --nn-panel-strong: rgba(255, 255, 255, 0.92);
+  --nn-line: rgba(20, 20, 20, 0.16);
+  --nn-shadow: 0 10px 28px rgba(0, 0, 0, 0.09);
   --nn-radius-panel: 8px;
   --nn-radius-button: 4px;
 }
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: #e5e5e5;
+}
 
 body {
   margin: 0;
@@ -27,8 +30,9 @@ body {
   color: var(--nn-ink);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at 85% 5%, rgba(93, 128, 49, 0.13), transparent 22%),
-    linear-gradient(135deg, #efe4d2 0%, #f7f0e4 52%, #e9eddc 100%);
+    radial-gradient(circle at 85% 5%, rgba(0, 0, 0, 0.08), transparent 24%),
+    linear-gradient(135deg, #d8d8d8 0%, #f4f4f4 52%, #dedede 100%);
+  filter: grayscale(1);
 }
 
 body::before {
@@ -36,10 +40,10 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.26;
+  opacity: 0.22;
   background-image:
-    linear-gradient(120deg, rgba(91, 70, 44, 0.055) 0 1px, transparent 1px 42px),
-    radial-gradient(circle at 20% 80%, rgba(25, 49, 28, 0.08), transparent 28%);
+    linear-gradient(120deg, rgba(0, 0, 0, 0.045) 0 1px, transparent 1px 42px),
+    radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.07), transparent 28%);
   background-size: 180px 180px, 100% 100%;
 }
 
