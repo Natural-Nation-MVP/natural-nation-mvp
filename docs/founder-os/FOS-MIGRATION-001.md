@@ -2,7 +2,8 @@
 
 Status: Approved architecture plan  
 Authority: FOS-DIRECTIVE-001  
-Parent: FOS-FOUNDATION-001
+Parent: FOS-FOUNDATION-001  
+Root-entry implementation: FOS-ROOT-ENTRY-001
 
 ## 1. Migration objective
 
@@ -44,6 +45,17 @@ Workspace: Natural Nation
 
 A monorepo may contain both layers, but imports and runtime ownership must remain explicit.
 
+### 3.1 Canonical public entry
+
+Founder OS is now the canonical GitHub Pages root application.
+
+```text
+/             → Founder OS platform shell and workspace registry
+/founder-os/  → compatibility route during migration
+```
+
+The previous Natural Nation landing page is no longer the root experience. Natural Nation is entered from the Founder OS workspace registry as Workspace #1. See `FOS-ROOT-ENTRY-001`.
+
 ## 4. Staged implementation plan
 
 ### Stage 0 — Constitutional foundation
@@ -55,6 +67,7 @@ Deliverables:
 - FOS-WORKSPACE-CONTRACT-001
 - FOS-GOVERNANCE-001
 - FOS-MIGRATION-001
+- FOS-ROOT-ENTRY-001
 
 Exit criteria:
 
@@ -63,6 +76,7 @@ Exit criteria:
 - protected boundary is explicit
 - workspace contract is defined
 - migration sequence is approved
+- Founder OS opens directly at the canonical Pages root
 
 ### Stage 1 — Workspace Registry and Lifecycle
 
@@ -197,7 +211,9 @@ Compatibility adapters may translate:
 - current GitHub repository configuration into workspace integration records
 - current result contracts into capability-based contracts
 
-Adapters are temporary and must have removal criteria.
+The `/founder-os/` public route is also retained temporarily as a compatibility route while the root URL becomes canonical.
+
+Adapters and compatibility routes are temporary and must have removal criteria.
 
 ## 6. Deprecation policy
 
@@ -222,6 +238,7 @@ Each implementation pull request must test applicable items:
 - protected files are unchanged
 - backward compatibility is maintained or migration is documented
 - rollback path exists
+- canonical root and compatibility routes both load during the transition
 
 ## 8. Completion definition
 
