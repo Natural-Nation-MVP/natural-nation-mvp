@@ -16,12 +16,12 @@ const actionCenter = fs.readFileSync(requiredFiles[2], 'utf8');
 const app = fs.readFileSync(requiredFiles[3], 'utf8');
 
 const inboxContracts = [
-  'data-workspace = \'approvals\'',
-  "data-approval-decision=\"approve\"",
-  "data-approval-decision=\"request_changes\"",
-  "data-approval-decision=\"defer\"",
-  "data-approval-decision=\"reject\"",
-  "data-approval-decision=\"note\"",
+  "view.dataset.workspace = 'approvals'",
+  'data-approval-decision="approve"',
+  'data-approval-decision="request_changes"',
+  'data-approval-decision="defer"',
+  'data-approval-decision="reject"',
+  'data-approval-decision="note"',
   '/decision',
   'Founder Key',
   'window.NNOSApprovalInbox'
