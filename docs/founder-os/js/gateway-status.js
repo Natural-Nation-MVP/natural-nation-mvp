@@ -6,14 +6,14 @@
     if (!document.querySelector('link[data-blueprint-approval-style]')) {
       const style = document.createElement('link');
       style.rel = 'stylesheet';
-      style.href = './css/blueprint-approval.css?v=0.1.0';
+      style.href = './founder-os/css/blueprint-approval.css?v=0.1.0';
       style.dataset.blueprintApprovalStyle = 'true';
       document.head.appendChild(style);
     }
 
     if (!document.querySelector('script[data-blueprint-approval-script]')) {
       const script = document.createElement('script');
-      script.src = './js/blueprint-approval-transaction.js?v=0.1.0';
+      script.src = './founder-os/js/blueprint-approval-transaction.js?v=0.1.0';
       script.dataset.blueprintApprovalScript = 'true';
       script.defer = true;
       document.body.appendChild(script);
@@ -33,33 +33,13 @@
         throw new Error(`Gateway returned ${response.status}`);
       }
 
-      const data = await response.json();
-      const isOnline = data?.status === 'online';
-
-      if (statusNode) {
-        statusNode.textContent = isOnline
-          ? `Gateway online · v${data.version || 'unknown'}`
-          : 'Gateway response received';
-      }
-
-      window.NNOSGateway = {
-        url: gatewayUrl,
-        connected: true,
-        response: data
-      };
+      if (statusNode) statusNode.textContent = 'Gateway online';
+      loadApprovalRuntime();
     } catch (error) {
+      console.error(error);
       if (statusNode) statusNode.textContent = 'Gateway unavailable';
-
-      window.NNOSGateway = {
-        url: gatewayUrl,
-        connected: false,
-        error: error.message
-      };
-
-      console.error('Founder OS gateway status check failed.', error);
     }
   }
 
-  loadApprovalRuntime();
   checkGateway();
 })();

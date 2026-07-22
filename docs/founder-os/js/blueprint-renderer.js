@@ -1,5 +1,5 @@
 (() => {
-  const BLUEPRINT_URL = './config/natural-nation-blueprint.json';
+  const BLUEPRINT_URL = './founder-os/config/natural-nation-blueprint.json';
   let blueprint = null;
 
   const $ = (selector) => document.querySelector(selector);

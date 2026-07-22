@@ -1,11 +1,11 @@
 (() => {
   const completionStyle = document.createElement('link');
   completionStyle.rel = 'stylesheet';
-  completionStyle.href = './css/ux-completion.css?v=1.0.0';
+  completionStyle.href = './founder-os/css/ux-completion.css?v=1.0.0';
   document.head.appendChild(completionStyle);
 
   const completionScript = document.createElement('script');
-  completionScript.src = './js/ux-completion.js?v=live-overview-1';
+  completionScript.src = './founder-os/js/ux-completion.js?v=live-overview-1';
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 

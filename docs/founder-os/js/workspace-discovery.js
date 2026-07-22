@@ -1,5 +1,5 @@
 (() => {
-  const discoveryPath = './config/natural-nation-discovery.json?v=1.4.0';
+  const discoveryPath = './founder-os/config/natural-nation-discovery.json?v=1.4.0';
   let discovery = null;
 
   const $ = (selector) => document.querySelector(selector);

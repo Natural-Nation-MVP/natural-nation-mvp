@@ -1,5 +1,5 @@
 (() => {
-  const registryPath = './config/workspace-registry.json?v=1.6.0';
+  const registryPath = './founder-os/config/workspace-registry.json?v=1.6.0';
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);

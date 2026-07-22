@@ -1,8 +1,8 @@
 (() => {
   const BILLING_KEY = 'nnos_billing_resolution';
   const LEGACY_FOUNDER_KEY = 'nnos_founder_api_key';
-  const BLUEPRINT_URL = './config/natural-nation-blueprint.json';
-  const PACKAGE_URL = '../execution-packages/NN-BUILD-001.json';
+  const BLUEPRINT_URL = './founder-os/config/natural-nation-blueprint.json';
+  const PACKAGE_URL = './execution-packages/NN-BUILD-001.json';
 
   let state = {
     billingResolution: sessionStorage.getItem(BILLING_KEY) || 'excluded-from-mvp',
