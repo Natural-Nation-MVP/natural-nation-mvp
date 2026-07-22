@@ -1,8 +1,8 @@
 (() => {
   const BILLING_KEY = 'nnos_billing_resolution';
   const LEGACY_FOUNDER_KEY = 'nnos_founder_api_key';
-  const BLUEPRINT_URL = './founder-os/config/natural-nation-blueprint.json';
-  const PACKAGE_URL = './execution-packages/NN-BUILD-001.json';
+  const BLUEPRINT_URL = window.NNOSPaths.asset('config/natural-nation-blueprint.json');
+  const PACKAGE_URL = window.NNOSPaths.site('execution-packages/NN-BUILD-001.json');
 
   let state = {
     billingResolution: sessionStorage.getItem(BILLING_KEY) || 'excluded-from-mvp',
@@ -69,13 +69,9 @@
       const locked = state.packageReady ? 'false' : 'true';
       setIfChanged(buildNav, 'data-flow-locked', locked);
       setIfChanged(buildNav, 'aria-disabled', locked);
-      setIfChanged(
-        buildNav,
-        'title',
-        state.packageReady
-          ? 'Open the canonical NN-BUILD-001 package.'
-          : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.'
-      );
+      setIfChanged(buildNav, 'title', state.packageReady
+        ? 'Open the canonical NN-BUILD-001 package.'
+        : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.');
       setIfChanged(buildNav, 'textContent', state.packageReady ? 'Build Studio' : 'Build Studio · Locked');
     }
 
@@ -83,15 +79,11 @@
     if (reviewButton) {
       const decisionResolved = state.billingResolution !== 'unresolved';
       setIfChanged(reviewButton, 'disabled', !decisionResolved);
-      setIfChanged(
-        reviewButton,
-        'textContent',
-        state.packageReady
-          ? 'Open Build Studio →'
-          : decisionResolved
-            ? 'Continue to Blueprint →'
-            : 'Resolve Billing to Continue'
-      );
+      setIfChanged(reviewButton, 'textContent', state.packageReady
+        ? 'Open Build Studio →'
+        : decisionResolved
+          ? 'Continue to Blueprint →'
+          : 'Resolve Billing to Continue');
     }
 
     document.body.dataset.nnosFlowStage = state.packageReady

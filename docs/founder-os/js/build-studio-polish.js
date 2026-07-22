@@ -21,15 +21,16 @@ function updateBottomActionBar() {
 }
 
 function loadExecutionModules() {
-  loadScriptOnce('./founder-os/js/processing-status.js?v=processing-v4&release=founder-review', 'data-processing-status-loader');
-  loadScriptOnce('./founder-os/js/canonical-build-studio.js?v=processing-v4&release=founder-review', 'data-canonical-build-loader');
-  loadScriptOnce('./founder-os/js/founder-actions.js?v=r3-actions-1', 'data-founder-actions-loader');
-  loadScriptOnce('./founder-os/js/knowledge-engine.js?v=kb-wave-5', 'data-knowledge-engine-loader');
-  loadScriptOnce('./founder-os/js/repository-intelligence.js?v=r3-repo-intel-3', 'data-repository-intelligence-loader');
-  loadScriptOnce('./founder-os/js/mission-control.js?v=r3-mission-5', 'data-mission-control-loader');
-  loadScriptOnce('./founder-os/js/ai-orchestration.js?v=processing-v4&release=founder-review', 'data-ai-orchestration-loader');
-  loadScriptOnce('./founder-os/js/build-dispatch-bridge.js?v=processing-v4&release=founder-review', 'data-build-dispatch-bridge-loader');
-  loadScriptOnce('./founder-os/js/natural-nation-final-pass.js?v=workspace-review-1', 'data-natural-nation-final-pass-loader');
+  const asset = window.NNOSPaths.asset;
+  loadScriptOnce(asset('js/processing-status.js?v=processing-v4&release=founder-review'), 'data-processing-status-loader');
+  loadScriptOnce(asset('js/canonical-build-studio.js?v=processing-v4&release=founder-review'), 'data-canonical-build-loader');
+  loadScriptOnce(asset('js/founder-actions.js?v=r3-actions-1'), 'data-founder-actions-loader');
+  loadScriptOnce(asset('js/knowledge-engine.js?v=kb-wave-5'), 'data-knowledge-engine-loader');
+  loadScriptOnce(asset('js/repository-intelligence.js?v=r3-repo-intel-3'), 'data-repository-intelligence-loader');
+  loadScriptOnce(asset('js/mission-control.js?v=r3-mission-5'), 'data-mission-control-loader');
+  loadScriptOnce(asset('js/ai-orchestration.js?v=processing-v4&release=founder-review'), 'data-ai-orchestration-loader');
+  loadScriptOnce(asset('js/build-dispatch-bridge.js?v=processing-v4&release=founder-review'), 'data-build-dispatch-bridge-loader');
+  loadScriptOnce(asset('js/natural-nation-final-pass.js?v=workspace-review-1'), 'data-natural-nation-final-pass-loader');
 }
 
 loadExecutionModules();

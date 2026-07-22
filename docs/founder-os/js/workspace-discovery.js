@@ -1,5 +1,5 @@
 (() => {
-  const discoveryPath = './founder-os/config/natural-nation-discovery.json?v=1.4.0';
+  const discoveryPath = window.NNOSPaths.asset('config/natural-nation-discovery.json?v=1.4.0');
   let discovery = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -47,7 +47,6 @@
   function renderQuestionsOrDecisions() {
     const container = $('[data-discovery-questions]');
     if (!container || !discovery) return;
-
     const uncertainties = discovery.uncertainties || [];
     if (uncertainties.length > 0) {
       container.innerHTML = uncertainties.map((item) => `
@@ -59,7 +58,6 @@
       `).join('');
       return;
     }
-
     const decisions = discovery.approvedDecisions || [];
     container.innerHTML = decisions.length
       ? decisions.map((item) => `
@@ -71,7 +69,6 @@
           </article>
         `).join('')
       : '<p class="muted">No unresolved Founder decisions remain.</p>';
-
     const heading = container.closest('.glass-panel')?.querySelector('.section-title');
     if (heading) heading.textContent = 'Approved Founder Decisions';
     const eyebrow = container.closest('.glass-panel')?.querySelector('.eyebrow');
@@ -85,9 +82,7 @@
     button.disabled = hasOpenQuestions;
     button.textContent = hasOpenQuestions ? 'Resolve Decisions to Continue' : 'Open Approved Plan →';
     const actionCopy = button.closest('.discovery-actions')?.querySelector('strong');
-    if (actionCopy) actionCopy.textContent = hasOpenQuestions
-      ? 'Resolve the remaining Founder decisions.'
-      : 'Direction is confirmed. Review the approved plan before moving into live Build Work.';
+    if (actionCopy) actionCopy.textContent = hasOpenQuestions ? 'Resolve the remaining Founder decisions.' : 'Direction is confirmed. Review the approved plan before moving into live Build Work.';
   }
 
   function renderDiscovery() {
