@@ -1,0 +1,119 @@
+.metric-action {
+  width: 100%;
+  min-height: 104px;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.2rem;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.metric-action:hover,
+.metric-action:focus-visible,
+.metric-action[aria-expanded="true"] {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.metric-action small {
+  margin-top: 0.35rem;
+  font-weight: 700;
+  opacity: 0.68;
+}
+
+.founder-action-center {
+  margin-top: 1rem;
+  scroll-margin-top: 1rem;
+}
+
+.founder-action-center[hidden] {
+  display: none;
+}
+
+.founder-action-center-header,
+.action-center-record,
+.action-center-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.founder-action-center-header h2 {
+  margin: 0.25rem 0 0.35rem;
+}
+
+.action-center-close {
+  flex: 0 0 auto;
+}
+
+.action-center-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.action-center-record,
+.action-center-empty {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.action-center-record h3,
+.action-center-empty strong {
+  display: block;
+  margin: 0.45rem 0 0.35rem;
+}
+
+.action-center-record p,
+.action-center-empty p {
+  margin: 0;
+}
+
+.action-center-item {
+  min-height: 44px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.action-center-item.primary {
+  font-weight: 800;
+}
+
+.action-center-empty .action-center-item {
+  margin-top: 0.85rem;
+}
+
+.action-center-footer {
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .founder-action-center-header,
+  .action-center-record {
+    flex-direction: column;
+  }
+
+  .action-center-close,
+  .action-center-item {
+    width: 100%;
+  }
+
+  .metric-action {
+    min-height: 96px;
+  }
+}

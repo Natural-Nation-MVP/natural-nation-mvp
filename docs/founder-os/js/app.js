@@ -10,6 +10,12 @@
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 
+  const actionCenterScript = document.createElement('script');
+  actionCenterScript.src = paths.asset('js/founder-action-center.js?v=section-1');
+  actionCenterScript.defer = true;
+  actionCenterScript.dataset.founderActionCenterLoader = 'true';
+  document.head.appendChild(actionCenterScript);
+
   const pageMeta = {
     registry: { title: 'Your Workspaces', subtitle: 'Choose what you want to work on.', badge: 'Workspaces' },
     discovery: { title: 'What We Know', subtitle: 'See what is confirmed and whether anything still needs your decision.', badge: 'Understanding' },
