@@ -50,6 +50,9 @@ jobs:
           mkdir _site
           cp docs/index.html _site/index.html
           cp -R docs/founder-os _site/founder-os
+          # Force browsers that cached the previous root-v1 asset URLs to request
+          # the corrected runtime files deployed with the root path fix.
+          sed -i 's/root-v1/root-v2/g' _site/index.html
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
