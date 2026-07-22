@@ -3,33 +3,338 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Natural Nation Founder Control Center" />
+  <meta name="description" content="Founder OS — AI-native operating platform for managing workspaces, approvals, knowledge, code health, and AI execution." />
   <meta name="theme-color" content="#0b0b0b" />
-  <title>Natural Nation · Control Center</title>
-  <link rel="stylesheet" href="./assets/styles.css?v=flat-grayscale-20260721-2">
+  <title>Founder OS</title>
+  <link rel="stylesheet" href="./founder-os/css/theme.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/layout.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/components.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/command-center.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/workspace-discovery.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/workspace-blueprint.css?v=root-v1" />
+  <link rel="stylesheet" href="./founder-os/css/founder-human.css?v=root-v1" />
 </head>
 <body>
-  <main class="page">
-    <section class="hero" aria-labelledby="page-title">
-      <div class="mark" aria-hidden="true">🌿</div>
-      <p class="eyebrow">Natural Nation · NNCC</p>
-      <h1 id="page-title">Control Center</h1>
-      <p class="lead">The AI-native command center for building Natural Nation. Start here for project health, Founder approvals, AI team status, the Knowledge System, and implementation readiness.</p>
-
-      <div class="actions" aria-label="Control Center destinations">
-        <a class="button primary" href="./founder-os/">Launch Founder Dashboard</a>
-        <a class="button" href="./founder-os/#knowledge">Open Knowledge System</a>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">☘</div>
+        <strong class="brand-title">FOUNDER<br />OS</strong>
       </div>
+      <nav class="nav">
+        <button class="nav-link active" type="button" data-workspace-button="registry">All Workspaces</button>
+      </nav>
+      <div class="sidebar-note">
+        <small>System status</small><br />
+        <strong data-system-status>Checking...</strong>
+      </div>
+    </aside>
 
-      <section class="metrics" aria-label="Project overview">
-        <article class="metric"><strong>NN-F0</strong><span>AI-Native Foundation active</span></article>
-        <article class="metric"><strong>68%</strong><span>Project readiness estimate</span></article>
-        <article class="metric"><strong>Atlas 2.0</strong><span>Knowledge stewardship approved</span></article>
-        <article class="metric"><strong>Free</strong><span>GitHub Pages static hosting</span></article>
+    <main class="main">
+      <section class="hero">
+        <div>
+          <div class="crumb">Founder OS</div>
+          <h1 data-workspace-title>Your Workspaces</h1>
+          <p class="muted" data-workspace-subtitle>Choose what you want to work on.</p>
+        </div>
+        <div class="pill" data-workspace-badge>Workspaces</div>
       </section>
-    </section>
 
-    <footer>Natural Nation Control Center · Static public landing page · No backend required</footer>
-  </main>
+      <section class="metrics-grid compact-metrics" data-system-metrics></section>
+
+      <section class="workspace-view active" data-workspace="registry">
+        <article class="glass-panel command-center-hero">
+          <div>
+            <div class="eyebrow">Your Workspaces</div>
+            <h2>What do you want to work on?</h2>
+            <p class="muted">Open a workspace to see its next step, decisions, and current work.</p>
+            <p class="muted" data-workspace-registry-status>Loading your workspaces...</p>
+          </div>
+          <div class="command-center-actions">
+            <span class="pill" data-workspace-registry-count>Loading</span>
+            <button class="generate" type="button" data-create-workspace>Start a New Workspace</button>
+          </div>
+        </article>
+        <div class="workspace-registry-grid" data-workspace-registry-list></div>
+      </section>
+
+      <section class="workspace-view" data-workspace="discovery">
+        <article class="glass-panel discovery-hero">
+          <div>
+            <div class="eyebrow">Current Understanding</div>
+            <h2>What Founder OS Knows</h2>
+            <p data-discovery-summary>Loading confirmed project information...</p>
+            <p class="muted" data-discovery-status>Checking for anything that still needs your decision...</p>
+          </div>
+          <div class="discovery-confidence">
+            <span class="muted">Understanding</span>
+            <strong data-discovery-confidence>Loading</strong>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Confirmed</div>
+          <div class="section-title">What We Know</div>
+          <div class="discovery-grid" data-discovery-known></div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Readiness</div>
+          <div class="section-title">How Ready the Plan Is</div>
+          <div data-blueprint-readiness></div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Your Decisions</div>
+          <div class="section-title">What You Have Approved</div>
+          <div data-discovery-questions></div>
+        </article>
+
+        <article class="glass-panel discovery-actions">
+          <div>
+            <div class="eyebrow">Next Step</div>
+            <strong>Review the approved build plan.</strong>
+          </div>
+          <button class="generate" type="button" data-review-blueprint>Open Build Plan →</button>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="blueprint">
+        <article class="glass-panel blueprint-hero">
+          <div>
+            <div class="eyebrow">Approved Build Plan</div>
+            <h2>What We Are Building</h2>
+            <p data-blueprint-summary>Loading the approved plan...</p>
+            <p class="muted" data-blueprint-load-status>Checking the latest approved version...</p>
+          </div>
+          <div class="blueprint-meta">
+            <div><span>Version</span><strong data-blueprint-version>Loading</strong></div>
+            <div><span>Status</span><strong data-blueprint-status>Loading</strong></div>
+            <div><span>Confidence</span><strong data-blueprint-confidence>Loading</strong></div>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Purpose</div>
+          <div class="section-title">Why This Workspace Exists</div>
+          <p class="blueprint-mission-text" data-blueprint-mission></p>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">At a Glance</div>
+          <div class="section-title">Plan Summary</div>
+          <div class="snapshot-layout">
+            <div class="snapshot-grid" data-blueprint-snapshot></div>
+            <div class="component-chart-wrap">
+              <div class="component-chart" data-component-chart role="img">
+                <div class="component-chart-center"><strong>12</strong><span>Parts</span></div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-required">Needed Now</span>
+                <span class="legend-recommended">Recommended</span>
+                <span class="legend-decision">Decision</span>
+                <span class="legend-later">Later</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Main Work</div>
+          <div class="section-title">What the Team Will Build</div>
+          <div class="build-stream-grid" data-blueprint-build-streams></div>
+        </article>
+
+        <div class="blueprint-grid">
+          <article class="glass-panel">
+            <div class="eyebrow">People</div>
+            <div class="section-title">Who This Is For</div>
+            <div class="experience-stack" data-blueprint-users></div>
+          </article>
+          <article class="glass-panel">
+            <div class="eyebrow">Experience</div>
+            <div class="section-title">What People Will Do</div>
+            <div class="experience-stack" data-blueprint-experience></div>
+          </article>
+        </div>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Delivery</div>
+          <div class="section-title">What Comes First and What Comes Later</div>
+          <div class="phase-stack" data-blueprint-phases></div>
+        </article>
+
+        <details class="glass-panel founder-details">
+          <summary>See plan details</summary>
+          <div class="component-groups">
+            <section class="component-group">
+              <h3>Needed Now</h3>
+              <div class="component-group" data-components-required></div>
+            </section>
+            <section class="component-group">
+              <h3>Recommended</h3>
+              <div class="component-group" data-components-recommended></div>
+              <h3>Founder Decisions</h3>
+              <div class="component-group" data-components-decision></div>
+              <h3>Later</h3>
+              <div class="component-group" data-components-later></div>
+            </section>
+          </div>
+        </details>
+
+        <article class="glass-panel">
+          <div class="eyebrow">Decisions</div>
+          <div class="section-title">What Has Been Approved</div>
+          <div data-blueprint-decisions></div>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="mission">
+        <article class="glass-panel">
+          <div class="eyebrow">Current Status</div>
+          <div class="section-title">What Needs Attention</div>
+          <div class="modules-grid" data-mission-cards></div>
+        </article>
+        <article class="glass-panel">
+          <div class="eyebrow">Your Next Actions</div>
+          <div class="section-title">What Needs Your Attention</div>
+          <div data-action-queue></div>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="knowledge">
+        <article class="glass-panel">
+          <div class="eyebrow">Project Records</div>
+          <div class="section-title">Find Approved Information</div>
+          <p>Search decisions, plans, approvals, and project records.</p>
+          <input class="search-input" type="search" placeholder="Search project records..." data-knowledge-search />
+        </article>
+        <article class="glass-panel">
+          <div class="eyebrow">Results</div>
+          <div class="section-title" data-knowledge-count>Matching Records</div>
+          <div class="modules-grid" data-knowledge-results></div>
+        </article>
+      </section>
+
+      <section class="workspace-view" data-workspace="build">
+        <div class="workspace-grid production-build-grid">
+          <div>
+            <article class="glass-panel selected-build production-selected-build">
+              <div class="grid-2">
+                <div>
+                  <div class="eyebrow">Ready for the Build Team</div>
+                  <div class="section-title" data-selected-id>No Build Package Selected</div>
+                  <div data-selected-title>Open a workspace with approved work.</div>
+                  <p class="muted" data-selected-meta>No package loaded.</p>
+                </div>
+                <div>
+                  <div class="eyebrow">Assigned To</div>
+                  <div class="button-grid" data-target-buttons></div>
+                </div>
+              </div>
+              <div class="plan-grid">
+                <div>
+                  <div class="eyebrow">Ready?</div>
+                  <p data-validation-status>No package loaded.</p>
+                  <span class="pill" data-build-approval>Build Package Required</span>
+                </div>
+                <div>
+                  <div class="eyebrow">Build Team</div>
+                  <div data-role-plan></div>
+                </div>
+                <div>
+                  <div class="eyebrow">Work Order</div>
+                  <p data-execution-order>Architecture → Build → Review → Founder</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="glass-panel action-explainer target-impact-panel">
+              <div class="eyebrow">Why This Work Matters</div>
+              <div class="section-title">Expected Result</div>
+              <p class="impact-lead" data-impact-statement>The package explains what the team should change and what must remain untouched.</p>
+            </article>
+
+            <details class="glass-panel founder-details">
+              <summary>See the full build package</summary>
+              <pre class="output-box" data-package-preview>No package loaded.</pre>
+            </details>
+          </div>
+
+          <aside class="right-rail">
+            <article class="glass-panel queue-panel">
+              <div class="eyebrow">Coming Up</div>
+              <div class="section-title">Build Queue</div>
+              <div class="queue-scroll" data-build-queue></div>
+            </article>
+            <details>
+              <summary>More actions</summary>
+              <div class="action-stack">
+                <button class="generate" type="button" data-action="generate">No Build Package</button>
+                <button type="button" data-action="validate" disabled>Check Package</button>
+                <button type="button" data-action="export-md" disabled>Download Notes</button>
+                <button type="button" data-action="export-json" disabled>Copy Data</button>
+              </div>
+            </details>
+            <details>
+              <summary>Recent work</summary>
+              <div data-package-history><p class="muted">No recent build packages.</p></div>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <section class="workspace-view" data-workspace="repo">
+        <article class="glass-panel">
+          <div class="eyebrow">Technical Status</div>
+          <div class="section-title">Code & Deployments</div>
+          <p>See whether the source code and live system are healthy.</p>
+          <div class="modules-grid" data-repo-status></div>
+        </article>
+        <details class="glass-panel founder-details">
+          <summary>See technical checks</summary>
+          <div data-repo-checklist></div>
+        </details>
+      </section>
+
+      <section class="workspace-view" data-workspace="ai">
+        <article class="glass-panel">
+          <div class="eyebrow">Build Team</div>
+          <div class="section-title">Who Is Responsible</div>
+          <p>See each role, what it owns, and what it is working on.</p>
+          <div class="modules-grid" data-ai-roles></div>
+        </article>
+        <article class="glass-panel">
+          <div class="eyebrow">Current Work</div>
+          <div class="section-title">Work in Progress</div>
+          <div data-ai-handoffs></div>
+        </article>
+      </section>
+    </main>
+
+    <div class="bottom-bar" data-execution-bar="build" hidden>
+      <div><span class="muted">Assigned To</span><br /><strong data-bottom-target>Build Team</strong></div>
+      <div><span class="muted">Next Step</span><br /><strong data-delivery>Review Package</strong></div>
+      <div><span class="muted">Status</span><br /><strong data-approval>Build Package Required</strong></div>
+      <button class="generate" type="button" data-action="generate">Open Build Package</button>
+    </div>
+
+    <div class="bottom-bar" data-execution-bar="blueprint" hidden>
+      <div><span class="muted">Plan Readiness</span><br /><strong data-sticky-confidence>Loading</strong></div>
+      <div><span class="muted">What Approval Does</span><br /><strong data-blueprint-approval-effect>Loading...</strong></div>
+      <div><span class="muted">Decisions</span><br /><strong data-sticky-decisions>Loading</strong></div>
+      <button class="generate" type="button" data-approve-blueprint>Review Approval</button>
+    </div>
+  </div>
+
+  <script src="./founder-os/js/app.js?v=root-v1"></script>
+  <script src="./founder-os/js/build-studio-polish.js?v=root-v1"></script>
+  <script src="./founder-os/js/gateway-status.js?v=root-v1"></script>
+  <script src="./founder-os/js/workspace-discovery.js?v=root-v1"></script>
+  <script src="./founder-os/js/gateway-client-v2.js?v=root-v1"></script>
+  <script src="./founder-os/js/live-approval-controller.js?v=root-v1"></script>
+  <script src="./founder-os/js/blueprint-renderer.js?v=root-v1"></script>
+  <script src="./founder-os/js/workspace-registry.js?v=root-v1"></script>
+  <script src="./founder-os/js/workspace-flow.js?v=root-v1"></script>
 </body>
 </html>
