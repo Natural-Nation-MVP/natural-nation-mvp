@@ -11,13 +11,20 @@
   document.head.appendChild(completionScript);
 
   const actionCenterScript = document.createElement('script');
-  actionCenterScript.src = paths.asset('js/founder-action-center.js?v=section-1');
+  actionCenterScript.src = paths.asset('js/founder-action-center.js?v=section-2');
   actionCenterScript.defer = true;
   actionCenterScript.dataset.founderActionCenterLoader = 'true';
   document.head.appendChild(actionCenterScript);
 
+  const approvalInboxScript = document.createElement('script');
+  approvalInboxScript.src = paths.asset('js/founder-approval-inbox.js?v=section-2');
+  approvalInboxScript.defer = true;
+  approvalInboxScript.dataset.founderApprovalInboxLoader = 'true';
+  document.head.appendChild(approvalInboxScript);
+
   const pageMeta = {
     registry: { title: 'Your Workspaces', subtitle: 'Choose what you want to work on.', badge: 'Workspaces' },
+    approvals: { title: 'Approval Inbox', subtitle: 'Review evidence, risks, recommendations, and Founder-controlled decisions.', badge: 'Founder Control' },
     discovery: { title: 'What We Know', subtitle: 'See what is confirmed and whether anything still needs your decision.', badge: 'Understanding' },
     blueprint: { title: 'Build Plan', subtitle: 'Review what will be built, what comes later, and what has been approved.', badge: 'Approved Plan' },
     build: { title: 'Build Work', subtitle: 'See the live current owner, ready task, next handoff, and protected execution action.', badge: 'Live Execution' },
@@ -34,7 +41,7 @@
 
   function workspaceAllows(target) {
     const workspace = window.NNOSActiveWorkspace;
-    if (!workspace || target === 'registry') return true;
+    if (!workspace || target === 'registry' || target === 'approvals') return true;
     return (workspace.modules || []).some((module) => module.target === target);
   }
 
@@ -48,7 +55,7 @@
     const workspaceName = workspace?.name || 'Founder OS';
     setText('[data-workspace-title]', meta.title);
     setText('[data-workspace-subtitle]', meta.subtitle);
-    setText('[data-workspace-badge]', safeTarget === 'registry' ? meta.badge : `${workspaceName} · ${meta.badge}`);
+    setText('[data-workspace-badge]', safeTarget === 'registry' || safeTarget === 'approvals' ? meta.badge : `${workspaceName} · ${meta.badge}`);
     document.body.dataset.activeWorkspace = workspace?.id || 'registry';
     document.body.dataset.activeView = safeTarget;
     window.NNOSShowExecutionBar?.(safeTarget);
