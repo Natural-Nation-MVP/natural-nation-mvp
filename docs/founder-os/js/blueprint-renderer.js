@@ -1,5 +1,5 @@
 (() => {
-  const BLUEPRINT_URL = './founder-os/config/natural-nation-blueprint.json';
+  const BLUEPRINT_URL = window.NNOSPaths.asset('config/natural-nation-blueprint.json');
   let blueprint = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -83,7 +83,6 @@
       decision: (blueprint.components || []).filter((item) => item.classification.includes('Decision')),
       later: (blueprint.components || []).filter((item) => item.classification === 'Later')
     };
-
     Object.entries(groups).forEach(([key, items]) => {
       const node = $(`[data-components-${key}]`);
       if (!node) return;
@@ -98,12 +97,10 @@
   function renderDecisions() {
     const node = $('[data-blueprint-decisions]');
     if (!node) return;
-
     if (approved()) {
       node.innerHTML = `<article class="blueprint-decision"><div class="eyebrow">Founder Decision Committed</div><h3>MVP subscription billing</h3><p>Subscription billing is excluded from the first MVP release and recorded in GitHub.</p><small>Transaction: ${escapeHtml(blueprint.approvalTransactionId)}</small></article>`;
       return;
     }
-
     const resolution = sessionStorage.getItem('nnos_billing_resolution');
     const selected = resolution === 'included-in-mvp' ? 'included in Phase 1' : resolution === 'excluded-from-mvp' ? 'moved to Phase 2' : 'not resolved';
     node.innerHTML = (blueprint.openDecisions || []).map((item) => `<article class="blueprint-decision"><div class="eyebrow">Founder Decision Pending Commit</div><h3>${escapeHtml(item.title)}</h3><p>Selected resolution: ${selected}.</p><small>This decision remains pending until the Gateway commits it to GitHub.</small></article>`).join('') || '<p class="muted">No decision data is available.</p>';
@@ -121,13 +118,11 @@
     setText('[data-blueprint-approval-effect]', isApproved ? 'Verified in GitHub. Ready for Build Studio.' : 'Validate before canonical approval.');
     setText('[data-sticky-confidence]', `${blueprint.confidence}% confidence`);
     setText('[data-sticky-decisions]', isApproved ? 'Committed' : 'Pending commit');
-
     const action = $('[data-approve-blueprint]');
     if (action && isApproved) {
       action.textContent = 'Blueprint Approved ✓';
       action.disabled = true;
     }
-
     renderList('[data-blueprint-users]', blueprint.users);
     renderList('[data-blueprint-experience]', blueprint.coreUserExperience);
     renderSnapshot();
