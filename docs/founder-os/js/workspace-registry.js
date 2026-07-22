@@ -1,5 +1,5 @@
 (() => {
-  const registryPath = './founder-os/config/workspace-registry.json?v=1.6.0';
+  const registryPath = window.NNOSPaths.asset('config/workspace-registry.json?v=1.6.0');
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -40,17 +40,13 @@
     const metrics = registry?.commandCenterMetrics;
     const container = $('[data-system-metrics]');
     if (!metrics || !container) return;
-
     const items = [
       ['Active areas', metrics.activeWorkspaces],
       ['Needs approval', metrics.approvalsWaiting],
       ['Blocked work', metrics.blockedItems],
       ['Gateway', metrics.systemHealth]
     ];
-
-    container.innerHTML = items
-      .map(([label, value]) => `<div class="metric metric-enter"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
-      .join('');
+    container.innerHTML = items.map(([label, value]) => `<div class="metric metric-enter"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('');
   }
 
   function renderHomeNavigation() {
@@ -63,42 +59,28 @@
     if (!nav) return;
     const activeTarget = workspace.resumeWorkspace || 'mission';
     const groups = new Map();
-
     for (const module of workspace.modules || []) {
       const group = module.group || 'Workspace';
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group).push(module);
     }
-
     const groupedNavigation = [...groups.entries()].map(([group, modules]) => `
       <div class="nav-group">
         <div class="nav-group-label">${escapeHtml(group)}</div>
         ${modules.map((module) => `<button class="nav-link${module.target === activeTarget ? ' active' : ''}" type="button" data-context-module="${escapeHtml(module.target)}">${escapeHtml(module.label)}</button>`).join('')}
       </div>`).join('');
-
     nav.innerHTML = `
       <button class="nav-link back-link" type="button" data-command-center-home>← Founder OS Home</button>
-      <div class="nav-context">
-        <small>You are working in</small>
-        <strong>${escapeHtml(workspace.name)}</strong>
-        <span>${escapeHtml(workspace.roleLabel || workspace.type)}</span>
-      </div>
-      ${groupedNavigation}
-    `;
+      <div class="nav-context"><small>You are working in</small><strong>${escapeHtml(workspace.name)}</strong><span>${escapeHtml(workspace.roleLabel || workspace.type)}</span></div>
+      ${groupedNavigation}`;
   }
 
   function pageLabels(workspace, target) {
     const common = {
-      mission: workspace.id === 'natural-nation'
-        ? ['Product Overview', 'See the current objective, live task, project health, and safest next action.']
-        : ['Founder OS Overview', 'See what is working, what is incomplete, and what needs your attention.'],
-      knowledge: workspace.id === 'natural-nation'
-        ? ['Product Records', 'Find approved Natural Nation decisions, plans, assets, and implementation records.']
-        : ['System Records', 'Find Founder OS decisions, operating rules, approvals, and release records.'],
+      mission: workspace.id === 'natural-nation' ? ['Product Overview', 'See the current objective, live task, project health, and safest next action.'] : ['Founder OS Overview', 'See what is working, what is incomplete, and what needs your attention.'],
+      knowledge: workspace.id === 'natural-nation' ? ['Product Records', 'Find approved Natural Nation decisions, plans, assets, and implementation records.'] : ['System Records', 'Find Founder OS decisions, operating rules, approvals, and release records.'],
       repo: ['Code Status', 'Check whether the repository, validation, and deployment records are healthy.'],
-      ai: workspace.id === 'natural-nation'
-        ? ['Assigned AI Team', 'See which AI role owns the current Natural Nation task and what happens next.']
-        : ['AI Team', 'See which AI roles are available, assigned, blocked, or waiting for approval.']
+      ai: workspace.id === 'natural-nation' ? ['Assigned AI Team', 'See which AI role owns the current Natural Nation task and what happens next.'] : ['AI Team', 'See which AI roles are available, assigned, blocked, or waiting for approval.']
     };
     const naturalNation = {
       discovery: ['Confirmed Direction', 'Review what is known about Natural Nation and identify anything that still needs a decision.'],
@@ -113,7 +95,6 @@
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
     const [pageTitle, pageSubtitle] = pageLabels(workspace, target);
-
     if (title) title.textContent = pageTitle;
     if (subtitle) subtitle.textContent = pageSubtitle;
     if (badge) badge.textContent = `${workspace.name} · ${workspace.stage}`;
@@ -123,27 +104,10 @@
     const registryView = $('[data-workspace="registry"]');
     const list = $('[data-workspace-registry-list]');
     if (!registryView || !list || registryView.querySelector('[data-home-orientation]')) return;
-
     const orientation = document.createElement('article');
     orientation.className = 'glass-panel workspace-orientation';
     orientation.dataset.homeOrientation = '';
-    orientation.innerHTML = `
-      <div>
-        <div class="eyebrow">How this system is organized</div>
-        <div class="section-title">Choose the kind of work you need to do</div>
-        <p class="muted">Founder OS manages the work. Natural Nation is the product being built. They are connected, but they are not the same thing.</p>
-      </div>
-      <div class="orientation-grid">
-        <div class="orientation-item">
-          <strong>Founder OS</strong>
-          <span>Manage AI assignments, approvals, code health, records, and releases.</span>
-        </div>
-        <div class="orientation-arrow" aria-hidden="true">→</div>
-        <div class="orientation-item">
-          <strong>Natural Nation</strong>
-          <span>Review and build the website, wellness app, Duey, and production assets.</span>
-        </div>
-      </div>`;
+    orientation.innerHTML = `<div><div class="eyebrow">How this system is organized</div><div class="section-title">Choose the kind of work you need to do</div><p class="muted">Founder OS manages the work. Natural Nation is the product being built. They are connected, but they are not the same thing.</p></div><div class="orientation-grid"><div class="orientation-item"><strong>Founder OS</strong><span>Manage AI assignments, approvals, code health, records, and releases.</span></div><div class="orientation-arrow" aria-hidden="true">→</div><div class="orientation-item"><strong>Natural Nation</strong><span>Review and build the website, wellness app, Duey, and production assets.</span></div></div>`;
     list.parentNode.insertBefore(orientation, list);
   }
 
@@ -162,21 +126,16 @@
     renderMetrics();
     addHomeOrientation();
     disablePrematureControls();
-
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
     if (title) title.textContent = `${greeting()}, Dewane`;
     if (subtitle) subtitle.textContent = 'Choose Founder OS to manage the system or Natural Nation to work on the product.';
     if (badge) badge.textContent = 'Founder OS Home';
-
     showExecutionBar('none');
     document.body.dataset.activeWorkspace = 'registry';
     document.body.dataset.activeView = 'registry';
-
-    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', {
-      detail: { workspace: null, target: 'registry' }
-    }));
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace: null, target: 'registry' } }));
   }
 
   function openWorkspace(workspace) {
@@ -193,43 +152,12 @@
     const count = $('[data-workspace-registry-count]');
     const status = $('[data-workspace-registry-status]');
     if (!list || !registry) return;
-
     if (count) count.textContent = `${registry.workspaces.length} areas`;
     if (status) status.textContent = 'Select the management platform or the Natural Nation product workspace.';
-
     list.innerHTML = registry.workspaces.map((workspace, index) => {
-      const approvals = workspace.pendingApprovals > 0
-        ? `${workspace.pendingApprovals} awaiting approval`
-        : 'No approvals waiting';
+      const approvals = workspace.pendingApprovals > 0 ? `${workspace.pendingApprovals} awaiting approval` : 'No approvals waiting';
       const isProduct = workspace.id === 'natural-nation';
-
-      return `
-        <article class="workspace-card card-enter ${isProduct ? 'product-workspace-card' : 'platform-workspace-card'}" data-workspace-id="${escapeHtml(workspace.id)}" style="--card-order:${index}">
-          <div class="workspace-card-purpose">${escapeHtml(workspace.roleLabel || workspace.type)}</div>
-          <div class="workspace-card-top">
-            <div><div class="eyebrow">${escapeHtml(workspace.type)}</div><h2>${escapeHtml(workspace.name)}</h2></div>
-            <span class="status">${escapeHtml(workspace.stage)}</span>
-          </div>
-          <p>${escapeHtml(workspace.description)}</p>
-          <div class="workspace-use-case">
-            <span>Use this area to</span>
-            <strong>${escapeHtml(workspace.purpose)}</strong>
-          </div>
-          <div class="workspace-progress" aria-label="${escapeHtml(workspace.progressLabel || `${workspace.progress}% complete`)}">
-            <div class="workspace-progress-copy"><span>Current state</span><strong>${escapeHtml(workspace.progressLabel || `${workspace.progress}%`)}</strong></div>
-            <div class="workspace-progress-track"><span style="width:${Number(workspace.progress) || 0}%"></span></div>
-          </div>
-          <div class="workspace-next-step">
-            <span>Recommended next step</span>
-            <strong>${escapeHtml(workspace.nextAction)}</strong>
-          </div>
-          <div class="workspace-card-footer">
-            <span>${escapeHtml(approvals)}</span>
-            <span>${escapeHtml(workspace.health)}</span>
-          </div>
-          <button class="generate" type="button" data-resume-workspace="${escapeHtml(workspace.id)}">${escapeHtml(workspace.primaryAction || `Open ${workspace.name}`)}</button>
-        </article>
-      `;
+      return `<article class="workspace-card card-enter ${isProduct ? 'product-workspace-card' : 'platform-workspace-card'}" data-workspace-id="${escapeHtml(workspace.id)}" style="--card-order:${index}"><div class="workspace-card-purpose">${escapeHtml(workspace.roleLabel || workspace.type)}</div><div class="workspace-card-top"><div><div class="eyebrow">${escapeHtml(workspace.type)}</div><h2>${escapeHtml(workspace.name)}</h2></div><span class="status">${escapeHtml(workspace.stage)}</span></div><p>${escapeHtml(workspace.description)}</p><div class="workspace-use-case"><span>Use this area to</span><strong>${escapeHtml(workspace.purpose)}</strong></div><div class="workspace-progress" aria-label="${escapeHtml(workspace.progressLabel || `${workspace.progress}% complete`)}"><div class="workspace-progress-copy"><span>Current state</span><strong>${escapeHtml(workspace.progressLabel || `${workspace.progress}%`)}</strong></div><div class="workspace-progress-track"><span style="width:${Number(workspace.progress) || 0}%"></span></div></div><div class="workspace-next-step"><span>Recommended next step</span><strong>${escapeHtml(workspace.nextAction)}</strong></div><div class="workspace-card-footer"><span>${escapeHtml(approvals)}</span><span>${escapeHtml(workspace.health)}</span></div><button class="generate" type="button" data-resume-workspace="${escapeHtml(workspace.id)}">${escapeHtml(workspace.primaryAction || `Open ${workspace.name}`)}</button></article>`;
     }).join('');
   }
 
@@ -249,7 +177,6 @@
       transition(activateRegistry);
       return;
     }
-
     const moduleButton = event.target.closest('[data-context-module]');
     if (moduleButton) {
       event.preventDefault();
@@ -262,7 +189,6 @@
       });
       return;
     }
-
     const resumeButton = event.target.closest('[data-resume-workspace]');
     if (resumeButton && registry) {
       event.preventDefault();
