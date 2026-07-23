@@ -110,12 +110,15 @@ jobs:
           exit 1
 
       - name: Verify Founder OS health and KV binding
+        shell: bash
         run: |
-          RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/health)"
-          echo "$RESPONSE" | grep -q '"status":"healthy"'
-          echo "$RESPONSE" | grep -q '"version":"0.6.1"'
-          echo "$RESPONSE" | grep -q '"database":true'
-          echo "$RESPONSE" | grep -q '"databaseType":"kv"'
+          set -euo pipefail
+          HEALTH="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/health)"
+          CONFIG="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/configuration)"
+          echo "$HEALTH" | jq -e '.status == "online" and .version == "0.6.1"' >/dev/null
+          echo "$CONFIG" | jq -e '.version == "0.6.1"' >/dev/null
+          echo "$CONFIG" | jq -e '.required.runtimeStore == true' >/dev/null
+          echo "$CONFIG" | jq -e '.configured == true' >/dev/null
           echo "Founder OS live health and durable KV binding verified."
 
       - name: Verify canonical orchestration endpoint
