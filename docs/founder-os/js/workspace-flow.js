@@ -17,8 +17,11 @@
   const $$ = (selector) => document.querySelectorAll(selector);
 
   async function fetchJson(url) {
-    const response = await fetch(`${url}?flow=${Date.now()}`, { cache: 'no-store' });
+    const separator = url.includes('?') ? '&' : '?';
+    const response = await fetch(`${url}${separator}flow=${Date.now()}`, { cache: 'no-store' });
+    const contentType = String(response.headers.get('content-type') || '').toLowerCase();
     if (!response.ok) throw new Error(`${url} returned ${response.status}`);
+    if (!contentType.includes('application/json')) throw new Error(`${url} did not return JSON.`);
     return response.json();
   }
 
@@ -38,6 +41,7 @@
     return Boolean(
       pkg?.packageId === 'NN-BUILD-001' &&
       pkg?.status === 'ready' &&
+      pkg?.workspaceId === 'natural-nation' &&
       pkg?.sourceTransactionId === transactionId
     );
   }
@@ -72,7 +76,7 @@
       setIfChanged(buildNav, 'title', state.packageReady
         ? 'Open the canonical NN-BUILD-001 package.'
         : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.');
-      setIfChanged(buildNav, 'textContent', state.packageReady ? 'Build Studio' : 'Build Studio · Locked');
+      setIfChanged(buildNav, 'textContent', state.packageReady ? 'Build Work' : 'Build Work · Locked');
     }
 
     const reviewButton = $('[data-review-blueprint]');
@@ -80,7 +84,7 @@
       const decisionResolved = state.billingResolution !== 'unresolved';
       setIfChanged(reviewButton, 'disabled', !decisionResolved);
       setIfChanged(reviewButton, 'textContent', state.packageReady
-        ? 'Open Build Studio →'
+        ? 'Open Build Work →'
         : decisionResolved
           ? 'Continue to Blueprint →'
           : 'Resolve Billing to Continue');
@@ -131,7 +135,7 @@
       event.stopPropagation();
       event.stopImmediatePropagation();
       activateWorkspace('blueprint');
-      window.alert('Build Studio is locked until the Gateway commits the approved Blueprint and GitHub publishes NN-BUILD-001.');
+      window.alert('Build Work is locked until the Gateway commits the approved Blueprint and GitHub publishes NN-BUILD-001.');
       return;
     }
 
