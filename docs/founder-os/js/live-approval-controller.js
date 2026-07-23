@@ -95,10 +95,11 @@
     }));
 
     await window.NNOSBlueprintView?.reload?.();
+    await window.NNOSRuntimeState?.refresh?.();
     await window.NNOSWorkspaceFlow?.refresh?.();
 
-    if (!window.NNOSWorkspaceFlow?.state?.packageReady) {
-      throw new Error('The GitHub commit completed, but Build Studio is still waiting for the canonical NN-BUILD-001 publication.');
+    if (!window.NNOSRuntimeState?.snapshot?.buildAvailable) {
+      throw new Error(window.NNOSRuntimeState?.snapshot?.error || 'The GitHub commit completed, but the canonical live Build Work state is not yet available.');
     }
 
     if (typeof window.setWorkspace === 'function') window.setWorkspace('build');
@@ -147,19 +148,22 @@
       setButton('Blueprint Approved ✓', true);
       await handoffToBuild(result);
       window.alert(
-        `Blueprint Approved and Verified\n\nTransaction: ${result.transactionId}\nCommit: ${result.repository?.commitSha || 'verified'}\nPackage: NN-BUILD-001\n\nBuild Studio is now displaying the canonical repository package.`
+        `Blueprint Approved and Verified\n\nTransaction: ${result.transactionId}\nCommit: ${result.repository?.commitSha || 'verified'}\nPackage: NN-BUILD-001\n\nBuild Work is now displaying the canonical live state.`
       );
     }
   }
 
   document.addEventListener('click', (event) => {
     const buildRoute = event.target.closest?.('[data-context-module="build"]');
-    if (buildRoute && !window.NNOSWorkspaceFlow?.state?.packageReady) {
+    const runtime = window.NNOSRuntimeState?.snapshot;
+    if (buildRoute && !runtime?.buildAvailable) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
       openBlueprint();
-      window.alert('Build Studio is locked until the Gateway commits the approved Blueprint and GitHub publishes NN-BUILD-001.');
+      window.alert(runtime?.error
+        ? `Build Work is unavailable.\n\n${runtime.error}`
+        : 'Build Work is locked until the approved Blueprint, NN-BUILD-001, and live Gateway orchestration state are all verified.');
       return;
     }
 
