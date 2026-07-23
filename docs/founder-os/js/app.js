@@ -11,8 +11,15 @@
   taskDetailsStyle.dataset.founderTaskDetailsStyles = 'true';
   document.head.appendChild(taskDetailsStyle);
 
+  // Load the single authoritative runtime-state controller before any view that consumes build readiness.
+  const runtimeStateScript = document.createElement('script');
+  runtimeStateScript.src = paths.asset('js/canonical-runtime-state.js?v=runtime-state-1');
+  runtimeStateScript.defer = true;
+  runtimeStateScript.dataset.canonicalRuntimeStateLoader = 'true';
+  document.head.appendChild(runtimeStateScript);
+
   const completionScript = document.createElement('script');
-  completionScript.src = paths.asset('js/ux-completion.js?v=live-overview-1');
+  completionScript.src = paths.asset('js/ux-completion.js?v=runtime-state-1');
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 
