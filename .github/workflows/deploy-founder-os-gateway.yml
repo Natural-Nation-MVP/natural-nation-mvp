@@ -169,3 +169,5 @@ jobs:
           echo "$RESPONSE" | grep -q '"workspaceId":"workspace-natural-nation"'
           echo "$RESPONSE" | grep -q '"persisted":true'
           echo "NN-KS-002 live workflow endpoint and persistence verified."
+
+# Redeploy trigger: 2026-07-23 Founder-authorized Gateway refresh.
