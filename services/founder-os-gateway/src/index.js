@@ -8,6 +8,7 @@
 import { emptyResponse, errorResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
+import { handleFounderApprovalActions } from "./routes/founder-approval-actions.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 
@@ -82,7 +83,8 @@ function systemRoute(request, env, pathname) {
         pilotDiagnostics: "enabled",
         liveNnKs002Workflow: "enabled",
         durableWorkflowState: "enabled",
-        exactScopeApproval: "enabled"
+        exactScopeApproval: "enabled",
+        founderApprovalInboxActions: "enabled"
       }
     });
   }
@@ -111,6 +113,9 @@ export default {
 
       const approvalResponse = await handleApproveBlueprint(request, env, pathname);
       if (approvalResponse) return approvalResponse;
+
+      const founderApprovalActionResponse = await handleFounderApprovalActions(request, env, pathname);
+      if (founderApprovalActionResponse) return founderApprovalActionResponse;
 
       const orchestrationResponse = await handleAiOrchestration(request, env, pathname);
       if (orchestrationResponse) return orchestrationResponse;
