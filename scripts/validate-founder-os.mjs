@@ -24,6 +24,8 @@ const files = await Promise.all([
   read('docs/founder-os/css/founder-review.css'),
   read('docs/founder-os/js/founder-task-details.js'),
   read('docs/founder-os/css/founder-task-details.css'),
+  read('docs/founder-os/js/repository-intelligence.js'),
+  read('docs/founder-os/css/repository-actions.css'),
   read('docs/founder-os/js/canonical-runtime-state.js'),
   read('docs/founder-os/js/workspace-flow.js'),
   json('docs/founder-os/config/ai-agent-registry.json'),
@@ -44,9 +46,10 @@ const files = await Promise.all([
 
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
   orchestrationUi, discoveryUi, blueprintUi, knowledgeUi, uxCompletion, uxStyles, founderReviewStyles,
-  taskDetails, taskDetailsStyles, runtimeState, workspaceFlow, agentRegistry, orchestrationState, gatewayIndex,
-  gatewayRoute, gatewayTransaction, providerAdapters, providerContracts, githubLibrary, structuredLog,
-  gatewayAuth, gatewayHttp, resilienceAudit, resultVerification, nnKs002Route] = files;
+  taskDetails, taskDetailsStyles, repositoryActions, repositoryActionsStyles, runtimeState, workspaceFlow,
+  agentRegistry, orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters,
+  providerContracts, githubLibrary, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit,
+  resultVerification, nnKs002Route] = files;
 
 const scripts = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scripts).size, scripts.length, 'Each runtime script must load once.');
@@ -61,6 +64,7 @@ for (const required of ['mission', 'discovery', 'blueprint', 'build', 'ai', 'rep
 assert.equal(nnModules.size, 7);
 assert(app.includes('workspaceAllows') && app.includes('Live Execution'));
 assert(app.includes('founder-task-details.css?v=section-3') && app.includes('founder-task-details.js?v=section-3'));
+assert(app.includes('repository-actions.css?v=section-4'));
 assert(app.includes('canonical-runtime-state.js?v=runtime-state-1'));
 assert(app.indexOf('canonical-runtime-state.js') < app.indexOf('ux-completion.js'));
 assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"));
@@ -88,6 +92,13 @@ assert(taskDetails.includes('button.disabled = false'));
 assert(taskDetails.includes("window.NNOSCanonicalBuild?.resetCurrentTask?.()"));
 assert(taskDetailsStyles.includes('.founder-task-detail') && taskDetailsStyles.includes('.queue-item.task-selected'));
 assert(taskDetailsStyles.includes(':focus-visible') && taskDetailsStyles.includes('@media (max-width: 560px)'));
+
+for (const requirement of ['Open repository', 'Open branch', 'Open pull request', 'Open checks', 'Open deployments', 'Prepare Founder Merge Handoff', 'No merge will happen automatically', 'mergeReady', 'Founder approval', 'Changed files']) assert(repositoryActions.includes(requirement), `Repository action requirement missing: ${requirement}`);
+assert(repositoryActions.includes('window.NNOSCanonicalBuild?.state'));
+assert(repositoryActions.includes('window.NNOSRuntimeState?.snapshot?.orchestration'));
+assert(repositoryActions.includes('button class="generate"') && repositoryActions.includes('disabled aria-disabled="true"'));
+assert(repositoryActionsStyles.includes('.repository-action-grid') && repositoryActionsStyles.includes('@media (max-width:720px)'));
+assert(repositoryActionsStyles.includes('min-height:44px'));
 
 for (const requirement of ['blueprintApproved', 'packageReady', 'orchestrationReady', 'buildAvailable', 'founder-os:runtime-state-changed', 'window.NNOSRuntimeState']) assert(runtimeState.includes(requirement), `Canonical runtime state requirement missing: ${requirement}`);
 assert(runtimeState.includes("contentType.includes('application/json')"));
