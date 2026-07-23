@@ -41,6 +41,12 @@ for (const contract of inboxContracts) {
 const protectedActionContracts = [
   'authenticateFounder',
   'ALLOWED_ACTIONS',
+  'ACTIONABLE_STATUSES',
+  'MANUAL_REVIEW_STATUS',
+  'new Set(["ready", "blocked"])',
+  'manual-review-required',
+  'requireActionableFounderGate',
+  'This task is not at an actionable Founder manual-review gate.',
   '"defer"',
   '"reject"',
   '"note"',
@@ -53,6 +59,10 @@ const protectedActionContracts = [
 
 for (const contract of protectedActionContracts) {
   if (!approvalActions.includes(contract)) throw new Error(`Protected approval action contract missing: ${contract}`);
+}
+
+if (approvalActions.includes('"waiting"].includes(task.status)')) {
+  throw new Error('Waiting Founder tasks must not be actionable through the Approval Inbox route.');
 }
 
 if (!gatewayIndex.includes('handleFounderApprovalActions') || !gatewayIndex.includes('founderApprovalInboxActions')) {
@@ -71,4 +81,4 @@ if (!app.includes("paths.asset('js/founder-approval-inbox.js?v=section-2')")) {
   throw new Error('Approval Inbox runtime is not loaded through route-safe NNOSPaths.');
 }
 
-console.log('Founder Approval Inbox protected-action contracts passed.');
+console.log('Founder Approval Inbox protected-action and readiness-gate contracts passed.');
