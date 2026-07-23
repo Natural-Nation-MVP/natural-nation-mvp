@@ -48,72 +48,85 @@ export function gatewayConfiguration(env) {
   };
 }
 
+function normalizePathname(pathname) {
+  if (!pathname || pathname === "/") return "/";
+  return pathname.replace(/\/+$/, "") || "/";
+}
+
+function systemRoute(request, env, pathname) {
+  if (pathname === "/health") {
+    return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, time: new Date().toISOString() });
+  }
+
+  if (pathname === "/version") {
+    return json(request, {
+      service: "Founder OS Gateway",
+      version: VERSION,
+      environment: "production",
+      deployment: "github-managed",
+      capabilities: {
+        blueprintApproval: "canonical-commit-enabled",
+        blueprintApprovalDryRun: "enabled",
+        idempotentApprovalRecovery: "enabled",
+        aiOrchestration: "repository-backed",
+        canonicalOrchestrationRoute: "enabled",
+        aiDispatchDryRun: "enabled",
+        directAiProviders: "enabled",
+        providerReadiness: "enabled",
+        repositoryExecution: "enabled",
+        structuredObservability: "enabled",
+        verifiedResultCallbacks: "legacy-compatible",
+        workspaceIsolation: "enabled",
+        liveFounderReviewPilot: "enabled",
+        signedPilotApprovals: "enabled",
+        pilotDiagnostics: "enabled",
+        liveNnKs002Workflow: "enabled",
+        durableWorkflowState: "enabled",
+        exactScopeApproval: "enabled"
+      }
+    });
+  }
+
+  if (pathname === "/configuration") {
+    const configuration = gatewayConfiguration(env);
+    return json(request, { service: "Founder OS Gateway", version: VERSION, ...configuration, diagnostics: safeBindingDiagnostics(env) });
+  }
+
+  if (pathname === "/") {
+    return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, message: "Founder OS secure execution gateway is running." });
+  }
+
+  return null;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const pathname = normalizePathname(url.pathname);
     if (request.method === "OPTIONS") return emptyResponse(request, 204);
 
     try {
-      const approvalResponse = await handleApproveBlueprint(request, env, url.pathname);
+      const systemResponse = systemRoute(request, env, pathname);
+      if (systemResponse) return systemResponse;
+
+      const approvalResponse = await handleApproveBlueprint(request, env, pathname);
       if (approvalResponse) return approvalResponse;
 
-      const orchestrationResponse = await handleAiOrchestration(request, env, url.pathname);
+      const orchestrationResponse = await handleAiOrchestration(request, env, pathname);
       if (orchestrationResponse) return orchestrationResponse;
 
-      const nnKs002Response = await handleNnKs002(request, env, url.pathname);
+      const nnKs002Response = await handleNnKs002(request, env, pathname);
       if (nnKs002Response) return nnKs002Response;
 
-      const livePilotResponse = await handleLivePilot(request, env, url.pathname, VERSION);
+      const livePilotResponse = await handleLivePilot(request, env, pathname, VERSION);
       if (livePilotResponse) return livePilotResponse;
-
-      if (url.pathname === "/health") {
-        return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, time: new Date().toISOString() });
-      }
-
-      if (url.pathname === "/version") {
-        return json(request, {
-          service: "Founder OS Gateway",
-          version: VERSION,
-          environment: "production",
-          deployment: "github-managed",
-          capabilities: {
-            blueprintApproval: "canonical-commit-enabled",
-            blueprintApprovalDryRun: "enabled",
-            idempotentApprovalRecovery: "enabled",
-            aiOrchestration: "repository-backed",
-            canonicalOrchestrationRoute: "enabled",
-            aiDispatchDryRun: "enabled",
-            directAiProviders: "enabled",
-            providerReadiness: "enabled",
-            repositoryExecution: "enabled",
-            structuredObservability: "enabled",
-            verifiedResultCallbacks: "legacy-compatible",
-            workspaceIsolation: "enabled",
-            liveFounderReviewPilot: "enabled",
-            signedPilotApprovals: "enabled",
-            pilotDiagnostics: "enabled",
-            liveNnKs002Workflow: "enabled",
-            durableWorkflowState: "enabled",
-            exactScopeApproval: "enabled"
-          }
-        });
-      }
-
-      if (url.pathname === "/configuration") {
-        const configuration = gatewayConfiguration(env);
-        return json(request, { service: "Founder OS Gateway", version: VERSION, ...configuration, diagnostics: safeBindingDiagnostics(env) });
-      }
-
-      if (url.pathname === "/") {
-        return json(request, { service: "Founder OS Gateway", status: "online", version: VERSION, message: "Founder OS secure execution gateway is running." });
-      }
 
       return json(request, { ok: false, error: { code: "NOT_FOUND", message: "The requested Gateway route does not exist." } }, 404);
     } catch (error) {
       console.error(JSON.stringify({
         service: "founder-os-gateway",
         type: "unhandled_gateway_failure",
-        pathname: url.pathname,
+        pathname,
         message: error instanceof Error ? error.message : "Unknown gateway error"
       }));
       return errorResponse(request, 500, "GATEWAY_RUNTIME_FAILURE", "The gateway request failed safely. No protected action was executed.");
