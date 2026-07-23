@@ -72,6 +72,11 @@ assert(orchestrationUi.includes('data-reset-ai-task') && orchestrationUi.include
 
 for (const requirement of ['Validate and Run Current Task', 'Retry Current Task Safely', 'Founder Decision', 'Approve slice', 'Request changes', 'AI-TASK-003.result.json', 'AI-TASK-004.result.json', 'recordFounderDecision', '/decision', 'Approval records the slice as complete but does not automatically merge', 'View Canonical Package']) assert(canonicalBuild.includes(requirement), `Founder review requirement missing: ${requirement}`);
 assert(founderReviewStyles.includes('.founder-review-panel') && founderReviewStyles.includes(':focus-visible') && founderReviewStyles.includes('@media'));
+assert(canonicalBuild.includes("response.headers.get('content-type')"));
+assert(canonicalBuild.includes("contentType.includes('application/json')"));
+assert(canonicalBuild.includes('The Gateway returned an invalid response'));
+assert(canonicalBuild.includes('The Gateway returned unreadable JSON'));
+assert(!canonicalBuild.includes("body = { error: { message: text } }"));
 
 for (const requirement of ['data-task-id', 'Full work order', 'Expected output', 'Dependencies', 'Affected files', 'Evidence and result', 'Execution history', 'Refresh details', 'Retry safely', 'Open Founder review', 'searchParams.set(\'task\'', 'MutationObserver']) assert(taskDetails.includes(requirement), `Task detail requirement missing: ${requirement}`);
 assert(taskDetails.includes('button.disabled = false'));
