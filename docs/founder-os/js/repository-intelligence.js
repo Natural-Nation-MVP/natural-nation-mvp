@@ -8,6 +8,19 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
+  function ensureRepositoryReviewContext() {
+    if (window.NNOSRepositoryReviewContext !== undefined || document.querySelector('[data-repository-review-context-loader]')) return;
+    const script = document.createElement('script');
+    script.src = window.NNOSPaths.asset(`js/repository-review-context.js?v=${Date.now()}`);
+    script.dataset.repositoryReviewContextLoader = 'true';
+    script.onload = scheduleRender;
+    script.onerror = () => {
+      window.NNOSRepositoryReviewContext = null;
+      scheduleRender();
+    };
+    document.head.appendChild(script);
+  }
+
   function parseChangedFiles(state) {
     for (const task of state?.tasks || []) {
       const match = String(task.resultSummary || '').match(/Changed files:\s*([^.]*(?:\.[a-z0-9]+(?:,\s*|$))+)/i);
@@ -116,6 +129,7 @@
   }
 
   function renderRepositoryIntelligence() {
+    ensureRepositoryReviewContext();
     const status = $('[data-repo-status]');
     const checklist = $('[data-repo-checklist]');
     if (!status || !checklist) return;
@@ -192,5 +206,6 @@
   }, true);
 
   window.NNOSRepositoryActions = { render: renderRepositoryIntelligence, get model() { return repositoryState(); } };
+  ensureRepositoryReviewContext();
   scheduleRender();
 })();
