@@ -96,33 +96,48 @@ jobs:
 
       - name: Verify deployed Worker version
         run: |
-          for attempt in 1 2 3 4 5; do
-            RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
-            if echo "$RESPONSE" | grep -q '"version":"0.6.0"'; then
-              echo "Cloudflare Worker v0.6.0 with live NN-KS-002 capability verified."
+          for attempt in 1 2 3 4 5 6; do
+            RESPONSE="$(curl --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
+            if echo "$RESPONSE" | jq -e '.version == "0.6.1" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
+              echo "Cloudflare Worker v0.6.1 and canonical orchestration capability verified."
               exit 0
             fi
-            echo "Worker version not ready yet; retrying in 5 seconds."
+            echo "Worker v0.6.1 not ready yet; retrying in 5 seconds."
             sleep 5
           done
-          echo "Cloudflare Worker did not report the compatible v0.6.0 contract after deployment."
+          echo "Cloudflare Worker did not report the v0.6.1 contract after deployment."
+          echo "$RESPONSE"
           exit 1
 
       - name: Verify Founder OS health and KV binding
         run: |
           RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/health)"
           echo "$RESPONSE" | grep -q '"status":"healthy"'
-          echo "$RESPONSE" | grep -q '"version":"0.6.0"'
+          echo "$RESPONSE" | grep -q '"version":"0.6.1"'
           echo "$RESPONSE" | grep -q '"database":true'
           echo "$RESPONSE" | grep -q '"databaseType":"kv"'
           echo "Founder OS live health and durable KV binding verified."
 
       - name: Verify canonical orchestration endpoint
+        shell: bash
         run: |
-          RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/v1/workspaces/natural-nation/packages/NN-BUILD-001/orchestration)"
-          echo "$RESPONSE" | jq -e '.ok == true' >/dev/null
-          echo "$RESPONSE" | jq -e '.state.workspaceId == "natural-nation"' >/dev/null
-          echo "$RESPONSE" | jq -e '.state.packageId == "NN-BUILD-001"' >/dev/null
+          set -euo pipefail
+          endpoint="https://founder-os-gateway.dmoseley1024.workers.dev/v1/workspaces/natural-nation/packages/NN-BUILD-001/orchestration"
+          body_file="$(mktemp)"
+          status="$(curl --silent --show-error --output "$body_file" --write-out '%{http_code}' "$endpoint")"
+          content_type="$(curl --silent --show-error --head "$endpoint" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type" {print tolower($2)}' | tail -n 1)"
+          body="$(cat "$body_file")"
+
+          echo "Orchestration status: $status"
+          echo "Orchestration content-type: ${content_type:-missing}"
+          echo "Orchestration response: $body"
+
+          test "$status" = "200"
+          echo "$content_type" | grep -q 'application/json'
+          echo "$body" | jq -e '.ok == true' >/dev/null
+          echo "$body" | jq -e '.state.workspaceId == "natural-nation"' >/dev/null
+          echo "$body" | jq -e '.state.packageId == "NN-BUILD-001"' >/dev/null
+          echo "$body" | jq -e '.state.tasks | type == "array"' >/dev/null
           echo "Canonical orchestration route returned valid production JSON."
 
       - name: Verify NN-KS-002 workflow endpoint
