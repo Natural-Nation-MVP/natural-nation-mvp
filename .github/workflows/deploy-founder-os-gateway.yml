@@ -143,6 +143,25 @@ jobs:
           echo "$body" | jq -e '.state.tasks | type == "array"' >/dev/null
           echo "Canonical orchestration route returned valid production JSON."
 
+      - name: Verify browser-equivalent Build Work requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          origin="https://natural-nation-mvp.github.io"
+          cache_key="$(date +%s)"
+          gateway="https://founder-os-gateway.dmoseley1024.workers.dev/v1/workspaces/natural-nation/packages/NN-BUILD-001/orchestration?v=${cache_key}"
+          package="https://natural-nation-mvp.github.io/natural-nation-mvp/execution-packages/NN-BUILD-001.json?v=${cache_key}"
+          registry="https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/ai-agent-registry.json?v=${cache_key}"
+
+          gateway_body="$(curl --fail --silent --show-error -H "Origin: ${origin}" "$gateway")"
+          package_body="$(curl --fail --silent --show-error "$package")"
+          registry_body="$(curl --fail --silent --show-error "$registry")"
+
+          echo "$gateway_body" | jq -e '.ok == true and .state.packageId == "NN-BUILD-001"' >/dev/null
+          echo "$package_body" | jq -e '.packageId == "NN-BUILD-001" and .workspaceId == "natural-nation"' >/dev/null
+          echo "$registry_body" | jq -e '.agents | type == "array"' >/dev/null
+          echo "Browser-equivalent Build Work requests verified."
+
       - name: Verify NN-KS-002 workflow endpoint
         run: |
           RESPONSE="$(curl --fail --silent --show-error -H 'x-founder-os-workspace: workspace-natural-nation' https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002)"
