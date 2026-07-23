@@ -8,14 +8,6 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
-  function parsePullRequestUrl(state) {
-    for (const task of state?.tasks || []) {
-      const match = String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i);
-      if (match) return match[0];
-    }
-    return null;
-  }
-
   function parseChangedFiles(state) {
     for (const task of state?.tasks || []) {
       const match = String(task.resultSummary || '').match(/Changed files:\s*([^.]*(?:\.[a-z0-9]+(?:,\s*|$))+)/i);
@@ -24,8 +16,21 @@
     return [];
   }
 
-  function pullNumber(url) {
-    return url ? url.match(/\/pull\/(\d+)/)?.[1] || null : null;
+  function currentPullRequest() {
+    const context = window.NNOSRepositoryReviewContext || null;
+    if (!context || context.repository !== REPOSITORY) return null;
+    if (!Number.isInteger(Number(context.number)) || !context.url || !context.headSha) return null;
+    return {
+      number: Number(context.number),
+      url: String(context.url),
+      state: String(context.state || '').toLowerCase(),
+      mergeable: context.mergeable === true,
+      checksPassed: context.checksPassed === true,
+      headSha: String(context.headSha),
+      reviewedHeadSha: String(context.reviewedHeadSha || ''),
+      founderApprovedHeadSha: String(context.founderApprovedHeadSha || ''),
+      changedFiles: Array.isArray(context.changedFiles) ? context.changedFiles : []
+    };
   }
 
   function gate(label, passed, detail) {
@@ -43,28 +48,30 @@
   }
 
   function fileList(files) {
-    if (!files.length) return '<p class="muted">No changed-file evidence is recorded in the canonical orchestration state.</p>';
+    if (!files.length) return '<p class="muted">No changed-file evidence is recorded for the active reviewed pull request.</p>';
     return `<ul class="repository-file-list">${files.map((file) => `<li><code>${esc(file)}</code></li>`).join('')}</ul>`;
   }
 
   function repositoryState() {
     const state = window.NNOSCanonicalBuild?.state || window.NNOSRuntimeState?.snapshot?.orchestration || null;
     const pkg = window.NNOSCanonicalBuild?.package || null;
-    const prUrl = parsePullRequestUrl(state);
-    const files = parseChangedFiles(state);
-    const pr = pullNumber(prUrl);
+    const pr = currentPullRequest();
+    const files = pr?.changedFiles?.length ? pr.changedFiles : parseChangedFiles(state);
     const allTasksComplete = Boolean(state?.tasks?.length) && state.tasks.every((task) => task.status === 'complete');
-    const reviewEvidence = ['AI-TASK-003', 'AI-TASK-004'].every((id) => state?.tasks?.find((task) => task.id === id)?.status === 'complete');
-    const founderApproved = state?.finalDecision?.decision === 'approve' || state?.tasks?.find((task) => task.id === 'AI-TASK-005')?.providerStatus === 'founder-approved';
+    const reviewEvidence = Boolean(pr && pr.reviewedHeadSha === pr.headSha);
+    const founderApproved = Boolean(pr && pr.founderApprovedHeadSha === pr.headSha);
     const packageReady = pkg?.status === 'ready' || state?.packageId === 'NN-BUILD-001';
     const liveState = Boolean(state?.workspaceId === 'natural-nation' && state?.packageId === 'NN-BUILD-001');
-    const mergeReady = Boolean(liveState && prUrl && allTasksComplete && reviewEvidence && founderApproved && packageReady);
-    return { state, pkg, prUrl, pr, files, allTasksComplete, reviewEvidence, founderApproved, packageReady, liveState, mergeReady };
+    const prOpen = pr?.state === 'open';
+    const prMergeable = pr?.mergeable === true;
+    const checksPassed = pr?.checksPassed === true;
+    const mergeReady = Boolean(liveState && pr && prOpen && prMergeable && checksPassed && allTasksComplete && reviewEvidence && founderApproved && packageReady);
+    return { state, pkg, pr, files, allTasksComplete, reviewEvidence, founderApproved, packageReady, liveState, prOpen, prMergeable, checksPassed, mergeReady };
   }
 
   function renderUnavailable(status, checklist, message) {
     status.innerHTML = statusCard('Repository status', 'Unavailable', message);
-    checklist.innerHTML = `<article class="module-card"><h3>Safe unavailable state</h3><p class="muted">Repository actions remain disabled until the Natural Nation orchestration record loads.</p>${linkButton('Open GitHub repository', REPOSITORY_URL)}</article>`;
+    checklist.innerHTML = `<article class="module-card"><h3>Safe unavailable state</h3><p class="muted">Repository actions remain disabled until an active reviewed pull-request context loads.</p>${linkButton('Open GitHub repository', REPOSITORY_URL)}</article>`;
   }
 
   function renderRepositoryIntelligence() {
@@ -83,13 +90,13 @@
     }
 
     const branchUrl = `${REPOSITORY_URL}/tree/${encodeURIComponent(DEFAULT_BRANCH)}`;
-    const checksUrl = model.pr ? `${model.prUrl}/checks` : ACTIONS_URL;
+    const checksUrl = model.pr ? `${model.pr.url}/checks` : ACTIONS_URL;
 
     status.innerHTML = [
       statusCard('Repository', REPOSITORY, 'Canonical GitHub source of truth'),
       statusCard('Branch', DEFAULT_BRANCH, 'Protected production branch'),
-      statusCard('Pull request', model.pr ? `#${model.pr}` : 'Not recorded', model.prUrl ? 'Canonical implementation evidence found' : 'No pull-request URL is recorded'),
-      statusCard('Merge readiness', model.mergeReady ? 'Ready for handoff' : 'Blocked', model.mergeReady ? 'All recorded Founder OS gates passed' : 'One or more required gates remain incomplete')
+      statusCard('Pull request', model.pr ? `#${model.pr.number}` : 'Not recorded', model.pr ? `Active reviewed head ${model.pr.headSha.slice(0, 8)}` : 'No active reviewed pull request is loaded'),
+      statusCard('Merge readiness', model.mergeReady ? 'Ready for handoff' : 'Blocked', model.mergeReady ? 'All active-PR and reviewed-head gates passed' : 'One or more active-PR gates remain incomplete')
     ].join('');
 
     checklist.innerHTML = `
@@ -98,32 +105,35 @@
         <div class="repository-action-grid">
           ${linkButton('Open repository', REPOSITORY_URL)}
           ${linkButton('Open branch', branchUrl)}
-          ${linkButton('Open pull request', model.prUrl || REPOSITORY_URL, !model.prUrl)}
-          ${linkButton('Open checks', checksUrl)}
+          ${linkButton('Open pull request', model.pr?.url || REPOSITORY_URL, !model.pr)}
+          ${linkButton('Open checks', checksUrl, !model.pr)}
           ${linkButton('Open deployments', DEPLOYMENTS_URL)}
         </div>
       </article>
       <article class="module-card">
         <div class="repository-card-header"><div><span class="eyebrow">Merge readiness</span><h3>${model.mergeReady ? 'Founder merge handoff is ready' : 'Merge handoff remains blocked'}</h3></div><span class="status">${model.mergeReady ? 'READY' : 'BLOCKED'}</span></div>
         ${gate('Live orchestration state', model.liveState, 'Workspace and package match Natural Nation / NN-BUILD-001.')}
-        ${gate('Implementation pull request', Boolean(model.prUrl), model.prUrl ? `Pull request #${model.pr} is recorded.` : 'No canonical pull request is recorded.')}
+        ${gate('Active pull request', Boolean(model.pr), model.pr ? `Pull request #${model.pr.number} and head ${model.pr.headSha.slice(0, 8)} are loaded.` : 'No active reviewed pull request context is loaded.')}
+        ${gate('Pull request is open', model.prOpen, model.prOpen ? 'The active pull request remains open.' : 'The active pull request is not open.')}
+        ${gate('Pull request is mergeable', model.prMergeable, model.prMergeable ? 'GitHub reports the active pull request as mergeable.' : 'GitHub does not report the active pull request as mergeable.')}
+        ${gate('Checks passed', model.checksPassed, model.checksPassed ? 'Required checks passed for the active head SHA.' : 'Required checks have not passed for the active head SHA.')}
         ${gate('Task completion', model.allTasksComplete, model.allTasksComplete ? 'All canonical tasks are complete.' : 'At least one canonical task remains incomplete.')}
-        ${gate('Independent review evidence', model.reviewEvidence, model.reviewEvidence ? 'Gemini and GPose review tasks are complete.' : 'Required independent review evidence is incomplete.')}
-        ${gate('Founder approval', model.founderApproved, model.founderApproved ? 'Founder approval is recorded.' : 'Founder approval has not been recorded.')}
+        ${gate('Independent review bound to head', model.reviewEvidence, model.reviewEvidence ? 'Independent review is bound to the active head SHA.' : 'Independent review is not bound to the active head SHA.')}
+        ${gate('Founder approval bound to head', model.founderApproved, model.founderApproved ? 'Founder approval is bound to the active head SHA.' : 'Founder approval is not bound to the active head SHA.')}
         <div class="repository-merge-handoff">
           <button class="generate" type="button" data-repository-merge-handoff ${model.mergeReady ? '' : 'disabled aria-disabled="true"'}>Prepare Founder Merge Handoff</button>
-          <p class="muted">This control never merges automatically. It opens the authoritative pull request after confirming the recorded gates.</p>
+          <p class="muted">This control never merges automatically. It opens only the active pull request whose head SHA passed every recorded gate.</p>
         </div>
       </article>
       <article class="module-card">
-        <div class="repository-card-header"><div><span class="eyebrow">Changed files</span><h3>Recorded implementation evidence</h3></div><span class="status">${model.files.length} FILE${model.files.length === 1 ? '' : 'S'}</span></div>
+        <div class="repository-card-header"><div><span class="eyebrow">Changed files</span><h3>Active pull-request evidence</h3></div><span class="status">${model.files.length} FILE${model.files.length === 1 ? '' : 'S'}</span></div>
         ${fileList(model.files)}
       </article>`;
 
     $('[data-repository-merge-handoff]')?.addEventListener('click', () => {
-      if (!model.mergeReady || !model.prUrl) return;
-      const confirmed = window.confirm('All recorded Founder OS gates passed. Open the authoritative GitHub pull request for your final merge decision? No merge will happen automatically.');
-      if (confirmed) window.open(model.prUrl, '_blank', 'noopener');
+      if (!model.mergeReady || !model.pr?.url) return;
+      const confirmed = window.confirm(`All gates passed for PR #${model.pr.number} at head ${model.pr.headSha.slice(0, 8)}. Open GitHub for your final merge decision? No merge will happen automatically.`);
+      if (confirmed) window.open(model.pr.url, '_blank', 'noopener');
     });
   }
 
