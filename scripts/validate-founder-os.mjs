@@ -93,9 +93,16 @@ assert(taskDetails.includes("window.NNOSCanonicalBuild?.resetCurrentTask?.()"));
 assert(taskDetailsStyles.includes('.founder-task-detail') && taskDetailsStyles.includes('.queue-item.task-selected'));
 assert(taskDetailsStyles.includes(':focus-visible') && taskDetailsStyles.includes('@media (max-width: 560px)'));
 
-for (const requirement of ['Open repository', 'Open branch', 'Open pull request', 'Open checks', 'Open deployments', 'Prepare Founder Merge Handoff', 'No merge will happen automatically', 'mergeReady', 'Founder approval', 'Changed files']) assert(repositoryActions.includes(requirement), `Repository action requirement missing: ${requirement}`);
+for (const requirement of ['Open repository', 'Open branch', 'Open pull request', 'Open checks', 'Open deployments', 'Prepare Founder Merge Handoff', 'No merge will happen automatically', 'mergeReady', 'Founder approval bound to head', 'Changed files']) assert(repositoryActions.includes(requirement), `Repository action requirement missing: ${requirement}`);
 assert(repositoryActions.includes('window.NNOSCanonicalBuild?.state'));
 assert(repositoryActions.includes('window.NNOSRuntimeState?.snapshot?.orchestration'));
+assert(repositoryActions.includes('window.NNOSRepositoryReviewContext'));
+assert(repositoryActions.includes("pr.reviewedHeadSha === pr.headSha"));
+assert(repositoryActions.includes("pr.founderApprovedHeadSha === pr.headSha"));
+assert(repositoryActions.includes("pr?.state === 'open'"));
+assert(repositoryActions.includes("pr?.mergeable === true"));
+assert(repositoryActions.includes("pr?.checksPassed === true"));
+assert(!repositoryActions.includes('parsePullRequestUrl'));
 assert(repositoryActions.includes('button class="generate"') && repositoryActions.includes('disabled aria-disabled="true"'));
 assert(repositoryActionsStyles.includes('.repository-action-grid') && repositoryActionsStyles.includes('@media (max-width:720px)'));
 assert(repositoryActionsStyles.includes('min-height:44px'));
