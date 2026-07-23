@@ -117,6 +117,14 @@ jobs:
           echo "$RESPONSE" | grep -q '"databaseType":"kv"'
           echo "Founder OS live health and durable KV binding verified."
 
+      - name: Verify canonical orchestration endpoint
+        run: |
+          RESPONSE="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/v1/workspaces/natural-nation/packages/NN-BUILD-001/orchestration)"
+          echo "$RESPONSE" | jq -e '.ok == true' >/dev/null
+          echo "$RESPONSE" | jq -e '.state.workspaceId == "natural-nation"' >/dev/null
+          echo "$RESPONSE" | jq -e '.state.packageId == "NN-BUILD-001"' >/dev/null
+          echo "Canonical orchestration route returned valid production JSON."
+
       - name: Verify NN-KS-002 workflow endpoint
         run: |
           RESPONSE="$(curl --fail --silent --show-error -H 'x-founder-os-workspace: workspace-natural-nation' https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002)"
