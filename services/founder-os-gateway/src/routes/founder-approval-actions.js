@@ -4,6 +4,8 @@ import { errorResponse, json } from "../lib/http.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const ALLOWED_ACTIONS = new Set(["defer", "reject", "note"]);
+const ACTIONABLE_STATUSES = new Set(["ready", "blocked"]);
+const MANUAL_REVIEW_STATUS = "manual-review-required";
 
 function parseApprovalActionRoute(pathname) {
   const match = pathname.match(/^\/v1\/workspaces\/([^/]+)\/packages\/([^/]+)\/tasks\/([^/]+)\/approval-action$/);
@@ -32,6 +34,15 @@ function requireNote(action, note) {
   }
 }
 
+function requireActionableFounderGate(task) {
+  if (!task || task.owner !== "founder") {
+    throw new Error("The requested task is not a Founder approval task.");
+  }
+  if (!ACTIONABLE_STATUSES.has(task.status) || task.providerStatus !== MANUAL_REVIEW_STATUS) {
+    throw new Error("This task is not at an actionable Founder manual-review gate.");
+  }
+}
+
 async function recordApprovalAction(env, route, actor, body) {
   const action = String(body.action || "").trim().toLowerCase();
   const note = String(body.note || "").trim();
@@ -44,10 +55,7 @@ async function recordApprovalAction(env, route, actor, body) {
   }
 
   const task = state.tasks.find((item) => item.id === route.taskId);
-  if (!task || task.owner !== "founder") throw new Error("The requested task is not a Founder approval task.");
-  if (action !== "note" && !["ready", "blocked", "waiting"].includes(task.status)) {
-    throw new Error("This approval is no longer available for a state-changing decision.");
-  }
+  requireActionableFounderGate(task);
 
   const now = new Date().toISOString();
   const historyEntry = { action, note, recordedAt: now, recordedBy: actor.id };
