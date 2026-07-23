@@ -11,6 +11,12 @@
   taskDetailsStyle.dataset.founderTaskDetailsStyles = 'true';
   document.head.appendChild(taskDetailsStyle);
 
+  const repositoryActionsStyle = document.createElement('link');
+  repositoryActionsStyle.rel = 'stylesheet';
+  repositoryActionsStyle.href = paths.asset('css/repository-actions.css?v=section-4');
+  repositoryActionsStyle.dataset.repositoryActionsStyles = 'true';
+  document.head.appendChild(repositoryActionsStyle);
+
   // Load the single authoritative runtime-state controller before any view that consumes build readiness.
   const runtimeStateScript = document.createElement('script');
   runtimeStateScript.src = paths.asset('js/canonical-runtime-state.js?v=runtime-state-1');
@@ -49,7 +55,7 @@
     build: { title: 'Build Work', subtitle: 'See the live current owner, ready task, next handoff, and protected execution action.', badge: 'Live Execution' },
     mission: { title: 'Product Overview', subtitle: 'See the current objective, live task, project health, and safest next action.', badge: 'Executive Status' },
     knowledge: { title: 'Project Records', subtitle: 'Find approved decisions, plans, and project information.', badge: 'Records' },
-    repo: { title: 'Code Status', subtitle: 'See the canonical repository, deployed Gateway release, and remaining customer-application work.', badge: 'Technical Reality' },
+    repo: { title: 'Code Status', subtitle: 'Review the live repository, pull request, checks, deployment, changed files, and merge-readiness gates.', badge: 'Founder Repository Control' },
     ai: { title: 'AI Team', subtitle: 'See each stable role, provider readiness, current handoff, and verified task status.', badge: 'Live Assignments' }
   };
 
