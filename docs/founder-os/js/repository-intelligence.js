@@ -29,7 +29,11 @@
       headSha: String(context.headSha),
       reviewedHeadSha: String(context.reviewedHeadSha || ''),
       founderApprovedHeadSha: String(context.founderApprovedHeadSha || ''),
-      changedFiles: Array.isArray(context.changedFiles) ? context.changedFiles : []
+      changedFiles: Array.isArray(context.changedFiles) ? context.changedFiles : [],
+      merged: context.merged === true || String(context.state || '').toLowerCase() === 'merged',
+      mergedAt: context.mergedAt ? String(context.mergedAt) : '',
+      mergeCommitSha: context.mergeCommitSha ? String(context.mergeCommitSha) : '',
+      deploymentStatus: String(context.deploymentStatus || '').toLowerCase()
     };
   }
 
@@ -66,12 +70,49 @@
     const prMergeable = pr?.mergeable === true;
     const checksPassed = pr?.checksPassed === true;
     const mergeReady = Boolean(liveState && pr && prOpen && prMergeable && checksPassed && allTasksComplete && reviewEvidence && founderApproved && packageReady);
-    return { state, pkg, pr, files, allTasksComplete, reviewEvidence, founderApproved, packageReady, liveState, prOpen, prMergeable, checksPassed, mergeReady };
+    const mergeComplete = Boolean(pr?.merged && pr?.mergeCommitSha);
+    const deploymentComplete = pr?.deploymentStatus === 'success';
+    return { state, pkg, pr, files, allTasksComplete, reviewEvidence, founderApproved, packageReady, liveState, prOpen, prMergeable, checksPassed, mergeReady, mergeComplete, deploymentComplete };
   }
 
   function renderUnavailable(status, checklist, message) {
     status.innerHTML = statusCard('Repository status', 'Unavailable', message);
     checklist.innerHTML = `<article class="module-card"><h3>Safe unavailable state</h3><p class="muted">Repository actions remain disabled until an active reviewed pull-request context loads.</p>${linkButton('Open GitHub repository', REPOSITORY_URL)}</article>`;
+  }
+
+  function renderCompletedState(status, checklist, model) {
+    const mergeCommitUrl = `${REPOSITORY_URL}/commit/${encodeURIComponent(model.pr.mergeCommitSha)}`;
+    status.innerHTML = [
+      statusCard('Repository', REPOSITORY, 'Canonical GitHub source of truth'),
+      statusCard('Branch', DEFAULT_BRANCH, 'Protected production branch'),
+      statusCard('Pull request', `#${model.pr.number} merged`, model.pr.mergedAt ? `Merged ${model.pr.mergedAt}` : 'Reviewed pull request is merged'),
+      statusCard('Repository lifecycle', model.deploymentComplete ? 'Complete' : 'Merged', model.deploymentComplete ? 'Merge and deployment are complete' : 'Merge completed; deployment confirmation is pending')
+    ].join('');
+
+    checklist.innerHTML = `
+      <article class="module-card repository-action-card">
+        <div class="repository-card-header"><div><span class="eyebrow">Founder repository actions</span><h3>Open authoritative completion records</h3></div><span class="status">COMPLETE</span></div>
+        <div class="repository-action-grid">
+          ${linkButton('Open repository', REPOSITORY_URL)}
+          ${linkButton('Open branch', `${REPOSITORY_URL}/tree/${encodeURIComponent(DEFAULT_BRANCH)}`)}
+          ${linkButton('Open merged pull request', model.pr.url)}
+          ${linkButton('Open merge commit', mergeCommitUrl)}
+          ${linkButton('Open deployments', DEPLOYMENTS_URL)}
+        </div>
+      </article>
+      <article class="module-card">
+        <div class="repository-card-header"><div><span class="eyebrow">Repository lifecycle</span><h3>Merge handoff completed</h3></div><span class="status">COMPLETE</span></div>
+        ${gate('Live orchestration state', model.liveState, 'Workspace and package match Natural Nation / NN-BUILD-001.')}
+        ${gate('Pull request merged', model.mergeComplete, `Pull request #${model.pr.number} merged at commit ${model.pr.mergeCommitSha.slice(0, 8)}.`)}
+        ${gate('Task completion', model.allTasksComplete, model.allTasksComplete ? 'All canonical tasks are complete.' : 'At least one canonical task remains incomplete.')}
+        ${gate('Independent review bound to head', model.reviewEvidence, model.reviewEvidence ? 'Independent review matches the reviewed head SHA.' : 'Independent review does not match the reviewed head SHA.')}
+        ${gate('Founder approval bound to head', model.founderApproved, model.founderApproved ? 'Founder approval matches the reviewed head SHA.' : 'Founder approval does not match the reviewed head SHA.')}
+        ${gate('Deployment complete', model.deploymentComplete, model.deploymentComplete ? 'The merged release is deployed successfully.' : 'Deployment confirmation has not been recorded yet.')}
+      </article>
+      <article class="module-card">
+        <div class="repository-card-header"><div><span class="eyebrow">Changed files</span><h3>Merged implementation evidence</h3></div><span class="status">${model.files.length} FILE${model.files.length === 1 ? '' : 'S'}</span></div>
+        ${fileList(model.files)}
+      </article>`;
   }
 
   function renderRepositoryIntelligence() {
@@ -86,6 +127,10 @@
     const model = repositoryState();
     if (!model.liveState) {
       renderUnavailable(status, checklist, 'The live Natural Nation repository context has not loaded yet.');
+      return;
+    }
+    if (model.mergeComplete) {
+      renderCompletedState(status, checklist, model);
       return;
     }
 
