@@ -16,7 +16,7 @@
     if (document.querySelector('[data-founder-approval-inbox-styles]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = paths.asset('css/founder-approval-inbox.css?v=section-2');
+    link.href = paths.asset('css/founder-approval-inbox.css?v=section-2-live-actions');
     link.dataset.founderApprovalInboxStyles = 'true';
     document.head.appendChild(link);
   }
@@ -94,7 +94,8 @@
       evidence: Array.isArray(task.evidence) ? task.evidence : [task.resultSummary || 'Canonical orchestration state identifies this item as requiring Founder review.'],
       risks: Array.isArray(task.risks) ? task.risks : [task.blockedReason || 'Proceeding without a recorded Founder decision may bypass the approved governance gate.'],
       recommendation: task.recommendation || (task.providerStatus === 'manual-review-required' ? 'Review the verified implementation evidence before approving or returning the work.' : 'Review the request and record a governed decision.'),
-      pullRequestUrl: String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i)?.[0] || null
+      pullRequestUrl: String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i)?.[0] || null,
+      founderNotes: Array.isArray(task.founderNotes) ? task.founderNotes : []
     }));
   }
 
@@ -115,6 +116,11 @@
       </button>`).join('');
   }
 
+  function noteHistory(record) {
+    if (!record.founderNotes.length) return '<p class="muted">No Founder notes have been recorded.</p>';
+    return `<ul class="approval-evidence-list">${record.founderNotes.map((entry) => `<li><strong>${esc(entry.action || 'note')}</strong> · ${esc(entry.recordedAt || 'recently')}<br>${esc(entry.note || '')}</li>`).join('')}</ul>`;
+  }
+
   function renderDetail(record) {
     const detail = $('[data-approval-detail]');
     if (!detail) return;
@@ -130,9 +136,10 @@
         <section class="approval-detail-card"><h3>Evidence</h3>${listMarkup(record.evidence, 'approval-evidence-list')}</section>
         <section class="approval-detail-card"><h3>Risks</h3>${listMarkup(record.risks, 'approval-risk-list')}</section>
         <section class="approval-detail-card full"><h3>AI team recommendation</h3><p>${esc(record.recommendation)}</p>${record.pullRequestUrl ? `<p><a href="${esc(record.pullRequestUrl)}" target="_blank" rel="noopener">Open related pull request ↗</a></p>` : ''}</section>
-        <section class="approval-detail-card full"><h3>Founder note</h3><textarea class="approval-note" data-approval-note placeholder="Add context, required corrections, or the reason for your decision."></textarea><p class="muted">Updated ${esc(record.updatedAt || 'recently')} · Owner ${esc(record.owner)}</p></section>
+        <section class="approval-detail-card full"><h3>Founder note</h3><textarea class="approval-note" data-approval-note placeholder="Add context, required corrections, or the reason for your decision."></textarea><p class="muted">A note is required for request changes, defer, reject, and note-only actions.</p></section>
+        <section class="approval-detail-card full"><h3>Decision history</h3>${noteHistory(record)}</section>
       </div>
-      <div class="approval-actions">
+      <div class="approval-actions" aria-label="Founder approval actions">
         <button type="button" class="generate" data-approval-decision="approve">Approve</button>
         <button type="button" data-approval-decision="request_changes">Request changes</button>
         <button type="button" data-approval-decision="defer">Defer</button>
@@ -162,20 +169,28 @@
     const record = approvalRecords().find((item) => item.id === selectedId);
     if (!record) return;
     const note = $('[data-approval-note]')?.value?.trim() || '';
-    if (decision === 'note' && !note) {
-      window.alert('Add a Founder note before recording it.');
+    if (['request_changes', 'defer', 'reject', 'note'].includes(decision) && !note) {
+      window.alert('Add a Founder note before recording this action.');
       return;
     }
     if (!window.confirm(`Record “${decision.replace('_', ' ')}” for ${record.title}?`)) return;
     const key = window.prompt('Enter your Founder Key to record this protected decision.');
     if (!key) return;
-    const endpoint = `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(record.workspaceId)}/packages/${encodeURIComponent(record.packageId)}/tasks/${encodeURIComponent(record.id)}/decision`;
+
+    const isCanonicalDecision = ['approve', 'request_changes'].includes(decision);
+    const endpoint = isCanonicalDecision
+      ? `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(record.workspaceId)}/packages/${encodeURIComponent(record.packageId)}/tasks/${encodeURIComponent(record.id)}/decision`
+      : `${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(record.workspaceId)}/packages/${encodeURIComponent(record.packageId)}/tasks/${encodeURIComponent(record.id)}/approval-action`;
+    const body = isCanonicalDecision
+      ? { decision, note, pullRequestUrl: record.pullRequestUrl }
+      : { action: decision, note, pullRequestUrl: record.pullRequestUrl };
+
     window.NNOSProcessing?.update({ title: 'Recording Founder decision', message: 'Updating the canonical approval record.', stage: 'Approval Inbox' });
     try {
       await fetchJson(endpoint, {
         method: 'POST',
         headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-        body: JSON.stringify({ decision, note, pullRequestUrl: record.pullRequestUrl })
+        body: JSON.stringify(body)
       });
       await load();
       window.NNOSProcessing?.success({ title: 'Founder decision recorded', message: `${record.title} was updated.`, stage: 'Recorded' });
