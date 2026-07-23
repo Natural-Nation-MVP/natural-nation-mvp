@@ -116,7 +116,7 @@
     setText('[data-selected-id]', canonicalPackage?.packageId || 'NN-BUILD-001');
     setText('[data-selected-title]', 'Live build status unavailable');
     setText('[data-selected-meta]', 'The package reference loaded, but the Gateway orchestration state did not.');
-    setText('[data-validation-status]', reason);
+    setText('[data-validation-status]', reason || 'The live orchestration service returned an invalid response.');
     setText('[data-build-approval]', 'Needs Attention');
     setText('[data-approval]', 'Needs Attention');
     setText('[data-bottom-target]', 'Gateway');
@@ -308,9 +308,17 @@
 
   async function fetchJson(url, options) {
     const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`, { cache: 'no-store', ...options });
+    const contentType = String(response.headers.get('content-type') || '').toLowerCase();
     const text = await response.text();
+    if (!contentType.includes('application/json')) {
+      throw new Error(`The Gateway returned an invalid response (${response.status}). Please refresh or try again later.`);
+    }
     let body = {};
-    try { body = text ? JSON.parse(text) : {}; } catch { body = { error: { message: text } }; }
+    try {
+      body = text ? JSON.parse(text) : {};
+    } catch {
+      throw new Error('The Gateway returned unreadable JSON. Please refresh or try again later.');
+    }
     if (!response.ok) throw new Error(body?.error?.message || `${url} returned ${response.status}.`);
     return body;
   }

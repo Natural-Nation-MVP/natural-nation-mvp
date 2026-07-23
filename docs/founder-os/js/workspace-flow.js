@@ -1,46 +1,21 @@
 (() => {
   const BILLING_KEY = 'nnos_billing_resolution';
   const LEGACY_FOUNDER_KEY = 'nnos_founder_api_key';
-  const BLUEPRINT_URL = window.NNOSPaths.asset('config/natural-nation-blueprint.json');
-  const PACKAGE_URL = window.NNOSPaths.site('execution-packages/NN-BUILD-001.json');
 
   let state = {
     billingResolution: sessionStorage.getItem(BILLING_KEY) || 'excluded-from-mvp',
     blueprintApproved: false,
     packageReady: false,
-    transactionId: ''
+    orchestrationReady: false,
+    buildAvailable: false,
+    transactionId: '',
+    error: null
   };
 
   sessionStorage.removeItem(LEGACY_FOUNDER_KEY);
 
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => document.querySelectorAll(selector);
-
-  async function fetchJson(url) {
-    const response = await fetch(`${url}?flow=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`${url} returned ${response.status}`);
-    return response.json();
-  }
-
-  function isApproved(blueprint) {
-    return Boolean(
-      blueprint?.status === 'Approved' &&
-      blueprint?.locked === true &&
-      blueprint?.approvalTransactionId &&
-      blueprint?.decisionResolutions?.['billing-mvp'] &&
-      Array.isArray(blueprint?.openDecisions) &&
-      blueprint.openDecisions.length === 0 &&
-      blueprint?.snapshot?.openDecisions === 0
-    );
-  }
-
-  function isPackageReady(pkg, transactionId) {
-    return Boolean(
-      pkg?.packageId === 'NN-BUILD-001' &&
-      pkg?.status === 'ready' &&
-      pkg?.sourceTransactionId === transactionId
-    );
-  }
 
   function activateWorkspace(target) {
     if (typeof window.setWorkspace === 'function') window.setWorkspace(target);
@@ -66,79 +41,79 @@
   function renderFlowState() {
     const buildNav = $('[data-context-module="build"]');
     if (buildNav) {
-      const locked = state.packageReady ? 'false' : 'true';
+      const locked = state.buildAvailable ? 'false' : 'true';
       setIfChanged(buildNav, 'data-flow-locked', locked);
       setIfChanged(buildNav, 'aria-disabled', locked);
-      setIfChanged(buildNav, 'title', state.packageReady
-        ? 'Open the canonical NN-BUILD-001 package.'
-        : 'Build Studio unlocks after canonical Blueprint approval creates NN-BUILD-001.');
-      setIfChanged(buildNav, 'textContent', state.packageReady ? 'Build Studio' : 'Build Studio · Locked');
+      setIfChanged(buildNav, 'title', state.buildAvailable
+        ? 'Open live Build Work for NN-BUILD-001.'
+        : state.error || 'Build Work unlocks when the canonical runtime state is fully available.');
+      setIfChanged(buildNav, 'textContent', state.buildAvailable ? 'Build Work' : 'Build Work · Locked');
     }
 
     const reviewButton = $('[data-review-blueprint]');
     if (reviewButton) {
       const decisionResolved = state.billingResolution !== 'unresolved';
       setIfChanged(reviewButton, 'disabled', !decisionResolved);
-      setIfChanged(reviewButton, 'textContent', state.packageReady
-        ? 'Open Build Studio →'
+      setIfChanged(reviewButton, 'textContent', state.buildAvailable
+        ? 'Open Build Work →'
         : decisionResolved
           ? 'Continue to Blueprint →'
           : 'Resolve Billing to Continue');
     }
 
-    document.body.dataset.nnosFlowStage = state.packageReady
+    document.body.dataset.nnosFlowStage = state.buildAvailable
       ? 'build-ready'
-      : state.blueprintApproved
-        ? 'publishing-package'
-        : 'blueprint-review';
+      : state.packageReady
+        ? 'waiting-for-orchestration'
+        : state.blueprintApproved
+          ? 'publishing-package'
+          : 'blueprint-review';
   }
 
-  async function refreshFlowState() {
-    let blueprint = null;
-    let pkg = null;
-
-    try {
-      blueprint = await fetchJson(BLUEPRINT_URL);
-    } catch {
-      // Blueprint loader displays its own error state.
-    }
-
-    state.blueprintApproved = isApproved(blueprint);
-    state.transactionId = blueprint?.approvalTransactionId || '';
-    state.billingResolution = blueprint?.decisionResolutions?.['billing-mvp'] || sessionStorage.getItem(BILLING_KEY) || 'excluded-from-mvp';
-    sessionStorage.setItem(BILLING_KEY, state.billingResolution);
-
-    if (state.blueprintApproved) {
-      try {
-        pkg = await fetchJson(PACKAGE_URL);
-      } catch {
-        pkg = null;
-      }
-    }
-
-    state.packageReady = isPackageReady(pkg, state.transactionId);
+  function applyRuntimeSnapshot(snapshot) {
+    state = {
+      ...state,
+      blueprintApproved: Boolean(snapshot?.blueprintApproved),
+      packageReady: Boolean(snapshot?.packageReady),
+      orchestrationReady: Boolean(snapshot?.orchestrationReady),
+      buildAvailable: Boolean(snapshot?.buildAvailable),
+      transactionId: snapshot?.transactionId || '',
+      error: snapshot?.error || null
+    };
     renderFlowState();
     return { ...state };
   }
 
+  async function refreshFlowState() {
+    if (!window.NNOSRuntimeState?.refresh) {
+      state = { ...state, error: 'Canonical runtime state is still loading.', buildAvailable: false };
+      renderFlowState();
+      return { ...state };
+    }
+    const snapshot = await window.NNOSRuntimeState.refresh();
+    return applyRuntimeSnapshot(snapshot);
+  }
+
   document.addEventListener('click', (event) => {
     const resumeButton = event.target.closest('[data-resume-workspace]');
-    if (resumeButton) window.setTimeout(renderFlowState, 250);
+    if (resumeButton) window.setTimeout(refreshFlowState, 250);
 
     const buildButton = event.target.closest('[data-context-module="build"]');
-    if (buildButton && !state.packageReady) {
+    if (buildButton && !state.buildAvailable) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
       activateWorkspace('blueprint');
-      window.alert('Build Studio is locked until the Gateway commits the approved Blueprint and GitHub publishes NN-BUILD-001.');
+      window.alert(state.error
+        ? `Build Work is unavailable.\n\n${state.error}`
+        : 'Build Work is locked until the approved Blueprint, NN-BUILD-001, and live Gateway orchestration state are all verified.');
       return;
     }
 
     const reviewButton = event.target.closest('[data-review-blueprint]');
     if (!reviewButton) return;
 
-    if (state.packageReady) {
+    if (state.buildAvailable) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -155,21 +130,23 @@
     }
   }, true);
 
+  window.addEventListener('founder-os:runtime-state-changed', (event) => {
+    applyRuntimeSnapshot(event.detail || {});
+  });
+
   window.addEventListener('founder-os:discovery-decision-changed', (event) => {
     state.billingResolution = event.detail?.billingResolution || 'unresolved';
     sessionStorage.setItem(BILLING_KEY, state.billingResolution);
     renderFlowState();
   });
 
-  window.addEventListener('founder-os:canonical-blueprint-approved', async () => {
-    await refreshFlowState();
-    if (state.packageReady) window.NNOSCanonicalBuild?.reload?.();
-  });
+  window.addEventListener('founder-os:canonical-blueprint-approved', refreshFlowState);
 
   window.NNOSWorkspaceFlow = {
     refresh: refreshFlowState,
     get state() { return { ...state }; }
   };
 
-  refreshFlowState();
+  if (window.NNOSRuntimeState?.snapshot?.loaded) applyRuntimeSnapshot(window.NNOSRuntimeState.snapshot);
+  else refreshFlowState();
 })();

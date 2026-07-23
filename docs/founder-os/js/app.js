@@ -5,8 +5,21 @@
   completionStyle.href = paths.asset('css/ux-completion.css?v=1.0.0');
   document.head.appendChild(completionStyle);
 
+  const taskDetailsStyle = document.createElement('link');
+  taskDetailsStyle.rel = 'stylesheet';
+  taskDetailsStyle.href = paths.asset('css/founder-task-details.css?v=section-3');
+  taskDetailsStyle.dataset.founderTaskDetailsStyles = 'true';
+  document.head.appendChild(taskDetailsStyle);
+
+  // Load the single authoritative runtime-state controller before any view that consumes build readiness.
+  const runtimeStateScript = document.createElement('script');
+  runtimeStateScript.src = paths.asset('js/canonical-runtime-state.js?v=runtime-state-1');
+  runtimeStateScript.defer = true;
+  runtimeStateScript.dataset.canonicalRuntimeStateLoader = 'true';
+  document.head.appendChild(runtimeStateScript);
+
   const completionScript = document.createElement('script');
-  completionScript.src = paths.asset('js/ux-completion.js?v=live-overview-1');
+  completionScript.src = paths.asset('js/ux-completion.js?v=runtime-state-1');
   completionScript.defer = true;
   document.head.appendChild(completionScript);
 
@@ -21,6 +34,12 @@
   approvalInboxScript.defer = true;
   approvalInboxScript.dataset.founderApprovalInboxLoader = 'true';
   document.head.appendChild(approvalInboxScript);
+
+  const taskDetailsScript = document.createElement('script');
+  taskDetailsScript.src = paths.asset('js/founder-task-details.js?v=section-3');
+  taskDetailsScript.defer = true;
+  taskDetailsScript.dataset.founderTaskDetailsLoader = 'true';
+  document.head.appendChild(taskDetailsScript);
 
   const pageMeta = {
     registry: { title: 'Your Workspaces', subtitle: 'Choose what you want to work on.', badge: 'Workspaces' },
