@@ -1,3 +1,4 @@
+// Sprint #128: explicit stabilization run trigger after Gateway route recovery.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
