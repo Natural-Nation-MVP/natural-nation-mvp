@@ -10,6 +10,7 @@ import { verifyTaskResult } from "./result-verification.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const AGENT_PATH = "docs/founder-os/config/ai-agent-registry.json";
+const CANONICAL_STATE_URL = "https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/ai-orchestration-state.json";
 
 function taskPath(workspaceId, packageId, taskId) {
   return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.json`;
@@ -382,8 +383,29 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
   };
 }
 
+async function readCanonicalStateAsset() {
+  const response = await fetch(`${CANONICAL_STATE_URL}?gateway=${Date.now()}`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`Canonical state asset returned ${response.status}.`);
+  const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+  if (!contentType.includes("application/json")) throw new Error("Canonical state asset did not return JSON.");
+  return response.json();
+}
+
 export async function readOrchestrationState({ env, workspaceId, packageId }) {
-  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  let state;
+  let source = "github-api";
+  try {
+    ({ content: state } = await readRepositoryJson(env, STATE_PATH));
+  } catch (error) {
+    state = await readCanonicalStateAsset();
+    source = "github-pages-fallback";
+    structuredLog("orchestration.state_fallback", {
+      workspaceId,
+      packageId,
+      source,
+      repositoryError: error instanceof Error ? error.message : "Unknown repository read error"
+    });
+  }
   if (state.workspaceId !== workspaceId || state.packageId !== packageId) throw new Error("No orchestration state exists for this workspace and package.");
-  return state;
+  return { ...state, stateSource: source };
 }
