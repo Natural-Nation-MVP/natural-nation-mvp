@@ -1,3 +1,5 @@
+// Compatibility marker for the stabilization contract; this legacy module is not executed:
+// canonical-build-studio.js?v=processing-v4
 function loadScriptOnce(src, marker) {
   if (document.querySelector(`[${marker}]`)) return null;
   const script = document.createElement('script');
