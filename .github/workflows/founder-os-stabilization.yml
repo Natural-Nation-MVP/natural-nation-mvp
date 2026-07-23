@@ -6,6 +6,7 @@ on:
       - 'docs/founder-os/**'
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-approval-inbox.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
   push:
     branches:
@@ -15,6 +16,7 @@ on:
       - 'docs/founder-os/**'
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-approval-inbox.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
 
 permissions:
@@ -33,6 +35,8 @@ jobs:
           node-version: '22'
       - name: Validate runtime, UX, workspace isolation, and AI dispatch
         run: node scripts/validate-founder-os.mjs
+      - name: Validate Founder Approval Inbox actions
+        run: node scripts/validate-founder-approval-inbox.mjs
       - name: Test NN-KS-002 live workflow
         working-directory: services/founder-os-gateway
         run: node --test test/nn-ks-002.test.mjs
