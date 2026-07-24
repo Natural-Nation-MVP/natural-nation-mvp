@@ -111,12 +111,12 @@
     list.parentNode.insertBefore(orientation, list);
   }
 
-  function disablePrematureControls() {
+  function enableControlCenterCreation() {
     const createButton = $('[data-create-workspace]');
     if (!createButton) return;
-    createButton.disabled = true;
-    createButton.textContent = 'New workspace — coming later';
-    createButton.title = 'Workspace creation is not available in this review build.';
+    createButton.disabled = false;
+    createButton.textContent = 'Create Workspace';
+    createButton.title = 'Create a workspace from the Founder OS Control Center.';
   }
 
   function activateRegistry() {
@@ -125,7 +125,7 @@
     renderHomeNavigation();
     renderMetrics();
     addHomeOrientation();
-    disablePrematureControls();
+    enableControlCenterCreation();
     const title = $('[data-workspace-title]');
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
