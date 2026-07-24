@@ -7,6 +7,7 @@ on:
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
+      - 'scripts/validate-founder-ux-001.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
   push:
     branches:
@@ -17,6 +18,7 @@ on:
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
+      - 'scripts/validate-founder-ux-001.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
 
 permissions:
@@ -37,6 +39,8 @@ jobs:
         run: node scripts/validate-founder-os.mjs
       - name: Validate Founder Approval Inbox actions
         run: node scripts/validate-founder-approval-inbox.mjs
+      - name: Validate FOUNDER-UX-001 Control Center
+        run: node scripts/validate-founder-ux-001.mjs
       - name: Test NN-KS-002 live workflow
         working-directory: services/founder-os-gateway
         run: node --test test/nn-ks-002.test.mjs
