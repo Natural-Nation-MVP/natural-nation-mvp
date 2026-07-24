@@ -92,9 +92,15 @@ jobs:
           EOF
           fi
 
-          # Force browsers that cached the previous runtime assets to request
-          # the current repository lifecycle implementation.
-          sed -i 's/root-v1/root-v2/g' _site/index.html
+          # Cache-bust the Founder UX runtime on both supported entry routes.
+          # This prevents a previously cached workspace-registry.js from enabling
+          # the button without loading workspace-creation.js and its click handler.
+          for shell in _site/index.html _site/founder-os/index.html; do
+            if [ -f "$shell" ]; then
+              sed -i "s/founder-ux-001/founder-ux-001-${MERGE_SHA}/g" "$shell"
+              sed -i 's/root-v1/root-v2/g' "$shell"
+            fi
+          done
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
