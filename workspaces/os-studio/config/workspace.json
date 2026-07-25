@@ -1,0 +1,70 @@
+{
+  "workspaceId": "os-studio",
+  "displayName": "OS Studio",
+  "sequence": 2,
+  "workspaceType": "founder_created_product",
+  "description": "OS Studio will help Small businesses grow a business. It will begin as a internal tool, with early success defined as Production ready assets.",
+  "status": "foundation",
+  "lifecycleStatus": "created",
+  "ownerType": "founder",
+  "objectives": [
+    "Grow a business",
+    "Production ready assets"
+  ],
+  "constraints": [
+    "Founder approval required for protected changes",
+    "Workspace remains isolated from all other workspaces",
+    "MVP scope before advanced automation"
+  ],
+  "roadmap": [
+    "M1: Discovery & Foundation",
+    "M2: Core Experience",
+    "M3: Founder Pilot"
+  ],
+  "isolation": {
+    "namespace": "workspace:os-studio",
+    "dataBoundary": "os-studio-owned application and product data",
+    "assetBoundary": "workspaces/os-studio/assets/",
+    "executionBoundary": "os-studio-scoped projects, packages, tasks, releases, and maintenance",
+    "knowledgeBoundary": "workspaces/os-studio/knowledge/",
+    "deliverableBoundary": "workspace:os-studio:deliverables"
+  },
+  "locations": {
+    "source": "workspaces/os-studio/app/",
+    "knowledge": "workspaces/os-studio/knowledge/",
+    "assets": "workspaces/os-studio/assets/",
+    "deliverables": "workspace:os-studio:deliverables"
+  },
+  "governance": {
+    "approvalPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md",
+    "protectedBoundaryRef": "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary",
+    "workflow": "Art → Codex → Gemini → GPose → Founder"
+  },
+  "capabilities": [
+    "project.create",
+    "project.manage",
+    "workflow.execute",
+    "ai-team.configure",
+    "approval.request",
+    "deliverable.produce",
+    "release.manage",
+    "metrics.report"
+  ],
+  "health": {
+    "state": "foundation",
+    "summary": "Workspace created and awaiting its first approved build package."
+  },
+  "repository": {
+    "strategy": "canonical-monorepo",
+    "name": "os-studio-mvp",
+    "root": "workspaces/os-studio/"
+  },
+  "creationEvidence": {
+    "clientRequestId": "workspace-create-21878964-7f83-4f40-a21b-0d02155bf058",
+    "actor": "founder",
+    "sourceWorkspaceId": "founder-os",
+    "createdAt": "2026-07-25T05:08:54.123Z"
+  },
+  "createdAt": "2026-07-25T05:08:54.123Z",
+  "updatedAt": "2026-07-25T05:08:54.123Z"
+}

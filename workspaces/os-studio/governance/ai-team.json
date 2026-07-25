@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "workspaceId": "os-studio",
+  "workflow": [
+    "Art",
+    "Codex",
+    "Gemini",
+    "GPose",
+    "Founder"
+  ],
+  "roles": {
+    "Art": "Lead architecture and system design",
+    "Codex": "Implementation and repository execution",
+    "Gemini": "Independent implementation review and testing",
+    "GPose": "Governance, product review, and Founder coordination",
+    "Founder": "Final approval for protected changes"
+  },
+  "workspaceIsolation": true
+}
