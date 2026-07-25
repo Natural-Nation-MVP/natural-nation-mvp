@@ -23,7 +23,7 @@ export function authenticateFounder(request, env) {
     actor: {
       id: "founder",
       role: "founder",
-      permissions: ["blueprint:approve", "ai:dispatch", "ai:review"]
+      permissions: ["workspace:create", "blueprint:approve", "ai:dispatch", "ai:review"]
     }
   };
 }
