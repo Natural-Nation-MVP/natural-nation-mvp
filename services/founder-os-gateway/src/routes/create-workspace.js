@@ -42,6 +42,12 @@ function stableKey(body) {
   return `workspace-creation:${text(body.clientRequestId, 160)}`;
 }
 
+function runtimeStore(env) {
+  return env.FOUNDER_OS_RUNTIME_STORE?.get && env.FOUNDER_OS_RUNTIME_STORE?.put
+    ? env.FOUNDER_OS_RUNTIME_STORE
+    : null;
+}
+
 async function readJson(request) {
   try {
     return await request.json();
@@ -80,6 +86,12 @@ export function validateWorkspaceCreation(body, request) {
     blockers.push({ code: "WORKSPACE_SAFETY_GATE_BLOCKED", message: "The request conflicts with Founder OS safety, governance, or workspace-isolation boundaries." });
   }
   return blockers;
+}
+
+export function findWorkspaceCreationRecovery(registry, clientRequestId) {
+  const requestId = text(clientRequestId, 160);
+  if (!requestId || !Array.isArray(registry?.workspaces)) return null;
+  return registry.workspaces.find((item) => text(item?.creationEvidence?.clientRequestId, 160) === requestId) || null;
 }
 
 function makeRecord(body, registry, now) {
@@ -128,6 +140,7 @@ function makeRecord(body, registry, now) {
       clientRequestId: text(body.clientRequestId, 160),
       actor: "founder",
       sourceWorkspaceId: WORKSPACE_ZERO,
+      recoveryMode: "canonical-repository",
       createdAt: now
     },
     createdAt: now,
@@ -173,12 +186,15 @@ function scaffoldFiles(record, body) {
   ];
 }
 
-function resultPayload(record, commit, duplicate = false) {
-  const repositoryUrl = `https://github.com/${commit.owner}/${commit.repository}`;
+function resultPayload(record, commit = {}, duplicate = false) {
+  const repositoryUrl = commit.owner && commit.repository
+    ? `https://github.com/${commit.owner}/${commit.repository}`
+    : null;
   return {
     ok: true,
     status: duplicate ? "already-created" : "created",
     duplicate,
+    recoveryMode: "canonical-repository",
     workspace: record,
     registry: { status: "registered", path: REGISTRY_PATH },
     repository: {
@@ -187,8 +203,8 @@ function resultPayload(record, commit, duplicate = false) {
       name: record.repository.name,
       root: record.repository.root,
       url: repositoryUrl,
-      commitSha: commit.commitSha,
-      commitUrl: commit.commitUrl
+      commitSha: commit.commitSha || null,
+      commitUrl: commit.commitUrl || null
     },
     completion: {
       workspaceId: record.workspaceId,
@@ -211,22 +227,33 @@ export async function handleCreateWorkspace(request, env, pathname) {
   const body = await readJson(request);
   const blockers = validateWorkspaceCreation(body, request);
   if (blockers.length) return json(request, { ok: false, status: "blocked", blockers }, 422);
-  if (!env.FOUNDER_OS_RUNTIME_STORE?.get || !env.FOUNDER_OS_RUNTIME_STORE?.put) {
-    return errorResponse(request, 503, "RUNTIME_STORE_REQUIRED", "Durable workspace creation recovery is not configured.");
-  }
   if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
     return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "Canonical repository credentials are not configured.");
   }
 
+  const store = runtimeStore(env);
   const key = stableKey(body);
-  const existing = await env.FOUNDER_OS_RUNTIME_STORE.get(key, "json");
-  if (existing?.status === "committed") return json(request, { ...existing.result, duplicate: true, status: "already-created" });
-  if (existing?.status === "running") return json(request, { ok: false, status: "in-progress", clientRequestId: body.clientRequestId }, 409);
+  if (store) {
+    const existing = await store.get(key, "json");
+    if (existing?.status === "committed") return json(request, { ...existing.result, duplicate: true, status: "already-created" });
+    if (existing?.status === "running") return json(request, { ok: false, status: "in-progress", clientRequestId: body.clientRequestId }, 409);
+  }
 
-  await env.FOUNDER_OS_RUNTIME_STORE.put(key, JSON.stringify({ status: "running", startedAt: new Date().toISOString() }), { expirationTtl: 86400 });
   try {
     const { content: registry } = await readRepositoryJson(env, REGISTRY_PATH);
     if (!Array.isArray(registry.workspaces)) throw new Error("Canonical workspace registry is invalid.");
+
+    const recoveredRecord = findWorkspaceCreationRecovery(registry, body.clientRequestId);
+    if (recoveredRecord) {
+      const recovered = resultPayload(recoveredRecord, { owner: env.GITHUB_OWNER, repository: env.GITHUB_REPOSITORY }, true);
+      if (store) await store.put(key, JSON.stringify({ status: "committed", result: recovered }), { expirationTtl: 604800 });
+      return json(request, recovered);
+    }
+
+    if (store) {
+      await store.put(key, JSON.stringify({ status: "running", startedAt: new Date().toISOString() }), { expirationTtl: 86400 });
+    }
+
     const proposedId = slug(body.blueprint.name);
     const duplicateRecord = registry.workspaces.find((item) => item.workspaceId === proposedId || String(item.displayName).toLowerCase() === String(body.blueprint.name).toLowerCase());
     if (duplicateRecord) {
@@ -241,10 +268,12 @@ export async function handleCreateWorkspace(request, env, pathname) {
       files: [{ path: REGISTRY_PATH, content: nextRegistry }, ...scaffoldFiles(record, body)]
     });
     const result = resultPayload(record, { ...commit, owner: env.GITHUB_OWNER, repository: env.GITHUB_REPOSITORY });
-    await env.FOUNDER_OS_RUNTIME_STORE.put(key, JSON.stringify({ status: "committed", result }), { expirationTtl: 604800 });
+    if (store) await store.put(key, JSON.stringify({ status: "committed", result }), { expirationTtl: 604800 });
     return json(request, result, 201);
   } catch (error) {
-    await env.FOUNDER_OS_RUNTIME_STORE.put(key, JSON.stringify({ status: "failed", failedAt: new Date().toISOString(), message: error.message }), { expirationTtl: 86400 });
+    if (store) {
+      await store.put(key, JSON.stringify({ status: "failed", failedAt: new Date().toISOString(), message: error.message }), { expirationTtl: 86400 });
+    }
     return errorResponse(request, 502, "WORKSPACE_CREATION_FAILED", error.message || "Workspace creation failed safely. The same request can be retried.");
   }
 }
