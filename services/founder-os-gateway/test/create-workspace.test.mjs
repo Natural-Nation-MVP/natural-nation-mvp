@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { findWorkspaceCreationRecovery, validateWorkspaceCreation } from '../src/routes/create-workspace.js';
+import { findWorkspaceCreationRecovery, isActiveWorkspaceCreation, validateWorkspaceCreation } from '../src/routes/create-workspace.js';
 
 function request(headers = {}) {
   return new Request('https://gateway.test/v2/workspaces', { method: 'POST', headers });
@@ -91,4 +91,18 @@ test('does not recover a different workspace request', () => {
     ]
   };
   assert.equal(findWorkspaceCreationRecovery(registry, 'workspace-create-test-002'), null);
+});
+
+test('keeps a recently started workspace creation protected as active', () => {
+  const now = Date.parse('2026-07-25T21:00:00.000Z');
+  assert.equal(isActiveWorkspaceCreation({ status: 'running', startedAt: '2026-07-25T20:59:30.000Z' }, now), true);
+});
+
+test('allows retry of a stale running workspace creation record', () => {
+  const now = Date.parse('2026-07-25T21:00:00.000Z');
+  assert.equal(isActiveWorkspaceCreation({ status: 'running', startedAt: '2026-07-25T20:50:00.000Z' }, now), false);
+});
+
+test('allows retry when a running record has no valid start time', () => {
+  assert.equal(isActiveWorkspaceCreation({ status: 'running' }), false);
 });
