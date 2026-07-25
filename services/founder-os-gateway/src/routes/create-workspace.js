@@ -4,6 +4,7 @@ import { errorResponse, json } from "../lib/http.js";
 
 const REGISTRY_PATH = "docs/founder-os/registry/workspaces.json";
 const WORKSPACE_ZERO = "founder-os";
+const ACTIVE_CREATION_WINDOW_MS = 2 * 60 * 1000;
 const BLOCKED_PATTERNS = [
   /credential\s*(theft|steal|harvest)/i,
   /phishing|malware|ransomware|spyware|keylogger/i,
@@ -92,6 +93,12 @@ export function findWorkspaceCreationRecovery(registry, clientRequestId) {
   const requestId = text(clientRequestId, 160);
   if (!requestId || !Array.isArray(registry?.workspaces)) return null;
   return registry.workspaces.find((item) => text(item?.creationEvidence?.clientRequestId, 160) === requestId) || null;
+}
+
+export function isActiveWorkspaceCreation(existing, now = Date.now()) {
+  if (existing?.status !== "running") return false;
+  const startedAt = Date.parse(existing.startedAt || "");
+  return Number.isFinite(startedAt) && now - startedAt >= 0 && now - startedAt < ACTIVE_CREATION_WINDOW_MS;
 }
 
 function makeRecord(body, registry, now) {
@@ -233,10 +240,9 @@ export async function handleCreateWorkspace(request, env, pathname) {
 
   const store = runtimeStore(env);
   const key = stableKey(body);
-  if (store) {
-    const existing = await store.get(key, "json");
-    if (existing?.status === "committed") return json(request, { ...existing.result, duplicate: true, status: "already-created" });
-    if (existing?.status === "running") return json(request, { ok: false, status: "in-progress", clientRequestId: body.clientRequestId }, 409);
+  const existing = store ? await store.get(key, "json") : null;
+  if (existing?.status === "committed") {
+    return json(request, { ...existing.result, duplicate: true, status: "already-created" });
   }
 
   try {
@@ -248,6 +254,16 @@ export async function handleCreateWorkspace(request, env, pathname) {
       const recovered = resultPayload(recoveredRecord, { owner: env.GITHUB_OWNER, repository: env.GITHUB_REPOSITORY }, true);
       if (store) await store.put(key, JSON.stringify({ status: "committed", result: recovered }), { expirationTtl: 604800 });
       return json(request, recovered);
+    }
+
+    if (isActiveWorkspaceCreation(existing)) {
+      return json(request, {
+        ok: false,
+        status: "in-progress",
+        code: "WORKSPACE_CREATION_IN_PROGRESS",
+        message: "Workspace creation is still active. Retry safely in a moment.",
+        clientRequestId: body.clientRequestId
+      }, 409);
     }
 
     if (store) {
