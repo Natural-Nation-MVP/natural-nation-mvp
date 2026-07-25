@@ -104,14 +104,14 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5 6; do
             RESPONSE="$(curl --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
-            if echo "$RESPONSE" | jq -e '.version == "0.7.1" and .capabilities.workspaceCreationRecovery == "canonical-repository" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
-              echo "Cloudflare Worker v0.7.1 and durable workspace recovery verified."
+            if echo "$RESPONSE" | jq -e '.version == "0.7.0" and .capabilities.workspaceCreationRecovery == "canonical-repository" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
+              echo "Cloudflare Worker v0.7.0 and durable workspace recovery verified."
               exit 0
             fi
-            echo "Worker v0.7.1 not ready yet; retrying in 5 seconds."
+            echo "Worker v0.7.0 not ready yet; retrying in 5 seconds."
             sleep 5
           done
-          echo "Cloudflare Worker did not report the v0.7.1 durable recovery contract after deployment."
+          echo "Cloudflare Worker did not report the v0.7.0 durable recovery contract after deployment."
           echo "$RESPONSE"
           exit 1
 
@@ -121,8 +121,8 @@ jobs:
           set -euo pipefail
           HEALTH="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/health)"
           CONFIG="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/configuration)"
-          echo "$HEALTH" | jq -e '.status == "online" and .version == "0.7.1"' >/dev/null
-          echo "$CONFIG" | jq -e '.version == "0.7.1"' >/dev/null
+          echo "$HEALTH" | jq -e '.status == "online" and .version == "0.7.0"' >/dev/null
+          echo "$CONFIG" | jq -e '.version == "0.7.0"' >/dev/null
           echo "$CONFIG" | jq -e '.required.durableWorkspaceRecovery == true' >/dev/null
           echo "$CONFIG" | jq -e '.optionalInfrastructure.recoverySystemOfRecord == "canonical-repository"' >/dev/null
           echo "$CONFIG" | jq -e '.configured == true' >/dev/null
