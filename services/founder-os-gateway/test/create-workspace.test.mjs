@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateWorkspaceCreation } from '../src/routes/create-workspace.js';
+import { findWorkspaceCreationRecovery, validateWorkspaceCreation } from '../src/routes/create-workspace.js';
 
 function request(headers = {}) {
   return new Request('https://gateway.test/v2/workspaces', { method: 'POST', headers });
@@ -67,4 +67,28 @@ test('re-runs safety and governance checks on the Gateway', () => {
     request({ 'x-founder-os-workspace': 'founder-os' })
   );
   assert.ok(blockers.some((item) => item.code === 'WORKSPACE_SAFETY_GATE_BLOCKED'));
+});
+
+test('recovers a committed workspace by the original request ID', () => {
+  const registry = {
+    workspaces: [
+      {
+        workspaceId: 'calendar-pilot',
+        creationEvidence: { clientRequestId: 'workspace-create-test-001' }
+      }
+    ]
+  };
+  assert.equal(findWorkspaceCreationRecovery(registry, 'workspace-create-test-001')?.workspaceId, 'calendar-pilot');
+});
+
+test('does not recover a different workspace request', () => {
+  const registry = {
+    workspaces: [
+      {
+        workspaceId: 'calendar-pilot',
+        creationEvidence: { clientRequestId: 'workspace-create-test-001' }
+      }
+    ]
+  };
+  assert.equal(findWorkspaceCreationRecovery(registry, 'workspace-create-test-002'), null);
 });
