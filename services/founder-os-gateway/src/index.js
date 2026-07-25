@@ -24,17 +24,24 @@ function safeBindingDiagnostics(env) {
 }
 
 export function gatewayConfiguration(env) {
+  const repositoryRecovery = Boolean(env.GITHUB_TOKEN && env.GITHUB_OWNER && env.GITHUB_REPOSITORY && env.GITHUB_BRANCH);
+  const runtimeStore = Boolean(env.FOUNDER_OS_RUNTIME_STORE?.get && env.FOUNDER_OS_RUNTIME_STORE?.put);
   const required = {
     founderAuthentication: Boolean(env.FOUNDER_API_KEY),
     githubToken: Boolean(env.GITHUB_TOKEN),
     githubOwner: Boolean(env.GITHUB_OWNER),
     githubRepository: Boolean(env.GITHUB_REPOSITORY),
     githubBranch: Boolean(env.GITHUB_BRANCH),
-    runtimeStore: Boolean(env.FOUNDER_OS_RUNTIME_STORE?.get && env.FOUNDER_OS_RUNTIME_STORE?.put)
+    durableWorkspaceRecovery: repositoryRecovery
   };
   const providers = {
     openAiProvider: Boolean(env.OPENAI_API_KEY),
     googleProvider: Boolean(env.GOOGLE_AI_API_KEY)
+  };
+  const optionalInfrastructure = {
+    runtimeStore,
+    runtimeStoreAcceleration: runtimeStore,
+    recoverySystemOfRecord: repositoryRecovery ? "canonical-repository" : "unavailable"
   };
   const optionalLegacy = {
     aiCallbackAuthentication: Boolean(env.AI_CALLBACK_TOKEN),
@@ -45,8 +52,9 @@ export function gatewayConfiguration(env) {
     directProviderReady: Object.values(providers).some(Boolean),
     required,
     providers,
+    optionalInfrastructure,
     optionalLegacy,
-    bindings: { ...required, ...providers, ...optionalLegacy }
+    bindings: { ...required, ...providers, runtimeStore, ...optionalLegacy }
   };
 }
 
@@ -69,6 +77,7 @@ function systemRoute(request, env, pathname) {
       capabilities: {
         protectedWorkspaceCreation: "enabled",
         workspaceCreationIdempotency: "durable",
+        workspaceCreationRecovery: "canonical-repository",
         canonicalWorkspaceRegistry: "repository-backed",
         workspaceScaffolding: "enabled",
         blueprintApproval: "canonical-commit-enabled",
