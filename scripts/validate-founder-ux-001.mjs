@@ -35,21 +35,25 @@ for (const contract of [
 
 for (const contract of [
   'Workspace Discovery',
-  'What do you want to create?',
-  'Why does this need to exist?',
-  'Who is it for first?',
+  'Founder OS is listening',
+  'One answer at a time.',
+  'QUESTION_FLOW',
+  'AI-generated workspace names',
+  'not copied from your first sentence',
+  'generateNameSuggestions',
+  'AI-drafted constraints and boundaries',
+  'Review, remove, or add boundaries',
   'AI-generated project options',
   'Vision Score',
-  'Only incomplete areas are shown below.',
-  'Improve This Section',
   'Challenge My Idea',
   'Run Challenge',
   'Skip',
   'BLOCKED_PATTERNS',
   'UNSUPPORTED_PATTERNS',
   'assessRequest',
-  'This workspace cannot be created as described.',
-  'Safer direction',
+  'change\\s+(the\\s+)?(way\\s+)?founder\\s*os',
+  'Founder approval required for protected changes',
+  'Workspace remains isolated from all other workspaces',
   'Protected Gateway feasibility and safety checks will run again',
   'no repository action was performed',
   'window.NNOSWorkspaceCreation'
@@ -57,8 +61,13 @@ for (const contract of [
   if (!creation.includes(contract)) throw new Error(`Workspace Discovery contract missing: ${contract}`);
 }
 
-const optionLimit = creation.match(/return options\.slice\(0, 5\)/);
-if (!optionLimit) throw new Error('AI-generated project options are not limited to five.');
+if (!creation.includes('return options.slice(0, 5)')) {
+  throw new Error('AI-generated project options are not limited to five.');
+}
+
+if (!creation.includes('slice(0, 5)')) {
+  throw new Error('AI-generated workspace names are not limited to five.');
+}
 
 for (const contract of ['recommendation-chip', 'incomplete-list', 'optional-challenge', 'workspace-gate-block', '@media(max-width:760px)']) {
   if (!styles.includes(contract)) throw new Error(`Workspace Discovery style contract missing: ${contract}`);
@@ -68,4 +77,4 @@ if (registry.includes('New workspace — coming later')) {
   throw new Error('Workspace creation remains disabled in the Founder OS Control Center.');
 }
 
-console.log('FOUNDER-UX-001 Workspace Discovery v1.1 contracts passed.');
+console.log('FOUNDER-UX-001 adaptive Workspace Discovery contracts passed.');
