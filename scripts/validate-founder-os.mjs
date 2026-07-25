@@ -1,4 +1,4 @@
-// Sprint #128: explicit stabilization run trigger after Gateway route recovery.
+// Sprint #142: Founder OS protected workspace creation stabilization.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
@@ -130,10 +130,13 @@ assert.equal(orchestrationState.packageId, naturalNation.activePackageId);
 assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(task.status)).length === 1 || orchestrationState.status === 'complete');
 
 assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002'));
-assert(gatewayIndex.includes('const VERSION = "0.6.1"'));
+assert(gatewayIndex.includes('handleCreateWorkspace'));
+assert(gatewayIndex.includes('const VERSION = "0.7.0"'));
+assert(gatewayIndex.includes('protectedWorkspaceCreation: "enabled"'));
 assert(gatewayIndex.includes('canonicalOrchestrationRoute: "enabled"'));
 assert(gatewayIndex.includes('normalizePathname') && gatewayIndex.includes('systemRoute'));
-assert(gatewayIndex.indexOf('systemRoute(request, env, pathname)') < gatewayIndex.indexOf('handleApproveBlueprint(request, env, pathname)'));
+assert(gatewayIndex.indexOf('systemRoute(request, env, pathname)') < gatewayIndex.indexOf('handleCreateWorkspace(request, env, pathname)'));
+assert(gatewayIndex.indexOf('handleCreateWorkspace(request, env, pathname)') < gatewayIndex.indexOf('handleApproveBlueprint(request, env, pathname)'));
 assert(gatewayIndex.includes('repositoryExecution') && gatewayIndex.includes('structuredObservability'));
 assert(nnKs002Route.includes('inspectRepository') && nnKs002Route.includes('approve-nn-ks-002-scope'));
 assert(nnKs002Route.includes('FOUNDER_OS_RUNTIME_STORE') && nnKs002Route.includes('PAYLOAD_HASH_MISMATCH'));
@@ -172,6 +175,7 @@ assert(resultVerification.includes('result?.structured'));
 for (const requirement of ['PROVIDER_REGISTRY', 'FAILOVER_CATEGORIES', 'fallbackUsed', 'attempts', 'QUOTA_EXCEEDED', 'AUTHENTICATION_FAILED', 'OPENAI_API_KEY', 'GOOGLE_AI_API_KEY']) assert(providerAdapters.includes(requirement));
 assert(structuredLog.includes('[REDACTED]') && structuredLog.includes('console.log(JSON.stringify'));
 assert(gatewayAuth.includes('FOUNDER_API_KEY'));
+assert(gatewayAuth.includes('workspace:create'));
 for (const finding of ['Delivered-state false completion', 'No Founder-facing blocked-task recovery', 'Provider quota and failover classification']) assert(resilienceAudit.includes(finding));
 
 console.log('Founder OS validation passed.');

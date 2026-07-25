@@ -30,14 +30,13 @@ for (const contract of ['enableControlCenterCreation', 'window.NNOSActiveWorkspa
 
 for (const contract of [
   'Workspace Discovery', 'Founder OS is listening', 'One answer at a time.', 'QUESTION_FLOW',
-  'AI-generated workspace names', 'not copied from your first sentence', 'generateNameSuggestions',
+  'AI-generated workspace names', 'generateNameSuggestions',
   'AI-drafted constraints and boundaries', 'Review, remove, or add boundaries',
   'AI-generated project options', 'Vision Score', 'Challenge My Idea', 'Run Challenge', 'Skip',
   'BLOCKED_PATTERNS', 'UNSUPPORTED_PATTERNS', 'assessRequest',
   'change\\s+(the\\s+)?(way\\s+)?founder\\s*os',
   'Founder approval required for protected changes', 'Workspace remains isolated from all other workspaces',
-  'Protected Gateway feasibility and safety checks will run again', 'no repository action was performed',
-  'window.NNOSWorkspaceCreation'
+  'The Gateway will authenticate the Founder', 'window.NNOSWorkspaceCreation'
 ]) {
   if (!creation.includes(contract)) throw new Error(`Workspace Discovery contract missing: ${contract}`);
 }
@@ -46,8 +45,8 @@ for (const contract of [
   "localStorage.setItem(DRAFT_KEY, JSON.stringify(state))",
   "localStorage.getItem(DRAFT_KEY)",
   'normalizeState', 'persistState', 'clearDraft',
-  'step: Math.min(5', 'questionIndex: Math.min',
-  'nameSuggestions:', 'selected:', 'challenge:',
+  'step: Math.min(6', 'questionIndex: Math.min',
+  'nameSuggestions:', 'selected:', 'challenge:', 'creation:',
   'It will recover after refresh or browser restart.'
 ]) {
   if (!creation.includes(contract)) throw new Error(`Workspace Discovery persistence contract missing: ${contract}`);
@@ -70,5 +69,6 @@ for (const contract of ['recommendation-chip', 'incomplete-list', 'optional-chal
 }
 
 if (registry.includes('New workspace — coming later')) throw new Error('Workspace creation remains disabled in the Founder OS Control Center.');
+if (creation.includes('no repository action was performed')) throw new Error('The retired placeholder-only creation alert remains in Workspace Discovery.');
 
-console.log('FOUNDER-UX-001 persistence and accessibility contracts passed.');
+console.log('FOUNDER-UX-001 persistence, accessibility, and protected handoff contracts passed.');
