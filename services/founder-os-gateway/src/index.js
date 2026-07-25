@@ -1,5 +1,5 @@
 /*
- * Founder OS Gateway Worker v0.6.1
+ * Founder OS Gateway Worker v0.7.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
  * repository-backed AI orchestration, live workflows, and governed review.
@@ -8,11 +8,12 @@
 import { emptyResponse, errorResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
+import { handleCreateWorkspace } from "./routes/create-workspace.js";
 import { handleFounderApprovalActions } from "./routes/founder-approval-actions.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 
-const VERSION = "0.6.1";
+const VERSION = "0.7.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -66,6 +67,10 @@ function systemRoute(request, env, pathname) {
       environment: "production",
       deployment: "github-managed",
       capabilities: {
+        protectedWorkspaceCreation: "enabled",
+        workspaceCreationIdempotency: "durable",
+        canonicalWorkspaceRegistry: "repository-backed",
+        workspaceScaffolding: "enabled",
         blueprintApproval: "canonical-commit-enabled",
         blueprintApprovalDryRun: "enabled",
         idempotentApprovalRecovery: "enabled",
@@ -110,6 +115,9 @@ export default {
     try {
       const systemResponse = systemRoute(request, env, pathname);
       if (systemResponse) return systemResponse;
+
+      const workspaceCreationResponse = await handleCreateWorkspace(request, env, pathname);
+      if (workspaceCreationResponse) return workspaceCreationResponse;
 
       const approvalResponse = await handleApproveBlueprint(request, env, pathname);
       if (approvalResponse) return approvalResponse;
