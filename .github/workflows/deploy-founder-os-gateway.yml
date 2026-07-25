@@ -49,31 +49,33 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Ensure Founder OS runtime KV namespace
+      - name: Prepare optional Founder OS runtime KV acceleration
         id: runtime-kv
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           namespace_title="founder-os-runtime-store"
           api="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces"
           auth_header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+          namespace_id=""
 
-          list_response="$(curl --fail --silent --show-error -H "$auth_header" "$api?per_page=100")"
-          namespace_id="$(echo "$list_response" | jq -r --arg title "$namespace_title" '.result[] | select(.title == $title) | .id' | head -n 1)"
-
-          if [ -z "$namespace_id" ] || [ "$namespace_id" = "null" ]; then
-            create_response="$(curl --fail --silent --show-error \
-              -X POST \
-              -H "$auth_header" \
-              -H "Content-Type: application/json" \
-              --data "{\"title\":\"${namespace_title}\"}" \
-              "$api")"
-            namespace_id="$(echo "$create_response" | jq -r '.result.id')"
+          if list_response="$(curl --fail --silent --show-error -H "$auth_header" "$api?per_page=100" 2>/dev/null)"; then
+            namespace_id="$(echo "$list_response" | jq -r --arg title "$namespace_title" '.result[] | select(.title == $title) | .id' | head -n 1)"
           fi
 
-          test -n "$namespace_id" && test "$namespace_id" != "null"
-          echo "namespace_id=$namespace_id" >> "$GITHUB_OUTPUT"
-          echo "Founder OS runtime KV namespace is ready."
+          if [ -z "$namespace_id" ] || [ "$namespace_id" = "null" ]; then
+            if create_response="$(curl --fail --silent --show-error -X POST -H "$auth_header" -H "Content-Type: application/json" --data "{\"title\":\"${namespace_title}\"}" "$api" 2>/dev/null)"; then
+              namespace_id="$(echo "$create_response" | jq -r '.result.id')"
+            fi
+          fi
+
+          if [ -n "$namespace_id" ] && [ "$namespace_id" != "null" ]; then
+            echo "namespace_id=$namespace_id" >> "$GITHUB_OUTPUT"
+            echo "Founder OS runtime KV acceleration is ready."
+          else
+            echo "namespace_id=" >> "$GITHUB_OUTPUT"
+            echo "KV acceleration unavailable; canonical repository recovery remains authoritative."
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -82,13 +84,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jq --arg namespace_id "${{ steps.runtime-kv.outputs.namespace_id }}" \
-            '.kv_namespaces = [{"binding":"FOUNDER_OS_RUNTIME_STORE","id":$namespace_id}]' \
-            wrangler.jsonc > wrangler.deploy.json
-          jq -e '.kv_namespaces[] | select(.binding == "FOUNDER_OS_RUNTIME_STORE" and (.id | length > 0))' wrangler.deploy.json >/dev/null
-          echo "Production Worker configuration includes FOUNDER_OS_RUNTIME_STORE."
+          namespace_id="${{ steps.runtime-kv.outputs.namespace_id }}"
+          if [ -n "$namespace_id" ]; then
+            jq --arg namespace_id "$namespace_id" '.kv_namespaces = [{"binding":"FOUNDER_OS_RUNTIME_STORE","id":$namespace_id}]' wrangler.jsonc > wrangler.deploy.json
+            jq -e '.kv_namespaces[] | select(.binding == "FOUNDER_OS_RUNTIME_STORE" and (.id | length > 0))' wrangler.deploy.json >/dev/null
+            echo "Production Worker configuration includes optional FOUNDER_OS_RUNTIME_STORE acceleration."
+          else
+            cp wrangler.jsonc wrangler.deploy.json
+            echo "Production Worker configuration uses canonical repository recovery without KV acceleration."
+          fi
 
-      - name: Deploy Worker with durable runtime binding
+      - name: Deploy Worker with durable recovery
         run: npx wrangler deploy --config wrangler.deploy.json
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -98,28 +104,29 @@ jobs:
         run: |
           for attempt in 1 2 3 4 5 6; do
             RESPONSE="$(curl --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
-            if echo "$RESPONSE" | jq -e '.version == "0.6.1" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
-              echo "Cloudflare Worker v0.6.1 and canonical orchestration capability verified."
+            if echo "$RESPONSE" | jq -e '.version == "0.7.1" and .capabilities.workspaceCreationRecovery == "canonical-repository" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
+              echo "Cloudflare Worker v0.7.1 and durable workspace recovery verified."
               exit 0
             fi
-            echo "Worker v0.6.1 not ready yet; retrying in 5 seconds."
+            echo "Worker v0.7.1 not ready yet; retrying in 5 seconds."
             sleep 5
           done
-          echo "Cloudflare Worker did not report the v0.6.1 contract after deployment."
+          echo "Cloudflare Worker did not report the v0.7.1 durable recovery contract after deployment."
           echo "$RESPONSE"
           exit 1
 
-      - name: Verify Founder OS health and KV binding
+      - name: Verify Founder OS health and durable recovery
         shell: bash
         run: |
           set -euo pipefail
           HEALTH="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/health)"
           CONFIG="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/configuration)"
-          echo "$HEALTH" | jq -e '.status == "online" and .version == "0.6.1"' >/dev/null
-          echo "$CONFIG" | jq -e '.version == "0.6.1"' >/dev/null
-          echo "$CONFIG" | jq -e '.required.runtimeStore == true' >/dev/null
+          echo "$HEALTH" | jq -e '.status == "online" and .version == "0.7.1"' >/dev/null
+          echo "$CONFIG" | jq -e '.version == "0.7.1"' >/dev/null
+          echo "$CONFIG" | jq -e '.required.durableWorkspaceRecovery == true' >/dev/null
+          echo "$CONFIG" | jq -e '.optionalInfrastructure.recoverySystemOfRecord == "canonical-repository"' >/dev/null
           echo "$CONFIG" | jq -e '.configured == true' >/dev/null
-          echo "Founder OS live health and durable KV binding verified."
+          echo "Founder OS live health and canonical durable recovery verified."
 
       - name: Verify canonical orchestration endpoint
         shell: bash
@@ -169,5 +176,3 @@ jobs:
           echo "$RESPONSE" | grep -q '"workspaceId":"workspace-natural-nation"'
           echo "$RESPONSE" | grep -q '"persisted":true'
           echo "NN-KS-002 live workflow endpoint and persistence verified."
-
-# Redeploy trigger: 2026-07-23 Founder-authorized Gateway refresh.
