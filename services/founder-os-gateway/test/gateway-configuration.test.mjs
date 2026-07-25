@@ -23,7 +23,10 @@ test("direct-provider deployments are configured without optional legacy callbac
 
   assert.equal(configuration.configured, true);
   assert.equal(configuration.directProviderReady, true);
-  assert.equal(configuration.required.runtimeStore, true);
+  assert.equal(configuration.required.durableWorkspaceRecovery, true);
+  assert.equal(configuration.optionalInfrastructure.runtimeStore, true);
+  assert.equal(configuration.optionalInfrastructure.runtimeStoreAcceleration, true);
+  assert.equal(configuration.optionalInfrastructure.recoverySystemOfRecord, "canonical-repository");
   assert.equal(configuration.optionalLegacy.aiCallbackAuthentication, false);
   assert.equal(configuration.optionalLegacy.gatewayPublicUrl, false);
 });
@@ -44,15 +47,20 @@ test("missing canonical repository bindings keeps the gateway unconfigured", () 
 
   assert.equal(configuration.configured, false);
   assert.equal(configuration.directProviderReady, true);
+  assert.equal(configuration.required.durableWorkspaceRecovery, false);
+  assert.equal(configuration.optionalInfrastructure.recoverySystemOfRecord, "unavailable");
 });
 
-test("missing durable runtime store keeps live workflow deployment unconfigured", () => {
+test("missing runtime KV keeps canonical recovery configured without acceleration", () => {
   const { FOUNDER_OS_RUNTIME_STORE, ...withoutRuntimeStore } = requiredBindings;
   const configuration = gatewayConfiguration({
     ...withoutRuntimeStore,
     GOOGLE_AI_API_KEY: "google-test"
   });
 
-  assert.equal(configuration.configured, false);
-  assert.equal(configuration.required.runtimeStore, false);
+  assert.equal(configuration.configured, true);
+  assert.equal(configuration.required.durableWorkspaceRecovery, true);
+  assert.equal(configuration.optionalInfrastructure.runtimeStore, false);
+  assert.equal(configuration.optionalInfrastructure.runtimeStoreAcceleration, false);
+  assert.equal(configuration.optionalInfrastructure.recoverySystemOfRecord, "canonical-repository");
 });
