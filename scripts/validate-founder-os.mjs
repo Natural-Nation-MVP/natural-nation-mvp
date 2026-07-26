@@ -179,7 +179,7 @@ assert(gatewayAuth.includes('FOUNDER_API_KEY'));
 assert(gatewayAuth.includes('workspace:create'));
 for (const finding of ['Delivered-state false completion', 'No Founder-facing blocked-task recovery', 'Provider quota and failover classification']) assert(resilienceAudit.includes(finding));
 
-for (const contract of ['crypto.randomUUID', 'workspaceKey', 'displayName', 'requestFingerprint', 'PAYLOAD_HASH_MISMATCH']) {
+for (const contract of ['crypto.randomUUID', 'workspaceKey', 'displayName', 'payloadFingerprint', 'IDEMPOTENCY_PAYLOAD_MISMATCH']) {
   assert(createWorkspaceRoute.includes(contract), `FOUNDER-WS-002 identity contract missing: ${contract}`);
 }
 assert(createWorkspaceRoute.includes('workspaceId !== proposedId') || createWorkspaceRoute.includes('workspaceKey'));
