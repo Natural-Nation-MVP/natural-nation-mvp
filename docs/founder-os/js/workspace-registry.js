@@ -1,5 +1,6 @@
 (() => {
-  const registryPath = window.NNOSPaths.asset('config/workspace-registry.json?v=1.6.0');
+  const managementRegistryPath = window.NNOSPaths.asset('config/workspace-registry.json?v=1.6.1');
+  const canonicalRegistryPath = window.NNOSPaths.asset('registry/workspaces.json?v=2.0.1');
   let registry = null;
 
   const $ = (selector) => document.querySelector(selector);
@@ -77,8 +78,8 @@
 
   function pageLabels(workspace, target) {
     const common = {
-      mission: workspace.id === 'natural-nation' ? ['Product Overview', 'See the current objective, live task, project health, and safest next action.'] : ['Founder OS Overview', 'See what is working, what is incomplete, and what needs your attention.'],
-      knowledge: workspace.id === 'natural-nation' ? ['Product Records', 'Find approved Natural Nation decisions, plans, assets, and implementation records.'] : ['System Records', 'Find Founder OS decisions, operating rules, approvals, and release records.'],
+      mission: workspace.id === 'natural-nation' ? ['Product Overview', 'See the current objective, live task, project health, and safest next action.'] : ['Workspace Overview', 'See the workspace foundation, current status, and recommended next action.'],
+      knowledge: workspace.id === 'natural-nation' ? ['Product Records', 'Find approved Natural Nation decisions, plans, assets, and implementation records.'] : ['Workspace Records', 'Find approved workspace decisions, plans, assets, and implementation records.'],
       repo: ['Code Status', 'Check whether the repository, validation, and deployment records are healthy.'],
       ai: workspace.id === 'natural-nation' ? ['Assigned AI Team', 'See which AI role owns the current Natural Nation task and what happens next.'] : ['AI Team', 'See which AI roles are available, assigned, blocked, or waiting for approval.']
     };
@@ -107,7 +108,7 @@
     const orientation = document.createElement('article');
     orientation.className = 'glass-panel workspace-orientation';
     orientation.dataset.homeOrientation = '';
-    orientation.innerHTML = `<div><div class="eyebrow">How this system is organized</div><div class="section-title">Choose the kind of work you need to do</div><p class="muted">Founder OS manages the work. Natural Nation is the product being built. They are connected, but they are not the same thing.</p></div><div class="orientation-grid"><div class="orientation-item"><strong>Founder OS</strong><span>Manage AI assignments, approvals, code health, records, and releases.</span></div><div class="orientation-arrow" aria-hidden="true">→</div><div class="orientation-item"><strong>Natural Nation</strong><span>Review and build the website, wellness app, Duey, and production assets.</span></div></div>`;
+    orientation.innerHTML = `<div><div class="eyebrow">How this system is organized</div><div class="section-title">Choose the kind of work you need to do</div><p class="muted">Founder OS manages the work. Product workspaces hold the products being built. They are connected, but they are not the same thing.</p></div><div class="orientation-grid"><div class="orientation-item"><strong>Founder OS</strong><span>Manage AI assignments, approvals, code health, records, and releases.</span></div><div class="orientation-arrow" aria-hidden="true">→</div><div class="orientation-item"><strong>Product Workspaces</strong><span>Review and build each independent product, including Natural Nation and founder-created workspaces.</span></div></div>`;
     list.parentNode.insertBefore(orientation, list);
   }
 
@@ -130,7 +131,7 @@
     const subtitle = $('[data-workspace-subtitle]');
     const badge = $('[data-workspace-badge]');
     if (title) title.textContent = `${greeting()}, Dewane`;
-    if (subtitle) subtitle.textContent = 'Choose Founder OS to manage the system or Natural Nation to work on the product.';
+    if (subtitle) subtitle.textContent = 'Choose Founder OS to manage the system or open a product workspace.';
     if (badge) badge.textContent = 'Founder OS Home';
     showExecutionBar('none');
     document.body.dataset.activeWorkspace = 'registry';
@@ -147,24 +148,106 @@
     showExecutionBar(target);
   }
 
+  function deriveModules(workspaceId) {
+    if (workspaceId === 'founder-os') return [
+      { target: 'mission', label: 'Overview', group: 'Start' },
+      { target: 'ai', label: 'AI Team', group: 'Operations' },
+      { target: 'repo', label: 'Code Status', group: 'Operations' },
+      { target: 'knowledge', label: 'System Records', group: 'Records' }
+    ];
+    if (workspaceId === 'natural-nation') return [
+      { target: 'mission', label: 'Product Overview', group: 'Start' },
+      { target: 'discovery', label: 'Confirmed Direction', group: 'Planning' },
+      { target: 'blueprint', label: 'Approved Plan', group: 'Planning' },
+      { target: 'build', label: 'Build Work', group: 'Execution' },
+      { target: 'ai', label: 'Assigned AI Team', group: 'Execution' },
+      { target: 'repo', label: 'Code Status', group: 'Execution' },
+      { target: 'knowledge', label: 'Product Records', group: 'Records' }
+    ];
+    return [
+      { target: 'mission', label: 'Overview', group: 'Start' },
+      { target: 'ai', label: 'AI Team', group: 'Execution' },
+      { target: 'repo', label: 'Code Status', group: 'Execution' },
+      { target: 'knowledge', label: 'Workspace Records', group: 'Records' }
+    ];
+  }
+
+  function mergeRegistries(management, canonical) {
+    const managementById = new Map((management?.workspaces || []).map((item) => [item.id, item]));
+    const canonicalWorkspaces = Array.isArray(canonical?.workspaces) ? canonical.workspaces : [];
+    const merged = [];
+
+    const founderOS = managementById.get('founder-os');
+    if (founderOS) merged.push(founderOS);
+
+    for (const item of canonicalWorkspaces) {
+      const id = item.workspaceId;
+      const base = managementById.get(id);
+      if (base) {
+        merged.push({ ...base, workspaceKey: item.workspaceKey || id });
+        continue;
+      }
+      const isNaturalNation = id === 'natural-nation';
+      const displayName = item.displayName || item.workspaceKey || id;
+      merged.push({
+        number: item.sequence ?? merged.length,
+        id,
+        workspaceKey: item.workspaceKey || id,
+        name: displayName,
+        description: item.description || 'Founder-created workspace registered through Founder OS.',
+        purpose: isNaturalNation ? 'Use this area to decide what Natural Nation should become and move approved product work into production.' : 'Use this area to plan, review, and build this independent product workspace.',
+        type: isNaturalNation ? 'Product Workspace' : 'Founder-Created Workspace',
+        roleLabel: isNaturalNation ? 'Builds the product' : 'Builds an independent product',
+        stage: item.status === 'active' ? 'Active' : 'Foundation',
+        status: item.status || 'foundation',
+        health: item.health?.summary || 'Workspace foundation initialized',
+        version: item.lifecycleStatus || 'MVP',
+        progress: item.status === 'active' ? 52 : 15,
+        progressLabel: item.status === 'active' ? 'Active workspace' : 'Foundation initialized',
+        lastActivity: item.updatedAt || item.createdAt || '',
+        pendingApprovals: 0,
+        nextAction: item.status === 'active' ? 'Review current product status' : 'Review the approved workspace foundation and define the first build package',
+        primaryAction: `Open ${displayName}`,
+        resumeWorkspace: 'mission',
+        modules: deriveModules(id)
+      });
+    }
+
+    const activeWorkspaces = merged.length;
+    return {
+      registryVersion: canonical?.schemaVersion || management?.registryVersion || '2.0.0',
+      defaultWorkspaceId: management?.defaultWorkspaceId || 'founder-os',
+      commandCenterMetrics: {
+        ...(management?.commandCenterMetrics || {}),
+        activeWorkspaces
+      },
+      workspaces: merged
+    };
+  }
+
   function renderRegistry() {
     const list = $('[data-workspace-registry-list]');
     const count = $('[data-workspace-registry-count]');
     const status = $('[data-workspace-registry-status]');
     if (!list || !registry) return;
     if (count) count.textContent = `${registry.workspaces.length} areas`;
-    if (status) status.textContent = 'Select the management platform or the Natural Nation product workspace.';
+    if (status) status.textContent = 'Select Founder OS or any registered product workspace.';
     list.innerHTML = registry.workspaces.map((workspace, index) => {
       const approvals = workspace.pendingApprovals > 0 ? `${workspace.pendingApprovals} awaiting approval` : 'No approvals waiting';
-      const isProduct = workspace.id === 'natural-nation';
+      const isProduct = workspace.id !== 'founder-os';
       return `<article class="workspace-card card-enter ${isProduct ? 'product-workspace-card' : 'platform-workspace-card'}" data-workspace-id="${escapeHtml(workspace.id)}" style="--card-order:${index}"><div class="workspace-card-purpose">${escapeHtml(workspace.roleLabel || workspace.type)}</div><div class="workspace-card-top"><div><div class="eyebrow">${escapeHtml(workspace.type)}</div><h2>${escapeHtml(workspace.name)}</h2></div><span class="status">${escapeHtml(workspace.stage)}</span></div><p>${escapeHtml(workspace.description)}</p><div class="workspace-use-case"><span>Use this area to</span><strong>${escapeHtml(workspace.purpose)}</strong></div><div class="workspace-progress" aria-label="${escapeHtml(workspace.progressLabel || `${workspace.progress}% complete`)}"><div class="workspace-progress-copy"><span>Current state</span><strong>${escapeHtml(workspace.progressLabel || `${workspace.progress}%`)}</strong></div><div class="workspace-progress-track"><span style="width:${Number(workspace.progress) || 0}%"></span></div></div><div class="workspace-next-step"><span>Recommended next step</span><strong>${escapeHtml(workspace.nextAction)}</strong></div><div class="workspace-card-footer"><span>${escapeHtml(approvals)}</span><span>${escapeHtml(workspace.health)}</span></div><button class="generate" type="button" data-resume-workspace="${escapeHtml(workspace.id)}">${escapeHtml(workspace.primaryAction || `Open ${workspace.name}`)}</button></article>`;
     }).join('');
   }
 
   async function loadRegistry() {
-    const response = await fetch(`${registryPath}&verify=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Workspace Registry returned ${response.status}`);
-    registry = await response.json();
+    const [managementResponse, canonicalResponse] = await Promise.all([
+      fetch(`${managementRegistryPath}&verify=${Date.now()}`, { cache: 'no-store' }),
+      fetch(`${canonicalRegistryPath}&verify=${Date.now()}`, { cache: 'no-store' })
+    ]);
+    if (!managementResponse.ok) throw new Error(`Management Workspace Registry returned ${managementResponse.status}`);
+    if (!canonicalResponse.ok) throw new Error(`Canonical Workspace Registry returned ${canonicalResponse.status}`);
+    const [management, canonical] = await Promise.all([managementResponse.json(), canonicalResponse.json()]);
+    registry = mergeRegistries(management, canonical);
     renderRegistry();
     return registry;
   }
@@ -202,6 +285,11 @@
     await loadRegistry();
     const workspace = registry.workspaces.find((item) => item.id === 'natural-nation');
     if (workspace) openWorkspace(workspace);
+  });
+
+  window.addEventListener('founder-os:workspace-created', async () => {
+    await loadRegistry();
+    activateRegistry();
   });
 
   loadRegistry().then(activateRegistry).catch((error) => {
