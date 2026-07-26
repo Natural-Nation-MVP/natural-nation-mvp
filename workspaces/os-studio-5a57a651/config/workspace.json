@@ -1,0 +1,73 @@
+{
+  "workspaceId": "ws_b79fd264-341c-413c-867f-998a5a57a651",
+  "workspaceKey": "os-studio-5a57a651",
+  "displayName": "OS Studio",
+  "sequence": 3,
+  "workspaceType": "founder_created_product",
+  "description": "OS Studio will help Small businesses grow a business. It will begin as a internal tool, with early success defined as production ready assets.",
+  "status": "foundation",
+  "lifecycleStatus": "created",
+  "ownerType": "founder",
+  "objectives": [
+    "Grow a business",
+    "production ready assets"
+  ],
+  "constraints": [
+    "Founder approval required for protected changes",
+    "Workspace remains isolated from all other workspaces",
+    "MVP scope before advanced automation"
+  ],
+  "roadmap": [
+    "M1: Discovery & Foundation",
+    "M2: Core Experience",
+    "M3: Founder Pilot"
+  ],
+  "isolation": {
+    "namespace": "workspace:ws_b79fd264-341c-413c-867f-998a5a57a651",
+    "dataBoundary": "ws_b79fd264-341c-413c-867f-998a5a57a651-owned application and product data",
+    "assetBoundary": "workspaces/os-studio-5a57a651/assets/",
+    "executionBoundary": "ws_b79fd264-341c-413c-867f-998a5a57a651-scoped projects, packages, tasks, releases, and maintenance",
+    "knowledgeBoundary": "workspaces/os-studio-5a57a651/knowledge/",
+    "deliverableBoundary": "workspace:ws_b79fd264-341c-413c-867f-998a5a57a651:deliverables"
+  },
+  "locations": {
+    "source": "workspaces/os-studio-5a57a651/app/",
+    "knowledge": "workspaces/os-studio-5a57a651/knowledge/",
+    "assets": "workspaces/os-studio-5a57a651/assets/",
+    "deliverables": "workspace:ws_b79fd264-341c-413c-867f-998a5a57a651:deliverables"
+  },
+  "governance": {
+    "approvalPolicyRef": "docs/founder-os/FOS-GOVERNANCE-001.md",
+    "protectedBoundaryRef": "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary",
+    "workflow": "Art → Codex → Gemini → GPose → Founder"
+  },
+  "capabilities": [
+    "project.create",
+    "project.manage",
+    "workflow.execute",
+    "ai-team.configure",
+    "approval.request",
+    "deliverable.produce",
+    "release.manage",
+    "metrics.report"
+  ],
+  "health": {
+    "state": "foundation",
+    "summary": "Workspace created and awaiting its first approved build package."
+  },
+  "repository": {
+    "strategy": "canonical-monorepo",
+    "name": "os-studio-mvp",
+    "root": "workspaces/os-studio-5a57a651/"
+  },
+  "creationEvidence": {
+    "clientRequestId": "workspace-create-da2876d1-43e1-419e-a8ee-c912e7ba37a3",
+    "payloadFingerprint": "6a63c7c756f96587392eda3e61c02352d50eea21ffde582720a3effb47017f02",
+    "actor": "founder",
+    "sourceWorkspaceId": "founder-os",
+    "recoveryMode": "canonical-repository",
+    "createdAt": "2026-07-26T09:39:44.772Z"
+  },
+  "createdAt": "2026-07-26T09:39:44.772Z",
+  "updatedAt": "2026-07-26T09:39:44.772Z"
+}

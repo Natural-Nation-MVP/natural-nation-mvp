@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "2.0.0",
+  "workspaceId": "ws_b79fd264-341c-413c-867f-998a5a57a651",
+  "workspaceKey": "os-studio-5a57a651",
+  "name": "OS Studio",
+  "purpose": "OS Studio will help Small businesses grow a business. It will begin as a internal tool, with early success defined as production ready assets.",
+  "objectives": [
+    "Grow a business",
+    "production ready assets"
+  ],
+  "constraints": [
+    "Founder approval required for protected changes",
+    "Workspace remains isolated from all other workspaces",
+    "MVP scope before advanced automation"
+  ],
+  "roadmap": [
+    "M1: Discovery & Foundation",
+    "M2: Core Experience",
+    "M3: Founder Pilot"
+  ],
+  "selectedAreas": [
+    "Mobile App",
+    "Web Platform",
+    "AI Assistant"
+  ],
+  "status": "Founder Approved",
+  "approvedAt": "2026-07-26T09:39:44.772Z"
+}

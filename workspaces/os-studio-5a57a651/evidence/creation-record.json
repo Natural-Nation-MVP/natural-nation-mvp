@@ -1,0 +1,8 @@
+{
+  "clientRequestId": "workspace-create-da2876d1-43e1-419e-a8ee-c912e7ba37a3",
+  "payloadFingerprint": "6a63c7c756f96587392eda3e61c02352d50eea21ffde582720a3effb47017f02",
+  "actor": "founder",
+  "sourceWorkspaceId": "founder-os",
+  "recoveryMode": "canonical-repository",
+  "createdAt": "2026-07-26T09:39:44.772Z"
+}
