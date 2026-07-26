@@ -42,7 +42,7 @@ const files = await Promise.all([
   read('docs/founder-os/reports/FOUNDER-OS-RESILIENCE-AUDIT-2026-07-16.md'),
   read('services/founder-os-gateway/src/lib/result-verification.js'),
   read('services/founder-os-gateway/src/routes/nn-ks-002.js'),
-  read('services/founder-os-gateway/src/routes/create-workspace.js')
+  read('services/founder-os-gateway/src/routes/create-workspace-v2.js')
 ]);
 
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
@@ -131,13 +131,13 @@ assert.equal(orchestrationState.packageId, naturalNation.activePackageId);
 assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(task.status)).length === 1 || orchestrationState.status === 'complete');
 
 assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002'));
-assert(gatewayIndex.includes('handleCreateWorkspace'));
+assert(gatewayIndex.includes('handleCreateWorkspaceV2'));
 assert(gatewayIndex.includes('const VERSION = "0.8.0"'));
 assert(gatewayIndex.includes('protectedWorkspaceCreation: "enabled"'));
 assert(gatewayIndex.includes('canonicalOrchestrationRoute: "enabled"'));
 assert(gatewayIndex.includes('normalizePathname') && gatewayIndex.includes('systemRoute'));
-assert(gatewayIndex.indexOf('systemRoute(request, env, pathname)') < gatewayIndex.indexOf('handleCreateWorkspace(request, env, pathname)'));
-assert(gatewayIndex.indexOf('handleCreateWorkspace(request, env, pathname)') < gatewayIndex.indexOf('handleApproveBlueprint(request, env, pathname)'));
+assert(gatewayIndex.indexOf('systemRoute(request, env, pathname)') < gatewayIndex.indexOf('handleCreateWorkspaceV2(request, env, pathname)'));
+assert(gatewayIndex.indexOf('handleCreateWorkspaceV2(request, env, pathname)') < gatewayIndex.indexOf('handleApproveBlueprint(request, env, pathname)'));
 assert(gatewayIndex.includes('repositoryExecution') && gatewayIndex.includes('structuredObservability'));
 assert(nnKs002Route.includes('inspectRepository') && nnKs002Route.includes('approve-nn-ks-002-scope'));
 assert(nnKs002Route.includes('FOUNDER_OS_RUNTIME_STORE') && nnKs002Route.includes('PAYLOAD_HASH_MISMATCH'));
