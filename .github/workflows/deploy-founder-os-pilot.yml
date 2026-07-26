@@ -53,12 +53,22 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           MERGE_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
           rm -rf _site
           mkdir _site
           cp docs/index.html _site/index.html
           cp -R docs/founder-os _site/founder-os
           cp -R docs/execution-packages _site/execution-packages
           cp -R docs/orchestration _site/orchestration
+
+          # Prove the published artifact contains the canonical registry and
+          # the runtime that reads it. This prevents a successful deployment
+          # from silently publishing only the legacy two-card registry.
+          test -f _site/founder-os/registry/workspaces.json
+          jq -e '.schemaVersion == "2.0.0" and (.workspaces | type == "array")' _site/founder-os/registry/workspaces.json >/dev/null
+          jq -e '.workspaces[] | select(.workspaceId | startswith("ws_"))' _site/founder-os/registry/workspaces.json >/dev/null
+          grep -q "registry/workspaces.json" _site/founder-os/js/workspace-registry.js
+          grep -q "mergeRegistries" _site/founder-os/js/workspace-registry.js
 
           COMMIT_SUBJECT="$(git log -1 --pretty=%s)"
           PR_NUMBER="$(printf '%s' "$COMMIT_SUBJECT" | sed -nE 's/^Merge pull request #([0-9]+).*/\1/p')"
@@ -92,15 +102,17 @@ jobs:
           EOF
           fi
 
-          # Cache-bust the Founder UX runtime on both supported entry routes.
-          # This prevents a previously cached workspace-registry.js from enabling
-          # the button without loading workspace-creation.js and its click handler.
+          # Cache-bust every supported Founder OS shell with the exact deploy
+          # commit so browsers cannot keep the previous hardcoded registry UI.
           for shell in _site/index.html _site/founder-os/index.html; do
             if [ -f "$shell" ]; then
               sed -i "s/founder-ux-001/founder-ux-001-${MERGE_SHA}/g" "$shell"
+              sed -i "s/founder-ws-003/founder-ws-003-${MERGE_SHA}/g" "$shell"
               sed -i 's/root-v1/root-v2/g' "$shell"
             fi
           done
+
+          grep -q "workspace-registry.js?v=founder-ws-003-${MERGE_SHA}" _site/founder-os/index.html
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
