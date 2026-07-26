@@ -41,7 +41,8 @@ const files = await Promise.all([
   read('services/founder-os-gateway/src/lib/http.js'),
   read('docs/founder-os/reports/FOUNDER-OS-RESILIENCE-AUDIT-2026-07-16.md'),
   read('services/founder-os-gateway/src/lib/result-verification.js'),
-  read('services/founder-os-gateway/src/routes/nn-ks-002.js')
+  read('services/founder-os-gateway/src/routes/nn-ks-002.js'),
+  read('services/founder-os-gateway/src/routes/create-workspace.js')
 ]);
 
 const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, processingStatus, dispatchBridge,
@@ -49,7 +50,7 @@ const [html, registry, app, workspaceRegistry, moduleLoader, canonicalBuild, pro
   taskDetails, taskDetailsStyles, repositoryActions, repositoryActionsStyles, runtimeState, workspaceFlow,
   agentRegistry, orchestrationState, gatewayIndex, gatewayRoute, gatewayTransaction, providerAdapters,
   providerContracts, githubLibrary, structuredLog, gatewayAuth, gatewayHttp, resilienceAudit,
-  resultVerification, nnKs002Route] = files;
+  resultVerification, nnKs002Route, createWorkspaceRoute] = files;
 
 const scripts = [...html.matchAll(/<script\s+src="([^"]+)"/g)].map((match) => match[1].split('?')[0]);
 assert.equal(new Set(scripts).size, scripts.length, 'Each runtime script must load once.');
@@ -131,7 +132,7 @@ assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(t
 
 assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002'));
 assert(gatewayIndex.includes('handleCreateWorkspace'));
-assert(gatewayIndex.includes('const VERSION = "0.7.0"'));
+assert(gatewayIndex.includes('const VERSION = "0.8.0"'));
 assert(gatewayIndex.includes('protectedWorkspaceCreation: "enabled"'));
 assert(gatewayIndex.includes('canonicalOrchestrationRoute: "enabled"'));
 assert(gatewayIndex.includes('normalizePathname') && gatewayIndex.includes('systemRoute'));
@@ -177,5 +178,10 @@ assert(structuredLog.includes('[REDACTED]') && structuredLog.includes('console.l
 assert(gatewayAuth.includes('FOUNDER_API_KEY'));
 assert(gatewayAuth.includes('workspace:create'));
 for (const finding of ['Delivered-state false completion', 'No Founder-facing blocked-task recovery', 'Provider quota and failover classification']) assert(resilienceAudit.includes(finding));
+
+for (const contract of ['crypto.randomUUID', 'workspaceKey', 'displayName', 'requestFingerprint', 'PAYLOAD_HASH_MISMATCH']) {
+  assert(createWorkspaceRoute.includes(contract), `FOUNDER-WS-002 identity contract missing: ${contract}`);
+}
+assert(createWorkspaceRoute.includes('workspaceId !== proposedId') || createWorkspaceRoute.includes('workspaceKey'));
 
 console.log('Founder OS validation passed.');
