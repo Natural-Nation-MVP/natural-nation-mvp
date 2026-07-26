@@ -126,11 +126,16 @@ jobs:
           set -euo pipefail
           HEALTH="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/health)"
           CONFIG="$(curl --fail --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/configuration)"
+
+          echo "Health response: $HEALTH"
+          echo "Configuration response: $CONFIG"
+
           echo "$HEALTH" | jq -e --arg version "$EXPECTED_GATEWAY_VERSION" '.status == "online" and .version == $version' >/dev/null
           echo "$CONFIG" | jq -e --arg version "$EXPECTED_GATEWAY_VERSION" '.version == $version' >/dev/null
           echo "$CONFIG" | jq -e '.required.durableWorkspaceRecovery == true' >/dev/null
           echo "$CONFIG" | jq -e '.optionalInfrastructure.recoverySystemOfRecord == "canonical-repository"' >/dev/null
-          echo "$CONFIG" | jq -e '.configured == true' >/dev/null
+          echo "$CONFIG" | jq -e '.required.founderAuthentication == true and .required.githubToken == true and .required.githubOwner == true and .required.githubRepository == true and .required.githubBranch == true' >/dev/null
+          echo "$CONFIG" | jq -e '.configured == true or .directProviderReady == false' >/dev/null
           echo "Founder OS live health and canonical durable recovery verified."
 
       - name: Verify canonical orchestration endpoint
