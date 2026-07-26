@@ -1,10 +1,16 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "registryId": "founder-os-workspace-registry",
-  "updatedAt": "2026-07-25T05:08:54.123Z",
+  "updatedAt": "2026-07-26T09:20:00.000Z",
+  "identityModel": {
+    "workspaceId": "immutable globally unique identity",
+    "workspaceKey": "unique human-readable routing and repository key",
+    "displayName": "non-unique user-facing name"
+  },
   "workspaces": [
     {
       "workspaceId": "natural-nation",
+      "workspaceKey": "natural-nation",
       "displayName": "Natural Nation",
       "sequence": 1,
       "workspaceType": "digital_wellness_product",
@@ -49,6 +55,7 @@
     },
     {
       "workspaceId": "os-studio",
+      "workspaceKey": "os-studio",
       "displayName": "OS Studio",
       "sequence": 2,
       "workspaceType": "founder_created_product",
