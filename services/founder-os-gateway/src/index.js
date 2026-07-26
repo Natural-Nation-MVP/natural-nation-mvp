@@ -1,5 +1,5 @@
 /*
- * Founder OS Gateway Worker v0.8.0
+ * Founder OS Gateway Worker v0.9.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
  * repository-backed AI orchestration, live workflows, and governed review.
@@ -12,8 +12,9 @@ import { handleCreateWorkspaceV2 } from "./routes/create-workspace-v2.js";
 import { handleFounderApprovalActions } from "./routes/founder-approval-actions.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
+import { handleWorkspaceLifecycle } from "./routes/workspace-lifecycle.js";
 
-const VERSION = "0.8.0";
+const VERSION = "0.9.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -80,9 +81,14 @@ function systemRoute(request, env, pathname) {
         workspaceCreationRecovery: "canonical-repository",
         immutableWorkspaceIds: "uuid",
         duplicateWorkspaceDisplayNames: "enabled",
+        probableDuplicateWorkspaceConfirmation: "enabled",
         collisionSafeWorkspaceKeys: "enabled",
         canonicalWorkspaceRegistry: "repository-backed",
         workspaceScaffolding: "enabled",
+        workspaceArchiveRestore: "enabled",
+        workspaceSoftDelete: "enabled",
+        workspacePurgeGovernance: "enabled",
+        workspaceLifecycleAudit: "repository-backed",
         blueprintApproval: "canonical-commit-enabled",
         blueprintApprovalDryRun: "enabled",
         idempotentApprovalRecovery: "enabled",
@@ -130,6 +136,9 @@ export default {
 
       const workspaceCreationResponse = await handleCreateWorkspaceV2(request, env, pathname);
       if (workspaceCreationResponse) return workspaceCreationResponse;
+
+      const workspaceLifecycleResponse = await handleWorkspaceLifecycle(request, env, pathname);
+      if (workspaceLifecycleResponse) return workspaceLifecycleResponse;
 
       const approvalResponse = await handleApproveBlueprint(request, env, pathname);
       if (approvalResponse) return approvalResponse;
