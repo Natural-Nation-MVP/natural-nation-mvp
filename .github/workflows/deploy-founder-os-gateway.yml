@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  EXPECTED_GATEWAY_VERSION: "0.7.1"
+  EXPECTED_GATEWAY_VERSION: "0.8.0"
 
 jobs:
   validate-and-deploy:
@@ -109,14 +109,14 @@ jobs:
           set -euo pipefail
           for attempt in 1 2 3 4 5 6; do
             RESPONSE="$(curl --silent --show-error https://founder-os-gateway.dmoseley1024.workers.dev/version || true)"
-            if echo "$RESPONSE" | jq -e --arg version "$EXPECTED_GATEWAY_VERSION" '.version == $version and .capabilities.workspaceCreationRecovery == "canonical-repository" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
-              echo "Cloudflare Worker v${EXPECTED_GATEWAY_VERSION} and durable workspace recovery verified."
+            if echo "$RESPONSE" | jq -e --arg version "$EXPECTED_GATEWAY_VERSION" '.version == $version and .capabilities.workspaceCreationRecovery == "canonical-repository" and .capabilities.immutableWorkspaceIds == "uuid" and .capabilities.duplicateWorkspaceDisplayNames == "enabled" and .capabilities.canonicalOrchestrationRoute == "enabled"' >/dev/null 2>&1; then
+              echo "Cloudflare Worker v${EXPECTED_GATEWAY_VERSION} and stable workspace identities verified."
               exit 0
             fi
             echo "Worker v${EXPECTED_GATEWAY_VERSION} not ready yet; retrying in 5 seconds."
             sleep 5
           done
-          echo "Cloudflare Worker did not report the v${EXPECTED_GATEWAY_VERSION} durable recovery contract after deployment."
+          echo "Cloudflare Worker did not report the v${EXPECTED_GATEWAY_VERSION} identity contract after deployment."
           echo "$RESPONSE"
           exit 1
 
@@ -142,11 +142,9 @@ jobs:
           status="$(curl --silent --show-error --output "$body_file" --write-out '%{http_code}' "$endpoint")"
           content_type="$(curl --silent --show-error --head "$endpoint" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type" {print tolower($2)}' | tail -n 1)"
           body="$(cat "$body_file")"
-
           echo "Orchestration status: $status"
           echo "Orchestration content-type: ${content_type:-missing}"
           echo "Orchestration response: $body"
-
           test "$status" = "200"
           echo "$content_type" | grep -q 'application/json'
           echo "$body" | jq -e '.ok == true' >/dev/null
@@ -164,11 +162,9 @@ jobs:
           gateway="https://founder-os-gateway.dmoseley1024.workers.dev/v1/workspaces/natural-nation/packages/NN-BUILD-001/orchestration?v=${cache_key}"
           package="https://natural-nation-mvp.github.io/natural-nation-mvp/execution-packages/NN-BUILD-001.json?v=${cache_key}"
           registry="https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/ai-agent-registry.json?v=${cache_key}"
-
           gateway_body="$(curl --fail --silent --show-error -H "Origin: ${origin}" "$gateway")"
           package_body="$(curl --fail --silent --show-error "$package")"
           registry_body="$(curl --fail --silent --show-error "$registry")"
-
           echo "$gateway_body" | jq -e '.ok == true and .state.packageId == "NN-BUILD-001"' >/dev/null
           echo "$package_body" | jq -e '.packageId == "NN-BUILD-001" and .workspaceId == "natural-nation"' >/dev/null
           echo "$registry_body" | jq -e '.agents | type == "array"' >/dev/null
