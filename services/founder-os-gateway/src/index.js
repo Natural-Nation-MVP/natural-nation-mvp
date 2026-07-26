@@ -1,5 +1,5 @@
 /*
- * Founder OS Gateway Worker v0.9.0
+ * Founder OS Gateway Worker v0.8.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
  * repository-backed AI orchestration, live workflows, and governed review.
@@ -14,7 +14,7 @@ import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 import { handleWorkspaceLifecycle } from "./routes/workspace-lifecycle.js";
 
-const VERSION = "0.9.0";
+const VERSION = "0.8.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
