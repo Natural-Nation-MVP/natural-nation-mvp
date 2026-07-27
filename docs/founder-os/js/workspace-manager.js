@@ -3,7 +3,6 @@
   const migrationReviewPath = window.NNOSPaths.asset('registry/migrations/FOUNDER-WS-005-os-studio-duplicate-review.json?v=1.0.0');
   const protectedIds = new Set(['founder-os', 'natural-nation']);
   let canonicalRegistry = null;
-  let activeFilter = 'active';
 
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -39,46 +38,41 @@
     return `<button type="button" data-lifecycle-action="restore" data-lifecycle-workspace="${escapeHtml(workspace.workspaceId)}">Restore</button><button class="danger" type="button" data-lifecycle-action="purge" data-lifecycle-workspace="${escapeHtml(workspace.workspaceId)}">Purge</button>`;
   }
 
-  function renderManager() {
-    const host = document.querySelector('[data-workspace-manager]');
-    if (!host || !canonicalRegistry) return;
-    const workspaces = canonicalRegistry.workspaces || [];
-    const counts = {
-      active: workspaces.filter((item) => groupFor(item) === 'active').length,
-      archived: workspaces.filter((item) => groupFor(item) === 'archived').length,
-      deleted: workspaces.filter((item) => groupFor(item) === 'deleted').length
-    };
-    const visible = workspaces.filter((item) => groupFor(item) === activeFilter);
-    host.innerHTML = `
-      <article class="glass-panel workspace-manager-panel">
-        <div class="workspace-manager-heading">
-          <div><div class="eyebrow">Workspace Manager</div><div class="section-title">Lifecycle, health, and repository identity</div><p class="muted">All actions use the immutable workspace ID and create repository-backed audit evidence.</p></div>
-          <button type="button" data-open-duplicate-review>Compare OS Studio Records</button>
-        </div>
-        <div class="workspace-manager-tabs" role="tablist" aria-label="Workspace lifecycle views">
-          ${['active', 'archived', 'deleted'].map((filter) => `<button type="button" role="tab" aria-selected="${activeFilter === filter}" class="${activeFilter === filter ? 'active' : ''}" data-workspace-filter="${filter}">${filter[0].toUpperCase() + filter.slice(1)} <span>${counts[filter]}</span></button>`).join('')}
-        </div>
-        <div class="workspace-manager-list">
-          ${visible.length ? visible.map((workspace) => {
-            const checks = healthChecks(workspace);
-            const healthy = checks.filter(([, ok]) => ok).length;
-            return `<section class="workspace-manager-row" data-managed-workspace="${escapeHtml(workspace.workspaceId)}">
-              <div class="workspace-manager-primary"><strong>${escapeHtml(workspace.displayName || workspace.workspaceKey || workspace.workspaceId)}</strong><code>${escapeHtml(workspace.workspaceId)}</code><span>${escapeHtml(workspace.workspaceKey || '')}</span></div>
-              <div class="workspace-manager-health"><strong>${healthy}/${checks.length} checks</strong>${checks.map(([label, ok]) => `<span class="${ok ? 'ok' : 'warning'}">${ok ? '✓' : '⚠'} ${escapeHtml(label)}</span>`).join('')}</div>
-              <div class="workspace-manager-repository"><span>Repository root</span><code>${escapeHtml(workspace.repository?.root || 'Missing')}</code><span>Lifecycle: ${escapeHtml(lifecycleState(workspace))}</span></div>
-              <div class="workspace-manager-actions">${actionButtons(workspace)}</div>
-            </section>`;
-          }).join('') : '<p class="muted workspace-manager-empty">No workspaces are in this lifecycle view.</p>'}
-        </div>
-        <p class="workspace-manager-status" data-workspace-manager-status aria-live="polite"></p>
-      </article>`;
+  function workspaceManagementMarkup(workspace) {
+    if (!workspace) return '';
+    const checks = healthChecks(workspace);
+    const healthy = checks.filter(([, ok]) => ok).length;
+    const isOsStudio = workspace.workspaceKey === 'os-studio' || workspace.displayName === 'OS Studio';
+    return `<details class="workspace-card-management" data-integrated-workspace-management="${escapeHtml(workspace.workspaceId)}">
+      <summary><span>Workspace management</span><strong>${healthy}/${checks.length} checks</strong></summary>
+      <div class="workspace-card-management-grid">
+        <div><span>Lifecycle</span><strong>${escapeHtml(lifecycleState(workspace))}</strong></div>
+        <div><span>Repository</span><code>${escapeHtml(workspace.repository?.root || 'Missing')}</code></div>
+        <div><span>Workspace ID</span><code>${escapeHtml(workspace.workspaceId)}</code></div>
+        <div><span>Workspace key</span><code>${escapeHtml(workspace.workspaceKey || '')}</code></div>
+      </div>
+      <div class="workspace-card-health">${checks.map(([label, ok]) => `<span class="${ok ? 'ok' : 'warning'}">${ok ? '✓' : '⚠'} ${escapeHtml(label)}</span>`).join('')}</div>
+      <div class="workspace-card-management-actions">${isOsStudio ? '<button type="button" data-open-duplicate-review>Compare OS Studio Records</button>' : ''}${actionButtons(workspace)}</div>
+    </details>`;
+  }
+
+  function injectManagementIntoCards() {
+    if (!canonicalRegistry) return;
+    document.querySelectorAll('[data-workspace-id]').forEach((card) => {
+      const workspaceId = card.dataset.workspaceId;
+      const workspace = (canonicalRegistry.workspaces || []).find((item) => item.workspaceId === workspaceId);
+      if (!workspace || card.querySelector('[data-integrated-workspace-management]')) return;
+      const primaryButton = card.querySelector('[data-resume-workspace]');
+      if (!primaryButton) return;
+      primaryButton.insertAdjacentHTML('beforebegin', workspaceManagementMarkup(workspace));
+    });
   }
 
   async function loadCanonicalRegistry() {
     const response = await fetch(`${canonicalRegistryPath}&verify=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Canonical Workspace Registry returned ${response.status}.`);
     canonicalRegistry = await response.json();
-    renderManager();
+    injectManagementIntoCards();
   }
 
   async function runLifecycleAction(workspaceId, action) {
@@ -119,14 +113,10 @@
   }
 
   document.addEventListener('click', (event) => {
-    const filter = event.target.closest('[data-workspace-filter]');
-    if (filter) {
-      activeFilter = filter.dataset.workspaceFilter;
-      renderManager();
-      return;
-    }
     const action = event.target.closest('[data-lifecycle-action]');
     if (action) {
+      event.preventDefault();
+      event.stopPropagation();
       runLifecycleAction(action.dataset.lifecycleWorkspace, action.dataset.lifecycleAction).catch((error) => {
         console.error(error);
         const status = document.querySelector('[data-workspace-manager-status]');
@@ -136,14 +126,17 @@
       return;
     }
     if (event.target.closest('[data-open-duplicate-review]')) {
+      event.preventDefault();
+      event.stopPropagation();
       openDuplicateReview().catch((error) => window.alert(error.message));
     }
   });
 
+  window.addEventListener('founder-os:workspace-registry-rendered', injectManagementIntoCards);
   window.addEventListener('founder-os:workspace-lifecycle-changed', () => window.location.reload());
   loadCanonicalRegistry().catch((error) => {
     console.error(error);
-    const host = document.querySelector('[data-workspace-manager]');
-    if (host) host.innerHTML = `<article class="glass-panel"><strong>Workspace Manager unavailable</strong><p class="muted">${escapeHtml(error.message)}</p></article>`;
+    const status = document.querySelector('[data-workspace-manager-status]');
+    if (status) status.textContent = `Workspace management unavailable: ${error.message}`;
   });
 })();
