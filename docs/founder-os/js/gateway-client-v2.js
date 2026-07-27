@@ -30,7 +30,7 @@
     });
     const payload = await response.json().catch(() => ({ ok: false, error: { message: `Gateway returned ${response.status}.` } }));
     if (!response.ok || payload?.ok === false) {
-      const error = new Error(payload?.error?.message || payload?.blockers?.map((item) => item.message).join(' ') || `Gateway returned ${response.status}.`);
+      const error = new Error(payload?.error?.message || payload?.blockers?.map((item) => item.message).join(' ') || payload?.message || `Gateway returned ${response.status}.`);
       error.status = response.status;
       error.payload = payload;
       if (response.status === 401 || response.status === 403) founderKey = '';
@@ -96,7 +96,7 @@
     return { ...payload, transactionId, billingResolution: effectiveBillingResolution, canonicalVerified: true, canonical };
   }
 
-  async function createWorkspace({ blueprint, clientRequestId }) {
+  async function createWorkspace({ blueprint, clientRequestId, duplicateConfirmation }) {
     const effectiveRequestId = clientRequestId || createClientRequestId('workspace-create');
     const payload = await request('/v2/workspaces', {
       method: 'POST',
@@ -105,6 +105,7 @@
         sourceWorkspaceId: 'founder-os',
         clientRequestId: effectiveRequestId,
         confirmation: { approved: true, effectAcknowledged: true },
+        duplicateConfirmation,
         blueprint
       })
     });
@@ -112,9 +113,31 @@
     return { ...payload, clientRequestId: effectiveRequestId };
   }
 
+  async function manageWorkspaceLifecycle({ workspaceId, action, reason = '', permanentPurgeApproved = false }) {
+    if (!workspaceId) throw new Error('An immutable workspace ID is required.');
+    const payload = await request(`/v2/workspaces/${encodeURIComponent(workspaceId)}/lifecycle`, {
+      method: 'POST',
+      headers: { 'x-founder-os-workspace': 'founder-os' },
+      body: JSON.stringify({
+        sourceWorkspaceId: 'founder-os',
+        action,
+        reason,
+        confirmation: action === 'purge-check' ? undefined : {
+          approved: true,
+          effectAcknowledged: true,
+          workspaceId,
+          permanentPurgeApproved: Boolean(permanentPurgeApproved)
+        }
+      })
+    });
+    founderKey = '';
+    return payload;
+  }
+
   window.FounderOSGateway = {
     approveBlueprint,
     createWorkspace,
+    manageWorkspaceLifecycle,
     createClientRequestId,
     requestFounderKey: getFounderKey,
     clearSessionCredential() { founderKey = ''; },

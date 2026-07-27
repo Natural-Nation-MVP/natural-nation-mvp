@@ -9,6 +9,7 @@ on:
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
+      - 'scripts/validate-founder-ws-005.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
   push:
     branches:
@@ -21,6 +22,7 @@ on:
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
+      - 'scripts/validate-founder-ws-005.mjs'
       - '.github/workflows/founder-os-stabilization.yml'
 
 permissions:
@@ -45,6 +47,8 @@ jobs:
         run: node scripts/validate-founder-ux-001.mjs
       - name: Validate FOUNDER-WS-001 protected workspace creation
         run: node scripts/validate-founder-ws-001.mjs
+      - name: Validate FOUNDER-WS-005 workspace lifecycle manager
+        run: node scripts/validate-founder-ws-005.mjs
       - name: Test NN-KS-002 live workflow
         working-directory: services/founder-os-gateway
         run: node --test test/nn-ks-002.test.mjs

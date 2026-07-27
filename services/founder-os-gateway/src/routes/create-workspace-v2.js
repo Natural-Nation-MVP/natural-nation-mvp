@@ -25,10 +25,18 @@ function text(value, maximum = 4000) {
   return String(value || "").trim().slice(0, maximum);
 }
 
+function normalizedText(value, maximum = 4000) {
+  return text(value, maximum).toLowerCase().replace(/\s+/g, " ");
+}
+
 function stringList(value, maximum = 12) {
   return Array.isArray(value)
     ? value.map((item) => text(item, 500)).filter(Boolean).slice(0, maximum)
     : [];
+}
+
+function normalizedList(value) {
+  return stringList(value).map((item) => normalizedText(item, 500)).sort();
 }
 
 function slug(value) {
@@ -72,10 +80,29 @@ function canonicalPayload(body) {
   };
 }
 
-async function payloadFingerprint(body) {
-  const bytes = new TextEncoder().encode(JSON.stringify(canonicalPayload(body)));
+function normalizedBlueprintIdentity(source) {
+  const blueprint = source?.blueprint || source || {};
+  return {
+    name: normalizedText(blueprint.name || source?.displayName, 120),
+    purpose: normalizedText(blueprint.purpose || source?.description, 4000),
+    objectives: normalizedList(blueprint.objectives || source?.objectives),
+    constraints: normalizedList(blueprint.constraints || source?.constraints),
+    roadmap: normalizedList(blueprint.roadmap || source?.roadmap)
+  };
+}
+
+async function sha256(value) {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function payloadFingerprint(body) {
+  return sha256(canonicalPayload(body));
+}
+
+async function blueprintIdentityFingerprint(source) {
+  return sha256(normalizedBlueprintIdentity(source));
 }
 
 function generateWorkspaceIdentity(displayName, registry) {
@@ -91,30 +118,22 @@ function generateWorkspaceIdentity(displayName, registry) {
 
 export function validateWorkspaceCreationV2(body, request) {
   const blockers = [];
-  if (!body || typeof body !== "object") {
-    return [{ code: "INVALID_REQUEST", message: "A workspace creation request is required." }];
-  }
+  if (!body || typeof body !== "object") return [{ code: "INVALID_REQUEST", message: "A workspace creation request is required." }];
   if (request.headers.get("x-founder-os-workspace") !== WORKSPACE_ZERO || body.sourceWorkspaceId !== WORKSPACE_ZERO) {
     blockers.push({ code: "WORKSPACE_CREATION_SCOPE_FORBIDDEN", message: "Workspace creation is available only from Founder OS." });
   }
   if (body.confirmation?.approved !== true || body.confirmation?.effectAcknowledged !== true) {
     blockers.push({ code: "FOUNDER_CONFIRMATION_REQUIRED", message: "Explicit Founder confirmation is required before workspace creation." });
   }
-  if (!text(body.clientRequestId, 160)) {
-    blockers.push({ code: "IDEMPOTENCY_KEY_REQUIRED", message: "A client request ID is required for safe retry and recovery." });
-  }
+  if (!text(body.clientRequestId, 160)) blockers.push({ code: "IDEMPOTENCY_KEY_REQUIRED", message: "A client request ID is required for safe retry and recovery." });
   const name = text(body.blueprint?.name, 120);
   const purpose = text(body.blueprint?.purpose, 4000);
   const proposedKey = slug(name);
   if (name.length < 3) blockers.push({ code: "WORKSPACE_NAME_REQUIRED", message: "The reviewed workspace name is required." });
   if (purpose.length < 10) blockers.push({ code: "WORKSPACE_PURPOSE_REQUIRED", message: "The reviewed workspace purpose is required." });
-  if (!proposedKey || RESERVED_KEYS.has(proposedKey)) {
-    blockers.push({ code: "PROTECTED_WORKSPACE_ID", message: "The proposed workspace name conflicts with a protected Founder OS identity." });
-  }
+  if (!proposedKey || RESERVED_KEYS.has(proposedKey)) blockers.push({ code: "PROTECTED_WORKSPACE_ID", message: "The proposed workspace name conflicts with a protected Founder OS identity." });
   const safetyText = [name, purpose, ...stringList(body.blueprint?.constraints), ...stringList(body.blueprint?.objectives)].join(" ");
-  if (BLOCKED_PATTERNS.some((pattern) => pattern.test(safetyText))) {
-    blockers.push({ code: "WORKSPACE_SAFETY_GATE_BLOCKED", message: "The request conflicts with Founder OS safety, governance, or workspace-isolation boundaries." });
-  }
+  if (BLOCKED_PATTERNS.some((pattern) => pattern.test(safetyText))) blockers.push({ code: "WORKSPACE_SAFETY_GATE_BLOCKED", message: "The request conflicts with Founder OS safety, governance, or workspace-isolation boundaries." });
   return blockers;
 }
 
@@ -128,7 +147,17 @@ function findRecovery(registry, requestId) {
   return (registry.workspaces || []).find((item) => text(item?.creationEvidence?.clientRequestId, 160) === requestId) || null;
 }
 
-function makeRecord(body, registry, now, fingerprint) {
+async function findEquivalentWorkspace(registry, body) {
+  const candidateFingerprint = await blueprintIdentityFingerprint(body);
+  for (const workspace of registry.workspaces || []) {
+    if (["archived", "deleted", "soft-deleted"].includes(workspace.lifecycleStatus) || ["archived", "deleted"].includes(workspace.status)) continue;
+    const existingFingerprint = workspace.creationEvidence?.blueprintIdentityFingerprint || await blueprintIdentityFingerprint(workspace);
+    if (existingFingerprint === candidateFingerprint) return { workspace, candidateFingerprint };
+  }
+  return { workspace: null, candidateFingerprint };
+}
+
+function makeRecord(body, registry, now, fingerprint, identityFingerprint) {
   const displayName = text(body.blueprint.name, 120);
   const { workspaceId, workspaceKey } = generateWorkspaceIdentity(displayName, registry);
   const sequence = Math.max(0, ...(registry.workspaces || []).map((item) => Number(item.sequence) || 0)) + 1;
@@ -154,12 +183,7 @@ function makeRecord(body, registry, now, fingerprint) {
       knowledgeBoundary: `${root}knowledge/`,
       deliverableBoundary: `workspace:${workspaceId}:deliverables`
     },
-    locations: {
-      source: `${root}app/`,
-      knowledge: `${root}knowledge/`,
-      assets: `${root}assets/`,
-      deliverables: `workspace:${workspaceId}:deliverables`
-    },
+    locations: { source: `${root}app/`, knowledge: `${root}knowledge/`, assets: `${root}assets/`, deliverables: `workspace:${workspaceId}:deliverables` },
     governance: {
       approvalPolicyRef: "docs/founder-os/FOS-GOVERNANCE-001.md",
       protectedBoundaryRef: "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary",
@@ -167,17 +191,19 @@ function makeRecord(body, registry, now, fingerprint) {
     },
     capabilities: ["project.create", "project.manage", "workflow.execute", "ai-team.configure", "approval.request", "deliverable.produce", "release.manage", "metrics.report"],
     health: { state: "foundation", summary: "Workspace created and awaiting its first approved build package." },
-    repository: {
-      strategy: "canonical-monorepo",
-      name: text(body.blueprint.repository, 120) || `${workspaceKey}-mvp`,
-      root
-    },
+    repository: { strategy: "canonical-monorepo", name: text(body.blueprint.repository, 120) || `${workspaceKey}-mvp`, root },
     creationEvidence: {
       clientRequestId: text(body.clientRequestId, 160),
       payloadFingerprint: fingerprint,
+      blueprintIdentityFingerprint: identityFingerprint,
       actor: "founder",
       sourceWorkspaceId: WORKSPACE_ZERO,
       recoveryMode: "canonical-repository",
+      duplicateOverride: body.duplicateConfirmation?.approved === true ? {
+        approved: true,
+        equivalentWorkspaceId: text(body.duplicateConfirmation?.equivalentWorkspaceId, 120),
+        reason: text(body.duplicateConfirmation?.reason, 1000)
+      } : null,
       createdAt: now
     },
     createdAt: now,
@@ -205,13 +231,7 @@ function scaffoldFiles(record, body) {
     workspaceId: record.workspaceId,
     workspaceKey: record.workspaceKey,
     workflow: ["Art", "Codex", "Gemini", "GPose", "Founder"],
-    roles: {
-      Art: "Lead architecture and system design",
-      Codex: "Implementation and repository execution",
-      Gemini: "Independent implementation review and testing",
-      GPose: "Governance, product review, and Founder coordination",
-      Founder: "Final approval for protected changes"
-    },
+    roles: { Art: "Lead architecture and system design", Codex: "Implementation and repository execution", Gemini: "Independent implementation review and testing", GPose: "Governance, product review, and Founder coordination", Founder: "Final approval for protected changes" },
     workspaceIsolation: true
   };
   return [
@@ -234,24 +254,8 @@ function resultPayload(record, commit = {}, duplicate = false) {
     recoveryMode: "canonical-repository",
     workspace: record,
     registry: { status: "registered", path: REGISTRY_PATH },
-    repository: {
-      status: "initialized",
-      strategy: record.repository.strategy,
-      name: record.repository.name,
-      root: record.repository.root,
-      url: repositoryUrl,
-      commitSha: commit.commitSha || null,
-      commitUrl: commit.commitUrl || null
-    },
-    completion: {
-      workspaceId: record.workspaceId,
-      workspaceKey: record.workspaceKey,
-      registryStatus: "registered",
-      repositoryStatus: "initialized",
-      aiTeamStatus: "initialized",
-      knowledgeStatus: "initialized",
-      createdAt: record.createdAt
-    }
+    repository: { status: "initialized", strategy: record.repository.strategy, name: record.repository.name, root: record.repository.root, url: repositoryUrl, commitSha: commit.commitSha || null, commitUrl: commit.commitUrl || null },
+    completion: { workspaceId: record.workspaceId, workspaceKey: record.workspaceKey, registryStatus: "registered", repositoryStatus: "initialized", aiTeamStatus: "initialized", knowledgeStatus: "initialized", createdAt: record.createdAt }
   };
 }
 
@@ -263,9 +267,7 @@ export async function handleCreateWorkspaceV2(request, env, pathname) {
   const body = await readJson(request);
   const blockers = validateWorkspaceCreationV2(body, request);
   if (blockers.length) return json(request, { ok: false, status: "blocked", blockers }, 422);
-  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) {
-    return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "Canonical repository credentials are not configured.");
-  }
+  if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "Canonical repository credentials are not configured.");
 
   const store = runtimeStore(env);
   const key = stableKey(body);
@@ -273,9 +275,7 @@ export async function handleCreateWorkspaceV2(request, env, pathname) {
   const fingerprint = await payloadFingerprint(body);
   if (existing?.status === "committed") {
     const priorFingerprint = existing.result?.workspace?.creationEvidence?.payloadFingerprint;
-    if (priorFingerprint && priorFingerprint !== fingerprint) {
-      return errorResponse(request, 409, "IDEMPOTENCY_PAYLOAD_MISMATCH", "This request ID was already used with a different approved workspace blueprint.");
-    }
+    if (priorFingerprint && priorFingerprint !== fingerprint) return errorResponse(request, 409, "IDEMPOTENCY_PAYLOAD_MISMATCH", "This request ID was already used with a different approved workspace blueprint.");
     return json(request, { ...existing.result, duplicate: true, status: "already-created" });
   }
 
@@ -285,27 +285,45 @@ export async function handleCreateWorkspaceV2(request, env, pathname) {
     const recoveredRecord = findRecovery(registry, text(body.clientRequestId, 160));
     if (recoveredRecord) {
       const priorFingerprint = recoveredRecord.creationEvidence?.payloadFingerprint;
-      if (priorFingerprint && priorFingerprint !== fingerprint) {
-        return errorResponse(request, 409, "IDEMPOTENCY_PAYLOAD_MISMATCH", "This request ID belongs to a different approved workspace blueprint.");
-      }
+      if (priorFingerprint && priorFingerprint !== fingerprint) return errorResponse(request, 409, "IDEMPOTENCY_PAYLOAD_MISMATCH", "This request ID belongs to a different approved workspace blueprint.");
       const recovered = resultPayload(recoveredRecord, { owner: env.GITHUB_OWNER, repository: env.GITHUB_REPOSITORY }, true);
       if (store) await store.put(key, JSON.stringify({ status: "committed", result: recovered }), { expirationTtl: 604800 });
       return json(request, recovered);
     }
-    if (isActiveWorkspaceCreationV2(existing)) {
-      return json(request, { ok: false, status: "in-progress", code: "WORKSPACE_CREATION_IN_PROGRESS", message: "Workspace creation is still active. Retry safely in a moment.", clientRequestId: body.clientRequestId }, 409);
-    }
-    if (store) await store.put(key, JSON.stringify({ status: "running", startedAt: new Date().toISOString(), payloadFingerprint: fingerprint }), { expirationTtl: 86400 });
+    if (isActiveWorkspaceCreationV2(existing)) return json(request, { ok: false, status: "in-progress", code: "WORKSPACE_CREATION_IN_PROGRESS", message: "Workspace creation is still active. Retry safely in a moment.", clientRequestId: body.clientRequestId }, 409);
 
+    const equivalent = await findEquivalentWorkspace(registry, body);
+    if (equivalent.workspace) {
+      const confirmation = body.duplicateConfirmation;
+      const confirmed = confirmation?.approved === true && confirmation?.equivalentWorkspaceId === equivalent.workspace.workspaceId && text(confirmation?.reason, 1000).length >= 5;
+      if (!confirmed) {
+        return json(request, {
+          ok: false,
+          status: "blocked",
+          code: "EQUIVALENT_WORKSPACE_CONFIRMATION_REQUIRED",
+          message: "An equivalent active workspace already exists. Review it before explicitly approving a separate workspace.",
+          equivalentWorkspace: {
+            workspaceId: equivalent.workspace.workspaceId,
+            workspaceKey: equivalent.workspace.workspaceKey,
+            displayName: equivalent.workspace.displayName,
+            status: equivalent.workspace.status,
+            repositoryRoot: equivalent.workspace.repository?.root || null
+          },
+          requiredConfirmation: { approved: true, equivalentWorkspaceId: equivalent.workspace.workspaceId, reason: "Explain why a separate equivalent workspace is required." }
+        }, 409);
+      }
+    }
+
+    if (store) await store.put(key, JSON.stringify({ status: "running", startedAt: new Date().toISOString(), payloadFingerprint: fingerprint }), { expirationTtl: 86400 });
     const now = new Date().toISOString();
-    const record = makeRecord(body, registry, now, fingerprint);
+    const identityFingerprint = equivalent.candidateFingerprint || await blueprintIdentityFingerprint(body);
+    const record = makeRecord(body, registry, now, fingerprint, identityFingerprint);
+    const idCollision = registry.workspaces.find((item) => item.workspaceId === record.workspaceId);
     const keyCollision = registry.workspaces.find((item) => (item.workspaceKey || item.workspaceId) === record.workspaceKey);
+    if (idCollision) return errorResponse(request, 409, "WORKSPACE_ID_COLLISION", "A generated workspace ID collision occurred. Retry safely to generate a new identity.");
     if (keyCollision) return errorResponse(request, 409, "WORKSPACE_KEY_COLLISION", "A generated workspace key collision occurred. Retry safely to generate a new identity.");
-    const nextRegistry = { ...registry, schemaVersion: "2.0.0", updatedAt: now, workspaces: [...registry.workspaces, record] };
-    const commit = await commitFilesAtomically(env, {
-      message: `feat(founder-os): create workspace ${record.workspaceKey} (${record.workspaceId})`,
-      files: [{ path: REGISTRY_PATH, content: nextRegistry }, ...scaffoldFiles(record, body)]
-    });
+    const nextRegistry = { ...registry, schemaVersion: "2.1.0", updatedAt: now, workspaces: [...registry.workspaces, record] };
+    const commit = await commitFilesAtomically(env, { message: `feat(founder-os): create workspace ${record.workspaceKey} (${record.workspaceId})`, files: [{ path: REGISTRY_PATH, content: nextRegistry }, ...scaffoldFiles(record, body)] });
     const result = resultPayload(record, { ...commit, owner: env.GITHUB_OWNER, repository: env.GITHUB_REPOSITORY });
     if (store) await store.put(key, JSON.stringify({ status: "committed", result }), { expirationTtl: 604800 });
     return json(request, result, 201);

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "migrationId": "FOUNDER-WS-005-os-studio-duplicate-review",
+  "status": "founder-decision-required",
+  "createdAt": "2026-07-26T23:30:00.000Z",
+  "finding": "Two independently-created OS Studio workspaces exist in the canonical registry.",
+  "records": [
+    {
+      "workspaceId": "os-studio",
+      "workspaceKey": "os-studio",
+      "displayName": "OS Studio",
+      "classification": "legacy-pre-uuid-workspace",
+      "repositoryRoot": "workspaces/os-studio/",
+      "clientRequestId": "workspace-create-21878964-7f83-4f40-a21b-0d02155bf058",
+      "createdAt": "2026-07-25T05:08:54.123Z",
+      "identityContract": "legacy-human-readable-id",
+      "payloadFingerprintPresent": false
+    },
+    {
+      "workspaceId": "ws_b79fd264-341c-413c-867f-998a5a57a651",
+      "workspaceKey": "os-studio-5a57a651",
+      "displayName": "OS Studio",
+      "classification": "canonical-uuid-workspace",
+      "repositoryRoot": "workspaces/os-studio-5a57a651/",
+      "clientRequestId": "workspace-create-da2876d1-43e1-419e-a8ee-c912e7ba37a3",
+      "createdAt": "2026-07-26T09:39:44.772Z",
+      "identityContract": "immutable-uuid",
+      "payloadFingerprintPresent": true
+    }
+  ],
+  "recommendedCanonicalWorkspaceId": "ws_b79fd264-341c-413c-867f-998a5a57a651",
+  "recommendationReason": "This record complies with the approved immutable UUID identity model and repository-backed payload fingerprint recovery contract.",
+  "requiredBeforeTransition": [
+    "Compare both repository roots for unique assets, decisions, and configuration.",
+    "Preserve or migrate any unique content from the legacy root.",
+    "Obtain explicit Founder confirmation identifying the workspaceId to archive or soft-delete.",
+    "Record the lifecycle transition through the governed workspace lifecycle endpoint."
+  ],
+  "automaticActionTaken": false,
+  "destructiveActionTaken": false
+}
