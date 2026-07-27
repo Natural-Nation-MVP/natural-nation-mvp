@@ -103,16 +103,20 @@ jobs:
           fi
 
           # Cache-bust every supported Founder OS shell with the exact deploy
-          # commit so browsers cannot keep the previous hardcoded registry UI.
+          # commit so browsers cannot keep a previous workspace runtime.
           for shell in _site/index.html _site/founder-os/index.html; do
             if [ -f "$shell" ]; then
               sed -i "s/founder-ux-001/founder-ux-001-${MERGE_SHA}/g" "$shell"
-              sed -i "s/founder-ws-003/founder-ws-003-${MERGE_SHA}/g" "$shell"
+              sed -i -E "s|(workspace-registry\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
+              sed -i -E "s|(workspace-manager\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
+              sed -i -E "s|(workspace-manager\.css\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i 's/root-v1/root-v2/g' "$shell"
             fi
           done
 
-          grep -q "workspace-registry.js?v=founder-ws-003-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "workspace-registry\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "workspace-manager\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "workspace-manager\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
