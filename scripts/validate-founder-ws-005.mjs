@@ -8,7 +8,7 @@ const gateway = fs.readFileSync('docs/founder-os/js/gateway-client-v2.js', 'utf8
 const lifecycle = fs.readFileSync('services/founder-os-gateway/src/routes/workspace-lifecycle.js', 'utf8');
 const migration = JSON.parse(fs.readFileSync('docs/founder-os/registry/migrations/FOUNDER-WS-005-os-studio-duplicate-review.json', 'utf8'));
 
-assert.doesNotMatch(html, /data-workspace-manager/);
+assert.doesNotMatch(html, /<div[^>]*data-workspace-manager(?:\s|>)/);
 assert.match(html, /data-workspace-manager-status/);
 assert.match(html, /workspace-manager\.js\?v=founder-ws-006/);
 assert.match(html, /workspace-manager\.css\?v=founder-ws-006/);
