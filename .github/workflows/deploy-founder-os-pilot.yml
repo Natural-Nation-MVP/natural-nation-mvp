@@ -111,6 +111,11 @@ jobs:
             fi
           done
 
+          # The detailed color system is loaded through CSS @import. Cache-bust
+          # that nested request too, otherwise mobile Safari may keep the older
+          # grayscale theme even when the entry stylesheet URL changes.
+          sed -i -E "s|(founder-ux-002-reference\.css\?v=[^')]+)|\1-${MERGE_SHA}|g" _site/founder-os/css/founder-ux-002.css
+
           grep -Eq "workspace-registry\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "workspace-manager\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "workspace-manager\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
@@ -118,6 +123,7 @@ jobs:
           grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/index.html
           grep -Eq "founder-ux-002\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "founder-ux-002-reference\.css\?v=[^')]+-${MERGE_SHA}" _site/founder-os/css/founder-ux-002.css
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
