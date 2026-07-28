@@ -61,9 +61,6 @@ jobs:
           cp -R docs/execution-packages _site/execution-packages
           cp -R docs/orchestration _site/orchestration
 
-          # Prove the published artifact contains the canonical registry and
-          # the runtime that reads it. This prevents a successful deployment
-          # from silently publishing only the legacy two-card registry.
           test -f _site/founder-os/registry/workspaces.json
           jq -e '.schemaVersion == "2.0.0" and (.workspaces | type == "array")' _site/founder-os/registry/workspaces.json >/dev/null
           jq -e '.workspaces[] | select(.workspaceId | startswith("ws_"))' _site/founder-os/registry/workspaces.json >/dev/null
@@ -102,14 +99,14 @@ jobs:
           EOF
           fi
 
-          # Cache-bust every supported Founder OS shell with the exact deploy
-          # commit so browsers cannot keep a previous workspace runtime.
           for shell in _site/index.html _site/founder-os/index.html; do
             if [ -f "$shell" ]; then
               sed -i "s/founder-ux-001/founder-ux-001-${MERGE_SHA}/g" "$shell"
               sed -i -E "s|(workspace-registry\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i -E "s|(workspace-manager\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i -E "s|(workspace-manager\.css\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
+              sed -i -E "s|(founder-ux-002\.css\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
+              sed -i -E "s|(founder-ux-002\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i 's/root-v1/root-v2/g' "$shell"
             fi
           done
@@ -117,6 +114,10 @@ jobs:
           grep -Eq "workspace-registry\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "workspace-manager\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "workspace-manager\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "founder-ux-002\.css\?v=[^\"']+-${MERGE_SHA}" _site/index.html
+          grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/index.html
+          grep -Eq "founder-ux-002\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
