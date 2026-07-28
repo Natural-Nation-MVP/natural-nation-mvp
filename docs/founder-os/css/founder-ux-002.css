@@ -1,0 +1,16 @@
+@import url('./founder-ux-002-reference.css?v=founder-ux-002-reference');
+
+/* FOUNDER-UX-002 entry stylesheet. The detailed visual system lives in
+   founder-ux-002-reference.css so both supported Founder OS routes use the
+   same approved command-center theme without changing application logic. */
+
+:root {
+  --fos-ink:#111827;
+  --fos-muted:#667085;
+  --fos-line:#e5e7eb;
+  --fos-surface:#ffffff;
+  --fos-page:#eef2f7;
+  --fos-founder:#1f2937;
+  --fos-natural:#16794b;
+  --fos-studio:#2455c3;
+}

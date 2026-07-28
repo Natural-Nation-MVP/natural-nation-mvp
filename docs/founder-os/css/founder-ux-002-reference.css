@@ -1,0 +1,80 @@
+/* Strong visual alignment with the Founder-approved command-center reference. */
+body { background:#eef2f7; }
+.app-shell { grid-template-columns: 248px minmax(0,1fr); }
+.sidebar { padding:22px 16px; }
+.brand { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:12px; }
+.brand-title { display:none; }
+.founder-ux-brand-copy { display:flex; flex-direction:column; gap:2px; }
+.founder-ux-brand-copy strong { color:#fff; font-size:1.25rem; letter-spacing:-.02em; }
+.founder-ux-brand-copy span { color:#56d277; font-size:.78rem; }
+.nav { gap:7px; }
+.nav-group { margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,.12); }
+.nav-group-label { margin:0 10px 8px; color:#aab5c7; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.nav-link { display:flex; align-items:center; gap:10px; width:100%; padding:11px 12px; color:#f7f9fc; text-align:left; }
+.nav-link:hover { background:rgba(255,255,255,.07); }
+.sidebar-note { margin-top:auto; padding:16px; }
+.sidebar-note strong { color:#65db83; font-size:1.15rem; }
+.main { max-width:none; }
+.hero { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:18px; padding:0 4px; }
+.hero > .pill { display:none; }
+.founder-ux-header-tools { display:flex; align-items:center; gap:12px; }
+.founder-ux-search input { width:min(270px,30vw); min-height:42px; padding:0 16px; border:1px solid #d9dee7; border-radius:999px; background:#fff; box-shadow:0 5px 16px rgba(15,23,42,.05); }
+.founder-ux-icon-button { width:42px; height:42px; padding:0; border-radius:50%; background:#fff; border:1px solid #d9dee7; }
+.founder-ux-avatar { display:grid; place-items:center; width:42px; height:42px; border-radius:50%; background:#111827; color:#fff; font-weight:800; }
+.metrics-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.metric { position:relative; overflow:hidden; min-height:118px; }
+.metric::before { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:#7c3aed; }
+.metric:nth-child(2)::before { background:#f59e0b; }
+.metric:nth-child(3)::before { background:#2563eb; }
+.metric:nth-child(4)::before { background:#16a34a; }
+.workspace-view[data-workspace="registry"] { background:transparent; border:0; box-shadow:none; padding:0; }
+.command-center-hero { display:none; }
+.founder-ux-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin:24px 0 14px; padding:0 4px; }
+.founder-ux-section-heading .eyebrow { color:#1f2937; font-size:.78rem; letter-spacing:.12em; }
+.founder-ux-section-heading p { margin:4px 0 0; color:#667085; }
+.founder-ux-section-heading button { background:#fff; color:#344054; border:1px solid #d8dee8; }
+.workspace-registry-grid { padding-top:0; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.workspace-registry-grid::before { display:none; }
+.workspace-card { position:relative; padding-top:104px; }
+.workspace-card::before { position:absolute; top:0; left:0; right:0; height:104px; border-radius:17px 17px 0 0; }
+.workspace-card[data-workspace-id="founder-os"]::before { background:linear-gradient(135deg,#0e1727,#26364c); }
+.workspace-card[data-workspace-id="natural-nation"]::before { background:linear-gradient(135deg,#0a3d2d,#176a4d); }
+.workspace-card[data-workspace-id^="os-studio"]::before,
+.workspace-card[data-workspace-id^="ws_"]::before { background:linear-gradient(135deg,#102b66,#1f4ea8); }
+.workspace-card .workspace-card-purpose,
+.workspace-card .workspace-card-top { position:relative; z-index:1; }
+.workspace-card .workspace-card-purpose { position:absolute; top:18px; left:72px; background:transparent; color:#dce4f0; }
+.workspace-card .workspace-card-top { position:absolute; top:35px; left:18px; right:18px; align-items:center; color:#fff; }
+.workspace-card .workspace-card-top .eyebrow { color:#dce4f0; }
+.workspace-card .workspace-card-top h2 { color:#fff; }
+.workspace-card .workspace-card-top .status { color:#fff; background:rgba(255,255,255,.14); }
+.founder-ux-workspace-icon { display:grid; place-items:center; position:absolute; left:0; top:-2px; width:42px; height:42px; border-radius:13px; background:rgba(255,255,255,.12); color:#fff; font-size:1.35rem; }
+.workspace-card .workspace-card-top > div { padding-left:54px; }
+.workspace-card > p { margin-top:20px; }
+.workspace-card-management { border:1px solid #e2e7ef; border-radius:11px; padding:0 10px; background:#fff; }
+.workspace-card-management summary { min-height:46px; }
+.founder-ux-operations-zone { margin-top:24px; padding:22px; border:1px solid #e2e7ef; border-radius:20px; background:#fff; box-shadow:0 12px 35px rgba(15,23,42,.06); }
+.founder-ux-operations-zone .founder-ux-section-heading { margin-top:0; }
+.founder-ux-operations-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+.founder-ux-operations-grid button { display:flex; flex-direction:column; align-items:flex-start; min-height:150px; padding:18px; border:1px solid #e1e6ee; border-radius:15px; background:linear-gradient(145deg,#fff,#f8fafc); text-align:left; }
+.founder-ux-operations-grid span { font-weight:800; font-size:1.02rem; }
+.founder-ux-operations-grid strong { margin-top:26px; color:#344054; font-size:.9rem; line-height:1.35; }
+.founder-ux-operations-grid small { margin-top:auto; color:#315bd8; font-weight:700; }
+@media (max-width:1180px){
+  .workspace-registry-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .founder-ux-operations-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:900px){
+  .app-shell { grid-template-columns:116px minmax(0,1fr); }
+  .founder-ux-brand-copy { display:none; }
+  .nav-group-label { display:none; }
+  .nav-link { justify-content:center; font-size:.78rem; padding:10px 6px; }
+  .founder-ux-header-tools { display:none; }
+  .metrics-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:620px){
+  .workspace-registry-grid,.founder-ux-operations-grid { grid-template-columns:1fr; }
+  .founder-ux-section-heading { align-items:flex-start; flex-direction:column; }
+  .workspace-card { padding-top:96px; }
+  .workspace-card::before { height:96px; }
+}
