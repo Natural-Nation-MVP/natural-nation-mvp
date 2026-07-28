@@ -1,8 +1,8 @@
-@import url('./founder-ux-002-reference.css?v=founder-ux-002-reference');
+@import url('./founder-ux-002-reference.css?v=founder-ux-006-color-contrast');
 
-/* FOUNDER-UX-002 entry stylesheet. The detailed visual system lives in
-   founder-ux-002-reference.css so both supported Founder OS routes use the
-   same approved command-center theme without changing application logic. */
+/* Founder OS UX entry stylesheet.
+   The explicit import version is intentionally advanced whenever the detailed
+   reference theme changes so mobile browsers cannot reuse a stale grayscale copy. */
 
 :root {
   --fos-ink:#111827;
