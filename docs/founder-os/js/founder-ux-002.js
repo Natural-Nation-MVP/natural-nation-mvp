@@ -14,28 +14,17 @@
   };
 
   const icon = (name) => `<span class="nav-icon">${icons[name]}</span>`;
-  const navigationGroups = [
-    {
-      label: 'Workspaces',
-      items: [
-        { id: 'founder-os', label: 'Founder OS', icon: 'founder', action: () => openWorkspace('founder-os') },
-        { id: 'natural-nation', label: 'Natural Nation', icon: 'natural', action: () => openWorkspace('natural-nation') },
-        { id: 'os-studio', label: 'OS Studio', icon: 'studio', action: () => openWorkspace('os-studio', { preferCanonical: true }) }
-      ]
-    },
-    {
-      label: 'Operations',
-      items: [
-        { id: 'approvals', label: 'Approval Inbox', icon: 'approvals', action: () => openSystemView('approvals') },
-        { id: 'ai', label: 'AI Team', icon: 'ai', action: () => openSystemView('ai') },
-        { id: 'repo', label: 'Code & Deployments', icon: 'code', action: () => openSystemView('repo') },
-        { id: 'knowledge', label: 'System Records', icon: 'records', action: () => openSystemView('knowledge') }
-      ]
-    }
-  ];
 
   function activateHome() {
-    $('[data-command-center-home]')?.click();
+    // The registry controller owns home activation. Use its delegated route hook
+    // without depending on a visible Home button that subsidiary pages replace.
+    const routeTrigger = document.createElement('button');
+    routeTrigger.type = 'button';
+    routeTrigger.hidden = true;
+    routeTrigger.dataset.commandCenterHome = '';
+    document.body.appendChild(routeTrigger);
+    routeTrigger.click();
+    routeTrigger.remove();
   }
 
   function workspaceCardsByName(name) {
@@ -43,11 +32,11 @@
     return $$('.workspace-card').filter((card) => $('h2', card)?.textContent?.trim().toLowerCase() === normalized);
   }
 
-  function openWorkspace(id, options = {}) {
+  function openWorkspace(id, { preferCanonical = false } = {}) {
     let button = $(`[data-resume-workspace="${CSS.escape(id)}"]`);
     if (!button && id === 'os-studio') {
       const cards = workspaceCardsByName('OS Studio');
-      const selected = options.preferCanonical
+      const selected = preferCanonical
         ? cards.find((card) => String(card.dataset.workspaceId || '').startsWith('ws_')) || cards[0]
         : cards[0];
       button = selected?.querySelector('[data-resume-workspace]');
@@ -59,6 +48,20 @@
     openWorkspace('founder-os');
     window.setTimeout(() => window.setWorkspace?.(target), 80);
   }
+
+  const navigationGroups = [
+    { label: 'Workspaces', items: [
+      { id: 'founder-os', label: 'Founder OS', icon: 'founder', action: () => openWorkspace('founder-os') },
+      { id: 'natural-nation', label: 'Natural Nation', icon: 'natural', action: () => openWorkspace('natural-nation') },
+      { id: 'os-studio', label: 'OS Studio', icon: 'studio', action: () => openWorkspace('os-studio', { preferCanonical: true }) }
+    ]},
+    { label: 'Operations', items: [
+      { id: 'approvals', label: 'Approval Inbox', icon: 'approvals', action: () => openSystemView('approvals') },
+      { id: 'ai', label: 'AI Team', icon: 'ai', action: () => openSystemView('ai') },
+      { id: 'repo', label: 'Code & Deployments', icon: 'code', action: () => openSystemView('repo') },
+      { id: 'knowledge', label: 'System Records', icon: 'records', action: () => openSystemView('knowledge') }
+    ]}
+  ];
 
   function setActiveNavigation(id) {
     $$('[data-main-nav-id]').forEach((button) => {
@@ -72,44 +75,21 @@
   function renderBrandHomeTag() {
     const brand = $('.brand');
     if (!brand) return;
-    brand.innerHTML = `
-      <button class="founder-home-tag" type="button" data-founder-home-tag aria-label="Return to Founder OS Command Center ${VERSION}" title="Return to Founder OS Command Center">
-        <span class="founder-home-tag__icon" aria-hidden="true">☘</span>
-        <span class="founder-home-tag__copy">
-          <strong>Founder OS</strong>
-          <span>Command Center <em>${VERSION}</em></span>
-        </span>
-      </button>`;
-    $('[data-founder-home-tag]', brand)?.addEventListener('click', activateHome);
-  }
-
-  function removeRedundantHomeLinks() {
-    $$('[data-command-center-home]').forEach((button) => button.remove());
+    brand.innerHTML = `<button class="founder-home-tag" type="button" data-founder-home-tag aria-label="Return to Founder OS Command Center ${VERSION}" title="Return to Founder OS Command Center"><span class="founder-home-tag__icon" aria-hidden="true">☘</span><span class="founder-home-tag__copy"><strong>Founder OS</strong><span><span>Command Center</span><em>${VERSION}</em></span></span></button>`;
   }
 
   function renderMainNavigation() {
     if (document.body.dataset.activeWorkspace !== 'registry') return;
     const nav = $('.nav');
     if (!nav) return;
-
     nav.setAttribute('aria-label', 'Founder OS main navigation');
-    nav.innerHTML = navigationGroups.map((group) => `
-      <section class="nav-group" aria-label="${group.label}">
-        <div class="nav-group-label">${group.label}</div>
-        ${group.items.map((item) => `
-          <button class="nav-link" type="button" data-main-nav-id="${item.id}" title="${item.label}">
-            ${icon(item.icon)}<span>${item.label}</span>
-          </button>`).join('')}
-      </section>`).join('');
-
-    for (const group of navigationGroups) {
-      for (const item of group.items) {
-        $(`[data-main-nav-id="${item.id}"]`, nav)?.addEventListener('click', () => {
-          setActiveNavigation(item.id);
-          item.action();
-        });
-      }
-    }
+    nav.innerHTML = navigationGroups.map((group) => `<section class="nav-group" aria-label="${group.label}"><div class="nav-group-label">${group.label}</div>${group.items.map((item) => `<button class="nav-link" type="button" data-main-nav-id="${item.id}" title="${item.label}">${icon(item.icon)}<span>${item.label}</span></button>`).join('')}</section>`).join('');
+    navigationGroups.flatMap((group) => group.items).forEach((item) => {
+      $(`[data-main-nav-id="${item.id}"]`, nav)?.addEventListener('click', () => {
+        setActiveNavigation(item.id);
+        item.action();
+      });
+    });
   }
 
   function enhanceHeader() {
@@ -118,10 +98,7 @@
     const tools = document.createElement('div');
     tools.className = 'founder-ux-header-tools';
     tools.dataset.uxHeaderTools = '';
-    tools.innerHTML = `
-      <label class="founder-ux-search"><span class="sr-only">Search workspaces</span><input type="search" placeholder="Search workspaces…" data-ux-search /></label>
-      <button class="founder-ux-icon-button" type="button" aria-label="Open AI Team" title="Open AI Team">${icons.ai}</button>
-      <span class="founder-ux-avatar" aria-label="Founder profile">D</span>`;
+    tools.innerHTML = `<label class="founder-ux-search"><span class="sr-only">Search workspaces</span><input type="search" placeholder="Search workspaces…" data-ux-search /></label><button class="founder-ux-icon-button" type="button" aria-label="Open AI Team" title="Open AI Team">${icons.ai}</button><span class="founder-ux-avatar" aria-label="Founder profile">D</span>`;
     hero.appendChild(tools);
     $('.founder-ux-icon-button', tools)?.addEventListener('click', () => openSystemView('ai'));
   }
@@ -151,24 +128,9 @@
     const zone = document.createElement('section');
     zone.className = 'founder-ux-operations-zone';
     zone.dataset.uxOperations = '';
-    zone.innerHTML = `
-      <div class="founder-ux-section-heading"><div><div class="eyebrow">Operations &amp; Tools</div><p>Open the same system areas available in the navigation panel.</p></div></div>
-      <div class="founder-ux-operations-grid">
-        <button type="button" data-operation-target="approvals"><span>Approval Inbox</span><strong>Review evidence and Founder decisions</strong><small>Open approvals →</small></button>
-        <button type="button" data-operation-target="ai"><span>AI Team</span><strong>Review assignments and verified handoffs</strong><small>Open AI Team →</small></button>
-        <button type="button" data-operation-target="repo"><span>Code &amp; Deployments</span><strong>Review repository and release readiness</strong><small>Open code status →</small></button>
-        <button type="button" data-operation-target="knowledge"><span>System Records</span><strong>Find approved platform decisions and records</strong><small>Open records →</small></button>
-      </div>`;
+    zone.innerHTML = `<div class="founder-ux-section-heading"><div><div class="eyebrow">Operations &amp; Tools</div><p>Open the same system areas available in the navigation panel.</p></div></div><div class="founder-ux-operations-grid"><button type="button" data-operation-target="approvals"><span>Approval Inbox</span><strong>Review evidence and Founder decisions</strong><small>Open approvals →</small></button><button type="button" data-operation-target="ai"><span>AI Team</span><strong>Review assignments and verified handoffs</strong><small>Open AI Team →</small></button><button type="button" data-operation-target="repo"><span>Code &amp; Deployments</span><strong>Review repository and release readiness</strong><small>Open code status →</small></button><button type="button" data-operation-target="knowledge"><span>System Records</span><strong>Find approved platform decisions and records</strong><small>Open records →</small></button></div>`;
     registry.appendChild(zone);
-    $$('[data-operation-target]', zone).forEach((button) => {
-      button.addEventListener('click', () => openSystemView(button.dataset.operationTarget));
-    });
-  }
-
-  function workspaceTheme(id) {
-    if (id === 'founder-os') return ['founder', 'Platform'];
-    if (id === 'natural-nation') return ['natural', 'Product'];
-    return ['studio', 'Workspace'];
+    $$('[data-operation-target]', zone).forEach((button) => button.addEventListener('click', () => openSystemView(button.dataset.operationTarget)));
   }
 
   function decorateWorkspaceCards() {
@@ -176,22 +138,20 @@
       if (card.querySelector('.founder-ux-workspace-header')) return;
       const id = card.dataset.workspaceId || '';
       const top = $('.workspace-card-top', card);
-      const purpose = $('.workspace-card-purpose', card);
       if (!top) return;
       const title = $('h2', top)?.textContent?.trim() || 'Workspace';
-      const eyebrow = $('.eyebrow', top)?.textContent?.trim() || purpose?.textContent?.trim() || 'Workspace';
       const status = $('.status', top)?.textContent?.trim() || 'Active';
-      const [theme, kind] = workspaceTheme(id);
+      const [theme, kind] = id === 'founder-os' ? ['founder', 'Platform'] : id === 'natural-nation' ? ['natural', 'Product'] : ['studio', 'Workspace'];
       const header = document.createElement('div');
       header.className = `founder-ux-workspace-header founder-ux-workspace-header--${theme}`;
-      header.innerHTML = `<div class="founder-ux-workspace-header-row"><span class="founder-ux-workspace-icon" aria-hidden="true">${icons[theme]}</span><div class="founder-ux-workspace-header-copy"><div class="eyebrow">${kind}</div><h2>${title}</h2><span class="sr-only">${eyebrow}</span></div><span class="status">${status}</span></div>`;
+      header.innerHTML = `<div class="founder-ux-workspace-header-row"><span class="founder-ux-workspace-icon" aria-hidden="true">${icons[theme]}</span><div class="founder-ux-workspace-header-copy"><div class="eyebrow">${kind}</div><h2>${title}</h2></div><span class="status">${status}</span></div>`;
       card.prepend(header);
     });
   }
 
   function synchronizeNavigation() {
     renderBrandHomeTag();
-    removeRedundantHomeLinks();
+    $$('[data-command-center-home]').forEach((button) => button.remove());
     if (document.body.dataset.activeWorkspace === 'registry') renderMainNavigation();
   }
 
@@ -203,6 +163,12 @@
     decorateWorkspaceCards();
   }
 
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-founder-home-tag]')) {
+      event.preventDefault();
+      activateHome();
+    }
+  });
   document.addEventListener('input', (event) => {
     if (event.target.matches('[data-ux-search]')) filterWorkspaces(event.target.value);
   });
