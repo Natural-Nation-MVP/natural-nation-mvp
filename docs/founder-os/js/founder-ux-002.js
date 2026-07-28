@@ -1,9 +1,9 @@
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const VERSION = 'v0.8.0';
 
   const icons = {
-    home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-5h5v5"/></svg>',
     founder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg>',
     natural: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 4C11 4 6 8 5 16c4 1 8 0 11-3 3-3 4-9 4-9Z"/><path d="M5 19c2-5 6-8 11-10"/></svg>',
     studio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>',
@@ -14,7 +14,6 @@
   };
 
   const icon = (name) => `<span class="nav-icon">${icons[name]}</span>`;
-
   const navigationGroups = [
     {
       label: 'Workspaces',
@@ -34,6 +33,10 @@
       ]
     }
   ];
+
+  function activateHome() {
+    $('[data-command-center-home]')?.click();
+  }
 
   function workspaceCardsByName(name) {
     const normalized = name.trim().toLowerCase();
@@ -66,13 +69,22 @@
     });
   }
 
-  function enhanceBrand() {
+  function renderBrandHomeTag() {
     const brand = $('.brand');
-    if (!brand || brand.querySelector('.founder-ux-brand-copy')) return;
-    const copy = document.createElement('div');
-    copy.className = 'founder-ux-brand-copy';
-    copy.innerHTML = '<strong>Founder OS</strong><span>Command Center</span>';
-    brand.appendChild(copy);
+    if (!brand) return;
+    brand.innerHTML = `
+      <button class="founder-home-tag" type="button" data-founder-home-tag aria-label="Return to Founder OS Command Center ${VERSION}" title="Return to Founder OS Command Center">
+        <span class="founder-home-tag__icon" aria-hidden="true">☘</span>
+        <span class="founder-home-tag__copy">
+          <strong>Founder OS</strong>
+          <span>Command Center <em>${VERSION}</em></span>
+        </span>
+      </button>`;
+    $('[data-founder-home-tag]', brand)?.addEventListener('click', activateHome);
+  }
+
+  function removeRedundantHomeLinks() {
+    $$('[data-command-center-home]').forEach((button) => button.remove());
   }
 
   function renderMainNavigation() {
@@ -81,18 +93,14 @@
     if (!nav) return;
 
     nav.setAttribute('aria-label', 'Founder OS main navigation');
-    nav.innerHTML = `
-      <button class="nav-link active" type="button" data-command-center-home data-main-nav-id="home" aria-current="page" title="Home">
-        ${icon('home')}<span>Home</span>
-      </button>
-      ${navigationGroups.map((group) => `
-        <section class="nav-group" aria-label="${group.label}">
-          <div class="nav-group-label">${group.label}</div>
-          ${group.items.map((item) => `
-            <button class="nav-link" type="button" data-main-nav-id="${item.id}" title="${item.label}">
-              ${icon(item.icon)}<span>${item.label}</span>
-            </button>`).join('')}
-        </section>`).join('')}`;
+    nav.innerHTML = navigationGroups.map((group) => `
+      <section class="nav-group" aria-label="${group.label}">
+        <div class="nav-group-label">${group.label}</div>
+        ${group.items.map((item) => `
+          <button class="nav-link" type="button" data-main-nav-id="${item.id}" title="${item.label}">
+            ${icon(item.icon)}<span>${item.label}</span>
+          </button>`).join('')}
+      </section>`).join('');
 
     for (const group of navigationGroups) {
       for (const item of group.items) {
@@ -181,8 +189,14 @@
     });
   }
 
+  function synchronizeNavigation() {
+    renderBrandHomeTag();
+    removeRedundantHomeLinks();
+    if (document.body.dataset.activeWorkspace === 'registry') renderMainNavigation();
+  }
+
   function enhanceRegistry() {
-    renderMainNavigation();
+    synchronizeNavigation();
     enhanceHeader();
     addPortfolioHeading();
     addOperationsZone();
@@ -194,9 +208,10 @@
   });
   window.addEventListener('founder-os:workspace-registry-rendered', enhanceRegistry);
   window.addEventListener('founder-os:workspace-view-changed', () => {
+    window.setTimeout(synchronizeNavigation, 0);
     if (document.body.dataset.activeWorkspace === 'registry') enhanceRegistry();
   });
 
-  enhanceBrand();
+  synchronizeNavigation();
   enhanceRegistry();
 })();
