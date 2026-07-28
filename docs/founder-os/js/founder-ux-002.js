@@ -39,9 +39,12 @@
     try { return Boolean(localStorage.getItem(DRAFT_KEY)); } catch { return false; }
   }
 
-  function startWorkspaceCreation() {
-    const trigger = $('[data-create-workspace]');
-    trigger?.click();
+  function startWorkspaceCreation(source) {
+    if (!window.NNOSWorkspaceCreation?.open) {
+      setStatus('Workspace creation is still loading. Try again in a moment.');
+      return;
+    }
+    window.NNOSWorkspaceCreation.open(source || document.activeElement);
   }
 
   function renderBrandHomeTag() {
@@ -234,7 +237,7 @@
     if (action) {
       event.preventDefault();
       const name = action.dataset.launchAction;
-      if (name === 'create' || name === 'resume') startWorkspaceCreation();
+      if (name === 'create' || name === 'resume') startWorkspaceCreation(action);
       if (name === 'duplicates') openDuplicateReview();
       if (name === 'health') scrollToPortfolio('all');
       return;
