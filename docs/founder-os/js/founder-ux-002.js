@@ -10,13 +10,12 @@
     approvals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
     ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/></svg>',
     code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></svg>',
-    records: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
-    health: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>'
+    records: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>'
   };
 
   const icon = (name) => `<span class="nav-icon">${icons[name]}</span>`;
 
-  const mainNavigation = [
+  const navigationGroups = [
     {
       label: 'Workspaces',
       items: [
@@ -33,18 +32,8 @@
         { id: 'repo', label: 'Code & Deployments', icon: 'code', action: () => openSystemView('repo') },
         { id: 'knowledge', label: 'System Records', icon: 'records', action: () => openSystemView('knowledge') }
       ]
-    },
-    {
-      label: 'System',
-      items: [
-        { id: 'health', label: 'System Health', icon: 'health', action: () => openSystemView('repo') }
-      ]
     }
   ];
-
-  function activateHome() {
-    $('[data-command-center-home]')?.click();
-  }
 
   function workspaceCardsByName(name) {
     const normalized = name.trim().toLowerCase();
@@ -65,14 +54,15 @@
 
   function openSystemView(target) {
     openWorkspace('founder-os');
-    window.setTimeout(() => window.setWorkspace?.(target), 60);
+    window.setTimeout(() => window.setWorkspace?.(target), 80);
   }
 
   function setActiveNavigation(id) {
     $$('[data-main-nav-id]').forEach((button) => {
       const active = button.dataset.mainNavId === id;
       button.classList.toggle('active', active);
-      button.setAttribute('aria-current', active ? 'page' : 'false');
+      if (active) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
     });
   }
 
@@ -92,10 +82,10 @@
 
     nav.setAttribute('aria-label', 'Founder OS main navigation');
     nav.innerHTML = `
-      <button class="nav-link active" type="button" data-main-nav-id="home" aria-current="page" title="Home">
+      <button class="nav-link active" type="button" data-command-center-home data-main-nav-id="home" aria-current="page" title="Home">
         ${icon('home')}<span>Home</span>
       </button>
-      ${mainNavigation.map((group) => `
+      ${navigationGroups.map((group) => `
         <section class="nav-group" aria-label="${group.label}">
           <div class="nav-group-label">${group.label}</div>
           ${group.items.map((item) => `
@@ -104,8 +94,7 @@
             </button>`).join('')}
         </section>`).join('')}`;
 
-    $('[data-main-nav-id="home"]', nav)?.addEventListener('click', activateHome);
-    for (const group of mainNavigation) {
+    for (const group of navigationGroups) {
       for (const item of group.items) {
         $(`[data-main-nav-id="${item.id}"]`, nav)?.addEventListener('click', () => {
           setActiveNavigation(item.id);
@@ -148,6 +137,26 @@
     grid.parentNode.insertBefore(heading, grid);
   }
 
+  function addOperationsZone() {
+    const registry = $('[data-workspace="registry"]');
+    if (!registry || registry.querySelector('[data-ux-operations]')) return;
+    const zone = document.createElement('section');
+    zone.className = 'founder-ux-operations-zone';
+    zone.dataset.uxOperations = '';
+    zone.innerHTML = `
+      <div class="founder-ux-section-heading"><div><div class="eyebrow">Operations &amp; Tools</div><p>Open the same system areas available in the navigation panel.</p></div></div>
+      <div class="founder-ux-operations-grid">
+        <button type="button" data-operation-target="approvals"><span>Approval Inbox</span><strong>Review evidence and Founder decisions</strong><small>Open approvals →</small></button>
+        <button type="button" data-operation-target="ai"><span>AI Team</span><strong>Review assignments and verified handoffs</strong><small>Open AI Team →</small></button>
+        <button type="button" data-operation-target="repo"><span>Code &amp; Deployments</span><strong>Review repository and release readiness</strong><small>Open code status →</small></button>
+        <button type="button" data-operation-target="knowledge"><span>System Records</span><strong>Find approved platform decisions and records</strong><small>Open records →</small></button>
+      </div>`;
+    registry.appendChild(zone);
+    $$('[data-operation-target]', zone).forEach((button) => {
+      button.addEventListener('click', () => openSystemView(button.dataset.operationTarget));
+    });
+  }
+
   function workspaceTheme(id) {
     if (id === 'founder-os') return ['founder', 'Platform'];
     if (id === 'natural-nation') return ['natural', 'Product'];
@@ -176,6 +185,7 @@
     renderMainNavigation();
     enhanceHeader();
     addPortfolioHeading();
+    addOperationsZone();
     decorateWorkspaceCards();
   }
 
