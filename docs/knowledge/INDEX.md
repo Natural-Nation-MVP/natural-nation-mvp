@@ -1,31 +1,24 @@
-# KB-INDEX-001 — Legacy Combined Knowledge Index
+# KB-INDEX-001 — Deprecated Combined Knowledge Index
 
-Status: Deprecated for runtime retrieval
+Status: Deprecated and blocked from runtime retrieval  
 Superseded by: NN-KS-003
 
-## Important
-
-This file previously served as a combined entry point for Natural Nation and Founder OS. That design allowed cross-workspace context bleeding and is no longer approved for runtime loading, workspace search, or AI context assembly.
-
-## Approved Runtime Entry Points
+## Approved Entry Points
 
 - Founder OS: `docs/founder-os/knowledge/INDEX.md`
 - Natural Nation: `docs/knowledge/NATURAL-NATION-INDEX.md`
-- Future workspaces: `<workspace-root>/knowledge/INDEX.md`
+- Future workspace: `<workspace-root>/knowledge/INDEX.md`
 
-## Isolation Rule
+## Separation Status
 
-Every runtime retrieval must resolve both:
+Founder OS records have been physically removed from the Natural Nation knowledge tree. The former `docs/knowledge/founder-os/` directory is no longer canonical and must not be recreated.
 
-- `workspaceId`
-- `knowledgeBaseId`
+This file exists only as a migration notice. It must not be loaded for workspace search, AI context assembly, or runtime knowledge retrieval.
 
-Unscoped retrieval is prohibited. Cross-workspace search is disabled by default and requires an explicit Founder action.
+## Runtime Rule
 
-## Legacy Domains
+Every retrieval must resolve and enforce both `workspaceId` and `knowledgeBaseId`. Unscoped retrieval is prohibited. Cross-workspace access requires an explicit Founder action and visible source attribution.
 
-The records previously referenced from this combined index remain in the repository for history and migration traceability. They must now be loaded only through the correct workspace-specific index.
+## Governance
 
-## Governance Reference
-
-See `docs/knowledge/NN-KS-003-WORKSPACE-ISOLATION.md` for the locked architecture and retrieval contract.
+See `docs/knowledge/NN-KS-003-WORKSPACE-ISOLATION.md`.
