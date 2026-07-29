@@ -42,14 +42,13 @@
     if (!crumb || document.body.dataset.activeWorkspace !== 'registry') return;
     const user = profile();
     const signature = `${user.name}|${user.role}`;
-    if (crumb.dataset.accountSignature === signature) return;
+    if (crumb.dataset.accountSignature === signature && crumb.querySelector('[data-open-founder-settings]')) return;
     crumb.dataset.accountSignature = signature;
     crumb.classList.add('founder-account-tag');
-    crumb.setAttribute('role', 'button');
-    crumb.tabIndex = 0;
-    crumb.dataset.openFounderSettings = '';
-    crumb.setAttribute('aria-label', `Open Founder OS settings for ${user.name}`);
-    crumb.innerHTML = `<span class="founder-account-tag__avatar">${esc(user.name.slice(0, 1).toUpperCase())}</span><span><strong>Welcome back, ${esc(user.name)}</strong><small>${esc(user.role)} account · Settings</small></span>`;
+    crumb.removeAttribute('role');
+    crumb.removeAttribute('tabindex');
+    crumb.removeAttribute('data-open-founder-settings');
+    crumb.innerHTML = `<button type="button" class="founder-account-button" data-open-founder-settings aria-label="Open Founder OS settings for ${esc(user.name)}"><span class="founder-account-tag__avatar" aria-hidden="true">${esc(user.name.slice(0, 1).toUpperCase())}</span><span class="founder-account-tag__copy"><strong>Welcome back, ${esc(user.name)}</strong><small>${esc(user.role)} account</small></span><span class="founder-account-tag__chevron" aria-hidden="true">›</span></button>`;
   }
 
   function openSettings() {
@@ -139,6 +138,15 @@
     });
   }
 
+  function updateProtectedApproval() {
+    const checkbox = $('[data-workspace-confirm]');
+    const createButton = $('[data-workspace-create-protected]');
+    if (!checkbox || !createButton) return;
+    createButton.disabled = !checkbox.checked;
+    createButton.setAttribute('aria-disabled', String(!checkbox.checked));
+    checkbox.closest('.workspace-confirmation')?.classList.toggle('is-confirmed', checkbox.checked);
+  }
+
   function scrollCarousel(direction) {
     const track = $('[data-workspace-registry-list]');
     const first = track && $$('.workspace-card', track).find((card) => !card.hidden);
@@ -148,11 +156,16 @@
     track.scrollBy({ left: (first.getBoundingClientRect().width + gap) * (direction === 'next' ? 1 : -1), behavior: 'smooth' });
   }
 
-  function refresh() { renderAccountTag(); validateDraftControls(); updateEmptyState(); updateGatewayDependentActions(); }
+  function openWorkspaceCard(card) {
+    if (!card || card.classList.contains('is-unavailable') || card.getAttribute('aria-disabled') === 'true') return;
+    card.querySelector('[data-resume-workspace]:not(:disabled)')?.click();
+  }
+
+  function refresh() { renderAccountTag(); validateDraftControls(); updateEmptyState(); updateGatewayDependentActions(); updateProtectedApproval(); }
   function scheduleRefresh() { if (refreshQueued) return; refreshQueued = true; requestAnimationFrame(() => { refreshQueued = false; refresh(); }); }
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); openSettings(); return; }
+    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); event.stopImmediatePropagation(); openSettings(); return; }
     if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); event.stopImmediatePropagation(); openHealth(); return; }
     const carousel = event.target.closest('[data-carousel-direction]');
     if (carousel && !carousel.disabled) { event.preventDefault(); event.stopImmediatePropagation(); scrollCarousel(carousel.dataset.carouselDirection); return; }
@@ -164,18 +177,30 @@
     const healthRow = event.target.closest('[data-health-open-workspace]');
     if (healthRow) {
       const card = $(`.workspace-card[data-workspace-id="${CSS.escape(healthRow.dataset.healthOpenWorkspace)}"]`);
-      card?.querySelector('[data-resume-workspace]')?.click();
       healthRow.closest('dialog')?.close();
+      openWorkspaceCard(card);
+      return;
+    }
+    const card = event.target.closest('.workspace-card');
+    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openWorkspaceCard(card);
     }
   }, true);
 
+  document.addEventListener('change', (event) => { if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval(); }, true);
   document.addEventListener('keydown', (event) => {
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-open-founder-settings]')) { event.preventDefault(); openSettings(); }
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.workspace-card')) { event.preventDefault(); openWorkspaceCard(event.target); }
     if (event.key === 'Escape') $('[data-founder-system-dialog][open]')?.close();
   });
   document.addEventListener('input', (event) => { if (event.target.matches('[data-launch-search]')) scheduleRefresh(); });
   ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach((name) => window.addEventListener(name, scheduleRefresh));
   window.addEventListener('storage', scheduleRefresh);
-  new MutationObserver(scheduleRefresh).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'data-active-workspace'] });
+
+  new MutationObserver((mutations) => {
+    if (mutations.some((mutation) => mutation.type === 'childList' || ['hidden', 'disabled', 'data-active-workspace'].includes(mutation.attributeName))) scheduleRefresh();
+  }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'data-active-workspace'] });
+
   scheduleRefresh();
 })();
