@@ -158,17 +158,19 @@
 
   function openWorkspaceCard(card) {
     if (!card || card.classList.contains('is-unavailable') || card.getAttribute('aria-disabled') === 'true') return;
-    card.querySelector('[data-resume-workspace]:not(:disabled)')?.click();
+    const button = card.querySelector('[data-resume-workspace]:not(:disabled)');
+    if (!button) return;
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
   }
 
   function refresh() { renderAccountTag(); validateDraftControls(); updateEmptyState(); updateGatewayDependentActions(); updateProtectedApproval(); }
   function scheduleRefresh() { if (refreshQueued) return; refreshQueued = true; requestAnimationFrame(() => { refreshQueued = false; refresh(); }); }
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); event.stopImmediatePropagation(); openSettings(); return; }
-    if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); event.stopImmediatePropagation(); openHealth(); return; }
+    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); event.stopPropagation(); openSettings(); return; }
+    if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); event.stopPropagation(); openHealth(); return; }
     const carousel = event.target.closest('[data-carousel-direction]');
-    if (carousel && !carousel.disabled) { event.preventDefault(); event.stopImmediatePropagation(); scrollCarousel(carousel.dataset.carouselDirection); return; }
+    if (carousel && !carousel.disabled) { event.preventDefault(); event.stopPropagation(); scrollCarousel(carousel.dataset.carouselDirection); return; }
     if (event.target.closest('[data-clear-workspace-search]')) {
       const search = $('[data-launch-search]');
       if (search) { search.value = ''; search.dispatchEvent(new Event('input', { bubbles: true })); search.focus(); }
@@ -184,14 +186,28 @@
     const card = event.target.closest('.workspace-card');
     if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
       event.preventDefault();
-      event.stopImmediatePropagation();
+      event.stopPropagation();
       openWorkspaceCard(card);
     }
-  }, true);
+  });
+
+  document.addEventListener('pointerup', (event) => {
+    const brand = event.target.closest('[data-founder-home-tag]');
+    if (brand) {
+      event.preventDefault();
+      const homeButton = $('[data-command-center-home]');
+      if (homeButton) homeButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    }
+  });
 
   document.addEventListener('change', (event) => { if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval(); }, true);
   document.addEventListener('keydown', (event) => {
     if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.workspace-card')) { event.preventDefault(); openWorkspaceCard(event.target); }
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-founder-home-tag]')) {
+      event.preventDefault();
+      const homeButton = $('[data-command-center-home]');
+      homeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    }
     if (event.key === 'Escape') $('[data-founder-system-dialog][open]')?.close();
   });
   document.addEventListener('input', (event) => { if (event.target.matches('[data-launch-search]')) scheduleRefresh(); });
