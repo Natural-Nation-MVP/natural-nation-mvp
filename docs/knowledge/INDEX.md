@@ -1,64 +1,31 @@
-# KB-INDEX-001 — Natural Nation Knowledge Base Index
+# KB-INDEX-001 — Legacy Combined Knowledge Index
 
-Status: Founder Approved
+Status: Deprecated for runtime retrieval
+Superseded by: NN-KS-003
 
-## Purpose
+## Important
 
-This index is the canonical entry point for Natural Nation, Founder OS, Duey, AI operations, governance, product knowledge, and implementation context.
+This file previously served as a combined entry point for Natural Nation and Founder OS. That design allowed cross-workspace context bleeding and is no longer approved for runtime loading, workspace search, or AI context assembly.
 
-## Source of Truth
+## Approved Runtime Entry Points
 
-GitHub is the canonical source of truth. ChatGPT supports planning, drafting, review, and execution. Founder OS uses this knowledge base as its operating memory.
+- Founder OS: `docs/founder-os/knowledge/INDEX.md`
+- Natural Nation: `docs/knowledge/NATURAL-NATION-INDEX.md`
+- Future workspaces: `<workspace-root>/knowledge/INDEX.md`
 
-## Knowledge Domains
+## Isolation Rule
 
-- [Founder OS](./founder-os/README.md) — KB-FOUNDER-001
-- [Product](./product/README.md) — KB-PRODUCT-001
-- [Governance](./governance/README.md) — KB-GOV-001
-- [Design](./design/README.md) — KB-DESIGN-001
-- [Duey](./duey/README.md) — KB-DUEY-001
-- [Protocols](./protocols/README.md) — KB-PROTOCOL-001
-- [AI Operations](./ai/README.md) — KB-AI-001
-- [API](./api/README.md) — KB-API-001
-- [Testing](./testing/README.md) — KB-QA-001
-- [Releases](./releases/README.md) — KB-RELEASE-001
-- [Decisions](./decisions/README.md) — KB-DECISION-001
+Every runtime retrieval must resolve both:
 
-## Migrated Canonical Records
+- `workspaceId`
+- `knowledgeBaseId`
 
-- [Founder OS Architecture Reference](./founder-os/architecture.md) — KB-FOUNDER-002
-- [Repository Intelligence](./founder-os/repository-intelligence.md) — KB-FOUNDER-003
-- [Mission Control](./founder-os/mission-control.md) — KB-FOUNDER-004
-- [Founder OS Operating Model v1](./founder-os/operating-model-v1.md) — KB-FOUNDER-005
-- [AI Operations](./founder-os/ai-operations.md) — KB-FOUNDER-006
-- [Founder OS Single Source of Truth Standard](./founder-os/source-of-truth.md) — KB-FOUNDER-007
-- [Decision Ledger](../decisions/DECISION-LEDGER.md) — KB-DECISION-002
-- [Validation Center](../releases/VALIDATION-CENTER.md) — KB-RELEASE-002
-- [Natural Nation MVP Principles](./product/mvp-principles.md) — KB-PRODUCT-002
-- [Onboarding](./product/onboarding.md) — KB-PRODUCT-003
-- [Feature Registry v1](./product/feature-registry-v1.md) — KB-PRODUCT-004
-- [Duey Personality Standard](./duey/personality.md) — KB-DUEY-002
-- [Protocol Library v1](./protocols/library-v1.md) — KB-PROTOCOL-002
-- [Protocol Assignment Matrix v1](./protocols/assignment-matrix-v1.md) — KB-PROTOCOL-003
-- [Design System v1](./design/system-v1.md) — KB-DESIGN-002
-- [Design Assets](./design/assets.md) — KB-DESIGN-003
-- [AI Context Loading Standard](./ai/context-loading-standard.md) — KB-AI-002
-- [API Catalog v1](./api/catalog-v1.md) — KB-API-002
-- [QA Standard v1](./testing/qa-standard-v1.md) — KB-QA-002
+Unscoped retrieval is prohibited. Cross-workspace search is disabled by default and requires an explicit Founder action.
 
-## Founder OS Integration
+## Legacy Domains
 
-The Knowledge Graph should surface repository-backed records from this index and related domain records.
+The records previously referenced from this combined index remain in the repository for history and migration traceability. They must now be loaded only through the correct workspace-specific index.
 
-## Operating Rules
+## Governance Reference
 
-- Every approved change must update the affected knowledge records.
-- Every major AI workflow should load this index before execution.
-- Project state, roadmap, governance, and session tracking must stay synchronized.
-- Locked decisions must be traceable to governance records or ADRs.
-- Every workspace should answer one primary Founder question and enable a clear decision or action.
-- Founder OS should store references to canonical records instead of duplicating project content.
-
-## Current Priority
-
-Validate Single Source of Truth references, Validation Center foundation, and Decision Ledger foundation.
+See `docs/knowledge/NN-KS-003-WORKSPACE-ISOLATION.md` for the locked architecture and retrieval contract.
