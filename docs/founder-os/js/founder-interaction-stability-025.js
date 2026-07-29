@@ -4,6 +4,7 @@
   let drag = null;
   let cardPointer = null;
   let suppressCardClickUntil = 0;
+  let snapTimer = 0;
 
   function activeWorkspace() { return window.NNOSActiveWorkspace || null; }
   function closeDialog(dialog) { if (!dialog) return; try { dialog.close(); } catch { dialog.removeAttribute('open'); } }
@@ -40,7 +41,6 @@
     if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
     const button = $('[data-resume-workspace]', card);
     if (!button || button.disabled) return;
-    // Use the registry's real control so its authoritative workspace lookup and routing run unchanged.
     button.click();
   }
 
@@ -54,22 +54,59 @@
     if (next) next.disabled = track.scrollLeft >= max - 2 || max <= 2;
   }
 
+  function closestCardLeft(track) {
+    const cards = $$('.workspace-card:not([hidden])', track);
+    if (!cards.length) return 0;
+    const current = track.scrollLeft;
+    const max = Math.max(0, track.scrollWidth - track.clientWidth);
+    let target = 0;
+    let distance = Number.POSITIVE_INFINITY;
+
+    for (const card of cards) {
+      const left = Math.max(0, Math.min(max, card.offsetLeft - track.offsetLeft));
+      const delta = Math.abs(left - current);
+      if (delta < distance) {
+        distance = delta;
+        target = left;
+      }
+    }
+    return target;
+  }
+
+  function snapToClosestCard(track) {
+    window.clearTimeout(snapTimer);
+    const left = closestCardLeft(track);
+    track.style.scrollSnapType = 'none';
+    track.scrollTo({ left, behavior: 'smooth' });
+    snapTimer = window.setTimeout(() => {
+      track.style.removeProperty('scroll-snap-type');
+      updateCarouselButtons();
+    }, 240);
+  }
+
   function finishDrag(track, event) {
     if (!drag || drag.id !== event.pointerId) return;
     const moved = drag.moved;
     try { track.releasePointerCapture?.(event.pointerId); } catch {}
     track.classList.remove('is-dragging');
     drag = null;
-    if (moved) suppressCardClickUntil = performance.now() + 350;
+    if (moved) {
+      suppressCardClickUntil = performance.now() + 350;
+      requestAnimationFrame(() => snapToClosestCard(track));
+    } else {
+      track.style.removeProperty('scroll-snap-type');
+    }
     updateCarouselButtons();
   }
 
   function installDragScroll() {
     const track = $('[data-workspace-registry-list]');
-    if (!track || track.dataset.dragScrollReady === '027') return;
-    track.dataset.dragScrollReady = '027';
+    if (!track || track.dataset.dragScrollReady === '028') return;
+    track.dataset.dragScrollReady = '028';
     track.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'touch' || event.button !== 0 || event.target.closest('button,a,input,select,textarea,summary,details')) return;
+      window.clearTimeout(snapTimer);
+      track.style.scrollSnapType = 'none';
       drag = { id: event.pointerId, x: event.clientX, left: track.scrollLeft, moved: false };
       track.setPointerCapture?.(event.pointerId);
       track.classList.add('is-dragging');
@@ -84,7 +121,12 @@
     });
     track.addEventListener('pointerup', (event) => finishDrag(track, event));
     track.addEventListener('pointercancel', (event) => finishDrag(track, event));
-    track.addEventListener('lostpointercapture', () => { track.classList.remove('is-dragging'); drag = null; updateCarouselButtons(); });
+    track.addEventListener('lostpointercapture', () => {
+      track.classList.remove('is-dragging');
+      if (drag?.moved) requestAnimationFrame(() => snapToClosestCard(track));
+      drag = null;
+      updateCarouselButtons();
+    });
     track.addEventListener('scroll', updateCarouselButtons, { passive: true });
   }
 
@@ -114,7 +156,6 @@
     const distance = Math.hypot(event.clientX - cardPointer.x, event.clientY - cardPointer.y);
     const card = cardPointer.card;
     cardPointer = null;
-    // Pointer capture changes the pointerup target to the carousel. The original card is still authoritative.
     if (distance > 8 || drag?.moved || performance.now() < suppressCardClickUntil) return;
     event.preventDefault();
     event.stopImmediatePropagation();
