@@ -3,6 +3,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   let drag = null;
   let cardPointer = null;
+  let suppressCardClickUntil = 0;
 
   function activeWorkspace() { return window.NNOSActiveWorkspace || null; }
   function closeDialog(dialog) { if (!dialog) return; try { dialog.close(); } catch { dialog.removeAttribute('open'); } }
@@ -24,15 +25,23 @@
     $$('[data-context-module]', nav).forEach((button) => button.classList.toggle('active', button.dataset.contextModule === target));
   }
 
-  function removeRedundantOpenLinks() {
-    $$('.workspace-card [data-resume-workspace]').forEach((button) => { button.hidden = true; button.setAttribute('aria-hidden', 'true'); button.tabIndex = -1; });
+  function prepareCards() {
+    $$('.workspace-card').forEach((card) => {
+      card.tabIndex = card.getAttribute('aria-disabled') === 'true' ? -1 : 0;
+      card.setAttribute('role', 'link');
+      const title = $('.workspace-launch-card-title h3, .workspace-card-top h2', card)?.textContent?.trim() || 'workspace';
+      card.setAttribute('aria-label', `Open ${title}`);
+      const button = $('[data-resume-workspace]', card);
+      if (button) { button.hidden = true; button.setAttribute('aria-hidden', 'true'); button.tabIndex = -1; }
+    });
   }
 
   function openCard(card) {
     if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
-    const button = $('[data-resume-workspace]:not(:disabled)', card);
-    if (!button) return;
-    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    const button = $('[data-resume-workspace]', card);
+    if (!button || button.disabled) return;
+    // Use the registry's real control so its authoritative workspace lookup and routing run unchanged.
+    button.click();
   }
 
   function updateCarouselButtons() {
@@ -45,30 +54,52 @@
     if (next) next.disabled = track.scrollLeft >= max - 2 || max <= 2;
   }
 
+  function finishDrag(track, event) {
+    if (!drag || drag.id !== event.pointerId) return;
+    const moved = drag.moved;
+    try { track.releasePointerCapture?.(event.pointerId); } catch {}
+    track.classList.remove('is-dragging');
+    drag = null;
+    if (moved) suppressCardClickUntil = performance.now() + 350;
+    updateCarouselButtons();
+  }
+
   function installDragScroll() {
     const track = $('[data-workspace-registry-list]');
-    if (!track || track.dataset.dragScrollReady) return;
-    track.dataset.dragScrollReady = 'true';
+    if (!track || track.dataset.dragScrollReady === '027') return;
+    track.dataset.dragScrollReady = '027';
     track.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'touch' || event.target.closest('button,a,input,select,textarea,summary,details')) return;
+      if (event.pointerType === 'touch' || event.button !== 0 || event.target.closest('button,a,input,select,textarea,summary,details')) return;
       drag = { id: event.pointerId, x: event.clientX, left: track.scrollLeft, moved: false };
-      track.setPointerCapture?.(event.pointerId); track.classList.add('is-dragging');
+      track.setPointerCapture?.(event.pointerId);
+      track.classList.add('is-dragging');
     });
     track.addEventListener('pointermove', (event) => {
       if (!drag || drag.id !== event.pointerId) return;
       const delta = event.clientX - drag.x;
-      if (Math.abs(delta) > 5) drag.moved = true;
-      if (drag.moved) { event.preventDefault(); track.scrollLeft = drag.left - delta; }
+      if (Math.abs(delta) > 6) drag.moved = true;
+      if (!drag.moved) return;
+      event.preventDefault();
+      track.scrollLeft = drag.left - delta;
     });
-    const stop = (event) => { if (!drag || drag.id !== event.pointerId) return; track.releasePointerCapture?.(event.pointerId); track.classList.remove('is-dragging'); drag = null; updateCarouselButtons(); };
-    track.addEventListener('pointerup', stop); track.addEventListener('pointercancel', stop); track.addEventListener('scroll', updateCarouselButtons, { passive: true });
+    track.addEventListener('pointerup', (event) => finishDrag(track, event));
+    track.addEventListener('pointercancel', (event) => finishDrag(track, event));
+    track.addEventListener('lostpointercapture', () => { track.classList.remove('is-dragging'); drag = null; updateCarouselButtons(); });
+    track.addEventListener('scroll', updateCarouselButtons, { passive: true });
   }
 
-  function stabilizeHome() { if (document.body.dataset.activeWorkspace !== 'registry') return; removeRedundantOpenLinks(); installDragScroll(); updateCarouselButtons(); }
+  function stabilizeHome() {
+    if (document.body.dataset.activeWorkspace !== 'registry') return;
+    prepareCards();
+    installDragScroll();
+    updateCarouselButtons();
+  }
 
   document.addEventListener('pointerdown', (event) => {
     const card = event.target.closest?.('.workspace-card');
-    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) cardPointer = { card, x: event.clientX, y: event.clientY };
+    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
+      cardPointer = { card, x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+    }
   }, true);
 
   document.addEventListener('pointerup', (event) => {
@@ -79,17 +110,22 @@
       const rect = dialog.getBoundingClientRect();
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) { event.preventDefault(); event.stopImmediatePropagation(); closeDialog(dialog); return; }
     }
-    if (!cardPointer) return;
-    const current = event.target.closest?.('.workspace-card');
+    if (!cardPointer || cardPointer.pointerId !== event.pointerId) return;
     const distance = Math.hypot(event.clientX - cardPointer.x, event.clientY - cardPointer.y);
-    const card = cardPointer.card; cardPointer = null;
-    if (current !== card || distance > 8 || drag?.moved) return;
-    event.preventDefault(); event.stopImmediatePropagation(); openCard(card);
+    const card = cardPointer.card;
+    cardPointer = null;
+    // Pointer capture changes the pointerup target to the carousel. The original card is still authoritative.
+    if (distance > 8 || drag?.moved || performance.now() < suppressCardClickUntil) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openCard(card);
   }, true);
 
   document.addEventListener('click', (event) => {
     const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
     if (close) { event.preventDefault(); event.stopImmediatePropagation(); closeDialog(close.closest('dialog')); return; }
+    const card = event.target.closest?.('.workspace-card');
+    if (card && performance.now() < suppressCardClickUntil) { event.preventDefault(); event.stopImmediatePropagation(); return; }
     const module = event.target.closest('[data-context-module]');
     if (module && activeWorkspace()) requestAnimationFrame(() => syncWorkspaceNavigation(module.dataset.contextModule));
   }, true);
