@@ -43,8 +43,10 @@
     const checks = healthChecks(workspace);
     const healthy = checks.filter(([, ok]) => ok).length;
     const isOsStudio = workspace.workspaceKey === 'os-studio' || workspace.displayName === 'OS Studio';
-    return `<details class="workspace-card-management" data-integrated-workspace-management="${escapeHtml(workspace.workspaceId)}">
-      <summary><span>Workspace management</span><strong>${healthy}/${checks.length} checks</strong></summary>
+    return `<section class="workspace-settings-panel" data-workspace-settings-panel="${escapeHtml(workspace.workspaceId)}">
+      <div class="eyebrow">Workspace Settings</div>
+      <h2>Manage ${escapeHtml(workspace.displayName)}</h2>
+      <p class="muted">Review identity, repository, governance, lifecycle, and workspace health from inside this workspace.</p>
       <div class="workspace-card-management-grid">
         <div><span>Lifecycle</span><strong>${escapeHtml(lifecycleState(workspace))}</strong></div>
         <div><span>Repository</span><code>${escapeHtml(workspace.repository?.root || 'Missing')}</code></div>
@@ -53,26 +55,41 @@
       </div>
       <div class="workspace-card-health">${checks.map(([label, ok]) => `<span class="${ok ? 'ok' : 'warning'}">${ok ? '✓' : '⚠'} ${escapeHtml(label)}</span>`).join('')}</div>
       <div class="workspace-card-management-actions">${isOsStudio ? '<button type="button" data-open-duplicate-review>Compare OS Studio Records</button>' : ''}${actionButtons(workspace)}</div>
-    </details>`;
+      <p><strong>${healthy}/${checks.length} checks passing</strong></p>
+    </section>`;
   }
 
-  function injectManagementIntoCards() {
+  function removeManagementFromHomeCards() {
+    document.querySelectorAll('[data-integrated-workspace-management]').forEach((node) => node.remove());
+  }
+
+  function activeWorkspaceId() {
+    const active = document.body.dataset.activeWorkspace;
+    if (!active || active === 'registry') return null;
+    if (active === 'mission' || active === 'discovery' || active === 'blueprint' || active === 'build' || active === 'repo' || active === 'ai' || active === 'knowledge') {
+      return document.body.dataset.currentWorkspaceId || null;
+    }
+    return active;
+  }
+
+  function injectManagementIntoWorkspace() {
     if (!canonicalRegistry) return;
-    document.querySelectorAll('[data-workspace-id]').forEach((card) => {
-      const workspaceId = card.dataset.workspaceId;
-      const workspace = (canonicalRegistry.workspaces || []).find((item) => item.workspaceId === workspaceId);
-      if (!workspace || card.querySelector('[data-integrated-workspace-management]')) return;
-      const primaryButton = card.querySelector('[data-resume-workspace]');
-      if (!primaryButton) return;
-      primaryButton.insertAdjacentHTML('beforebegin', workspaceManagementMarkup(workspace));
-    });
+    removeManagementFromHomeCards();
+    const workspaceId = activeWorkspaceId();
+    document.querySelectorAll('[data-workspace-settings-panel]').forEach((node) => node.remove());
+    if (!workspaceId) return;
+    const workspace = (canonicalRegistry.workspaces || []).find((item) => item.workspaceId === workspaceId);
+    if (!workspace) return;
+    const activeView = document.querySelector('.workspace-view.active');
+    if (!activeView) return;
+    activeView.insertAdjacentHTML('beforeend', workspaceManagementMarkup(workspace));
   }
 
   async function loadCanonicalRegistry() {
     const response = await fetch(`${canonicalRegistryPath}&verify=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Canonical Workspace Registry returned ${response.status}.`);
     canonicalRegistry = await response.json();
-    injectManagementIntoCards();
+    injectManagementIntoWorkspace();
   }
 
   async function runLifecycleAction(workspaceId, action) {
@@ -132,7 +149,8 @@
     }
   });
 
-  window.addEventListener('founder-os:workspace-registry-rendered', injectManagementIntoCards);
+  window.addEventListener('founder-os:workspace-registry-rendered', removeManagementFromHomeCards);
+  window.addEventListener('founder-os:workspace-view-changed', () => setTimeout(injectManagementIntoWorkspace, 0));
   window.addEventListener('founder-os:workspace-lifecycle-changed', () => window.location.reload());
   loadCanonicalRegistry().catch((error) => {
     console.error(error);
