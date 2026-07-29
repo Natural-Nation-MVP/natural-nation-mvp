@@ -16,16 +16,26 @@
     return 'Good evening';
   }
 
-  function transition(action) {
+  function transition(action, immediate = false) {
     const main = $('.main');
     if (!main || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return action();
+
+    if (immediate) {
+      // Workspace launches must feel instant. Update the view first, then apply a light entrance cue.
+      action();
+      main.classList.remove('view-transition-out');
+      main.classList.add('view-transition-in');
+      requestAnimationFrame(() => setTimeout(() => main.classList.remove('view-transition-in'), 160));
+      return;
+    }
+
     main.classList.add('view-transition-out');
     setTimeout(() => {
       action();
       main.classList.remove('view-transition-out');
       main.classList.add('view-transition-in');
-      setTimeout(() => main.classList.remove('view-transition-in'), 250);
-    }, 140);
+      setTimeout(() => main.classList.remove('view-transition-in'), 200);
+    }, 90);
   }
 
   function showExecutionBar(target) {
@@ -278,7 +288,7 @@
       event.preventDefault();
       event.stopImmediatePropagation();
       const workspace = registry.workspaces.find((item) => item.id === resumeButton.dataset.resumeWorkspace);
-      if (workspace) transition(() => openWorkspace(workspace));
+      if (workspace) transition(() => openWorkspace(workspace), true);
     }
   }, true);
 
