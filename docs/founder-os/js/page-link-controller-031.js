@@ -171,6 +171,7 @@
   }
 
   document.addEventListener('click', (event) => {
+    if (event.defaultPrevented) return;
     const home = event.target.closest?.('[data-page-link-home]');
     if (home) {
       event.preventDefault();
@@ -181,12 +182,6 @@
     if (view) {
       event.preventDefault();
       goToView(view.dataset.pageLinkView);
-      return;
-    }
-    const card = event.target.closest?.('[data-page-link-workspace]');
-    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
-      event.preventDefault();
-      openWorkspace(card.dataset.pageLinkWorkspace);
     }
   });
 
