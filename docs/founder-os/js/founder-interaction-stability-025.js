@@ -2,9 +2,8 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   let drag = null;
-  let cardPointer = null;
-  let suppressCardClickUntil = 0;
   let snapTimer = 0;
+  let suppressClicksUntil = 0;
 
   function closeDialog(dialog) {
     if (!dialog) return;
@@ -17,22 +16,7 @@
       card.setAttribute('role', 'link');
       const title = $('.workspace-launch-card-title h3, .workspace-card-top h2', card)?.textContent?.trim() || 'workspace';
       card.setAttribute('aria-label', `Open ${title}`);
-      const legacyButton = $('[data-resume-workspace]', card);
-      if (legacyButton) {
-        card.dataset.pageLinkWorkspace = legacyButton.dataset.resumeWorkspace || card.dataset.workspaceId || '';
-        legacyButton.removeAttribute('data-resume-workspace');
-        legacyButton.hidden = true;
-        legacyButton.setAttribute('aria-hidden', 'true');
-        legacyButton.tabIndex = -1;
-      }
     });
-  }
-
-  function openCard(card) {
-    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
-    const workspaceId = card.dataset.pageLinkWorkspace || card.dataset.workspaceId;
-    if (!workspaceId) return;
-    window.NNOSPageLinks?.openWorkspace(workspaceId);
   }
 
   function updateCarouselButtons() {
@@ -81,7 +65,8 @@
     track.classList.remove('is-dragging');
     drag = null;
     if (moved) {
-      suppressCardClickUntil = performance.now() + 350;
+      suppressClicksUntil = performance.now() + 400;
+      track.dataset.carouselSuppressUntil = String(suppressClicksUntil);
       requestAnimationFrame(() => snapToClosestCard(track));
     } else {
       track.style.removeProperty('scroll-snap-type');
@@ -91,8 +76,9 @@
 
   function installDragScroll() {
     const track = $('[data-workspace-registry-list]');
-    if (!track || track.dataset.dragScrollReady === '031') return;
-    track.dataset.dragScrollReady = '031';
+    if (!track || track.dataset.dragScrollReady === '032') return;
+    track.dataset.dragScrollReady = '032';
+
     track.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'touch' || event.button !== 0 || event.target.closest('button,a,input,select,textarea,summary,details')) return;
       window.clearTimeout(snapTimer);
@@ -101,6 +87,7 @@
       track.setPointerCapture?.(event.pointerId);
       track.classList.add('is-dragging');
     });
+
     track.addEventListener('pointermove', (event) => {
       if (!drag || drag.id !== event.pointerId) return;
       const delta = event.clientX - drag.x;
@@ -109,11 +96,16 @@
       event.preventDefault();
       track.scrollLeft = drag.left - delta;
     });
+
     track.addEventListener('pointerup', (event) => finishDrag(track, event));
     track.addEventListener('pointercancel', (event) => finishDrag(track, event));
     track.addEventListener('lostpointercapture', () => {
       track.classList.remove('is-dragging');
-      if (drag?.moved) requestAnimationFrame(() => snapToClosestCard(track));
+      if (drag?.moved) {
+        suppressClicksUntil = performance.now() + 400;
+        track.dataset.carouselSuppressUntil = String(suppressClicksUntil);
+        requestAnimationFrame(() => snapToClosestCard(track));
+      }
       drag = null;
       updateCarouselButtons();
     });
@@ -123,42 +115,9 @@
   function stabilizeHome() {
     if (document.body.dataset.activeWorkspace !== 'registry') return;
     prepareCards();
-    window.NNOSPageLinks?.isolate();
     installDragScroll();
     updateCarouselButtons();
   }
-
-  document.addEventListener('pointerdown', (event) => {
-    const card = event.target.closest?.('.workspace-card');
-    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
-      cardPointer = { card, x: event.clientX, y: event.clientY, pointerId: event.pointerId };
-    }
-  }, true);
-
-  document.addEventListener('pointerup', (event) => {
-    const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
-    if (close) {
-      event.preventDefault();
-      closeDialog(close.closest('dialog'));
-      return;
-    }
-    const dialog = event.target instanceof HTMLDialogElement ? event.target : null;
-    if (dialog?.open) {
-      const rect = dialog.getBoundingClientRect();
-      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
-        event.preventDefault();
-        closeDialog(dialog);
-        return;
-      }
-    }
-    if (!cardPointer || cardPointer.pointerId !== event.pointerId) return;
-    const distance = Math.hypot(event.clientX - cardPointer.x, event.clientY - cardPointer.y);
-    const card = cardPointer.card;
-    cardPointer = null;
-    if (distance > 8 || drag?.moved || performance.now() < suppressCardClickUntil) return;
-    event.preventDefault();
-    openCard(card);
-  }, true);
 
   document.addEventListener('click', (event) => {
     const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
@@ -167,8 +126,10 @@
       closeDialog(close.closest('dialog'));
       return;
     }
-    const card = event.target.closest?.('.workspace-card');
-    if (card && performance.now() < suppressCardClickUntil) event.preventDefault();
+    const track = event.target.closest?.('[data-workspace-registry-list]');
+    if (track && performance.now() < Number(track.dataset.carouselSuppressUntil || 0)) {
+      event.preventDefault();
+    }
   }, true);
 
   document.addEventListener('keydown', (event) => {
@@ -178,13 +139,18 @@
         event.preventDefault();
         closeDialog(dialog);
       }
-      return;
-    }
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches?.('.workspace-card')) {
-      event.preventDefault();
-      openCard(event.target);
     }
   }, true);
+
+  window.NNOSCarousel = {
+    shouldSuppressClick(track = $('[data-workspace-registry-list]')) {
+      return Boolean(track && performance.now() < Number(track.dataset.carouselSuppressUntil || 0));
+    },
+    snap: () => {
+      const track = $('[data-workspace-registry-list]');
+      if (track) snapToClosestCard(track);
+    }
+  };
 
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
     if (!event.detail?.workspace) requestAnimationFrame(stabilizeHome);
