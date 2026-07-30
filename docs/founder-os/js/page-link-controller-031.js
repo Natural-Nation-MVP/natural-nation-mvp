@@ -11,6 +11,13 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   })[character]);
 
+  function greeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
   function modulesFor(workspaceId) {
     if (workspaceId === 'founder-os') return [
       { target: 'mission', label: 'Overview', group: 'Start' },
@@ -73,11 +80,11 @@
     if (directory) return directory;
     if (directoryPromise) return directoryPromise;
     directoryPromise = Promise.all([
-      fetch(`${managementPath}&linkController=031`, { cache: 'no-store' }).then((response) => {
+      fetch(`${managementPath}&linkController=032`, { cache: 'no-store' }).then((response) => {
         if (!response.ok) throw new Error(`Management registry returned ${response.status}`);
         return response.json();
       }),
-      fetch(`${canonicalPath}&linkController=031`, { cache: 'no-store' }).then((response) => {
+      fetch(`${canonicalPath}&linkController=032`, { cache: 'no-store' }).then((response) => {
         if (!response.ok) throw new Error(`Canonical registry returned ${response.status}`);
         return response.json();
       })
@@ -122,7 +129,7 @@
   }
 
   async function openWorkspace(workspaceId) {
-    if (navigating) return false;
+    if (!workspaceId || navigating) return false;
     navigating = true;
     try {
       const workspaces = await loadDirectory();
@@ -147,10 +154,22 @@
   function openHome() {
     window.NNOSActiveWorkspace = null;
     $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === 'registry'));
+    const nav = $('.nav');
+    if (nav) nav.innerHTML = '<button class="nav-link active" type="button" data-page-link-home aria-current="page">Home</button>';
+    const title = $('[data-workspace-title]');
+    const subtitle = $('[data-workspace-subtitle]');
+    const badge = $('[data-workspace-badge]');
+    if (title) title.textContent = `${greeting()}, Dewane`;
+    if (subtitle) subtitle.textContent = 'Choose Founder OS to manage the system or open a product workspace.';
+    if (badge) {
+      badge.hidden = false;
+      badge.textContent = 'Founder OS Home';
+    }
     document.body.dataset.activeWorkspace = 'registry';
     document.body.dataset.activeView = 'registry';
     window.NNOSShowExecutionBar?.('none');
     window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace: null, target: 'registry' } }));
+    $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
     return true;
   }
 
@@ -159,6 +178,12 @@
       const card = button.closest('.workspace-card');
       if (card) card.dataset.pageLinkWorkspace = button.dataset.resumeWorkspace || card.dataset.workspaceId || '';
       button.removeAttribute('data-resume-workspace');
+      button.hidden = true;
+      button.setAttribute('aria-hidden', 'true');
+      button.tabIndex = -1;
+    });
+    $$('.workspace-card[data-workspace-id]').forEach((card) => {
+      if (!card.dataset.pageLinkWorkspace) card.dataset.pageLinkWorkspace = card.dataset.workspaceId;
     });
     $$('[data-context-module]').forEach((button) => {
       button.dataset.pageLinkView = button.dataset.contextModule;
@@ -170,8 +195,23 @@
     });
   }
 
+  function cardFromEvent(event) {
+    const card = event.target.closest?.('.workspace-card[data-page-link-workspace]');
+    if (!card || event.target.closest('button,a,input,select,textarea,summary,details')) return null;
+    if (card.hidden || card.getAttribute('aria-disabled') === 'true') return null;
+    const track = card.closest('[data-workspace-registry-list]');
+    if (window.NNOSCarousel?.shouldSuppressClick(track)) return null;
+    return card;
+  }
+
   document.addEventListener('click', (event) => {
     if (event.defaultPrevented) return;
+    const card = cardFromEvent(event);
+    if (card) {
+      event.preventDefault();
+      openWorkspace(card.dataset.pageLinkWorkspace);
+      return;
+    }
     const home = event.target.closest?.('[data-page-link-home]');
     if (home) {
       event.preventDefault();
@@ -182,6 +222,13 @@
     if (view) {
       event.preventDefault();
       goToView(view.dataset.pageLinkView);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches?.('.workspace-card[data-page-link-workspace]')) {
+      event.preventDefault();
+      if (!window.NNOSCarousel?.shouldSuppressClick(event.target.closest('[data-workspace-registry-list]'))) openWorkspace(event.target.dataset.pageLinkWorkspace);
     }
   });
 
