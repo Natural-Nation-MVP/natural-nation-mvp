@@ -46,12 +46,6 @@
   taskDetailsScript.dataset.founderTaskDetailsLoader = 'true';
   document.head.appendChild(taskDetailsScript);
 
-  const workspaceNavigationScript = document.createElement('script');
-  workspaceNavigationScript.src = paths.asset('js/workspace-navigation-controller-029.js?v=founder-ux-030');
-  workspaceNavigationScript.defer = true;
-  workspaceNavigationScript.dataset.workspaceNavigationController = 'true';
-  document.head.appendChild(workspaceNavigationScript);
-
   const pageMeta = {
     registry: { title: 'Your Workspaces', subtitle: 'Choose what you want to work on.', badge: 'Workspaces' },
     approvals: { title: 'Approval Inbox', subtitle: 'Review evidence, risks, recommendations, and Founder-controlled decisions.', badge: 'Founder Control' },
@@ -78,8 +72,9 @@
   function setWorkspace(target) {
     const safeTarget = workspaceAllows(target) ? target : (window.NNOSActiveWorkspace?.resumeWorkspace || 'mission');
     document.querySelectorAll('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === safeTarget));
-    document.querySelectorAll('[data-context-module]').forEach((button) => {
-      const active = button.dataset.contextModule === safeTarget;
+    document.querySelectorAll('[data-page-link-view], [data-context-module]').forEach((button) => {
+      const buttonTarget = button.dataset.pageLinkView || button.dataset.contextModule;
+      const active = buttonTarget === safeTarget;
       button.classList.toggle('active', active);
       button.setAttribute('aria-current', active ? 'page' : 'false');
     });
