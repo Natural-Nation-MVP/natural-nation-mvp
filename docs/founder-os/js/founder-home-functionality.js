@@ -52,27 +52,39 @@
     const user = profile();
     const draft = draftState();
     const dialog = showDialog({
-      eyebrow: 'Founder OS', title: 'Account & Settings',
+      eyebrow: 'Founder OS',
+      title: 'Account & Settings',
       body: `<label>Display name<input name="name" value="${esc(user.name)}" maxlength="60" /></label><label>Role<input name="role" value="${esc(user.role)}" maxlength="60" /></label><label>Email<input name="email" type="email" value="${esc(user.email)}" placeholder="Optional" /></label><label class="founder-setting-check"><input name="notifications" type="checkbox" ${user.notifications ? 'checked' : ''} /> Enable Founder OS notifications</label><p class="muted">These settings are stored on this device until account authentication is connected.</p>${draft.available ? `<button type="button" data-clear-saved-setup>${draft.valid ? 'Clear Saved Workspace Setup' : 'Remove Damaged Saved Setup'}</button>` : ''}`,
       actions: '<button type="button" data-save-founder-settings class="generate">Save Settings</button>'
     });
+
     dialog.querySelector('[data-save-founder-settings]')?.addEventListener('click', () => {
       const data = new FormData(dialog.querySelector('form'));
-      writeStorage(PROFILE_KEY, JSON.stringify({ name: String(data.get('name') || 'Dewane').trim() || 'Dewane', role: String(data.get('role') || 'Founder').trim() || 'Founder', email: String(data.get('email') || '').trim(), notifications: data.get('notifications') === 'on' }));
+      writeStorage(PROFILE_KEY, JSON.stringify({
+        name: String(data.get('name') || 'Dewane').trim() || 'Dewane',
+        role: String(data.get('role') || 'Founder').trim() || 'Founder',
+        email: String(data.get('email') || '').trim(),
+        notifications: data.get('notifications') === 'on'
+      }));
       dialog.close();
       const crumb = $('.hero .crumb');
       if (crumb) delete crumb.dataset.accountSignature;
       scheduleRefresh();
     });
+
     dialog.querySelector('[data-clear-saved-setup]')?.addEventListener('click', () => {
-      if (confirm('Remove the saved workspace setup from this device?')) { removeStorage(DRAFT_KEY); dialog.close(); scheduleRefresh(); }
+      if (confirm('Remove the saved workspace setup from this device?')) {
+        removeStorage(DRAFT_KEY);
+        dialog.close();
+        scheduleRefresh();
+      }
     });
   }
 
   function cardHealth(card) {
     const status = card.dataset.launchStatus || 'active';
     const completion = Number.parseInt(card.querySelector('.workspace-launch-card-progress strong')?.textContent || '0', 10) || 0;
-    const openable = Boolean(card.dataset.pageLinkWorkspace || card.dataset.workspaceId);
+    const openable = Boolean(card.dataset.workspaceId);
     if (!openable) return { tone: 'blocked', label: 'Cannot open', detail: 'No valid workspace route is available.' };
     if (status === 'archived') return { tone: 'archived', label: 'Archived', detail: 'Open in read-only mode and restore from Workspace Settings.' };
     if (status === 'setup') return { tone: 'warning', label: 'Setup incomplete', detail: 'Continue workspace definition before build work.' };
@@ -85,7 +97,7 @@
     const rows = cards.map((card) => {
       const title = card.querySelector('.workspace-launch-card-title h3')?.textContent || 'Workspace';
       const health = cardHealth(card);
-      return `<button type="button" class="founder-health-row" data-health-open-workspace="${esc(card.dataset.pageLinkWorkspace || card.dataset.workspaceId || '')}"><span><strong>${esc(title)}</strong><small>${esc(health.detail)}</small></span><em data-tone="${health.tone}">${health.label}</em></button>`;
+      return `<button type="button" class="founder-health-row" data-health-open-workspace="${esc(card.dataset.workspaceId || '')}"><span><strong>${esc(title)}</strong><small>${esc(health.detail)}</small></span><em data-tone="${health.tone}">${health.label}</em></button>`;
     }).join('') || '<div class="founder-empty-state"><strong>No workspaces match the current view.</strong><p>Clear the search or select All Workspaces.</p></div>';
     showDialog({ eyebrow: 'Workspace Portfolio', title: 'Workspace Health', body: `<div class="founder-health-list">${rows}</div>` });
   }
@@ -110,27 +122,15 @@
     const state = draftState();
     $$('[data-launch-action="resume"]').forEach((button) => {
       if (state.available && !state.valid) {
-        button.disabled = true; button.classList.add('is-unavailable'); button.title = 'The saved setup is damaged. Remove it from Founder settings.'; button.dataset.invalidDraft = '';
+        button.disabled = true;
+        button.classList.add('is-unavailable');
+        button.title = 'The saved setup is damaged. Remove it from Founder settings.';
+        button.dataset.invalidDraft = '';
       } else if (button.dataset.invalidDraft) {
-        delete button.dataset.invalidDraft; button.classList.remove('is-unavailable'); button.removeAttribute('title'); button.disabled = !state.available;
-      }
-    });
-  }
-
-  function gatewayOnline() {
-    const text = $('[data-system-status]')?.textContent?.toLowerCase() || '';
-    if (/checking|loading/.test(text)) return null;
-    return /online|ready|connected|healthy/.test(text) && !/offline|error|failed|unavailable/.test(text);
-  }
-
-  function updateGatewayDependentActions() {
-    const online = gatewayOnline();
-    if (online === null) return;
-    $$('[data-launch-action="create"], [data-lifecycle-action]').forEach((control) => {
-      if (online && control.dataset.gatewayDisabled) {
-        control.disabled = false; control.classList.remove('is-unavailable'); control.removeAttribute('title'); delete control.dataset.gatewayDisabled;
-      } else if (!online && !control.disabled) {
-        control.disabled = true; control.classList.add('is-unavailable'); control.title = 'Founder OS Gateway is unavailable.'; control.dataset.gatewayDisabled = '';
+        delete button.dataset.invalidDraft;
+        button.classList.remove('is-unavailable');
+        button.removeAttribute('title');
+        button.disabled = !state.available;
       }
     });
   }
@@ -153,38 +153,69 @@
     track.scrollBy({ left: (first.getBoundingClientRect().width + gap) * (direction === 'next' ? 1 : -1), behavior: 'smooth' });
   }
 
-  function refresh() { renderAccountTag(); validateDraftControls(); updateEmptyState(); updateGatewayDependentActions(); updateProtectedApproval(); }
-  function scheduleRefresh() { if (refreshQueued) return; refreshQueued = true; requestAnimationFrame(() => { refreshQueued = false; refresh(); }); }
+  function refresh() {
+    renderAccountTag();
+    validateDraftControls();
+    updateEmptyState();
+    updateProtectedApproval();
+  }
+
+  function scheduleRefresh() {
+    if (refreshQueued) return;
+    refreshQueued = true;
+    requestAnimationFrame(() => {
+      refreshQueued = false;
+      refresh();
+    });
+  }
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); openSettings(); return; }
-    if (event.target.closest('[data-founder-home-tag]')) { event.preventDefault(); window.NNOSPageLinks?.openHome(); return; }
-    if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); openHealth(); return; }
+    if (event.target.closest('[data-open-founder-settings]')) {
+      event.preventDefault();
+      openSettings();
+      return;
+    }
+    if (event.target.closest('[data-launch-action="health"]')) {
+      event.preventDefault();
+      openHealth();
+      return;
+    }
     const carousel = event.target.closest('[data-carousel-direction]');
-    if (carousel && !carousel.disabled) { event.preventDefault(); scrollCarousel(carousel.dataset.carouselDirection); return; }
+    if (carousel && !carousel.disabled) {
+      event.preventDefault();
+      scrollCarousel(carousel.dataset.carouselDirection);
+      return;
+    }
     if (event.target.closest('[data-clear-workspace-search]')) {
       const search = $('[data-launch-search]');
-      if (search) { search.value = ''; search.dispatchEvent(new Event('input', { bubbles: true })); search.focus(); }
+      if (search) {
+        search.value = '';
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        search.focus();
+      }
       return;
     }
     const healthRow = event.target.closest('[data-health-open-workspace]');
     if (healthRow) {
       event.preventDefault();
       healthRow.closest('dialog')?.close();
-      window.NNOSPageLinks?.openWorkspace(healthRow.dataset.healthOpenWorkspace);
+      window.NNOSNavigationManager?.openWorkspace(healthRow.dataset.healthOpenWorkspace, 'health-dialog');
     }
   });
 
-  document.addEventListener('change', (event) => { if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval(); }, true);
+  document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval();
+  }, true);
   document.addEventListener('keydown', (event) => {
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-founder-home-tag]')) {
-      event.preventDefault();
-      window.NNOSPageLinks?.openHome();
-    }
     if (event.key === 'Escape') $('[data-founder-system-dialog][open]')?.close();
   });
-  document.addEventListener('input', (event) => { if (event.target.matches('[data-launch-search]')) scheduleRefresh(); });
-  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach((name) => window.addEventListener(name, scheduleRefresh));
+  document.addEventListener('input', (event) => {
+    if (event.target.matches('[data-launch-search]')) scheduleRefresh();
+  });
+
+  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach((name) => {
+    window.addEventListener(name, scheduleRefresh);
+  });
   window.addEventListener('storage', scheduleRefresh);
 
   new MutationObserver((mutations) => {
