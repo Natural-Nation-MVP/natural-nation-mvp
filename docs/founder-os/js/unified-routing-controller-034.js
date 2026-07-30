@@ -25,9 +25,12 @@
     return routeOnce(() => window.NNOSPageLinks?.openHome());
   }
 
-  function openView(control) {
-    const target = control?.dataset.pageLinkView || control?.dataset.contextModule || '';
+  function openView(controlOrTarget) {
+    const target = typeof controlOrTarget === 'string'
+      ? controlOrTarget
+      : controlOrTarget?.dataset.pageLinkView || controlOrTarget?.dataset.contextModule || controlOrTarget?.dataset.workspaceButton || '';
     if (!target) return false;
+    if (target === 'registry') return openHome();
     return routeOnce(() => window.NNOSPageLinks?.goToView(target));
   }
 
@@ -49,19 +52,39 @@
     checkbox.closest('.workspace-confirmation')?.classList.toggle('is-confirmed', checkbox.checked);
   }
 
-  function auditRoutes() {
+  function restoreCompatibilitySelectors() {
     $$('.workspace-card[data-workspace-id]').forEach((card) => {
-      if (!card.dataset.pageLinkWorkspace) card.dataset.pageLinkWorkspace = card.dataset.workspaceId;
+      const workspaceId = workspaceIdFromCard(card) || card.dataset.workspaceId;
+      if (!workspaceId) return;
+      card.dataset.pageLinkWorkspace = workspaceId;
       card.classList.remove('is-unavailable');
       card.setAttribute('aria-disabled', 'false');
       card.tabIndex = 0;
       card.setAttribute('role', 'link');
+
+      const legacyOpenButton = $('.generate, button', card);
+      if (legacyOpenButton && !legacyOpenButton.dataset.resumeWorkspace) {
+        legacyOpenButton.dataset.resumeWorkspace = workspaceId;
+      }
     });
 
+    $$('[data-page-link-view]').forEach((control) => {
+      if (!control.dataset.contextModule) control.dataset.contextModule = control.dataset.pageLinkView;
+    });
     $$('[data-context-module]').forEach((control) => {
-      control.dataset.pageLinkView = control.dataset.contextModule;
+      if (!control.dataset.pageLinkView) control.dataset.pageLinkView = control.dataset.contextModule;
     });
 
+    $$('[data-page-link-home]').forEach((control) => {
+      if (!control.hasAttribute('data-command-center-home')) control.setAttribute('data-command-center-home', '');
+    });
+    $$('[data-command-center-home]').forEach((control) => {
+      if (!control.hasAttribute('data-page-link-home')) control.setAttribute('data-page-link-home', '');
+    });
+  }
+
+  function auditRoutes() {
+    restoreCompatibilitySelectors();
     const checkbox = $('[data-workspace-confirm]');
     if (checkbox) syncWorkspaceConfirmation(checkbox);
   }
@@ -82,7 +105,7 @@
       return;
     }
 
-    const home = event.target.closest?.('[data-page-link-home], [data-command-center-home], [data-founder-home-tag]');
+    const home = event.target.closest?.('[data-page-link-home], [data-command-center-home], [data-founder-home-tag], [data-workspace-button="registry"]');
     if (home) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -90,7 +113,15 @@
       return;
     }
 
-    const view = event.target.closest?.('[data-page-link-view], [data-context-module]');
+    const reviewBlueprint = event.target.closest?.('[data-review-blueprint]');
+    if (reviewBlueprint && !reviewBlueprint.disabled) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openView(document.body.dataset.nnosFlowStage === 'build-ready' ? 'build' : 'blueprint');
+      return;
+    }
+
+    const view = event.target.closest?.('[data-page-link-view], [data-context-module], [data-workspace-button]');
     if (view) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -122,7 +153,7 @@
       return;
     }
 
-    const home = event.target.closest?.('[data-page-link-home], [data-command-center-home], [data-founder-home-tag]');
+    const home = event.target.closest?.('[data-page-link-home], [data-command-center-home], [data-founder-home-tag], [data-workspace-button="registry"]');
     if (home) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -130,7 +161,7 @@
       return;
     }
 
-    const view = event.target.closest?.('[data-page-link-view], [data-context-module]');
+    const view = event.target.closest?.('[data-page-link-view], [data-context-module], [data-workspace-button]');
     if (view) {
       event.preventDefault();
       event.stopImmediatePropagation();
