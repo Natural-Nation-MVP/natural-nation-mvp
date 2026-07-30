@@ -6,24 +6,9 @@
   let suppressCardClickUntil = 0;
   let snapTimer = 0;
 
-  function activeWorkspace() { return window.NNOSActiveWorkspace || null; }
-  function closeDialog(dialog) { if (!dialog) return; try { dialog.close(); } catch { dialog.removeAttribute('open'); } }
-
-  function syncWorkspaceNavigation(target = document.body.dataset.activeView || 'mission') {
-    const workspace = activeWorkspace();
-    if (!workspace) return;
-    const nav = $('.nav');
-    if (!nav) return;
-    const expectedTargets = new Set((workspace.modules || []).map((module) => module.target));
-    const currentTargets = $$('[data-context-module]', nav).map((button) => button.dataset.contextModule);
-    const stale = currentTargets.length !== expectedTargets.size || currentTargets.some((item) => !expectedTargets.has(item));
-    if (stale) {
-      const groups = new Map();
-      (workspace.modules || []).forEach((module) => { const group = module.group || 'Workspace'; if (!groups.has(group)) groups.set(group, []); groups.get(group).push(module); });
-      const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
-      nav.innerHTML = `<button class="nav-link back-link" type="button" data-command-center-home>← Founder OS Home</button><div class="nav-context"><small>You are working in</small><strong>${esc(workspace.name)}</strong><span>${esc(workspace.roleLabel || workspace.type || 'Workspace')}</span></div>${[...groups.entries()].map(([group, modules]) => `<div class="nav-group"><div class="nav-group-label">${esc(group)}</div>${modules.map((module) => `<button class="nav-link${module.target === target ? ' active' : ''}" type="button" data-context-module="${esc(module.target)}">${esc(module.label)}</button>`).join('')}</div>`).join('')}`;
-    }
-    $$('[data-context-module]', nav).forEach((button) => button.classList.toggle('active', button.dataset.contextModule === target));
+  function closeDialog(dialog) {
+    if (!dialog) return;
+    try { dialog.close(); } catch { dialog.removeAttribute('open'); }
   }
 
   function prepareCards() {
@@ -32,16 +17,22 @@
       card.setAttribute('role', 'link');
       const title = $('.workspace-launch-card-title h3, .workspace-card-top h2', card)?.textContent?.trim() || 'workspace';
       card.setAttribute('aria-label', `Open ${title}`);
-      const button = $('[data-resume-workspace]', card);
-      if (button) { button.hidden = true; button.setAttribute('aria-hidden', 'true'); button.tabIndex = -1; }
+      const legacyButton = $('[data-resume-workspace]', card);
+      if (legacyButton) {
+        card.dataset.pageLinkWorkspace = legacyButton.dataset.resumeWorkspace || card.dataset.workspaceId || '';
+        legacyButton.removeAttribute('data-resume-workspace');
+        legacyButton.hidden = true;
+        legacyButton.setAttribute('aria-hidden', 'true');
+        legacyButton.tabIndex = -1;
+      }
     });
   }
 
   function openCard(card) {
     if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
-    const button = $('[data-resume-workspace]', card);
-    if (!button || button.disabled) return;
-    button.click();
+    const workspaceId = card.dataset.pageLinkWorkspace || card.dataset.workspaceId;
+    if (!workspaceId) return;
+    window.NNOSPageLinks?.openWorkspace(workspaceId);
   }
 
   function updateCarouselButtons() {
@@ -61,7 +52,6 @@
     const max = Math.max(0, track.scrollWidth - track.clientWidth);
     let target = 0;
     let distance = Number.POSITIVE_INFINITY;
-
     for (const card of cards) {
       const left = Math.max(0, Math.min(max, card.offsetLeft - track.offsetLeft));
       const delta = Math.abs(left - current);
@@ -101,8 +91,8 @@
 
   function installDragScroll() {
     const track = $('[data-workspace-registry-list]');
-    if (!track || track.dataset.dragScrollReady === '028') return;
-    track.dataset.dragScrollReady = '028';
+    if (!track || track.dataset.dragScrollReady === '031') return;
+    track.dataset.dragScrollReady = '031';
     track.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'touch' || event.button !== 0 || event.target.closest('button,a,input,select,textarea,summary,details')) return;
       window.clearTimeout(snapTimer);
@@ -133,6 +123,7 @@
   function stabilizeHome() {
     if (document.body.dataset.activeWorkspace !== 'registry') return;
     prepareCards();
+    window.NNOSPageLinks?.isolate();
     installDragScroll();
     updateCarouselButtons();
   }
@@ -146,11 +137,19 @@
 
   document.addEventListener('pointerup', (event) => {
     const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
-    if (close) { event.preventDefault(); event.stopImmediatePropagation(); closeDialog(close.closest('dialog')); return; }
+    if (close) {
+      event.preventDefault();
+      closeDialog(close.closest('dialog'));
+      return;
+    }
     const dialog = event.target instanceof HTMLDialogElement ? event.target : null;
     if (dialog?.open) {
       const rect = dialog.getBoundingClientRect();
-      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) { event.preventDefault(); event.stopImmediatePropagation(); closeDialog(dialog); return; }
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+        event.preventDefault();
+        closeDialog(dialog);
+        return;
+      }
     }
     if (!cardPointer || cardPointer.pointerId !== event.pointerId) return;
     const distance = Math.hypot(event.clientX - cardPointer.x, event.clientY - cardPointer.y);
@@ -158,25 +157,38 @@
     cardPointer = null;
     if (distance > 8 || drag?.moved || performance.now() < suppressCardClickUntil) return;
     event.preventDefault();
-    event.stopImmediatePropagation();
     openCard(card);
   }, true);
 
   document.addEventListener('click', (event) => {
     const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
-    if (close) { event.preventDefault(); event.stopImmediatePropagation(); closeDialog(close.closest('dialog')); return; }
+    if (close) {
+      event.preventDefault();
+      closeDialog(close.closest('dialog'));
+      return;
+    }
     const card = event.target.closest?.('.workspace-card');
-    if (card && performance.now() < suppressCardClickUntil) { event.preventDefault(); event.stopImmediatePropagation(); return; }
-    const module = event.target.closest('[data-context-module]');
-    if (module && activeWorkspace()) requestAnimationFrame(() => syncWorkspaceNavigation(module.dataset.contextModule));
+    if (card && performance.now() < suppressCardClickUntil) event.preventDefault();
   }, true);
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') { const dialog = $('dialog[open]'); if (dialog) { event.preventDefault(); closeDialog(dialog); } return; }
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches?.('.workspace-card')) { event.preventDefault(); event.stopImmediatePropagation(); openCard(event.target); }
+    if (event.key === 'Escape') {
+      const dialog = $('dialog[open]');
+      if (dialog) {
+        event.preventDefault();
+        closeDialog(dialog);
+      }
+      return;
+    }
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches?.('.workspace-card')) {
+      event.preventDefault();
+      openCard(event.target);
+    }
   }, true);
 
-  window.addEventListener('founder-os:workspace-view-changed', (event) => { const target = event.detail?.target || document.body.dataset.activeView || 'mission'; if (event.detail?.workspace) requestAnimationFrame(() => syncWorkspaceNavigation(target)); else requestAnimationFrame(stabilizeHome); });
+  window.addEventListener('founder-os:workspace-view-changed', (event) => {
+    if (!event.detail?.workspace) requestAnimationFrame(stabilizeHome);
+  });
   window.addEventListener('founder-os:workspace-registry-rendered', () => requestAnimationFrame(stabilizeHome));
   window.addEventListener('resize', updateCarouselButtons);
   stabilizeHome();
