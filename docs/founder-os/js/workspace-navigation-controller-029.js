@@ -57,8 +57,7 @@
   }
 
   function availableRoutes(workspace) {
-    const kind = workspaceKind(workspace);
-    return ROUTES[kind].filter((route) => $(`[data-workspace="${route.target}"]`));
+    return ROUTES[workspaceKind(workspace)].filter((route) => $(`[data-workspace="${route.target}"]`));
   }
 
   function escapeHtml(value) {
@@ -85,47 +84,20 @@
   function renderNavigation(workspace, activeTarget) {
     const nav = $('.nav');
     if (!nav || !workspace) return;
-    const routes = availableRoutes(workspace);
     const groups = new Map();
-    routes.forEach((route) => {
+    availableRoutes(workspace).forEach((route) => {
       if (!groups.has(route.group)) groups.set(route.group, []);
       groups.get(route.group).push(route);
     });
-
     nav.innerHTML = `<button class="nav-link back-link" type="button" data-command-center-home>← Founder OS Home</button>
       <div class="nav-context"><small>You are working in</small><strong>${escapeHtml(workspace.name)}</strong><span>${escapeHtml(workspace.roleLabel || workspace.type || 'Workspace')}</span></div>
       ${[...groups.entries()].map(([group, items]) => `<div class="nav-group"><div class="nav-group-label">${escapeHtml(group)}</div>${items.map((item) => `<button class="nav-link${item.target === activeTarget ? ' active' : ''}" type="button" data-context-module="${escapeHtml(item.target)}" aria-current="${item.target === activeTarget ? 'page' : 'false'}">${escapeHtml(item.label)}</button>`).join('')}</div>`).join('')}`;
   }
 
-  function activateTarget(target, sourceButton = null) {
-    const workspace = window.NNOSActiveWorkspace;
-    if (!workspace) return false;
-    const routes = availableRoutes(workspace);
-    const allowed = routes.some((route) => route.target === target);
-    if (!allowed) return false;
-
-    // Update the visible selected state before any heavier workspace rendering runs.
-    $$('[data-context-module]').forEach((button) => {
-      const active = button.dataset.contextModule === target;
-      button.classList.toggle('active', active);
-      button.setAttribute('aria-current', active ? 'page' : 'false');
-    });
-    sourceButton?.classList.add('active');
-
-    window.setWorkspace?.(target);
-    syncHeader(workspace, target);
-    window.NNOSShowExecutionBar?.(target);
-    $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
-    return true;
-  }
-
   function auditNavigation(workspace = window.NNOSActiveWorkspace, target = document.body.dataset.activeView || 'mission') {
     if (!workspace) return;
     const expected = availableRoutes(workspace);
-    const current = $$('[data-context-module]').map((button) => ({
-      target: button.dataset.contextModule,
-      label: button.textContent.trim()
-    }));
+    const current = $$('[data-context-module]').map((button) => ({ target: button.dataset.contextModule, label: button.textContent.trim() }));
     const isCorrect = expected.length === current.length && expected.every((route, index) => route.target === current[index]?.target && route.label === current[index]?.label);
     if (!isCorrect) renderNavigation(workspace, target);
     syncHeader(workspace, target);
@@ -137,15 +109,8 @@
     });
   }
 
-  // Window capture runs before older document-level handlers, removing their delayed transition path.
-  window.addEventListener('click', (event) => {
-    const moduleButton = event.target.closest?.('[data-context-module]');
-    if (!moduleButton || !window.NNOSActiveWorkspace) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    activateTarget(moduleButton.dataset.contextModule, moduleButton);
-  }, true);
-
+  // Do not capture or cancel click events here. The canonical registry controller owns routing.
+  // This controller now only audits link correctness and synchronizes labels/accessibility.
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
     const workspace = event.detail?.workspace;
     if (!workspace) return;
@@ -157,7 +122,6 @@
   });
 
   window.NNOSWorkspaceNavigation = {
-    activate: activateTarget,
     audit: auditNavigation,
     routesFor: availableRoutes
   };

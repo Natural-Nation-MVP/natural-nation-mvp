@@ -17,7 +17,6 @@
   repositoryActionsStyle.dataset.repositoryActionsStyles = 'true';
   document.head.appendChild(repositoryActionsStyle);
 
-  // Load the single authoritative runtime-state controller before any view that consumes build readiness.
   const runtimeStateScript = document.createElement('script');
   runtimeStateScript.src = paths.asset('js/canonical-runtime-state.js?v=runtime-state-1');
   runtimeStateScript.defer = true;
@@ -47,9 +46,8 @@
   taskDetailsScript.dataset.founderTaskDetailsLoader = 'true';
   document.head.appendChild(taskDetailsScript);
 
-  // Centralize all inside-workspace navigation in one fast, audited controller.
   const workspaceNavigationScript = document.createElement('script');
-  workspaceNavigationScript.src = paths.asset('js/workspace-navigation-controller-029.js?v=founder-ux-029');
+  workspaceNavigationScript.src = paths.asset('js/workspace-navigation-controller-029.js?v=founder-ux-030');
   workspaceNavigationScript.defer = true;
   workspaceNavigationScript.dataset.workspaceNavigationController = 'true';
   document.head.appendChild(workspaceNavigationScript);
