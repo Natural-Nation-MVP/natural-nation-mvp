@@ -45,9 +45,6 @@
     if (crumb.dataset.accountSignature === signature && crumb.querySelector('[data-open-founder-settings]')) return;
     crumb.dataset.accountSignature = signature;
     crumb.classList.add('founder-account-tag');
-    crumb.removeAttribute('role');
-    crumb.removeAttribute('tabindex');
-    crumb.removeAttribute('data-open-founder-settings');
     crumb.innerHTML = `<button type="button" class="founder-account-button" data-open-founder-settings aria-label="Open Founder OS settings for ${esc(user.name)}"><span class="founder-account-tag__avatar" aria-hidden="true">${esc(user.name.slice(0, 1).toUpperCase())}</span><span class="founder-account-tag__copy"><strong>Welcome back, ${esc(user.name)}</strong><small>${esc(user.role)} account</small></span><span class="founder-account-tag__chevron" aria-hidden="true">›</span></button>`;
   }
 
@@ -75,7 +72,7 @@
   function cardHealth(card) {
     const status = card.dataset.launchStatus || 'active';
     const completion = Number.parseInt(card.querySelector('.workspace-launch-card-progress strong')?.textContent || '0', 10) || 0;
-    const openable = Boolean(card.querySelector('[data-resume-workspace]:not(:disabled)'));
+    const openable = Boolean(card.dataset.pageLinkWorkspace || card.dataset.workspaceId);
     if (!openable) return { tone: 'blocked', label: 'Cannot open', detail: 'No valid workspace route is available.' };
     if (status === 'archived') return { tone: 'archived', label: 'Archived', detail: 'Open in read-only mode and restore from Workspace Settings.' };
     if (status === 'setup') return { tone: 'warning', label: 'Setup incomplete', detail: 'Continue workspace definition before build work.' };
@@ -88,7 +85,7 @@
     const rows = cards.map((card) => {
       const title = card.querySelector('.workspace-launch-card-title h3')?.textContent || 'Workspace';
       const health = cardHealth(card);
-      return `<button type="button" class="founder-health-row" data-health-open-workspace="${esc(card.dataset.workspaceId || '')}"><span><strong>${esc(title)}</strong><small>${esc(health.detail)}</small></span><em data-tone="${health.tone}">${health.label}</em></button>`;
+      return `<button type="button" class="founder-health-row" data-health-open-workspace="${esc(card.dataset.pageLinkWorkspace || card.dataset.workspaceId || '')}"><span><strong>${esc(title)}</strong><small>${esc(health.detail)}</small></span><em data-tone="${health.tone}">${health.label}</em></button>`;
     }).join('') || '<div class="founder-empty-state"><strong>No workspaces match the current view.</strong><p>Clear the search or select All Workspaces.</p></div>';
     showDialog({ eyebrow: 'Workspace Portfolio', title: 'Workspace Health', body: `<div class="founder-health-list">${rows}</div>` });
   }
@@ -156,21 +153,15 @@
     track.scrollBy({ left: (first.getBoundingClientRect().width + gap) * (direction === 'next' ? 1 : -1), behavior: 'smooth' });
   }
 
-  function openWorkspaceCard(card) {
-    if (!card || card.classList.contains('is-unavailable') || card.getAttribute('aria-disabled') === 'true') return;
-    const button = card.querySelector('[data-resume-workspace]:not(:disabled)');
-    if (!button) return;
-    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-  }
-
   function refresh() { renderAccountTag(); validateDraftControls(); updateEmptyState(); updateGatewayDependentActions(); updateProtectedApproval(); }
   function scheduleRefresh() { if (refreshQueued) return; refreshQueued = true; requestAnimationFrame(() => { refreshQueued = false; refresh(); }); }
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); event.stopPropagation(); openSettings(); return; }
-    if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); event.stopPropagation(); openHealth(); return; }
+    if (event.target.closest('[data-open-founder-settings]')) { event.preventDefault(); openSettings(); return; }
+    if (event.target.closest('[data-founder-home-tag]')) { event.preventDefault(); window.NNOSPageLinks?.openHome(); return; }
+    if (event.target.closest('[data-launch-action="health"]')) { event.preventDefault(); openHealth(); return; }
     const carousel = event.target.closest('[data-carousel-direction]');
-    if (carousel && !carousel.disabled) { event.preventDefault(); event.stopPropagation(); scrollCarousel(carousel.dataset.carouselDirection); return; }
+    if (carousel && !carousel.disabled) { event.preventDefault(); scrollCarousel(carousel.dataset.carouselDirection); return; }
     if (event.target.closest('[data-clear-workspace-search]')) {
       const search = $('[data-launch-search]');
       if (search) { search.value = ''; search.dispatchEvent(new Event('input', { bubbles: true })); search.focus(); }
@@ -178,35 +169,17 @@
     }
     const healthRow = event.target.closest('[data-health-open-workspace]');
     if (healthRow) {
-      const card = $(`.workspace-card[data-workspace-id="${CSS.escape(healthRow.dataset.healthOpenWorkspace)}"]`);
+      event.preventDefault();
       healthRow.closest('dialog')?.close();
-      openWorkspaceCard(card);
-      return;
-    }
-    const card = event.target.closest('.workspace-card');
-    if (card && !event.target.closest('button,a,input,select,textarea,summary,details')) {
-      event.preventDefault();
-      event.stopPropagation();
-      openWorkspaceCard(card);
-    }
-  });
-
-  document.addEventListener('pointerup', (event) => {
-    const brand = event.target.closest('[data-founder-home-tag]');
-    if (brand) {
-      event.preventDefault();
-      const homeButton = $('[data-command-center-home]');
-      if (homeButton) homeButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      window.NNOSPageLinks?.openWorkspace(healthRow.dataset.healthOpenWorkspace);
     }
   });
 
   document.addEventListener('change', (event) => { if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval(); }, true);
   document.addEventListener('keydown', (event) => {
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('.workspace-card')) { event.preventDefault(); openWorkspaceCard(event.target); }
     if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-founder-home-tag]')) {
       event.preventDefault();
-      const homeButton = $('[data-command-center-home]');
-      homeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      window.NNOSPageLinks?.openHome();
     }
     if (event.key === 'Escape') $('[data-founder-system-dialog][open]')?.close();
   });
