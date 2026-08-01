@@ -15,15 +15,6 @@
   sessionStorage.removeItem(LEGACY_FOUNDER_KEY);
 
   const $ = (selector) => document.querySelector(selector);
-  const $$ = (selector) => document.querySelectorAll(selector);
-
-  function activateWorkspace(target) {
-    if (typeof window.setWorkspace === 'function') window.setWorkspace(target);
-    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar(target);
-    $$('[data-context-module]').forEach((button) => {
-      button.classList.toggle('active', button.dataset.contextModule === target);
-    });
-  }
 
   function setIfChanged(node, property, value) {
     if (!node) return;
@@ -38,16 +29,22 @@
     if (node.getAttribute(property) !== value) node.setAttribute(property, value);
   }
 
+  function openView(target, source) {
+    if (window.NNOSNavigationManager?.openView) return window.NNOSNavigationManager.openView(target, source);
+    window.setWorkspace?.(target);
+    return true;
+  }
+
   function renderFlowState() {
-    const buildNav = $('[data-context-module="build"]');
+    const buildNav = $('.nav [data-nav-view="build"]');
     if (buildNav) {
-      const locked = state.buildAvailable ? 'false' : 'true';
-      setIfChanged(buildNav, 'data-flow-locked', locked);
-      setIfChanged(buildNav, 'aria-disabled', locked);
-      setIfChanged(buildNav, 'title', state.buildAvailable
-        ? 'Open live Build Work for NN-BUILD-001.'
-        : state.error || 'Build Work unlocks when the canonical runtime state is fully available.');
-      setIfChanged(buildNav, 'textContent', state.buildAvailable ? 'Build Work' : 'Build Work · Locked');
+      const locked = !state.buildAvailable;
+      setIfChanged(buildNav, 'data-flow-locked', String(locked));
+      setIfChanged(buildNav, 'aria-disabled', String(locked));
+      setIfChanged(buildNav, 'title', locked
+        ? state.error || 'Build Work unlocks when the canonical runtime state is fully available.'
+        : 'Open live Build Work for NN-BUILD-001.');
+      setIfChanged(buildNav, 'textContent', locked ? 'Build Work · Locked' : 'Build Work');
     }
 
     const reviewButton = $('[data-review-blueprint]');
@@ -90,20 +87,14 @@
       renderFlowState();
       return { ...state };
     }
-    const snapshot = await window.NNOSRuntimeState.refresh();
-    return applyRuntimeSnapshot(snapshot);
+    return applyRuntimeSnapshot(await window.NNOSRuntimeState.refresh());
   }
 
   document.addEventListener('click', (event) => {
-    const resumeButton = event.target.closest('[data-resume-workspace]');
-    if (resumeButton) window.setTimeout(refreshFlowState, 250);
-
-    const buildButton = event.target.closest('[data-context-module="build"]');
+    const buildButton = event.target.closest('.nav [data-nav-view="build"]');
     if (buildButton && !state.buildAvailable) {
       event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      activateWorkspace('blueprint');
+      openView('blueprint', 'locked-build-redirect');
       window.alert(state.error
         ? `Build Work is unavailable.\n\n${state.error}`
         : 'Build Work is locked until the approved Blueprint, NN-BUILD-001, and live Gateway orchestration state are all verified.');
@@ -115,31 +106,24 @@
 
     if (state.buildAvailable) {
       event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      activateWorkspace('build');
+      openView('build', 'blueprint-review-action');
       window.NNOSCanonicalBuild?.reload?.();
       return;
     }
 
     if (state.billingResolution === 'unresolved') {
       event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
       window.alert('Choose whether billing belongs in Phase 1 or Phase 2 before continuing to Blueprint.');
     }
-  }, true);
-
-  window.addEventListener('founder-os:runtime-state-changed', (event) => {
-    applyRuntimeSnapshot(event.detail || {});
   });
 
+  window.addEventListener('founder-os:runtime-state-changed', (event) => applyRuntimeSnapshot(event.detail || {}));
+  window.addEventListener('founder-os:workspace-view-changed', renderFlowState);
   window.addEventListener('founder-os:discovery-decision-changed', (event) => {
     state.billingResolution = event.detail?.billingResolution || 'unresolved';
     sessionStorage.setItem(BILLING_KEY, state.billingResolution);
     renderFlowState();
   });
-
   window.addEventListener('founder-os:canonical-blueprint-approved', refreshFlowState);
 
   window.NNOSWorkspaceFlow = {
