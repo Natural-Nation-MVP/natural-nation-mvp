@@ -69,11 +69,54 @@
     return (workspace.modules || []).some((module) => module.target === target);
   }
 
+  function resetTransitionState() {
+    const main = document.querySelector('.main');
+    if (main) {
+      main.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning', 'is-loading');
+      main.hidden = false;
+      main.style.removeProperty('display');
+      main.style.removeProperty('visibility');
+      main.style.removeProperty('opacity');
+      main.style.removeProperty('pointer-events');
+      main.getAnimations?.().forEach((animation) => animation.cancel());
+    }
+
+    document.documentElement.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning');
+    document.body.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning');
+  }
+
+  function activateView(target) {
+    const views = [...document.querySelectorAll('[data-workspace]')];
+    const selected = views.find((view) => view.dataset.workspace === target);
+    if (!selected) return false;
+
+    resetTransitionState();
+    for (const view of views) {
+      const active = view === selected;
+      view.classList.toggle('active', active);
+      view.hidden = !active;
+      view.setAttribute('aria-hidden', String(!active));
+      view.style.removeProperty('opacity');
+      view.style.removeProperty('visibility');
+      view.style.removeProperty('pointer-events');
+      view.getAnimations?.().forEach((animation) => animation.cancel());
+    }
+
+    selected.hidden = false;
+    selected.setAttribute('aria-hidden', 'false');
+    selected.style.display = 'block';
+    selected.style.visibility = 'visible';
+    selected.style.opacity = '1';
+    selected.style.pointerEvents = 'auto';
+    return true;
+  }
+
   function setWorkspace(target) {
     const safeTarget = workspaceAllows(target) ? target : (window.NNOSActiveWorkspace?.resumeWorkspace || 'mission');
-    document.querySelectorAll('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === safeTarget));
-    document.querySelectorAll('[data-page-link-view], [data-context-module]').forEach((button) => {
-      const buttonTarget = button.dataset.pageLinkView || button.dataset.contextModule;
+    if (!activateView(safeTarget)) return false;
+
+    document.querySelectorAll('[data-nav-view], [data-page-link-view], [data-context-module]').forEach((button) => {
+      const buttonTarget = button.dataset.navView || button.dataset.pageLinkView || button.dataset.contextModule;
       const active = buttonTarget === safeTarget;
       button.classList.toggle('active', active);
       button.setAttribute('aria-current', active ? 'page' : 'false');
@@ -88,8 +131,14 @@
     document.body.dataset.activeWorkspace = workspace?.id || 'registry';
     document.body.dataset.activeView = safeTarget;
     window.NNOSShowExecutionBar?.(safeTarget);
-    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace, target: safeTarget } }));
+
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', {
+      detail: { workspace, target: safeTarget }
+    }));
+    return true;
   }
 
+  window.NNOSResetTransitionState = resetTransitionState;
   window.setWorkspace = setWorkspace;
+  resetTransitionState();
 })();
