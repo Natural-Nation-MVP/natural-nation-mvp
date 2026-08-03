@@ -2,7 +2,6 @@
   'use strict';
 
   function one(selector, root) { return (root || document).querySelector(selector); }
-  function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
@@ -105,6 +104,10 @@
     }).join('');
   }
 
+  function workspaceHref(workspace) {
+    return '#workspace=' + encodeURIComponent(workspace.id) + '&view=' + encodeURIComponent(workspace.resumeWorkspace || 'mission');
+  }
+
   function renderRegistry() {
     var list = one('[data-workspace-registry-list]');
     if (!list || !registry) return;
@@ -116,21 +119,22 @@
     list.innerHTML = registry.workspaces.map(function (workspace, index) {
       var approvals = workspace.pendingApprovals > 0 ? workspace.pendingApprovals + ' awaiting approval' : 'No approvals waiting';
       var productClass = workspace.id === 'founder-os' ? 'platform-workspace-card' : 'product-workspace-card';
-      return '<article class="workspace-card card-enter ' + productClass + '" data-workspace-id="' + esc(workspace.id) + '" data-nav-workspace="' + esc(workspace.id) + '" style="--card-order:' + index + '" tabindex="0" role="link" aria-label="Open ' + esc(workspace.name) + ' workspace">' +
+      return '<a class="workspace-card card-enter ' + productClass + '" href="' + workspaceHref(workspace) + '" data-workspace-link data-workspace-id="' + esc(workspace.id) + '" data-nav-workspace="' + esc(workspace.id) + '" style="--card-order:' + index + ';text-decoration:none" aria-label="Open ' + esc(workspace.name) + ' workspace">' +
         '<div class="workspace-card-purpose">' + esc(workspace.roleLabel || workspace.type) + '</div>' +
         '<div class="workspace-card-top"><div><div class="eyebrow">' + esc(workspace.type) + '</div><h2>' + esc(workspace.name) + '</h2></div><span class="status">' + esc(workspace.stage) + '</span></div>' +
         '<p>' + esc(workspace.description) + '</p>' +
         '<div class="workspace-use-case"><span>Use this area to</span><strong>' + esc(workspace.purpose) + '</strong></div>' +
         '<div class="workspace-progress"><div class="workspace-progress-copy"><span>Current state</span><strong>' + esc(workspace.progressLabel) + '</strong></div><div class="workspace-progress-track"><span style="width:' + workspace.progress + '%"></span></div></div>' +
         '<div class="workspace-next-step"><span>Recommended next step</span><strong>' + esc(workspace.nextAction) + '</strong></div>' +
-        '<div class="workspace-card-footer"><span>' + esc(approvals) + '</span><span>' + esc(workspace.health) + '</span></div></article>';
+        '<div class="workspace-card-footer"><span>' + esc(approvals) + '</span><span>' + esc(workspace.health) + '</span></div></a>';
     }).join('');
 
-    window.dispatchEvent(new CustomEvent('founder-os:workspace-registry-rendered'));
+    try { window.dispatchEvent(new CustomEvent('founder-os:workspace-registry-rendered')); } catch (error) {}
   }
 
   function activateHome() {
     if (document.body.getAttribute('data-navigation-pending')) return;
+    if (window.location.hash.indexOf('#workspace=') === 0) return;
     window.NNOSActiveWorkspace = null;
     if (typeof window.setWorkspace === 'function') window.setWorkspace('registry');
     renderMetrics();
@@ -140,8 +144,8 @@
     if (registry) return Promise.resolve(registry);
     if (loadPromise) return loadPromise;
     loadPromise = Promise.all([
-      fetch(managementPath + '&verify=046', { cache: 'no-store' }),
-      fetch(canonicalPath + '&verify=046', { cache: 'no-store' })
+      fetch(managementPath + '&verify=049', { cache: 'no-store' }),
+      fetch(canonicalPath + '&verify=049', { cache: 'no-store' })
     ]).then(function (responses) {
       if (!responses[0].ok) throw new Error('Management registry returned ' + responses[0].status);
       if (!responses[1].ok) throw new Error('Canonical registry returned ' + responses[1].status);
@@ -163,6 +167,7 @@
   function commitInitialHomeOnlyIfStillIdle() {
     if (initialHomeCommitted) return;
     initialHomeCommitted = true;
+    if (window.location.hash.indexOf('#workspace=') === 0) return;
     if (document.body.getAttribute('data-navigation-pending')) return;
     if (window.NNOSActiveWorkspace && window.NNOSActiveWorkspace.id) return;
     var activeWorkspace = document.body.getAttribute('data-active-workspace');
