@@ -1,52 +1,36 @@
-(() => {
-  const paths = window.NNOSPaths;
-  const completionStyle = document.createElement('link');
-  completionStyle.rel = 'stylesheet';
-  completionStyle.href = paths.asset('css/ux-completion.css?v=1.0.0');
-  document.head.appendChild(completionStyle);
+(function () {
+  'use strict';
 
-  const taskDetailsStyle = document.createElement('link');
-  taskDetailsStyle.rel = 'stylesheet';
-  taskDetailsStyle.href = paths.asset('css/founder-task-details.css?v=section-3');
-  taskDetailsStyle.dataset.founderTaskDetailsStyles = 'true';
-  document.head.appendChild(taskDetailsStyle);
+  var paths = window.NNOSPaths;
 
-  const repositoryActionsStyle = document.createElement('link');
-  repositoryActionsStyle.rel = 'stylesheet';
-  repositoryActionsStyle.href = paths.asset('css/repository-actions.css?v=section-4');
-  repositoryActionsStyle.dataset.repositoryActionsStyles = 'true';
-  document.head.appendChild(repositoryActionsStyle);
+  function addStyle(path, marker) {
+    if (!paths || !paths.asset) return;
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = paths.asset(path);
+    if (marker) link.setAttribute(marker, 'true');
+    document.head.appendChild(link);
+  }
 
-  const runtimeStateScript = document.createElement('script');
-  runtimeStateScript.src = paths.asset('js/canonical-runtime-state.js?v=runtime-state-1');
-  runtimeStateScript.defer = true;
-  runtimeStateScript.dataset.canonicalRuntimeStateLoader = 'true';
-  document.head.appendChild(runtimeStateScript);
+  function addScript(path, marker) {
+    if (!paths || !paths.asset) return;
+    var script = document.createElement('script');
+    script.src = paths.asset(path);
+    script.defer = true;
+    if (marker) script.setAttribute(marker, 'true');
+    document.head.appendChild(script);
+  }
 
-  const completionScript = document.createElement('script');
-  completionScript.src = paths.asset('js/ux-completion.js?v=runtime-state-1');
-  completionScript.defer = true;
-  document.head.appendChild(completionScript);
+  addStyle('css/ux-completion.css?v=1.0.0');
+  addStyle('css/founder-task-details.css?v=section-3', 'data-founder-task-details-styles');
+  addStyle('css/repository-actions.css?v=section-4', 'data-repository-actions-styles');
+  addScript('js/canonical-runtime-state.js?v=runtime-state-1', 'data-canonical-runtime-state-loader');
+  addScript('js/ux-completion.js?v=runtime-state-1');
+  addScript('js/founder-action-center.js?v=section-2', 'data-founder-action-center-loader');
+  addScript('js/founder-approval-inbox.js?v=section-2', 'data-founder-approval-inbox-loader');
+  addScript('js/founder-task-details.js?v=section-3', 'data-founder-task-details-loader');
 
-  const actionCenterScript = document.createElement('script');
-  actionCenterScript.src = paths.asset('js/founder-action-center.js?v=section-2');
-  actionCenterScript.defer = true;
-  actionCenterScript.dataset.founderActionCenterLoader = 'true';
-  document.head.appendChild(actionCenterScript);
-
-  const approvalInboxScript = document.createElement('script');
-  approvalInboxScript.src = paths.asset('js/founder-approval-inbox.js?v=section-2');
-  approvalInboxScript.defer = true;
-  approvalInboxScript.dataset.founderApprovalInboxLoader = 'true';
-  document.head.appendChild(approvalInboxScript);
-
-  const taskDetailsScript = document.createElement('script');
-  taskDetailsScript.src = paths.asset('js/founder-task-details.js?v=section-3');
-  taskDetailsScript.defer = true;
-  taskDetailsScript.dataset.founderTaskDetailsLoader = 'true';
-  document.head.appendChild(taskDetailsScript);
-
-  const pageMeta = {
+  var pageMeta = {
     registry: { title: 'Your Workspaces', subtitle: 'Choose what you want to work on.', badge: 'Workspaces' },
     approvals: { title: 'Approval Inbox', subtitle: 'Review evidence, risks, recommendations, and Founder-controlled decisions.', badge: 'Founder Control' },
     discovery: { title: 'What We Know', subtitle: 'See what is confirmed and whether anything still needs your decision.', badge: 'Understanding' },
@@ -54,56 +38,69 @@
     build: { title: 'Build Work', subtitle: 'See the live current owner, ready task, next handoff, and protected execution action.', badge: 'Live Execution' },
     mission: { title: 'Product Overview', subtitle: 'See the current objective, live task, project health, and safest next action.', badge: 'Executive Status' },
     knowledge: { title: 'Project Records', subtitle: 'Find approved decisions, plans, and project information.', badge: 'Records' },
-    repo: { title: 'Code Status', subtitle: 'Review the live repository, pull request, checks, deployment, changed files, and merge-readiness gates.', badge: 'Founder Repository Control' },
+    repo: { title: 'Code Status', subtitle: 'Review source code, checks, deployment, and merge readiness.', badge: 'Founder Repository Control' },
     ai: { title: 'AI Team', subtitle: 'See each stable role, provider readiness, current handoff, and verified task status.', badge: 'Live Assignments' }
   };
 
   function setText(selector, value) {
-    const node = document.querySelector(selector);
+    var node = document.querySelector(selector);
     if (node) node.textContent = value;
   }
 
   function workspaceAllows(target) {
-    const workspace = window.NNOSActiveWorkspace;
+    var workspace = window.NNOSActiveWorkspace;
     if (!workspace || target === 'registry' || target === 'approvals') return true;
-    return (workspace.modules || []).some((module) => module.target === target);
+    var modules = workspace.modules || [];
+    for (var i = 0; i < modules.length; i += 1) {
+      if (modules[i].target === target) return true;
+    }
+    return false;
   }
 
   function resetTransitionState() {
-    const main = document.querySelector('.main');
-    if (main) {
-      main.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning', 'is-loading');
-      main.hidden = false;
-      main.style.removeProperty('display');
-      main.style.removeProperty('visibility');
-      main.style.removeProperty('opacity');
-      main.style.removeProperty('pointer-events');
-      main.getAnimations?.().forEach((animation) => animation.cancel());
+    var main = document.querySelector('.main');
+    var nodes = [document.documentElement, document.body, main];
+    var classes = ['view-transition-out', 'view-transition-in', 'is-transitioning', 'is-loading', 'route-loading'];
+    for (var i = 0; i < nodes.length; i += 1) {
+      var node = nodes[i];
+      if (!node) continue;
+      for (var j = 0; j < classes.length; j += 1) node.classList.remove(classes[j]);
+      node.style.removeProperty('visibility');
+      node.style.removeProperty('opacity');
+      node.style.removeProperty('pointer-events');
+      if (node.getAnimations) {
+        var animations = node.getAnimations();
+        for (var a = 0; a < animations.length; a += 1) animations[a].cancel();
+      }
     }
-
-    document.documentElement.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning');
-    document.body.classList.remove('view-transition-out', 'view-transition-in', 'is-transitioning');
   }
 
   function activateView(target) {
-    const views = [...document.querySelectorAll('[data-workspace]')];
-    const selected = views.find((view) => view.dataset.workspace === target);
+    var views = document.querySelectorAll('[data-workspace]');
+    var selected = null;
+    for (var i = 0; i < views.length; i += 1) {
+      if (views[i].getAttribute('data-workspace') === target) selected = views[i];
+    }
     if (!selected) return false;
 
     resetTransitionState();
-    for (const view of views) {
-      const active = view === selected;
+    for (var j = 0; j < views.length; j += 1) {
+      var view = views[j];
+      var active = view === selected;
       view.classList.toggle('active', active);
       view.hidden = !active;
-      view.setAttribute('aria-hidden', String(!active));
+      view.setAttribute('aria-hidden', active ? 'false' : 'true');
+      view.style.removeProperty('display');
       view.style.removeProperty('opacity');
       view.style.removeProperty('visibility');
       view.style.removeProperty('pointer-events');
-      view.getAnimations?.().forEach((animation) => animation.cancel());
+      if (view.getAnimations) {
+        var animations = view.getAnimations();
+        for (var a = 0; a < animations.length; a += 1) animations[a].cancel();
+      }
     }
 
     selected.hidden = false;
-    selected.setAttribute('aria-hidden', 'false');
     selected.style.display = 'block';
     selected.style.visibility = 'visible';
     selected.style.opacity = '1';
@@ -112,29 +109,30 @@
   }
 
   function setWorkspace(target) {
-    const safeTarget = workspaceAllows(target) ? target : (window.NNOSActiveWorkspace?.resumeWorkspace || 'mission');
+    var workspace = window.NNOSActiveWorkspace;
+    var fallback = workspace && workspace.resumeWorkspace ? workspace.resumeWorkspace : 'mission';
+    var safeTarget = workspaceAllows(target) ? target : fallback;
     if (!activateView(safeTarget)) return false;
 
-    document.querySelectorAll('[data-nav-view], [data-page-link-view], [data-context-module]').forEach((button) => {
-      const buttonTarget = button.dataset.navView || button.dataset.pageLinkView || button.dataset.contextModule;
-      const active = buttonTarget === safeTarget;
+    var buttons = document.querySelectorAll('[data-nav-view], [data-page-link-view], [data-context-module]');
+    for (var i = 0; i < buttons.length; i += 1) {
+      var button = buttons[i];
+      var buttonTarget = button.getAttribute('data-nav-view') || button.getAttribute('data-page-link-view') || button.getAttribute('data-context-module');
+      var active = buttonTarget === safeTarget;
       button.classList.toggle('active', active);
       button.setAttribute('aria-current', active ? 'page' : 'false');
-    });
+    }
 
-    const workspace = window.NNOSActiveWorkspace;
-    const meta = pageMeta[safeTarget] || pageMeta.registry;
-    const workspaceName = workspace?.name || 'Founder OS';
+    var meta = pageMeta[safeTarget] || pageMeta.registry;
+    var workspaceName = workspace && workspace.name ? workspace.name : 'Founder OS';
     setText('[data-workspace-title]', meta.title);
     setText('[data-workspace-subtitle]', meta.subtitle);
-    setText('[data-workspace-badge]', safeTarget === 'registry' || safeTarget === 'approvals' ? meta.badge : `${workspaceName} · ${meta.badge}`);
-    document.body.dataset.activeWorkspace = workspace?.id || 'registry';
-    document.body.dataset.activeView = safeTarget;
-    window.NNOSShowExecutionBar?.(safeTarget);
+    setText('[data-workspace-badge]', safeTarget === 'registry' || safeTarget === 'approvals' ? meta.badge : workspaceName + ' · ' + meta.badge);
+    document.body.setAttribute('data-active-workspace', workspace && workspace.id ? workspace.id : 'registry');
+    document.body.setAttribute('data-active-view', safeTarget);
+    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar(safeTarget);
 
-    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', {
-      detail: { workspace, target: safeTarget }
-    }));
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { workspace: workspace || null, target: safeTarget } }));
     return true;
   }
 
