@@ -100,7 +100,7 @@
     list.innerHTML = registry.workspaces.map((workspace, index) => {
       const approvals = workspace.pendingApprovals > 0 ? `${workspace.pendingApprovals} awaiting approval` : 'No approvals waiting';
       const productClass = workspace.id === 'founder-os' ? 'platform-workspace-card' : 'product-workspace-card';
-      return `<article class="workspace-card card-enter ${productClass}" data-workspace-id="${esc(workspace.id)}" style="--card-order:${index}" tabindex="0" role="link" aria-label="Open ${esc(workspace.name)} workspace">
+      return `<article class="workspace-card card-enter ${productClass}" data-workspace-id="${esc(workspace.id)}" data-nav-workspace="${esc(workspace.id)}" style="--card-order:${index}" tabindex="0" role="link" aria-label="Open ${esc(workspace.name)} workspace">
         <div class="workspace-card-purpose">${esc(workspace.roleLabel || workspace.type)}</div>
         <div class="workspace-card-top"><div><div class="eyebrow">${esc(workspace.type)}</div><h2>${esc(workspace.name)}</h2></div><span class="status">${esc(workspace.stage)}</span></div>
         <p>${esc(workspace.description)}</p>
@@ -115,6 +115,7 @@
   }
 
   function activateHome() {
+    if (document.body.dataset.navigationPending) return;
     window.NNOSActiveWorkspace = null;
     $$('[data-workspace]').forEach((view) => view.classList.toggle('active', view.dataset.workspace === 'registry'));
     renderMetrics();
@@ -124,10 +125,12 @@
   }
 
   async function load() {
+    if (registry) return registry;
     if (loadPromise) return loadPromise;
+
     loadPromise = Promise.all([
-      fetch(`${managementPath}&verify=041`, { cache: 'no-store' }),
-      fetch(`${canonicalPath}&verify=041`, { cache: 'no-store' })
+      fetch(`${managementPath}&verify=042`, { cache: 'no-store' }),
+      fetch(`${canonicalPath}&verify=042`, { cache: 'no-store' })
     ]).then(async ([managementResponse, canonicalResponse]) => {
       if (!managementResponse.ok) throw new Error(`Management registry returned ${managementResponse.status}`);
       if (!canonicalResponse.ok) throw new Error(`Canonical registry returned ${canonicalResponse.status}`);
@@ -135,23 +138,31 @@
       renderRegistry();
       return registry;
     }).finally(() => { loadPromise = null; });
+
     return loadPromise;
   }
 
   function commitInitialHomeOnlyIfStillIdle() {
     if (initialHomeCommitted) return;
     initialHomeCommitted = true;
-    const activeId = window.NNOSActiveWorkspace?.id;
-    const activeView = document.body.dataset.activeWorkspace;
-    if (activeId || (activeView && activeView !== 'registry')) return;
+    if (document.body.dataset.navigationPending) return;
+    if (window.NNOSActiveWorkspace?.id) return;
+    const activeWorkspace = document.body.dataset.activeWorkspace;
+    const activeView = document.body.dataset.activeView;
+    if ((activeWorkspace && activeWorkspace !== 'registry') || (activeView && activeView !== 'registry')) return;
     activateHome();
   }
 
   window.addEventListener('founder-os:navigation-home-render-requested', activateHome);
   window.addEventListener('founder-os:workspace-created', async () => { await load(); activateHome(); });
-  window.addEventListener('founder-os:canonical-blueprint-approved', load);
+  window.addEventListener('founder-os:canonical-blueprint-approved', async () => { registry = null; await load(); });
 
-  window.NNOSWorkspaceRegistry = { load, render: renderRegistry, activateHome, getSnapshot: () => registry };
+  window.NNOSWorkspaceRegistry = {
+    load,
+    render: renderRegistry,
+    activateHome,
+    getSnapshot: () => registry
+  };
 
   load().then(commitInitialHomeOnlyIfStillIdle).catch((error) => {
     console.error(error);
