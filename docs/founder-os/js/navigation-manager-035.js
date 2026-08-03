@@ -1,295 +1,262 @@
-(() => {
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+(function () {
+  'use strict';
 
-  let pointer = null;
-  let routeSequence = 0;
-  let activeRoute = null;
-  let ignoreClickUntil = 0;
+  var pointer = null;
+  var touch = null;
+  var routeSequence = 0;
+  var activeRoute = null;
+  var ignoreClickUntil = 0;
 
-  const trace = (action, detail = {}) => {
-    const entry = { action, detail, at: new Date().toISOString() };
-    window.NNOSNavigationTrace = [...(window.NNOSNavigationTrace || []).slice(-99), entry];
-    console.info('[Founder OS navigation]', action, detail);
+  function one(selector, root) { return (root || document).querySelector(selector); }
+  function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
+  function closest(target, selector) { return target && target.closest ? target.closest(selector) : null; }
+  function now() { return window.performance && performance.now ? performance.now() : Date.now(); }
+
+  function trace(action, detail) {
+    var entry = { action: action, detail: detail || {}, at: new Date().toISOString() };
+    var list = window.NNOSNavigationTrace || [];
+    window.NNOSNavigationTrace = list.slice(-99).concat([entry]);
+    if (window.console && console.info) console.info('[Founder OS navigation]', action, entry.detail);
     window.dispatchEvent(new CustomEvent('founder-os:navigation-trace', { detail: entry }));
-  };
-
-  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  })[character]);
-
-  function renderWorkspaceNavigation(workspace, activeTarget) {
-    const nav = $('.nav');
-    if (!nav) return;
-
-    const groups = new Map();
-    for (const module of workspace.modules || []) {
-      if (!$(`[data-workspace="${module.target}"]`)) continue;
-      const group = module.group || 'Workspace';
-      if (!groups.has(group)) groups.set(group, []);
-      groups.get(group).push(module);
-    }
-
-    nav.innerHTML = `<button class="nav-link back-link" type="button" data-nav-home>← Founder OS Home</button>
-      <div class="nav-context"><small>You are working in</small><strong>${escapeHtml(workspace.name)}</strong><span>${escapeHtml(workspace.roleLabel || workspace.type || 'Workspace')}</span></div>
-      ${[...groups.entries()].map(([group, modules]) => `<div class="nav-group"><div class="nav-group-label">${escapeHtml(group)}</div>${modules.map((module) => `<button class="nav-link${module.target === activeTarget ? ' active' : ''}" type="button" data-nav-view="${escapeHtml(module.target)}" aria-current="${module.target === activeTarget ? 'page' : 'false'}">${escapeHtml(module.label)}</button>`).join('')}</div>`).join('')}`;
   }
 
-  async function getWorkspaces() {
-    let snapshot = window.NNOSWorkspaceRegistry?.getSnapshot?.();
-    if (!snapshot?.workspaces?.length) snapshot = await window.NNOSWorkspaceRegistry?.load?.();
-    if (!snapshot?.workspaces?.length) throw new Error('Workspace registry is unavailable.');
-    return snapshot.workspaces;
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+    });
+  }
+
+  function renderWorkspaceNavigation(workspace, activeTarget) {
+    var nav = one('.nav');
+    if (!nav) return;
+    var groups = {};
+    var order = [];
+    var modules = workspace.modules || [];
+    for (var i = 0; i < modules.length; i += 1) {
+      var module = modules[i];
+      if (!one('[data-workspace="' + module.target + '"]')) continue;
+      var group = module.group || 'Workspace';
+      if (!groups[group]) { groups[group] = []; order.push(group); }
+      groups[group].push(module);
+    }
+
+    var html = '<button class="nav-link back-link" type="button" data-nav-home>← Founder OS Home</button>' +
+      '<div class="nav-context"><small>You are working in</small><strong>' + escapeHtml(workspace.name) + '</strong><span>' + escapeHtml(workspace.roleLabel || workspace.type || 'Workspace') + '</span></div>';
+    for (var g = 0; g < order.length; g += 1) {
+      var groupName = order[g];
+      html += '<div class="nav-group"><div class="nav-group-label">' + escapeHtml(groupName) + '</div>';
+      var items = groups[groupName];
+      for (var m = 0; m < items.length; m += 1) {
+        var item = items[m];
+        var active = item.target === activeTarget;
+        html += '<button class="nav-link' + (active ? ' active' : '') + '" type="button" data-nav-view="' + escapeHtml(item.target) + '" aria-current="' + (active ? 'page' : 'false') + '">' + escapeHtml(item.label) + '</button>';
+      }
+      html += '</div>';
+    }
+    nav.innerHTML = html;
+  }
+
+  function getWorkspaces() {
+    var registry = window.NNOSWorkspaceRegistry;
+    var snapshot = registry && registry.getSnapshot ? registry.getSnapshot() : null;
+    if (snapshot && snapshot.workspaces && snapshot.workspaces.length) return Promise.resolve(snapshot.workspaces);
+    if (!registry || !registry.load) return Promise.reject(new Error('Workspace registry is unavailable.'));
+    return registry.load().then(function (loaded) {
+      if (!loaded || !loaded.workspaces || !loaded.workspaces.length) throw new Error('Workspace registry is unavailable.');
+      return loaded.workspaces;
+    });
   }
 
   function resolveTarget(workspaces, workspaceId) {
-    const exactMatches = workspaces.filter((item) => item.id === workspaceId);
-    if (exactMatches.length !== 1) {
-      throw new Error(exactMatches.length === 0
-        ? `Workspace ${workspaceId} is not registered.`
-        : `Workspace ${workspaceId} has duplicate route identities.`);
-    }
-
-    const workspace = exactMatches[0];
-    const target = workspace.resumeWorkspace || 'mission';
-    const moduleTargets = new Set((workspace.modules || []).map((module) => module.target));
-    if (!moduleTargets.has(target)) throw new Error(`Workspace ${workspaceId} does not expose its route target ${target}.`);
-    if (!$(`[data-workspace="${target}"]`)) throw new Error(`Workspace view ${target} does not exist in the page.`);
-    return { workspace, target };
+    var matches = [];
+    for (var i = 0; i < workspaces.length; i += 1) if (workspaces[i].id === workspaceId) matches.push(workspaces[i]);
+    if (matches.length !== 1) throw new Error(matches.length ? 'Workspace route identity is duplicated.' : 'Workspace is not registered.');
+    var workspace = matches[0];
+    var target = workspace.resumeWorkspace || 'mission';
+    var allowed = false;
+    var modules = workspace.modules || [];
+    for (var j = 0; j < modules.length; j += 1) if (modules[j].target === target) allowed = true;
+    if (!allowed || !one('[data-workspace="' + target + '"]')) throw new Error('Workspace page target is unavailable.');
+    return { workspace: workspace, target: target };
   }
 
-  function verifyRoute(workspaceId, target) {
-    const activeWorkspaceId = window.NNOSActiveWorkspace?.id || null;
-    const activeBodyWorkspace = document.body.dataset.activeWorkspace || null;
-    const activeView = document.body.dataset.activeView || null;
-    const visibleView = $('.workspace-view.active')?.dataset.workspace || null;
-    const valid = activeWorkspaceId === workspaceId
-      && activeBodyWorkspace === workspaceId
-      && activeView === target
-      && visibleView === target;
-
-    trace(valid ? 'workspace-target-verified' : 'workspace-target-mismatch', {
-      requestedWorkspaceId: workspaceId,
-      requestedTarget: target,
-      activeWorkspaceId,
-      activeBodyWorkspace,
-      activeView,
-      visibleView
-    });
-    return valid;
+  function scrollMainTop() {
+    var main = one('.main');
+    if (!main) return;
+    try { main.scrollTo(0, 0); } catch (error) { main.scrollTop = 0; }
   }
 
-  async function openWorkspace(workspaceId, source = 'api') {
-    const requestedId = String(workspaceId || '').trim();
-    if (!requestedId) return false;
+  function openWorkspace(workspaceId, source) {
+    var requestedId = String(workspaceId || '').trim();
+    if (!requestedId) return Promise.resolve(false);
+    var sequence = ++routeSequence;
+    activeRoute = { sequence: sequence, workspaceId: requestedId };
+    document.body.setAttribute('data-navigation-pending', requestedId);
+    trace('workspace-requested', { workspaceId: requestedId, source: source || 'api', sequence: sequence });
 
-    const sequence = ++routeSequence;
-    activeRoute = { sequence, workspaceId: requestedId, source };
-    document.body.dataset.navigationPending = requestedId;
-    trace('workspace-requested', { workspaceId: requestedId, source, sequence });
-
-    try {
-      const workspaces = await getWorkspaces();
-      if (activeRoute?.sequence !== sequence) {
-        trace('workspace-route-superseded', { workspaceId: requestedId, source, sequence });
-        return false;
-      }
-
-      const { workspace, target } = resolveTarget(workspaces, requestedId);
-      window.NNOSActiveWorkspace = workspace;
-      renderWorkspaceNavigation(workspace, target);
-      window.setWorkspace?.(target);
-      $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
-
-      const verified = verifyRoute(requestedId, target);
-      if (!verified) throw new Error(`Workspace ${requestedId} did not activate its expected page target.`);
-
-      trace('workspace-opened', { workspaceId: requestedId, target, source, sequence });
+    return getWorkspaces().then(function (workspaces) {
+      if (!activeRoute || activeRoute.sequence !== sequence) return false;
+      var resolved = resolveTarget(workspaces, requestedId);
+      window.NNOSActiveWorkspace = resolved.workspace;
+      renderWorkspaceNavigation(resolved.workspace, resolved.target);
+      if (typeof window.setWorkspace !== 'function' || !window.setWorkspace(resolved.target)) throw new Error('Workspace page could not be displayed.');
+      scrollMainTop();
+      trace('workspace-opened', { workspaceId: requestedId, target: resolved.target, source: source || 'api' });
       return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const status = $('[data-workspace-registry-status]');
-      if (status) status.textContent = `Unable to open workspace: ${message}`;
-      trace('workspace-failed', { workspaceId: requestedId, source, sequence, error: message });
+    }).catch(function (error) {
+      var status = one('[data-workspace-registry-status]');
+      if (status) status.textContent = 'Unable to open workspace: ' + (error && error.message ? error.message : String(error));
+      trace('workspace-failed', { workspaceId: requestedId, error: error && error.message ? error.message : String(error) });
       return false;
-    } finally {
-      if (activeRoute?.sequence === sequence) {
+    }).then(function (result) {
+      if (activeRoute && activeRoute.sequence === sequence) {
         activeRoute = null;
-        delete document.body.dataset.navigationPending;
+        document.body.removeAttribute('data-navigation-pending');
       }
-    }
+      return result;
+    });
   }
 
-  function openHome(source = 'api') {
+  function openHome(source) {
     routeSequence += 1;
     activeRoute = null;
-    delete document.body.dataset.navigationPending;
+    document.body.removeAttribute('data-navigation-pending');
     window.NNOSActiveWorkspace = null;
-    window.setWorkspace?.('registry');
+    if (typeof window.setWorkspace === 'function') window.setWorkspace('registry');
     window.dispatchEvent(new CustomEvent('founder-os:navigation-home-render-requested'));
-    $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
-    trace('home-opened', { source });
+    scrollMainTop();
+    trace('home-opened', { source: source || 'api' });
     return true;
   }
 
-  function openView(target, source = 'api') {
-    const workspace = window.NNOSActiveWorkspace;
+  function openView(target, source) {
+    var workspace = window.NNOSActiveWorkspace;
     if (target === 'registry') return openHome(source);
-    if (!target || !workspace || !(workspace.modules || []).some((module) => module.target === target)) {
-      trace('view-rejected', { target: target || null, source, workspaceId: workspace?.id || null });
-      return false;
-    }
-    if (!$(`[data-workspace="${target}"]`)) {
-      trace('view-rejected', { target, source, workspaceId: workspace.id, reason: 'missing-view' });
-      return false;
-    }
-
-    window.setWorkspace?.(target);
-    $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
-    trace('view-opened', { target, source, workspaceId: workspace.id });
-    return true;
+    if (!workspace || !target) return false;
+    var allowed = false;
+    var modules = workspace.modules || [];
+    for (var i = 0; i < modules.length; i += 1) if (modules[i].target === target) allowed = true;
+    if (!allowed || !one('[data-workspace="' + target + '"]')) return false;
+    var opened = typeof window.setWorkspace === 'function' && window.setWorkspace(target);
+    if (opened) scrollMainTop();
+    trace(opened ? 'view-opened' : 'view-rejected', { target: target, source: source || 'api', workspaceId: workspace.id });
+    return opened;
   }
 
-  function normalizeCards() {
-    const ids = new Set();
-    $$('.workspace-card[data-workspace-id]').forEach((card) => {
-      const workspaceId = String(card.dataset.workspaceId || '').trim();
-      card.dataset.navWorkspace = workspaceId;
-      card.dataset.routeTarget = workspaceId;
-      card.tabIndex = card.hidden || !workspaceId ? -1 : 0;
-      card.setAttribute('role', 'link');
-      card.setAttribute('aria-disabled', String(card.tabIndex < 0));
-
-      if (!workspaceId || ids.has(workspaceId)) {
-        card.setAttribute('aria-disabled', 'true');
-        card.tabIndex = -1;
-        trace('card-target-invalid', { workspaceId: workspaceId || null, duplicate: ids.has(workspaceId) });
-      }
-      ids.add(workspaceId);
-    });
+  function isInteractive(target) { return Boolean(closest(target, 'button,a,input,textarea,select,summary,details,label')); }
+  function cardFrom(target) { return closest(target, '.workspace-card[data-workspace-id]'); }
+  function carouselSuppressed(card) {
+    var track = card ? closest(card, '[data-workspace-registry-list]') : null;
+    return Boolean(window.NNOSCarousel && window.NNOSCarousel.shouldSuppressClick && window.NNOSCarousel.shouldSuppressClick(track));
   }
 
-  function isInteractive(target) {
-    return Boolean(target.closest?.('button,a,input,textarea,select,summary,details,label'));
+  function beginGesture(id, type, card, x, y) {
+    return { id: id, type: type, workspaceId: card.getAttribute('data-workspace-id'), card: card, x: x, y: y };
+  }
+
+  function finishGesture(action, x, y, source, event) {
+    if (!action) return;
+    var dx = x - action.x;
+    var dy = y - action.y;
+    var distance = Math.sqrt((dx * dx) + (dy * dy));
+    var threshold = action.type === 'touch' ? 18 : 8;
+    if (distance > threshold || carouselSuppressed(action.card)) return;
+    if (event && event.cancelable) event.preventDefault();
+    ignoreClickUntil = now() + 750;
+    openWorkspace(action.workspaceId, source);
   }
 
   function onPointerDown(event) {
-    if (event.button !== undefined && event.button !== 0) return;
-    const card = event.target.closest?.('.workspace-card[data-workspace-id]');
+    if (event.button != null && event.button !== 0) return;
+    var card = cardFrom(event.target);
     if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true' || isInteractive(event.target)) return;
-
-    pointer = {
-      id: event.pointerId,
-      type: event.pointerType || 'unknown',
-      workspaceId: card.dataset.workspaceId,
-      card,
-      x: event.clientX,
-      y: event.clientY
-    };
-    trace('card-pointer-down', { workspaceId: pointer.workspaceId, pointerType: pointer.type });
+    pointer = beginGesture(event.pointerId, event.pointerType || 'mouse', card, event.clientX, event.clientY);
   }
 
   function onPointerUp(event) {
     if (!pointer || pointer.id !== event.pointerId) return;
-    const action = pointer;
+    var action = pointer;
     pointer = null;
-
-    const distance = Math.hypot(event.clientX - action.x, event.clientY - action.y);
-    const threshold = action.type === 'touch' ? 14 : 8;
-    const track = action.card.closest('[data-workspace-registry-list]');
-    const carouselSuppressed = window.NNOSCarousel?.shouldSuppressClick?.(track);
-
-    if (distance > threshold || carouselSuppressed) {
-      trace('card-pointer-cancelled', {
-        workspaceId: action.workspaceId,
-        distance,
-        threshold,
-        carouselSuppressed: Boolean(carouselSuppressed)
-      });
-      return;
-    }
-
-    event.preventDefault();
-    ignoreClickUntil = performance.now() + 700;
-    openWorkspace(action.workspaceId, 'pointer-up');
+    finishGesture(action, event.clientX, event.clientY, 'pointer-up', event);
   }
 
-  function onPointerCancel(event) {
-    if (pointer?.id === event.pointerId) pointer = null;
+  function onTouchStart(event) {
+    if (window.PointerEvent || !event.touches || event.touches.length !== 1) return;
+    var card = cardFrom(event.target);
+    if (!card || card.hidden || isInteractive(event.target)) return;
+    var point = event.touches[0];
+    touch = beginGesture(point.identifier, 'touch', card, point.clientX, point.clientY);
+  }
+
+  function onTouchEnd(event) {
+    if (window.PointerEvent || !touch || !event.changedTouches) return;
+    for (var i = 0; i < event.changedTouches.length; i += 1) {
+      var point = event.changedTouches[i];
+      if (point.identifier === touch.id) {
+        var action = touch;
+        touch = null;
+        finishGesture(action, point.clientX, point.clientY, 'touch-end', event);
+        return;
+      }
+    }
   }
 
   function onClick(event) {
-    const home = event.target.closest?.('[data-nav-home]');
-    if (home) {
-      event.preventDefault();
-      openHome('click');
-      return;
-    }
-
-    const view = event.target.closest?.('[data-nav-view]');
-    if (view) {
-      event.preventDefault();
-      openView(view.dataset.navView, 'click');
-      return;
-    }
-
-    const card = event.target.closest?.('.workspace-card[data-workspace-id]');
-    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true' || isInteractive(event.target)) return;
-    if (performance.now() < ignoreClickUntil) {
-      event.preventDefault();
-      return;
-    }
-
-    const track = card.closest('[data-workspace-registry-list]');
-    if (window.NNOSCarousel?.shouldSuppressClick?.(track)) {
-      event.preventDefault();
-      trace('card-click-cancelled', { workspaceId: card.dataset.workspaceId, reason: 'carousel-drag' });
-      return;
-    }
-
+    var home = closest(event.target, '[data-nav-home]');
+    if (home) { event.preventDefault(); openHome('click'); return; }
+    var view = closest(event.target, '[data-nav-view]');
+    if (view) { event.preventDefault(); openView(view.getAttribute('data-nav-view'), 'click'); return; }
+    var card = cardFrom(event.target);
+    if (!card || card.hidden || isInteractive(event.target)) return;
+    if (now() < ignoreClickUntil || carouselSuppressed(card)) { event.preventDefault(); return; }
     event.preventDefault();
-    openWorkspace(card.dataset.workspaceId, 'click');
+    openWorkspace(card.getAttribute('data-workspace-id'), 'click');
   }
 
   function onKeyDown(event) {
-    if (!['Enter', ' '].includes(event.key)) return;
-
-    const home = event.target.closest?.('[data-nav-home]');
-    if (home) {
-      event.preventDefault();
-      openHome('keyboard');
-      return;
-    }
-
-    const view = event.target.closest?.('[data-nav-view]');
-    if (view) {
-      event.preventDefault();
-      openView(view.dataset.navView, 'keyboard');
-      return;
-    }
-
-    const card = event.target.closest?.('.workspace-card[data-workspace-id]');
-    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
-    event.preventDefault();
-    openWorkspace(card.dataset.workspaceId, 'keyboard');
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    var home = closest(event.target, '[data-nav-home]');
+    if (home) { event.preventDefault(); openHome('keyboard'); return; }
+    var view = closest(event.target, '[data-nav-view]');
+    if (view) { event.preventDefault(); openView(view.getAttribute('data-nav-view'), 'keyboard'); return; }
+    var card = cardFrom(event.target);
+    if (card && !card.hidden) { event.preventDefault(); openWorkspace(card.getAttribute('data-workspace-id'), 'keyboard'); }
   }
 
-  document.addEventListener('pointerdown', onPointerDown, true);
-  document.addEventListener('pointerup', onPointerUp, true);
-  document.addEventListener('pointercancel', onPointerCancel, true);
-  document.addEventListener('click', onClick);
-  document.addEventListener('keydown', onKeyDown);
+  function normalizeCards() {
+    var cards = all('.workspace-card[data-workspace-id]');
+    var ids = {};
+    for (var i = 0; i < cards.length; i += 1) {
+      var card = cards[i];
+      var id = String(card.getAttribute('data-workspace-id') || '').trim();
+      var invalid = !id || ids[id];
+      ids[id] = true;
+      card.tabIndex = card.hidden || invalid ? -1 : 0;
+      card.setAttribute('role', 'link');
+      card.setAttribute('aria-disabled', invalid ? 'true' : 'false');
+    }
+  }
 
-  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-lifecycle-changed'].forEach((name) => {
-    window.addEventListener(name, () => requestAnimationFrame(normalizeCards));
-  });
+  if (window.PointerEvent) {
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('pointerup', onPointerUp, true);
+    document.addEventListener('pointercancel', function () { pointer = null; }, true);
+  } else {
+    document.addEventListener('touchstart', onTouchStart, { capture: true, passive: true });
+    document.addEventListener('touchend', onTouchEnd, { capture: true, passive: false });
+    document.addEventListener('touchcancel', function () { touch = null; }, true);
+  }
+  document.addEventListener('click', onClick, false);
+  document.addEventListener('keydown', onKeyDown, false);
+  window.addEventListener('founder-os:workspace-registry-rendered', function () { requestAnimationFrame(normalizeCards); });
+  window.addEventListener('founder-os:workspace-lifecycle-changed', function () { requestAnimationFrame(normalizeCards); });
 
   window.NNOSNavigationManager = {
-    openWorkspace,
-    openHome,
-    openView,
+    openWorkspace: openWorkspace,
+    openHome: openHome,
+    openView: openView,
     audit: normalizeCards,
-    getTrace: () => [...(window.NNOSNavigationTrace || [])]
+    getTrace: function () { return (window.NNOSNavigationTrace || []).slice(); }
   };
 
   normalizeCards();

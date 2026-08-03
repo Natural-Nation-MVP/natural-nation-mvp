@@ -1,226 +1,172 @@
-(() => {
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const DRAFT_KEY = 'founder-os-workspace-discovery-draft-v4';
-  const PROFILE_KEY = 'founder-os-profile-v1';
-  let refreshQueued = false;
+(function () {
+  'use strict';
 
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
-  const readStorage = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
-  const writeStorage = (key, value) => { try { localStorage.setItem(key, value); return true; } catch { return false; } };
-  const removeStorage = (key) => { try { localStorage.removeItem(key); return true; } catch { return false; } };
-  const safeJson = (value, fallback = null) => { try { return JSON.parse(value); } catch { return fallback; } };
+  var PROFILE_KEY = 'founder-os-profile-v1';
+  var DRAFT_KEY = 'founder-os-workspace-discovery-draft-v4';
+  var refreshQueued = false;
 
-  const profile = () => {
-    const saved = safeJson(readStorage(PROFILE_KEY), {});
-    return { name: saved?.name || 'Dewane', role: saved?.role || 'Founder', email: saved?.email || '', notifications: saved?.notifications !== false };
-  };
+  function one(selector, root) { return (root || document).querySelector(selector); }
+  function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
+  function closest(target, selector) { return target && target.closest ? target.closest(selector) : null; }
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+    });
+  }
+  function read(key) { try { return localStorage.getItem(key); } catch (error) { return null; } }
+  function write(key, value) { try { localStorage.setItem(key, value); return true; } catch (error) { return false; } }
+  function remove(key) { try { localStorage.removeItem(key); } catch (error) {} }
+  function parse(value, fallback) { try { return JSON.parse(value); } catch (error) { return fallback; } }
 
-  const draftState = () => {
-    const raw = readStorage(DRAFT_KEY);
-    if (!raw) return { available: false, valid: false };
-    const parsed = safeJson(raw);
-    const valid = Boolean(parsed && typeof parsed === 'object' && Number(parsed.step) >= 1 && Number(parsed.step) <= 6 && parsed.input && typeof parsed.input === 'object');
-    return { available: true, valid };
-  };
+  function profile() {
+    var saved = parse(read(PROFILE_KEY) || '{}', {});
+    return {
+      name: saved && saved.name ? saved.name : 'Dewane',
+      role: saved && saved.role ? saved.role : 'Founder',
+      email: saved && saved.email ? saved.email : '',
+      notifications: !saved || saved.notifications !== false
+    };
+  }
 
-  function showDialog({ title, eyebrow, body, actions = '' }) {
-    $('[data-founder-system-dialog]')?.remove();
-    const dialog = document.createElement('dialog');
-    dialog.className = 'founder-system-dialog';
-    dialog.dataset.founderSystemDialog = '';
-    dialog.innerHTML = `<form method="dialog"><header><div><div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div><button value="close" aria-label="Close dialog">×</button></header><div class="founder-system-dialog__body">${body}</div>${actions ? `<footer>${actions}</footer>` : ''}</form>`;
+  function closeDialog(dialog) {
+    if (!dialog) return;
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.remove();
+  }
+
+  function showDialog(title, eyebrow, body, actions) {
+    var existing = one('[data-founder-system-dialog]');
+    if (existing) existing.remove();
+    var supportsDialog = typeof window.HTMLDialogElement !== 'undefined';
+    var dialog = document.createElement(supportsDialog ? 'dialog' : 'div');
+    dialog.className = supportsDialog ? 'founder-system-dialog' : 'founder-settings-overlay';
+    dialog.setAttribute('data-founder-system-dialog', '');
+    if (!supportsDialog) dialog.setAttribute('role', 'dialog');
+    dialog.innerHTML = '<form><header><div><div class="eyebrow">' + esc(eyebrow) + '</div><h2>' + esc(title) + '</h2></div><button type="button" data-close-founder-dialog aria-label="Close dialog">×</button></header><div class="founder-system-dialog__body">' + body + '</div>' + (actions ? '<footer>' + actions + '</footer>' : '') + '</form>';
     document.body.appendChild(dialog);
-    dialog.addEventListener('close', () => dialog.remove(), { once: true });
-    dialog.showModal();
-    requestAnimationFrame(() => dialog.querySelector('button,[href],input,select,textarea')?.focus());
+    if (supportsDialog && typeof dialog.showModal === 'function') dialog.showModal();
+    else document.body.classList.add('founder-dialog-open');
+    var closeButton = one('[data-close-founder-dialog]', dialog);
+    if (closeButton) closeButton.addEventListener('click', function () { closeDialog(dialog); document.body.classList.remove('founder-dialog-open'); });
+    if (supportsDialog) dialog.addEventListener('close', function () { dialog.remove(); });
+    requestAnimationFrame(function () {
+      var focusTarget = one('button,input,select,textarea', dialog);
+      if (focusTarget) focusTarget.focus();
+    });
     return dialog;
   }
 
   function renderAccountTag() {
-    const crumb = $('.hero .crumb');
-    if (!crumb || document.body.dataset.activeWorkspace !== 'registry') return;
-    const user = profile();
-    const signature = `${user.name}|${user.role}`;
-    if (crumb.dataset.accountSignature === signature && crumb.querySelector('[data-open-founder-settings]')) return;
-    crumb.dataset.accountSignature = signature;
+    var crumb = one('.hero .crumb');
+    if (!crumb || document.body.getAttribute('data-active-workspace') !== 'registry') return;
+    var user = profile();
+    var signature = user.name + '|' + user.role;
+    if (crumb.getAttribute('data-account-signature') === signature && one('[data-open-founder-settings]', crumb)) return;
+    crumb.setAttribute('data-account-signature', signature);
     crumb.classList.add('founder-account-tag');
-    crumb.innerHTML = `<button type="button" class="founder-account-button" data-open-founder-settings aria-label="Open Founder OS settings for ${esc(user.name)}"><span class="founder-account-tag__avatar" aria-hidden="true">${esc(user.name.slice(0, 1).toUpperCase())}</span><span class="founder-account-tag__copy"><strong>Welcome back, ${esc(user.name)}</strong><small>${esc(user.role)} account</small></span><span class="founder-account-tag__chevron" aria-hidden="true">›</span></button>`;
+    crumb.innerHTML = '<button type="button" class="founder-account-button" data-open-founder-settings aria-label="Open Founder OS settings for ' + esc(user.name) + '"><span class="founder-account-tag__avatar" aria-hidden="true">' + esc(user.name.slice(0, 1).toUpperCase()) + '</span><span class="founder-account-tag__copy"><strong>Welcome back, ' + esc(user.name) + '</strong><small>' + esc(user.role) + ' account</small></span><span class="founder-account-tag__chevron" aria-hidden="true">›</span></button>';
   }
 
   function openSettings() {
-    const user = profile();
-    const draft = draftState();
-    const dialog = showDialog({
-      eyebrow: 'Founder OS',
-      title: 'Account & Settings',
-      body: `<label>Display name<input name="name" value="${esc(user.name)}" maxlength="60" /></label><label>Role<input name="role" value="${esc(user.role)}" maxlength="60" /></label><label>Email<input name="email" type="email" value="${esc(user.email)}" placeholder="Optional" /></label><label class="founder-setting-check"><input name="notifications" type="checkbox" ${user.notifications ? 'checked' : ''} /> Enable Founder OS notifications</label><p class="muted">These settings are stored on this device until account authentication is connected.</p>${draft.available ? `<button type="button" data-clear-saved-setup>${draft.valid ? 'Clear Saved Workspace Setup' : 'Remove Damaged Saved Setup'}</button>` : ''}`,
-      actions: '<button type="button" data-save-founder-settings class="generate">Save Settings</button>'
-    });
-
-    dialog.querySelector('[data-save-founder-settings]')?.addEventListener('click', () => {
-      const data = new FormData(dialog.querySelector('form'));
-      writeStorage(PROFILE_KEY, JSON.stringify({
+    var user = profile();
+    var hasDraft = Boolean(read(DRAFT_KEY));
+    var body = '<label>Display name<input name="name" value="' + esc(user.name) + '" maxlength="60"></label>' +
+      '<label>Role<input name="role" value="' + esc(user.role) + '" maxlength="60"></label>' +
+      '<label>Email<input name="email" type="email" value="' + esc(user.email) + '" placeholder="Optional"></label>' +
+      '<label class="founder-setting-check"><input name="notifications" type="checkbox" ' + (user.notifications ? 'checked' : '') + '> Enable Founder OS notifications</label>' +
+      '<p class="muted">These settings are stored on this device until account authentication is connected.</p>' +
+      (hasDraft ? '<button type="button" data-clear-saved-setup>Clear Saved Workspace Setup</button>' : '');
+    var dialog = showDialog('Account & Settings', 'Founder OS', body, '<button type="button" data-save-founder-settings class="generate">Save Settings</button>');
+    var save = one('[data-save-founder-settings]', dialog);
+    if (save) save.addEventListener('click', function () {
+      var form = one('form', dialog);
+      var data = new FormData(form);
+      write(PROFILE_KEY, JSON.stringify({
         name: String(data.get('name') || 'Dewane').trim() || 'Dewane',
         role: String(data.get('role') || 'Founder').trim() || 'Founder',
         email: String(data.get('email') || '').trim(),
         notifications: data.get('notifications') === 'on'
       }));
-      dialog.close();
-      const crumb = $('.hero .crumb');
-      if (crumb) delete crumb.dataset.accountSignature;
+      closeDialog(dialog);
+      document.body.classList.remove('founder-dialog-open');
+      var crumb = one('.hero .crumb');
+      if (crumb) crumb.removeAttribute('data-account-signature');
       scheduleRefresh();
     });
-
-    dialog.querySelector('[data-clear-saved-setup]')?.addEventListener('click', () => {
-      if (confirm('Remove the saved workspace setup from this device?')) {
-        removeStorage(DRAFT_KEY);
-        dialog.close();
-        scheduleRefresh();
-      }
-    });
-  }
-
-  function cardHealth(card) {
-    const status = card.dataset.launchStatus || 'active';
-    const completion = Number.parseInt(card.querySelector('.workspace-launch-card-progress strong')?.textContent || '0', 10) || 0;
-    const openable = Boolean(card.dataset.workspaceId);
-    if (!openable) return { tone: 'blocked', label: 'Cannot open', detail: 'No valid workspace route is available.' };
-    if (status === 'archived') return { tone: 'archived', label: 'Archived', detail: 'Open in read-only mode and restore from Workspace Settings.' };
-    if (status === 'setup') return { tone: 'warning', label: 'Setup incomplete', detail: 'Continue workspace definition before build work.' };
-    if (completion < 25) return { tone: 'warning', label: 'Early stage', detail: 'Workspace foundation is still being established.' };
-    return { tone: 'healthy', label: 'Healthy', detail: 'Workspace is available and ready to continue.' };
-  }
-
-  function openHealth() {
-    const cards = $$('.workspace-card').filter((card) => !card.hidden);
-    const rows = cards.map((card) => {
-      const title = card.querySelector('.workspace-launch-card-title h3')?.textContent || 'Workspace';
-      const health = cardHealth(card);
-      return `<button type="button" class="founder-health-row" data-health-open-workspace="${esc(card.dataset.workspaceId || '')}"><span><strong>${esc(title)}</strong><small>${esc(health.detail)}</small></span><em data-tone="${health.tone}">${health.label}</em></button>`;
-    }).join('') || '<div class="founder-empty-state"><strong>No workspaces match the current view.</strong><p>Clear the search or select All Workspaces.</p></div>';
-    showDialog({ eyebrow: 'Workspace Portfolio', title: 'Workspace Health', body: `<div class="founder-health-list">${rows}</div>` });
-  }
-
-  function updateEmptyState() {
-    const grid = $('[data-workspace-registry-list]');
-    const shell = $('[data-launch-portfolio]');
-    if (!grid || !shell) return;
-    let empty = shell.querySelector('[data-portfolio-empty]');
-    const visible = $$('.workspace-card', grid).filter((card) => !card.hidden).length;
-    if (!empty) {
-      empty = document.createElement('div');
-      empty.dataset.portfolioEmpty = '';
-      empty.className = 'founder-empty-state';
-      empty.innerHTML = '<strong>No workspaces found.</strong><p>Try a different search or choose another lifecycle filter.</p><button type="button" data-clear-workspace-search>Clear Search</button>';
-      grid.insertAdjacentElement('afterend', empty);
-    }
-    empty.hidden = visible > 0;
-  }
-
-  function validateDraftControls() {
-    const state = draftState();
-    $$('[data-launch-action="resume"]').forEach((button) => {
-      if (state.available && !state.valid) {
-        button.disabled = true;
-        button.classList.add('is-unavailable');
-        button.title = 'The saved setup is damaged. Remove it from Founder settings.';
-        button.dataset.invalidDraft = '';
-      } else if (button.dataset.invalidDraft) {
-        delete button.dataset.invalidDraft;
-        button.classList.remove('is-unavailable');
-        button.removeAttribute('title');
-        button.disabled = !state.available;
+    var clear = one('[data-clear-saved-setup]', dialog);
+    if (clear) clear.addEventListener('click', function () {
+      if (window.confirm('Remove the saved workspace setup from this device?')) {
+        remove(DRAFT_KEY);
+        closeDialog(dialog);
+        document.body.classList.remove('founder-dialog-open');
       }
     });
   }
 
   function updateProtectedApproval() {
-    const checkbox = $('[data-workspace-confirm]');
-    const createButton = $('[data-workspace-create-protected]');
+    var checkbox = one('[data-workspace-confirm]');
+    var createButton = one('[data-workspace-create-protected]');
     if (!checkbox || !createButton) return;
     createButton.disabled = !checkbox.checked;
-    createButton.setAttribute('aria-disabled', String(!checkbox.checked));
-    checkbox.closest('.workspace-confirmation')?.classList.toggle('is-confirmed', checkbox.checked);
+    createButton.setAttribute('aria-disabled', checkbox.checked ? 'false' : 'true');
+    var wrapper = closest(checkbox, '.workspace-confirmation');
+    if (wrapper) wrapper.classList.toggle('is-confirmed', checkbox.checked);
   }
 
   function scrollCarousel(direction) {
-    const track = $('[data-workspace-registry-list]');
-    const first = track && $$('.workspace-card', track).find((card) => !card.hidden);
-    if (!track || !first) return;
-    const style = getComputedStyle(track);
-    const gap = Number.parseFloat(style.columnGap || style.gap || '0') || 0;
-    track.scrollBy({ left: (first.getBoundingClientRect().width + gap) * (direction === 'next' ? 1 : -1), behavior: 'smooth' });
+    var track = one('[data-workspace-registry-list]');
+    var cards = track ? all('.workspace-card', track).filter(function (card) { return !card.hidden; }) : [];
+    if (!track || !cards.length) return;
+    var style = window.getComputedStyle(track);
+    var gap = parseFloat(style.columnGap || style.gap || '0') || 0;
+    var amount = cards[0].getBoundingClientRect().width + gap;
+    try { track.scrollBy({ left: direction === 'next' ? amount : -amount, behavior: 'smooth' }); }
+    catch (error) { track.scrollLeft += direction === 'next' ? amount : -amount; }
   }
 
   function refresh() {
     renderAccountTag();
-    validateDraftControls();
-    updateEmptyState();
     updateProtectedApproval();
   }
 
   function scheduleRefresh() {
     if (refreshQueued) return;
     refreshQueued = true;
-    requestAnimationFrame(() => {
-      refreshQueued = false;
-      refresh();
-    });
+    requestAnimationFrame(function () { refreshQueued = false; refresh(); });
   }
 
-  document.addEventListener('click', (event) => {
-    if (event.target.closest('[data-open-founder-settings]')) {
-      event.preventDefault();
-      openSettings();
-      return;
-    }
-    if (event.target.closest('[data-launch-action="health"]')) {
-      event.preventDefault();
-      openHealth();
-      return;
-    }
-    const carousel = event.target.closest('[data-carousel-direction]');
+  document.addEventListener('click', function (event) {
+    var settings = closest(event.target, '[data-open-founder-settings]');
+    if (settings) { event.preventDefault(); openSettings(); return; }
+    var carousel = closest(event.target, '[data-carousel-direction]');
     if (carousel && !carousel.disabled) {
       event.preventDefault();
-      scrollCarousel(carousel.dataset.carouselDirection);
+      scrollCarousel(carousel.getAttribute('data-carousel-direction'));
       return;
     }
-    if (event.target.closest('[data-clear-workspace-search]')) {
-      const search = $('[data-launch-search]');
-      if (search) {
-        search.value = '';
-        search.dispatchEvent(new Event('input', { bubbles: true }));
-        search.focus();
-      }
-      return;
-    }
-    const healthRow = event.target.closest('[data-health-open-workspace]');
-    if (healthRow) {
+    var healthRow = closest(event.target, '[data-health-open-workspace]');
+    if (healthRow && window.NNOSNavigationManager) {
       event.preventDefault();
-      healthRow.closest('dialog')?.close();
-      window.NNOSNavigationManager?.openWorkspace(healthRow.dataset.healthOpenWorkspace, 'health-dialog');
+      var dialog = closest(healthRow, 'dialog,[data-founder-system-dialog]');
+      closeDialog(dialog);
+      window.NNOSNavigationManager.openWorkspace(healthRow.getAttribute('data-health-open-workspace'), 'health-dialog');
     }
-  });
+  }, false);
 
-  document.addEventListener('change', (event) => {
-    if (event.target.matches('[data-workspace-confirm]')) updateProtectedApproval();
+  document.addEventListener('change', function (event) {
+    if (event.target && event.target.matches && event.target.matches('[data-workspace-confirm]')) updateProtectedApproval();
   }, true);
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') $('[data-founder-system-dialog][open]')?.close();
-  });
-  document.addEventListener('input', (event) => {
-    if (event.target.matches('[data-launch-search]')) scheduleRefresh();
-  });
 
-  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach((name) => {
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      var dialog = one('[data-founder-system-dialog]');
+      if (dialog) { closeDialog(dialog); document.body.classList.remove('founder-dialog-open'); }
+    }
+  }, false);
+
+  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach(function (name) {
     window.addEventListener(name, scheduleRefresh);
   });
   window.addEventListener('storage', scheduleRefresh);
-
-  new MutationObserver((mutations) => {
-    if (mutations.some((mutation) => mutation.type === 'childList' || ['hidden', 'disabled', 'data-active-workspace'].includes(mutation.attributeName))) scheduleRefresh();
-  }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'data-active-workspace'] });
-
   scheduleRefresh();
 })();
