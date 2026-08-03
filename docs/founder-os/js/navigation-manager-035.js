@@ -3,7 +3,8 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
   let pointer = null;
-  let routePromise = null;
+  let routeSequence = 0;
+  let activeRoute = null;
   let ignoreClickUntil = 0;
 
   const trace = (action, detail = {}) => {
@@ -36,49 +37,92 @@
 
   async function getWorkspaces() {
     let snapshot = window.NNOSWorkspaceRegistry?.getSnapshot?.();
-    if (!snapshot?.workspaces?.length) {
-      snapshot = await window.NNOSWorkspaceRegistry?.load?.();
-    }
+    if (!snapshot?.workspaces?.length) snapshot = await window.NNOSWorkspaceRegistry?.load?.();
     if (!snapshot?.workspaces?.length) throw new Error('Workspace registry is unavailable.');
     return snapshot.workspaces;
   }
 
+  function resolveTarget(workspaces, workspaceId) {
+    const exactMatches = workspaces.filter((item) => item.id === workspaceId);
+    if (exactMatches.length !== 1) {
+      throw new Error(exactMatches.length === 0
+        ? `Workspace ${workspaceId} is not registered.`
+        : `Workspace ${workspaceId} has duplicate route identities.`);
+    }
+
+    const workspace = exactMatches[0];
+    const target = workspace.resumeWorkspace || 'mission';
+    const moduleTargets = new Set((workspace.modules || []).map((module) => module.target));
+    if (!moduleTargets.has(target)) throw new Error(`Workspace ${workspaceId} does not expose its route target ${target}.`);
+    if (!$(`[data-workspace="${target}"]`)) throw new Error(`Workspace view ${target} does not exist in the page.`);
+    return { workspace, target };
+  }
+
+  function verifyRoute(workspaceId, target) {
+    const activeWorkspaceId = window.NNOSActiveWorkspace?.id || null;
+    const activeBodyWorkspace = document.body.dataset.activeWorkspace || null;
+    const activeView = document.body.dataset.activeView || null;
+    const visibleView = $('.workspace-view.active')?.dataset.workspace || null;
+    const valid = activeWorkspaceId === workspaceId
+      && activeBodyWorkspace === workspaceId
+      && activeView === target
+      && visibleView === target;
+
+    trace(valid ? 'workspace-target-verified' : 'workspace-target-mismatch', {
+      requestedWorkspaceId: workspaceId,
+      requestedTarget: target,
+      activeWorkspaceId,
+      activeBodyWorkspace,
+      activeView,
+      visibleView
+    });
+    return valid;
+  }
+
   async function openWorkspace(workspaceId, source = 'api') {
-    if (!workspaceId) return false;
-    if (routePromise) return routePromise;
+    const requestedId = String(workspaceId || '').trim();
+    if (!requestedId) return false;
 
-    document.body.dataset.navigationPending = workspaceId;
-    trace('workspace-requested', { workspaceId, source });
+    const sequence = ++routeSequence;
+    activeRoute = { sequence, workspaceId: requestedId, source };
+    document.body.dataset.navigationPending = requestedId;
+    trace('workspace-requested', { workspaceId: requestedId, source, sequence });
 
-    routePromise = (async () => {
-      try {
-        const workspaces = await getWorkspaces();
-        const workspace = workspaces.find((item) => item.id === workspaceId);
-        if (!workspace) throw new Error(`Workspace ${workspaceId} is not registered.`);
-
-        window.NNOSActiveWorkspace = workspace;
-        const target = workspace.resumeWorkspace || 'mission';
-        renderWorkspaceNavigation(workspace, target);
-        window.setWorkspace?.(target);
-        $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
-        trace('workspace-opened', { workspaceId, target, source });
-        return true;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const status = $('[data-workspace-registry-status]');
-        if (status) status.textContent = `Unable to open workspace: ${message}`;
-        trace('workspace-failed', { workspaceId, source, error: message });
+    try {
+      const workspaces = await getWorkspaces();
+      if (activeRoute?.sequence !== sequence) {
+        trace('workspace-route-superseded', { workspaceId: requestedId, source, sequence });
         return false;
-      } finally {
-        delete document.body.dataset.navigationPending;
-        routePromise = null;
       }
-    })();
 
-    return routePromise;
+      const { workspace, target } = resolveTarget(workspaces, requestedId);
+      window.NNOSActiveWorkspace = workspace;
+      renderWorkspaceNavigation(workspace, target);
+      window.setWorkspace?.(target);
+      $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
+
+      const verified = verifyRoute(requestedId, target);
+      if (!verified) throw new Error(`Workspace ${requestedId} did not activate its expected page target.`);
+
+      trace('workspace-opened', { workspaceId: requestedId, target, source, sequence });
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const status = $('[data-workspace-registry-status]');
+      if (status) status.textContent = `Unable to open workspace: ${message}`;
+      trace('workspace-failed', { workspaceId: requestedId, source, sequence, error: message });
+      return false;
+    } finally {
+      if (activeRoute?.sequence === sequence) {
+        activeRoute = null;
+        delete document.body.dataset.navigationPending;
+      }
+    }
   }
 
   function openHome(source = 'api') {
+    routeSequence += 1;
+    activeRoute = null;
     delete document.body.dataset.navigationPending;
     window.NNOSActiveWorkspace = null;
     window.setWorkspace?.('registry');
@@ -95,6 +139,10 @@
       trace('view-rejected', { target: target || null, source, workspaceId: workspace?.id || null });
       return false;
     }
+    if (!$(`[data-workspace="${target}"]`)) {
+      trace('view-rejected', { target, source, workspaceId: workspace.id, reason: 'missing-view' });
+      return false;
+    }
 
     window.setWorkspace?.(target);
     $('.main')?.scrollTo?.({ top: 0, behavior: 'auto' });
@@ -103,11 +151,21 @@
   }
 
   function normalizeCards() {
+    const ids = new Set();
     $$('.workspace-card[data-workspace-id]').forEach((card) => {
-      card.dataset.navWorkspace = card.dataset.workspaceId;
-      card.tabIndex = card.hidden ? -1 : 0;
+      const workspaceId = String(card.dataset.workspaceId || '').trim();
+      card.dataset.navWorkspace = workspaceId;
+      card.dataset.routeTarget = workspaceId;
+      card.tabIndex = card.hidden || !workspaceId ? -1 : 0;
       card.setAttribute('role', 'link');
-      card.setAttribute('aria-disabled', String(card.hidden));
+      card.setAttribute('aria-disabled', String(card.tabIndex < 0));
+
+      if (!workspaceId || ids.has(workspaceId)) {
+        card.setAttribute('aria-disabled', 'true');
+        card.tabIndex = -1;
+        trace('card-target-invalid', { workspaceId: workspaceId || null, duplicate: ids.has(workspaceId) });
+      }
+      ids.add(workspaceId);
     });
   }
 
@@ -118,16 +176,17 @@
   function onPointerDown(event) {
     if (event.button !== undefined && event.button !== 0) return;
     const card = event.target.closest?.('.workspace-card[data-workspace-id]');
-    if (!card || card.hidden || isInteractive(event.target)) return;
+    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true' || isInteractive(event.target)) return;
 
     pointer = {
       id: event.pointerId,
       type: event.pointerType || 'unknown',
+      workspaceId: card.dataset.workspaceId,
       card,
       x: event.clientX,
       y: event.clientY
     };
-    trace('card-pointer-down', { workspaceId: card.dataset.workspaceId, pointerType: pointer.type });
+    trace('card-pointer-down', { workspaceId: pointer.workspaceId, pointerType: pointer.type });
   }
 
   function onPointerUp(event) {
@@ -142,7 +201,7 @@
 
     if (distance > threshold || carouselSuppressed) {
       trace('card-pointer-cancelled', {
-        workspaceId: action.card.dataset.workspaceId,
+        workspaceId: action.workspaceId,
         distance,
         threshold,
         carouselSuppressed: Boolean(carouselSuppressed)
@@ -152,7 +211,7 @@
 
     event.preventDefault();
     ignoreClickUntil = performance.now() + 700;
-    openWorkspace(action.card.dataset.workspaceId, 'pointer-up');
+    openWorkspace(action.workspaceId, 'pointer-up');
   }
 
   function onPointerCancel(event) {
@@ -175,7 +234,7 @@
     }
 
     const card = event.target.closest?.('.workspace-card[data-workspace-id]');
-    if (!card || card.hidden || isInteractive(event.target)) return;
+    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true' || isInteractive(event.target)) return;
     if (performance.now() < ignoreClickUntil) {
       event.preventDefault();
       return;
@@ -210,7 +269,7 @@
     }
 
     const card = event.target.closest?.('.workspace-card[data-workspace-id]');
-    if (!card || card.hidden) return;
+    if (!card || card.hidden || card.getAttribute('aria-disabled') === 'true') return;
     event.preventDefault();
     openWorkspace(card.dataset.workspaceId, 'keyboard');
   }
