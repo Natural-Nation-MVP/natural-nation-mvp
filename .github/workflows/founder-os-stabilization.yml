@@ -31,7 +31,7 @@ permissions:
 jobs:
   validate-founder-os:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -39,16 +39,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate runtime, UX, workspace isolation, and AI dispatch
-        run: node scripts/validate-founder-os.mjs
-      - name: Validate Founder Approval Inbox actions
-        run: node scripts/validate-founder-approval-inbox.mjs
-      - name: Validate FOUNDER-UX-001 Control Center
-        run: node scripts/validate-founder-ux-001.mjs
-      - name: Validate FOUNDER-WS-001 protected workspace creation
-        run: node scripts/validate-founder-ws-001.mjs
-      - name: Validate FOUNDER-WS-005 workspace lifecycle manager
-        run: node scripts/validate-founder-ws-005.mjs
+      - name: Audit all Founder OS validators
+        shell: bash
+        run: |
+          set +e
+          failures=0
+          validators=(
+            scripts/validate-founder-os.mjs
+            scripts/validate-founder-approval-inbox.mjs
+            scripts/validate-founder-ux-001.mjs
+            scripts/validate-founder-ws-001.mjs
+            scripts/validate-founder-ws-005.mjs
+          )
+          for validator in "${validators[@]}"; do
+            echo "::group::$validator"
+            node "$validator"
+            status=$?
+            echo "::endgroup::"
+            if [ "$status" -ne 0 ]; then
+              echo "::error file=$validator::$validator failed with exit code $status"
+              failures=$((failures + 1))
+            fi
+          done
+          if [ "$failures" -ne 0 ]; then
+            echo "$failures Founder OS validator(s) failed. Review all errors above."
+            exit 1
+          fi
       - name: Test NN-KS-002 live workflow
         working-directory: services/founder-os-gateway
         run: node --test test/nn-ks-002.test.mjs
