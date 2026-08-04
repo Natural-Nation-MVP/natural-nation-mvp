@@ -77,7 +77,11 @@ if (!app.includes("approvals: { title: 'Approval Inbox'") || !app.includes("targ
   throw new Error('Founder OS router does not recognize the Approval Inbox view.');
 }
 
-if (!app.includes("paths.asset('js/founder-approval-inbox.js?v=section-2')")) {
+const usesRouteSafeLoader = app.includes("var paths = window.NNOSPaths") &&
+  app.includes("script.src = paths.asset(path)") &&
+  app.includes("addScript('js/founder-approval-inbox.js?v=section-2'");
+
+if (!usesRouteSafeLoader) {
   throw new Error('Approval Inbox runtime is not loaded through route-safe NNOSPaths.');
 }
 
