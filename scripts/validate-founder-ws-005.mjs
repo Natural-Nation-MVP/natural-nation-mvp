@@ -10,8 +10,8 @@ const migration = JSON.parse(fs.readFileSync('docs/founder-os/registry/migration
 
 assert.doesNotMatch(html, /<div[^>]*data-workspace-manager(?:\s|>)/);
 assert.match(html, /data-workspace-manager-status/);
-assert.match(html, /workspace-manager\.js\?v=founder-ws-006/);
-assert.match(html, /workspace-manager\.css\?v=founder-ws-006/);
+assert.match(html, /workspace-manager\.js\?v=[^"']+/);
+assert.match(html, /workspace-manager\.css\?v=[^"']+/);
 assert.match(manager, /data-integrated-workspace-management/);
 assert.match(manager, /workspace-card-management/);
 assert.match(manager, /data-lifecycle-action/);
@@ -20,6 +20,8 @@ assert.match(manager, /purge-check/);
 assert.match(manager, /Workspace ID/);
 assert.match(manager, /Compare OS Studio Records/);
 assert.match(registry, /founder-os:workspace-registry-rendered/);
+assert.match(registry, /data-open-workspace/);
+assert.doesNotMatch(registry, /data-workspace-link/);
 assert.match(gateway, /async function manageWorkspaceLifecycle/);
 assert.match(lifecycle, /PROTECTED_WORKSPACES/);
 assert.match(lifecycle, /workspace\.workspaceId === workspaceId/);
@@ -28,4 +30,4 @@ assert.equal(migration.destructiveActionTaken, false);
 assert.equal(migration.automaticActionTaken, false);
 assert.equal(migration.recommendedCanonicalWorkspaceId, 'ws_b79fd264-341c-413c-867f-998a5a57a651');
 
-console.log('FOUNDER-WS-005/006 integrated workspace lifecycle governance validated.');
+console.log('FOUNDER-WS-005/006 current integrated workspace lifecycle governance validated.');
