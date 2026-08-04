@@ -68,7 +68,7 @@ assert(app.includes('founder-task-details.css?v=section-3') && app.includes('fou
 assert(app.includes('repository-actions.css?v=section-4'));
 assert(app.includes('canonical-runtime-state.js?v=runtime-state-1'));
 assert(app.indexOf('canonical-runtime-state.js') < app.indexOf('ux-completion.js'));
-assert(workspaceRegistry.includes("window.NNOSActiveWorkspace?.id === 'natural-nation'"));
+assert(workspaceRegistry.includes('data-open-workspace=') && !workspaceRegistry.includes('data-workspace-link'), 'Workspace cards must use explicit Open Workspace buttons.');
 assert(discoveryUi.includes('Open Approved Plan') && discoveryUi.includes('live Build Work'));
 assert(blueprintUi.includes('approvalTransactionId'));
 assert(knowledgeUi.includes('scopedKnowledge'));
