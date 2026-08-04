@@ -3,6 +3,7 @@
 
   var routeSequence = 0;
   var activeRoute = null;
+  var restoringHistory = false;
 
   function one(selector, root) { return (root || document).querySelector(selector); }
   function closest(target, selector) { return target && target.closest ? target.closest(selector) : null; }
@@ -82,15 +83,20 @@
 
   function scrollMainTop() {
     var main = one('.main');
-    if (!main) return;
-    main.scrollTop = 0;
+    if (main) main.scrollTop = 0;
   }
 
-  function setHash(workspaceId, view, replace) {
-    var hash = '#workspace=' + encodeURIComponent(workspaceId) + (view ? '&view=' + encodeURIComponent(view) : '');
-    if (window.location.hash === hash) return;
+  function makeHash(workspaceId, view) {
+    return '#workspace=' + encodeURIComponent(workspaceId) + (view ? '&view=' + encodeURIComponent(view) : '');
+  }
+
+  function writeHistory(workspaceId, view, mode) {
+    var hash = workspaceId ? makeHash(workspaceId, view) : '';
+    var url = window.location.pathname + window.location.search + hash;
+    var state = workspaceId ? { founderOS: true, workspace: workspaceId, view: view || null } : { founderOS: true, home: true };
     try {
-      if (replace && window.history && history.replaceState) history.replaceState(null, '', hash);
+      if (mode === 'push' && window.history && history.pushState) history.pushState(state, '', url);
+      else if (window.history && history.replaceState) history.replaceState(state, '', url);
       else window.location.hash = hash;
     } catch (error) {
       window.location.hash = hash;
@@ -110,7 +116,7 @@
     return result;
   }
 
-  function activateWorkspace(workspaceId, source, requestedView) {
+  function activateWorkspace(workspaceId, source, requestedView, historyMode) {
     var requestedId = String(workspaceId || '').trim();
     if (!requestedId) return Promise.resolve(false);
     var sequence = ++routeSequence;
@@ -131,8 +137,8 @@
       renderWorkspaceNavigation(resolved.workspace, target);
       if (typeof window.setWorkspace !== 'function' || !window.setWorkspace(target)) throw new Error('Workspace page could not be displayed.');
       scrollMainTop();
-      setHash(requestedId, target, true);
-      trace('workspace-opened', { workspaceId: requestedId, target: target, source: source || 'api' });
+      if (!restoringHistory) writeHistory(requestedId, target, historyMode || 'replace');
+      trace('workspace-opened', { workspaceId: requestedId, target: target, source: source || 'api', historyMode: historyMode || 'replace' });
       return true;
     }).catch(function (error) {
       var status = one('[data-workspace-registry-status]');
@@ -149,28 +155,25 @@
   }
 
   function openWorkspace(workspaceId, source) {
-    return activateWorkspace(workspaceId, source || 'api', null);
+    return activateWorkspace(workspaceId, source || 'api', null, 'push');
   }
 
-  function openHome(source) {
+  function openHome(source, historyMode) {
     routeSequence += 1;
     activeRoute = null;
     document.body.removeAttribute('data-navigation-pending');
     window.NNOSActiveWorkspace = null;
-    try {
-      if (window.history && history.replaceState) history.replaceState(null, '', window.location.pathname + window.location.search);
-      else window.location.hash = '';
-    } catch (error) { window.location.hash = ''; }
+    if (!restoringHistory) writeHistory(null, null, historyMode || 'push');
     if (typeof window.setWorkspace === 'function') window.setWorkspace('registry');
-    try { window.dispatchEvent(new CustomEvent('founder-os:navigation-home-render-requested')); } catch (error2) {}
+    try { window.dispatchEvent(new CustomEvent('founder-os:navigation-home-render-requested')); } catch (error) {}
     scrollMainTop();
-    trace('home-opened', { source: source || 'api' });
+    trace('home-opened', { source: source || 'api', historyMode: historyMode || 'push' });
     return true;
   }
 
   function openView(target, source) {
     var workspace = window.NNOSActiveWorkspace;
-    if (target === 'registry') return openHome(source);
+    if (target === 'registry') return openHome(source, 'push');
     if (!workspace || !target) return false;
     var allowed = false;
     var modules = workspace.modules || [];
@@ -178,44 +181,50 @@
     if (!allowed || !one('[data-workspace="' + target + '"]')) return false;
     var opened = typeof window.setWorkspace === 'function' && window.setWorkspace(target);
     if (opened) {
-      setHash(workspace.id, target, true);
+      if (!restoringHistory) writeHistory(workspace.id, target, 'push');
       scrollMainTop();
     }
     trace(opened ? 'view-opened' : 'view-rejected', { target: target, source: source || 'api', workspaceId: workspace.id });
     return opened;
   }
 
-  function routeFromHash(source) {
+  function routeFromLocation(source) {
     var route = parseHash();
-    if (!route.workspace) return Promise.resolve(false);
-    return activateWorkspace(route.workspace, source || 'hash', route.view || null);
+    restoringHistory = true;
+    var operation = route.workspace
+      ? activateWorkspace(route.workspace, source || 'location', route.view || null, 'replace')
+      : Promise.resolve(openHome(source || 'location', 'replace'));
+    return Promise.resolve(operation).then(function (result) {
+      restoringHistory = false;
+      return result;
+    }, function (error) {
+      restoringHistory = false;
+      throw error;
+    });
   }
 
   document.addEventListener('click', function (event) {
     var home = closest(event.target, '[data-nav-home]');
-    if (home) { event.preventDefault(); openHome('click'); return; }
+    if (home) { event.preventDefault(); openHome('click', 'push'); return; }
     var view = closest(event.target, '[data-nav-view]');
-    if (view) { event.preventDefault(); openView(view.getAttribute('data-nav-view'), 'click'); return; }
-
-    var link = closest(event.target, 'a[data-workspace-link]');
-    if (link) {
-      /* Do not prevent the native anchor action. Safari will update the hash even if
-         pointer/click synthesis differs from other browsers. hashchange owns routing. */
-      trace('native-workspace-link', { workspaceId: link.getAttribute('data-workspace-id') });
-    }
+    if (view) { event.preventDefault(); openView(view.getAttribute('data-nav-view'), 'click'); }
   }, false);
 
-  window.addEventListener('hashchange', function () { routeFromHash('hashchange'); });
-  window.addEventListener('pageshow', function () { routeFromHash('pageshow'); });
-  window.addEventListener('founder-os:workspace-registry-rendered', function () { routeFromHash('registry-rendered'); });
+  window.addEventListener('popstate', function () { routeFromLocation('popstate'); });
+  window.addEventListener('hashchange', function () { routeFromLocation('hashchange'); });
+  window.addEventListener('pageshow', function () { routeFromLocation('pageshow'); });
+  window.addEventListener('founder-os:workspace-registry-rendered', function () {
+    if (window.location.hash) routeFromLocation('registry-rendered');
+  });
 
   window.NNOSNavigationManager = {
     openWorkspace: openWorkspace,
     openHome: openHome,
     openView: openView,
-    routeFromHash: routeFromHash,
+    routeFromHash: routeFromLocation,
+    routeFromLocation: routeFromLocation,
     getTrace: function () { return (window.NNOSNavigationTrace || []).slice(); }
   };
 
-  routeFromHash('startup');
+  routeFromLocation('startup');
 })();

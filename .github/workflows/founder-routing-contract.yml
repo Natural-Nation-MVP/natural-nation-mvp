@@ -1,0 +1,39 @@
+name: Founder OS Routing Contract
+
+on:
+  pull_request:
+    paths:
+      - 'docs/founder-os/js/navigation-manager-035.js'
+      - 'docs/founder-os/js/founder-home-functionality.js'
+      - 'docs/founder-os/js/workspace-registry.js'
+      - 'docs/founder-os/js/app.js'
+      - 'docs/founder-os/index.html'
+      - 'scripts/validate-founder-routing.mjs'
+      - '.github/workflows/founder-routing-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/founder-os/js/navigation-manager-035.js'
+      - 'docs/founder-os/js/founder-home-functionality.js'
+      - 'docs/founder-os/js/workspace-registry.js'
+      - 'docs/founder-os/js/app.js'
+      - 'docs/founder-os/index.html'
+      - 'scripts/validate-founder-routing.mjs'
+      - '.github/workflows/founder-routing-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  routing-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Founder OS routing contract
+        run: node scripts/validate-founder-routing.mjs
