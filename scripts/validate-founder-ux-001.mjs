@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const files = {
   rootIndex: 'docs/index.html',
-  compatibilityIndex: 'docs/founder-os/index.html',
+  canonicalIndex: 'docs/founder-os/index.html',
   registry: 'docs/founder-os/js/workspace-registry.js',
   creation: 'docs/founder-os/js/workspace-creation.js',
   styles: 'docs/founder-os/css/workspace-creation.css'
@@ -13,29 +13,39 @@ for (const path of Object.values(files)) {
 }
 
 const rootIndex = fs.readFileSync(files.rootIndex, 'utf8');
-const compatibilityIndex = fs.readFileSync(files.compatibilityIndex, 'utf8');
+const canonicalIndex = fs.readFileSync(files.canonicalIndex, 'utf8');
 const registry = fs.readFileSync(files.registry, 'utf8');
 const creation = fs.readFileSync(files.creation, 'utf8');
 const styles = fs.readFileSync(files.styles, 'utf8');
 
-for (const [label, index] of [['root', rootIndex], ['compatibility', compatibilityIndex]]) {
-  for (const contract of ['data-create-workspace', 'workspace-creation.js', 'workspace-registry.js']) {
-    if (!index.includes(contract)) throw new Error(`FOUNDER-UX-001 ${label} index contract missing: ${contract}`);
-  }
+for (const contract of [
+  'founder-os-entry',
+  'canonical-redirect',
+  "new URL('./founder-os/', window.location.href)",
+  'window.location.replace(destination.href)'
+]) {
+  if (!rootIndex.includes(contract)) throw new Error(`Founder OS root redirect contract missing: ${contract}`);
+}
+if (rootIndex.includes('workspace-registry.js') || rootIndex.includes('workspace-manager.js')) {
+  throw new Error('The root redirect must not load a second Founder OS runtime.');
 }
 
-// Validate current Control Center behavior rather than obsolete implementation strings.
 for (const contract of [
-  'data-workspace-registry-list',
-  'data-open-workspace',
-  'window.NNOSWorkspaceRegistry',
-  'founder-os:workspace-registry-rendered',
-  "window.NNOSActiveWorkspace = null",
-  "setWorkspace('registry')"
+  'data-create-workspace',
+  'workspace-creation.js',
+  'workspace-registry.js',
+  'founder-home-functionality.css',
+  'workspace-launch-center.css',
+  'founder-home-functionality.js',
+  'navigation-manager-035.js'
 ]) {
+  if (!canonicalIndex.includes(contract)) throw new Error(`FOUNDER-UX-001 canonical index contract missing: ${contract}`);
+}
+
+for (const contract of ['data-open-workspace', 'workspace-card-action', 'founder-os:workspace-registry-rendered']) {
   if (!registry.includes(contract)) throw new Error(`Control Center registry contract missing: ${contract}`);
 }
-if (registry.includes('data-workspace-link')) throw new Error('Retired clickable-card workspace links remain in the registry renderer.');
+if (registry.includes('data-workspace-link')) throw new Error('Retired clickable workspace-card links remain in the registry runtime.');
 
 for (const contract of [
   'Workspace Discovery', 'Founder OS is listening', 'One answer at a time.', 'QUESTION_FLOW',
@@ -77,7 +87,6 @@ for (const contract of ['recommendation-chip', 'incomplete-list', 'optional-chal
   if (!styles.includes(contract)) throw new Error(`Workspace Discovery style/accessibility contract missing: ${contract}`);
 }
 
-if (registry.includes('New workspace — coming later')) throw new Error('Workspace creation remains disabled in the Founder OS Control Center.');
 if (creation.includes('no repository action was performed')) throw new Error('The retired placeholder-only creation alert remains in Workspace Discovery.');
 
-console.log('FOUNDER-UX-001 current Control Center, persistence, accessibility, and protected handoff contracts passed.');
+console.log('FOUNDER-UX-001 canonical entry, persistence, accessibility, and protected handoff contracts passed.');
