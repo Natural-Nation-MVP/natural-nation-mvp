@@ -44,13 +44,28 @@
     }, 240);
   }
 
+  function bindWorkspaceLinks() {
+    var links = all('a[data-workspace-link][data-workspace-id]');
+    for (var i = 0; i < links.length; i += 1) {
+      var link = links[i];
+      if (link.getAttribute('data-direct-route-ready') === '051') continue;
+      link.setAttribute('data-direct-route-ready', '051');
+      link.addEventListener('click', function (event) {
+        if (!window.NNOSNavigationManager || typeof window.NNOSNavigationManager.openWorkspace !== 'function') return;
+        var workspaceId = this.getAttribute('data-workspace-id');
+        if (!workspaceId) return;
+        event.preventDefault();
+        window.NNOSNavigationManager.openWorkspace(workspaceId, 'native-anchor-direct');
+      }, false);
+    }
+  }
+
   function install() {
     var track = one('[data-workspace-registry-list]');
     if (!track || track.getAttribute('data-drag-scroll-ready') === '051') return;
     track.setAttribute('data-drag-scroll-ready', '051');
 
-    /* Touch scrolling is owned entirely by Safari. Mouse dragging is enabled only
-       for non-touch pointers and never cancels anchor clicks. */
+    /* Safari owns touch scrolling. Mouse dragging never captures or cancels links. */
     track.addEventListener('pointerdown', function (event) {
       if (event.pointerType === 'touch' || event.button !== 0) return;
       if (event.target && event.target.closest && event.target.closest('button,input,select,textarea,summary,details')) return;
@@ -82,6 +97,7 @@
   }
 
   function stabilize() {
+    bindWorkspaceLinks();
     install();
     updateButtons();
   }
