@@ -24,9 +24,18 @@ for (const [label, index] of [['root', rootIndex], ['compatibility', compatibili
   }
 }
 
-for (const contract of ['enableControlCenterCreation', 'window.NNOSActiveWorkspace = null', 'data-workspace="registry"', 'createButton.disabled = false']) {
+// Validate current Control Center behavior rather than obsolete implementation strings.
+for (const contract of [
+  'data-workspace-registry-list',
+  'data-open-workspace',
+  'window.NNOSWorkspaceRegistry',
+  'founder-os:workspace-registry-rendered',
+  "window.NNOSActiveWorkspace = null",
+  "setWorkspace('registry')"
+]) {
   if (!registry.includes(contract)) throw new Error(`Control Center registry contract missing: ${contract}`);
 }
+if (registry.includes('data-workspace-link')) throw new Error('Retired clickable-card workspace links remain in the registry renderer.');
 
 for (const contract of [
   'Workspace Discovery', 'Founder OS is listening', 'One answer at a time.', 'QUESTION_FLOW',
@@ -71,4 +80,4 @@ for (const contract of ['recommendation-chip', 'incomplete-list', 'optional-chal
 if (registry.includes('New workspace — coming later')) throw new Error('Workspace creation remains disabled in the Founder OS Control Center.');
 if (creation.includes('no repository action was performed')) throw new Error('The retired placeholder-only creation alert remains in Workspace Discovery.');
 
-console.log('FOUNDER-UX-001 persistence, accessibility, and protected handoff contracts passed.');
+console.log('FOUNDER-UX-001 current Control Center, persistence, accessibility, and protected handoff contracts passed.');
