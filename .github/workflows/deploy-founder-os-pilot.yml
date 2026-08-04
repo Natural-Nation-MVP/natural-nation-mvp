@@ -9,7 +9,12 @@ on:
       - 'docs/execution-packages/**'
       - 'docs/orchestration/**'
       - '.github/workflows/deploy-founder-os-pilot.yml'
+      - '.github/workflows/founder-os-stabilization.yml'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-approval-inbox.mjs'
+      - 'scripts/validate-founder-ux-001.mjs'
+      - 'scripts/validate-founder-ws-001.mjs'
+      - 'scripts/validate-founder-ws-005.mjs'
   workflow_dispatch:
 
 permissions:
@@ -31,8 +36,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate Founder OS site and runtime contracts
-        run: node scripts/validate-founder-os.mjs
+      - name: Validate complete Founder OS contract set
+        shell: bash
+        run: |
+          set -uo pipefail
+          status=0
+          for validator in \
+            scripts/validate-founder-os.mjs \
+            scripts/validate-founder-approval-inbox.mjs \
+            scripts/validate-founder-ux-001.mjs \
+            scripts/validate-founder-ws-001.mjs \
+            scripts/validate-founder-ws-005.mjs
+          do
+            echo "::group::Running ${validator}"
+            node "${validator}" || status=1
+            echo "::endgroup::"
+          done
+          exit "${status}"
 
   deploy:
     needs: validate
@@ -52,6 +72,7 @@ jobs:
         env:
           REPOSITORY: ${{ github.repository }}
           MERGE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
           rm -rf _site
@@ -63,10 +84,16 @@ jobs:
 
           test -f _site/founder-os/registry/workspaces.json
           test -f _site/founder-os/css/founder-os.css
+          test -f _site/founder-os/js/workspace-registry.js
           jq -e '.schemaVersion == "2.0.0" and (.workspaces | type == "array")' _site/founder-os/registry/workspaces.json >/dev/null
           jq -e '.workspaces[] | select(.workspaceId | startswith("ws_"))' _site/founder-os/registry/workspaces.json >/dev/null
           grep -q "registry/workspaces.json" _site/founder-os/js/workspace-registry.js
-          grep -q "mergeRegistries" _site/founder-os/js/workspace-registry.js
+          grep -q "function merge(" _site/founder-os/js/workspace-registry.js
+          grep -q 'data-open-workspace=' _site/founder-os/js/workspace-registry.js
+          if grep -q 'data-workspace-link' _site/founder-os/js/workspace-registry.js; then
+            echo "Legacy clickable workspace-card link markup remains in the deployment artifact."
+            exit 1
+          fi
 
           COMMIT_SUBJECT="$(git log -1 --pretty=%s)"
           PR_NUMBER="$(printf '%s' "$COMMIT_SUBJECT" | sed -nE 's/^Merge pull request #([0-9]+).*/\1/p')"
@@ -107,8 +134,20 @@ jobs:
               sed -i -E "s|(workspace-manager\.css\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i -E "s|(founder-os\.css\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
               sed -i -E "s|(founder-ux-002\.js\?v=[^\"']+)|\1-${MERGE_SHA}|g" "$shell"
+              sed -i "s|</head>|  <meta name=\"founder-os-deployment-sha\" content=\"${MERGE_SHA}\">\n</head>|" "$shell"
             fi
           done
+
+          cat > _site/deployment.json <<EOF
+          {
+            "application": "Founder OS",
+            "commitSha": "${MERGE_SHA}",
+            "runId": "${RUN_ID}",
+            "deployedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "workspaceCardMode": "static-grid-explicit-button"
+          }
+          EOF
+          cp _site/deployment.json _site/founder-os/deployment.json
 
           grep -Eq "workspace-registry\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "workspace-manager\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
@@ -117,6 +156,8 @@ jobs:
           grep -Eq "founder-os\.css\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
           grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/index.html
           grep -Eq "founder-ux-002\.js\?v=[^\"']+-${MERGE_SHA}" _site/founder-os/index.html
+          grep -q "founder-os-deployment-sha" _site/index.html
+          grep -q "founder-os-deployment-sha" _site/founder-os/index.html
           touch _site/.nojekyll
 
       - name: Upload Founder OS Pages artifact
