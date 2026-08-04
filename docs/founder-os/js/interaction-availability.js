@@ -1,81 +1,62 @@
-(() => {
-  const DRAFT_KEY = 'founder-os-workspace-discovery-draft-v4';
+(function () {
+  'use strict';
 
-  const hasSavedDraft = () => {
+  var DRAFT_KEY = 'founder-os-workspace-discovery-draft-v4';
+
+  function hasSavedDraft() {
     try { return Boolean(window.localStorage.getItem(DRAFT_KEY)); }
-    catch { return false; }
-  };
+    catch (error) { return false; }
+  }
 
   function setUnavailable(control, unavailable, reason) {
     if (!control) return;
     if ('disabled' in control) control.disabled = unavailable;
     control.classList.toggle('is-unavailable', unavailable);
-    control.setAttribute('aria-disabled', String(unavailable));
+    control.setAttribute('aria-disabled', unavailable ? 'true' : 'false');
     if (unavailable) {
       control.title = reason;
-      control.dataset.unavailableReason = reason;
+      control.setAttribute('data-unavailable-reason', reason);
     } else {
       control.removeAttribute('title');
-      delete control.dataset.unavailableReason;
+      control.removeAttribute('data-unavailable-reason');
     }
   }
 
-  function refreshLaunchActions() {
-    document.querySelectorAll('[data-launch-action="resume"]').forEach((control) => {
-      setUnavailable(control, !hasSavedDraft(), 'No saved workspace setup is available.');
-    });
-
-    const duplicateAvailable = Boolean(document.querySelector('[data-open-duplicate-review]'));
-    document.querySelectorAll('[data-launch-action="duplicates"]').forEach((control) => {
-      setUnavailable(control, !duplicateAvailable, 'No duplicate workspace records require review.');
-    });
-
-    const archivedAvailable = [...document.querySelectorAll('.workspace-card')]
-      .some((card) => card.dataset.launchStatus === 'archived');
-    document.querySelectorAll('[data-launch-filter="archived"]').forEach((control) => {
-      setUnavailable(control, !archivedAvailable, 'No archived workspaces are available.');
-    });
-  }
-
-  function refreshLinks() {
-    document.querySelectorAll('a[href]').forEach((link) => {
-      const href = (link.getAttribute('href') || '').trim();
-      const unavailable = !href || href === '#' || href.startsWith('javascript:');
-      link.classList.toggle('is-unavailable', unavailable);
-      link.setAttribute('aria-disabled', String(unavailable));
-      if (unavailable) link.title = 'This link is not available yet.';
-      else link.removeAttribute('title');
-    });
-  }
-
   function refresh() {
-    refreshLaunchActions();
-    refreshLinks();
+    var resumeControls = document.querySelectorAll('[data-launch-action="resume"]');
+    for (var i = 0; i < resumeControls.length; i += 1) {
+      setUnavailable(resumeControls[i], !hasSavedDraft(), 'No saved workspace setup is available.');
+    }
+
+    var duplicateAvailable = Boolean(document.querySelector('[data-open-duplicate-review]'));
+    var duplicateControls = document.querySelectorAll('[data-launch-action="duplicates"]');
+    for (var j = 0; j < duplicateControls.length; j += 1) {
+      setUnavailable(duplicateControls[j], !duplicateAvailable, 'No duplicate workspace records require review.');
+    }
+
+    var archivedAvailable = false;
+    var cards = document.querySelectorAll('.workspace-card');
+    for (var c = 0; c < cards.length; c += 1) {
+      if (cards[c].getAttribute('data-launch-status') === 'archived') archivedAvailable = true;
+    }
+    var archivedControls = document.querySelectorAll('[data-launch-filter="archived"]');
+    for (var k = 0; k < archivedControls.length; k += 1) {
+      setUnavailable(archivedControls[k], !archivedAvailable, 'No archived workspaces are available.');
+    }
+
+    /* Native anchors are never disabled or intercepted here. Navigation ownership
+       belongs exclusively to the browser and Navigation Manager. */
   }
 
-  // This controller never evaluates workspace cards or navigation controls.
-  document.addEventListener('click', (event) => {
-    const control = event.target.closest?.('button:disabled, input:disabled, select:disabled, textarea:disabled, a[aria-disabled="true"]');
-    if (control) event.preventDefault();
-  }, true);
+  function queueRefresh() {
+    if (window.requestAnimationFrame) window.requestAnimationFrame(refresh);
+    else window.setTimeout(refresh, 0);
+  }
 
-  document.addEventListener('keydown', (event) => {
-    if (!['Enter', ' '].includes(event.key)) return;
-    const control = event.target.closest?.('button:disabled, input:disabled, select:disabled, textarea:disabled, a[aria-disabled="true"]');
-    if (control) event.preventDefault();
-  }, true);
-
-  ['founder-os:workspace-registry-rendered', 'founder-os:workspace-view-changed', 'founder-os:workspace-lifecycle-changed'].forEach((name) => {
-    window.addEventListener(name, () => requestAnimationFrame(refresh));
-  });
+  window.addEventListener('founder-os:workspace-registry-rendered', queueRefresh);
+  window.addEventListener('founder-os:workspace-view-changed', queueRefresh);
+  window.addEventListener('founder-os:workspace-lifecycle-changed', queueRefresh);
   window.addEventListener('storage', refresh);
-
-  new MutationObserver(() => requestAnimationFrame(refresh)).observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['disabled', 'hidden', 'data-launch-status']
-  });
 
   refresh();
 })();
