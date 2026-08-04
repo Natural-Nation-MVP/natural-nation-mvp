@@ -101,6 +101,7 @@
         document.body.classList.remove('founder-dialog-open');
       }
     });
+    return dialog;
   }
 
   function updateProtectedApproval() {
@@ -168,5 +169,11 @@
     window.addEventListener(name, scheduleRefresh);
   });
   window.addEventListener('storage', scheduleRefresh);
+
+  window.NNOSFounderHome = {
+    openSettings: openSettings,
+    refresh: scheduleRefresh
+  };
+
   scheduleRefresh();
 })();
