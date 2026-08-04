@@ -1,161 +1,117 @@
-(() => {
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  let drag = null;
-  let snapTimer = 0;
-  let suppressClicksUntil = 0;
+(function () {
+  'use strict';
 
-  function closeDialog(dialog) {
-    if (!dialog) return;
-    try { dialog.close(); } catch { dialog.removeAttribute('open'); }
-  }
+  var drag = null;
+  var snapTimer = 0;
 
-  function prepareCards() {
-    $$('.workspace-card').forEach((card) => {
-      card.tabIndex = card.getAttribute('aria-disabled') === 'true' ? -1 : 0;
-      card.setAttribute('role', 'link');
-      const title = $('.workspace-launch-card-title h3, .workspace-card-top h2', card)?.textContent?.trim() || 'workspace';
-      card.setAttribute('aria-label', `Open ${title}`);
-    });
-  }
+  function one(selector, root) { return (root || document).querySelector(selector); }
+  function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
 
-  function updateCarouselButtons() {
-    const track = $('[data-workspace-registry-list]');
+  function updateButtons() {
+    var track = one('[data-workspace-registry-list]');
     if (!track) return;
-    const max = Math.max(0, track.scrollWidth - track.clientWidth);
-    const previous = $('[data-carousel-direction="previous"]');
-    const next = $('[data-carousel-direction="next"]');
+    var max = Math.max(0, track.scrollWidth - track.clientWidth);
+    var previous = one('[data-carousel-direction="previous"]');
+    var next = one('[data-carousel-direction="next"]');
     if (previous) previous.disabled = track.scrollLeft <= 2;
     if (next) next.disabled = track.scrollLeft >= max - 2 || max <= 2;
   }
 
   function closestCardLeft(track) {
-    const cards = $$('.workspace-card:not([hidden])', track);
+    var cards = all('.workspace-card:not([hidden])', track);
     if (!cards.length) return 0;
-    const current = track.scrollLeft;
-    const max = Math.max(0, track.scrollWidth - track.clientWidth);
-    let target = 0;
-    let distance = Number.POSITIVE_INFINITY;
-    for (const card of cards) {
-      const left = Math.max(0, Math.min(max, card.offsetLeft - track.offsetLeft));
-      const delta = Math.abs(left - current);
-      if (delta < distance) {
-        distance = delta;
-        target = left;
-      }
+    var current = track.scrollLeft;
+    var max = Math.max(0, track.scrollWidth - track.clientWidth);
+    var target = 0;
+    var distance = Number.POSITIVE_INFINITY;
+    for (var i = 0; i < cards.length; i += 1) {
+      var left = Math.max(0, Math.min(max, cards[i].offsetLeft - track.offsetLeft));
+      var delta = Math.abs(left - current);
+      if (delta < distance) { distance = delta; target = left; }
     }
     return target;
   }
 
-  function snapToClosestCard(track) {
+  function snap(track) {
     window.clearTimeout(snapTimer);
-    const left = closestCardLeft(track);
+    var left = closestCardLeft(track);
     track.style.scrollSnapType = 'none';
-    track.scrollTo({ left, behavior: 'smooth' });
-    snapTimer = window.setTimeout(() => {
+    try { track.scrollTo({ left: left, behavior: 'smooth' }); }
+    catch (error) { track.scrollLeft = left; }
+    snapTimer = window.setTimeout(function () {
       track.style.removeProperty('scroll-snap-type');
-      updateCarouselButtons();
+      updateButtons();
     }, 240);
   }
 
-  function finishDrag(track, event) {
-    if (!drag || drag.id !== event.pointerId) return;
-    const moved = drag.moved;
-    try { track.releasePointerCapture?.(event.pointerId); } catch {}
-    track.classList.remove('is-dragging');
-    drag = null;
-    if (moved) {
-      suppressClicksUntil = performance.now() + 400;
-      track.dataset.carouselSuppressUntil = String(suppressClicksUntil);
-      requestAnimationFrame(() => snapToClosestCard(track));
-    } else {
-      track.style.removeProperty('scroll-snap-type');
+  function bindWorkspaceLinks() {
+    var links = all('a[data-workspace-link][data-workspace-id]');
+    for (var i = 0; i < links.length; i += 1) {
+      var link = links[i];
+      if (link.getAttribute('data-direct-route-ready') === '051') continue;
+      link.setAttribute('data-direct-route-ready', '051');
+      link.addEventListener('click', function (event) {
+        if (!window.NNOSNavigationManager || typeof window.NNOSNavigationManager.openWorkspace !== 'function') return;
+        var workspaceId = this.getAttribute('data-workspace-id');
+        if (!workspaceId) return;
+        event.preventDefault();
+        window.NNOSNavigationManager.openWorkspace(workspaceId, 'native-anchor-direct');
+      }, false);
     }
-    updateCarouselButtons();
   }
 
-  function installDragScroll() {
-    const track = $('[data-workspace-registry-list]');
-    if (!track || track.dataset.dragScrollReady === '032') return;
-    track.dataset.dragScrollReady = '032';
+  function install() {
+    var track = one('[data-workspace-registry-list]');
+    if (!track || track.getAttribute('data-drag-scroll-ready') === '051') return;
+    track.setAttribute('data-drag-scroll-ready', '051');
 
-    track.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'touch' || event.button !== 0 || event.target.closest('button,a,input,select,textarea,summary,details')) return;
-      window.clearTimeout(snapTimer);
-      track.style.scrollSnapType = 'none';
+    /* Safari owns touch scrolling. Mouse dragging never captures or cancels links. */
+    track.addEventListener('pointerdown', function (event) {
+      if (event.pointerType === 'touch' || event.button !== 0) return;
+      if (event.target && event.target.closest && event.target.closest('button,input,select,textarea,summary,details')) return;
       drag = { id: event.pointerId, x: event.clientX, left: track.scrollLeft, moved: false };
-      track.setPointerCapture?.(event.pointerId);
       track.classList.add('is-dragging');
-    });
+    }, false);
 
-    track.addEventListener('pointermove', (event) => {
+    track.addEventListener('pointermove', function (event) {
       if (!drag || drag.id !== event.pointerId) return;
-      const delta = event.clientX - drag.x;
+      var delta = event.clientX - drag.x;
       if (Math.abs(delta) > 6) drag.moved = true;
       if (!drag.moved) return;
-      event.preventDefault();
       track.scrollLeft = drag.left - delta;
-    });
+    }, false);
 
-    track.addEventListener('pointerup', (event) => finishDrag(track, event));
-    track.addEventListener('pointercancel', (event) => finishDrag(track, event));
-    track.addEventListener('lostpointercapture', () => {
-      track.classList.remove('is-dragging');
-      if (drag?.moved) {
-        suppressClicksUntil = performance.now() + 400;
-        track.dataset.carouselSuppressUntil = String(suppressClicksUntil);
-        requestAnimationFrame(() => snapToClosestCard(track));
-      }
+    function finish(event) {
+      if (!drag || drag.id !== event.pointerId) return;
+      var moved = drag.moved;
       drag = null;
-      updateCarouselButtons();
-    });
-    track.addEventListener('scroll', updateCarouselButtons, { passive: true });
+      track.classList.remove('is-dragging');
+      if (moved) snap(track);
+      else track.style.removeProperty('scroll-snap-type');
+      updateButtons();
+    }
+
+    track.addEventListener('pointerup', finish, false);
+    track.addEventListener('pointercancel', finish, false);
+    track.addEventListener('scroll', updateButtons, { passive: true });
   }
 
-  function stabilizeHome() {
-    if (document.body.dataset.activeWorkspace !== 'registry') return;
-    prepareCards();
-    installDragScroll();
-    updateCarouselButtons();
+  function stabilize() {
+    bindWorkspaceLinks();
+    install();
+    updateButtons();
   }
-
-  document.addEventListener('click', (event) => {
-    const close = event.target.closest?.('dialog [value="close"], dialog [data-close-duplicate-review], dialog [aria-label="Close dialog"]');
-    if (close) {
-      event.preventDefault();
-      closeDialog(close.closest('dialog'));
-      return;
-    }
-    const track = event.target.closest?.('[data-workspace-registry-list]');
-    if (track && performance.now() < Number(track.dataset.carouselSuppressUntil || 0)) {
-      event.preventDefault();
-    }
-  }, true);
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      const dialog = $('dialog[open]');
-      if (dialog) {
-        event.preventDefault();
-        closeDialog(dialog);
-      }
-    }
-  }, true);
 
   window.NNOSCarousel = {
-    shouldSuppressClick(track = $('[data-workspace-registry-list]')) {
-      return Boolean(track && performance.now() < Number(track.dataset.carouselSuppressUntil || 0));
-    },
-    snap: () => {
-      const track = $('[data-workspace-registry-list]');
-      if (track) snapToClosestCard(track);
+    shouldSuppressClick: function () { return false; },
+    snap: function () {
+      var track = one('[data-workspace-registry-list]');
+      if (track) snap(track);
     }
   };
 
-  window.addEventListener('founder-os:workspace-view-changed', (event) => {
-    if (!event.detail?.workspace) requestAnimationFrame(stabilizeHome);
-  });
-  window.addEventListener('founder-os:workspace-registry-rendered', () => requestAnimationFrame(stabilizeHome));
-  window.addEventListener('resize', updateCarouselButtons);
-  stabilizeHome();
+  window.addEventListener('founder-os:workspace-view-changed', stabilize);
+  window.addEventListener('founder-os:workspace-registry-rendered', stabilize);
+  window.addEventListener('resize', updateButtons);
+  stabilize();
 })();
