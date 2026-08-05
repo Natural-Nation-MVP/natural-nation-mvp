@@ -10,9 +10,10 @@ window.NNOSActions = window.NNOSActions || (() => {
     target.innerHTML = `<div class="module-card"><strong>${title}</strong><p class="muted">${detail}</p><div class="section-title">Action Result · ${stamp()}</div>${rows}</div>`;
   }
 
-  function switchWorkspace(workspace) {
-    const button = document.querySelector(`[data-workspace-button="${workspace}"]`);
-    if (button) button.click();
+  function switchWorkspace(target) {
+    const manager = window.NNOSNavigationManager;
+    if (!manager?.openView || !window.NNOSActiveWorkspace) return false;
+    return manager.openView(target, 'founder-actions');
   }
 
   function runSyncCheck() {
@@ -26,12 +27,12 @@ window.NNOSActions = window.NNOSActions || (() => {
   }
 
   function startKnowledgeReview(query = '') {
-    switchWorkspace('knowledge');
-    setTimeout(() => {
+    if (!switchWorkspace('knowledge')) return;
+    window.setTimeout(() => {
       const input = document.querySelector('[data-knowledge-search]');
       if (input && query) {
         input.value = query;
-        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
       }
       result('[data-knowledge-action-output]', 'Knowledge Review Started', `Knowledge Graph filtered for: ${query || 'all records'}.`, [
         ['Search Applied', query ? 'YES' : 'ALL', 'Records are filtered inside Knowledge Graph.'],
