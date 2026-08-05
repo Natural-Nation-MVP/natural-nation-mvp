@@ -15,6 +15,7 @@ on:
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
       - 'scripts/validate-founder-ws-005.mjs'
+      - 'scripts/verify-founder-os-live-deployment.mjs'
   workflow_dispatch:
 
 permissions:
@@ -56,6 +57,8 @@ jobs:
 
   deploy:
     needs: validate
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -174,3 +177,34 @@ jobs:
       - name: Deploy Founder OS home
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-live:
+    name: Verify live Founder OS deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Compare live Pages build with this commit
+        env:
+          FOUNDER_OS_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+          EXPECTED_SHA: ${{ github.sha }}
+          EXPECTED_RUN_ID: ${{ github.run_id }}
+          REPORT_PATH: artifacts/founder-os-live-deployment-report.json
+        run: node scripts/verify-founder-os-live-deployment.mjs
+
+      - name: Upload live deployment verification report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: founder-os-live-deployment-report
+          path: artifacts/founder-os-live-deployment-report.json
+          if-no-files-found: error
+          retention-days: 30
