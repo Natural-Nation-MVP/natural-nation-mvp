@@ -6,6 +6,7 @@ on:
       - 'docs/founder-os/**'
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
@@ -21,6 +22,7 @@ on:
       - 'docs/founder-os/**'
       - 'services/founder-os-gateway/**'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
@@ -52,6 +54,7 @@ jobs:
           failures=0
           validators=(
             scripts/validate-founder-os.mjs
+            scripts/validate-founder-runtime-controllers.mjs
             scripts/validate-founder-approval-inbox.mjs
             scripts/validate-founder-ux-001.mjs
             scripts/validate-founder-ws-001.mjs
