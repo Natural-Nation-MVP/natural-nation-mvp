@@ -11,6 +11,7 @@ on:
       - '.github/workflows/deploy-founder-os-pilot.yml'
       - '.github/workflows/founder-os-stabilization.yml'
       - 'scripts/validate-founder-os.mjs'
+      - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
@@ -44,6 +45,7 @@ jobs:
           status=0
           for validator in \
             scripts/validate-founder-os.mjs \
+            scripts/validate-founder-runtime-controllers.mjs \
             scripts/validate-founder-approval-inbox.mjs \
             scripts/validate-founder-ux-001.mjs \
             scripts/validate-founder-ws-001.mjs \
@@ -92,6 +94,12 @@ jobs:
           test -f _site/founder-os/js/workspace-registry.js
           test -f _site/founder-os/js/founder-home-functionality.js
           test -f _site/founder-os/js/navigation-manager-035.js
+          for retired in founder-settings-dialog-fix.js founder-startup-recovery.js founder-interaction-stability-025.js; do
+            if test -e "_site/founder-os/js/${retired}" || grep -q "${retired}" _site/founder-os/index.html; then
+              echo "Retired Founder OS controller remains in the deployment artifact: ${retired}"
+              exit 1
+            fi
+          done
           jq -e '.schemaVersion == "2.0.0" and (.workspaces | type == "array")' _site/founder-os/registry/workspaces.json >/dev/null
           jq -e '.workspaces[] | select(.workspaceId | startswith("ws_"))' _site/founder-os/registry/workspaces.json >/dev/null
           grep -q "registry/workspaces.json" _site/founder-os/js/workspace-registry.js
