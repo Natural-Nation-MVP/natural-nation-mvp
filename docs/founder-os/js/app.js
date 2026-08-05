@@ -114,10 +114,10 @@
     var safeTarget = workspaceAllows(target) ? target : fallback;
     if (!activateView(safeTarget)) return false;
 
-    var buttons = document.querySelectorAll('[data-nav-view], [data-page-link-view], [data-context-module]');
+    var buttons = document.querySelectorAll('[data-nav-view]');
     for (var i = 0; i < buttons.length; i += 1) {
       var button = buttons[i];
-      var buttonTarget = button.getAttribute('data-nav-view') || button.getAttribute('data-page-link-view') || button.getAttribute('data-context-module');
+      var buttonTarget = button.getAttribute('data-nav-view');
       var active = buttonTarget === safeTarget;
       button.classList.toggle('active', active);
       button.setAttribute('aria-current', active ? 'page' : 'false');
