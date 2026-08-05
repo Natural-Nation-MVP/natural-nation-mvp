@@ -20,25 +20,31 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: founder-os-browser-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   browser-functional-qa:
-    name: ${{ matrix.project }}
+    name: ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         include:
-          - project: chromium
+          - label: Chromium and Mobile Chrome
             browser: chromium
-          - project: firefox
+            projects: --project=chromium --project=mobile-chrome
+            artifact: chromium
+          - label: Firefox
             browser: firefox
-          - project: webkit
+            projects: --project=firefox
+            artifact: firefox
+          - label: WebKit and Mobile Safari
             browser: webkit
-          - project: mobile-chrome
-            browser: chromium
-          - project: mobile-safari
-            browser: webkit
+            projects: --project=webkit --project=mobile-safari
+            artifact: webkit
 
     defaults:
       run:
@@ -59,14 +65,14 @@ jobs:
       - name: Install ${{ matrix.browser }} and operating-system dependencies
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Run Founder OS functional audit in ${{ matrix.project }}
-        run: npx playwright test --project=${{ matrix.project }}
+      - name: Run Founder OS functional audit in ${{ matrix.label }}
+        run: npx playwright test ${{ matrix.projects }}
 
-      - name: Upload ${{ matrix.project }} report and traces
+      - name: Upload ${{ matrix.label }} report and traces
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
         with:
-          name: founder-os-${{ matrix.project }}-report
+          name: founder-os-${{ matrix.artifact }}-report
           path: |
             qa/founder-os-browser/playwright-report/
             qa/founder-os-browser/test-results/
