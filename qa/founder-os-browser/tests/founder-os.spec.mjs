@@ -11,6 +11,10 @@ function collectCriticalErrors(page) {
   return errors;
 }
 
+function sidebarHome(page) {
+  return page.locator('.nav [data-nav-home]');
+}
+
 async function openHome(page) {
   await page.goto('./');
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
@@ -62,7 +66,7 @@ test('every explicit Open Workspace button targets its immutable workspace ID', 
 
   for (const workspaceId of workspaceIds) {
     if ((await page.locator('body').getAttribute('data-active-workspace')) !== 'registry') {
-      await page.locator('[data-nav-home]').click();
+      await sidebarHome(page).click();
       await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
       await expect(page.locator(`[data-open-workspace="${workspaceId}"]`)).toBeVisible();
     }
@@ -98,7 +102,7 @@ test('browser Back, Forward, refresh, and Home restore deterministic routes', as
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
   await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
 
-  await page.locator('[data-nav-home]').click();
+  await sidebarHome(page).click();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
   await expect(page.locator('[data-workspace="registry"]')).toBeVisible();
   await expect(page).toHaveURL((url) => url.hash === '');
