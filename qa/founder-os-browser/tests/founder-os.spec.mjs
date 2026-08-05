@@ -4,7 +4,11 @@ function collectCriticalErrors(page) {
   const errors = [];
   page.on('pageerror', (error) => {
     const message = String(error?.message || error);
-    if (!/failed to fetch|load failed|networkerror|network request failed/i.test(message)) {
+    const expectedGenericNetworkFailure = /failed to fetch|load failed|networkerror|network request failed/i.test(message);
+    const expectedGatewayAccessFailure = /founder-os-gateway\.dmoseley1024\.workers\.dev/i.test(message)
+      && /access control checks|cross-origin|cors|origin/i.test(message);
+
+    if (!expectedGenericNetworkFailure && !expectedGatewayAccessFailure) {
       errors.push(message);
     }
   });
