@@ -1,0 +1,377 @@
+{
+  "schemaVersion": "1.0.0",
+  "inventoryId": "FOS-ACTIONS-005",
+  "generatedAt": "2026-08-05",
+  "scope": "Canonical Founder OS shell and dynamically loaded Founder OS controllers",
+  "controls": [
+    {
+      "id": "home.settings.open",
+      "selector": "[data-open-founder-settings]",
+      "surface": "Founder Home",
+      "owner": "founder-home-functionality.js",
+      "availability": "enabled on Founder Home",
+      "outcome": "Open Account & Settings dialog",
+      "browserTest": "Founder Home greeting opens and saves Account & Settings"
+    },
+    {
+      "id": "home.settings.close",
+      "selector": "[data-close-founder-dialog]",
+      "surface": "Account & Settings",
+      "owner": "founder-home-functionality.js",
+      "availability": "enabled while the dialog is open",
+      "outcome": "Close the Founder dialog and release page interaction",
+      "browserTest": "touch activation works for the greeting and workspace button"
+    },
+    {
+      "id": "home.settings.save",
+      "selector": "[data-save-founder-settings]",
+      "surface": "Account & Settings",
+      "owner": "founder-home-functionality.js",
+      "availability": "enabled while the dialog is open",
+      "outcome": "Persist account preferences on the current device and close the dialog",
+      "browserTest": "Founder Home greeting opens and saves Account & Settings"
+    },
+    {
+      "id": "home.settings.clear-draft",
+      "selector": "[data-clear-saved-setup]",
+      "surface": "Account & Settings",
+      "owner": "founder-home-functionality.js",
+      "availability": "rendered only when a saved setup exists",
+      "outcome": "Remove the saved Workspace Discovery draft after confirmation",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "home.launch.create",
+      "selector": "[data-launch-action=\"create\"]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "always enabled",
+      "outcome": "Open Workspace Discovery at the first step",
+      "browserTest": "Founder Home launch actions and filters are functional"
+    },
+    {
+      "id": "home.launch.resume",
+      "selector": "[data-launch-action=\"resume\"]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "enabled only when a saved setup exists",
+      "outcome": "Open Workspace Discovery using the saved draft",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "home.launch.duplicates",
+      "selector": "[data-launch-action=\"duplicates\"]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "enabled only when duplicate review is available",
+      "outcome": "Open the canonical duplicate workspace comparison",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "home.launch.health",
+      "selector": "[data-launch-action=\"health\"]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "always enabled",
+      "outcome": "Scroll to the workspace portfolio health area",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "home.portfolio.filter",
+      "selector": "[data-launch-filter]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "archived filter is disabled when no archived workspace exists",
+      "outcome": "Filter workspace cards by lifecycle state",
+      "browserTest": "Founder Home launch actions and filters are functional"
+    },
+    {
+      "id": "home.portfolio.search",
+      "selector": "[data-launch-search]",
+      "surface": "Workspace Launch Center",
+      "owner": "founder-ux-002.js",
+      "availability": "always enabled",
+      "outcome": "Filter workspace cards by visible text",
+      "browserTest": "Founder Home launch actions and filters are functional"
+    },
+    {
+      "id": "home.workspace.open",
+      "selector": "[data-open-workspace]",
+      "surface": "Workspace cards",
+      "owner": "founder-home-functionality.js",
+      "availability": "enabled for every rendered canonical workspace",
+      "outcome": "Open the immutable workspace ID through Navigation Manager",
+      "browserTest": "every explicit Open Workspace button targets its immutable workspace ID"
+    },
+    {
+      "id": "navigation.home",
+      "selector": "[data-nav-home]",
+      "surface": "Sidebar and Founder brand",
+      "owner": "navigation-manager-035.js",
+      "availability": "always enabled",
+      "outcome": "Return to Founder Home, clear the workspace route, and write browser history",
+      "browserTest": "browser Back, Forward, refresh, and Home restore deterministic routes"
+    },
+    {
+      "id": "navigation.view",
+      "selector": "[data-nav-view]",
+      "surface": "Workspace sidebar",
+      "owner": "navigation-manager-035.js",
+      "availability": "rendered only for views allowed by the active workspace",
+      "outcome": "Open an allowed workspace view and write browser history",
+      "browserTest": "browser Back, Forward, refresh, and Home restore deterministic routes"
+    },
+    {
+      "id": "creation.open",
+      "selector": "[data-create-workspace]",
+      "surface": "Canonical shell fallback",
+      "owner": "workspace-creation.js",
+      "availability": "enabled before Founder Home enhancement completes",
+      "outcome": "Open Workspace Discovery",
+      "browserTest": "Founder Home launch actions and filters are functional"
+    },
+    {
+      "id": "creation.close",
+      "selector": "[data-workspace-creation-close]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "disabled only during protected creation",
+      "outcome": "Close Workspace Discovery and restore focus",
+      "browserTest": "Founder Home launch actions and filters are functional"
+    },
+    {
+      "id": "creation.save",
+      "selector": "[data-workspace-save-draft]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "shown on the first unanswered step",
+      "outcome": "Persist the current discovery state on the device",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.suggestion",
+      "selector": "[data-answer-suggestion]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered for questions with suggestions",
+      "outcome": "Select a suggested answer and persist it",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.name",
+      "selector": "[data-name-suggestion]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered during workspace naming",
+      "outcome": "Select an AI-generated workspace name",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.option",
+      "selector": "[data-option-id]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered during AI Draft selection",
+      "outcome": "Toggle a proposed product area",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.constraint",
+      "selector": "[data-add-constraint], [data-remove-constraint]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered during constraint review",
+      "outcome": "Add or remove an MVP boundary before approval",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.challenge",
+      "selector": "[data-challenge-run], [data-challenge-skip]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered during readiness review",
+      "outcome": "Run or skip the optional idea challenge",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.back",
+      "selector": "[data-workspace-back]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "shown after the first question",
+      "outcome": "Return to the previous question or step",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.next",
+      "selector": "[data-workspace-next]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "enabled when the current step may be validated",
+      "outcome": "Validate the current answer and advance the discovery state",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.protected",
+      "selector": "[data-workspace-create-protected]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "enabled only after exact blueprint confirmation",
+      "outcome": "Create the workspace through the protected Gateway transaction",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "creation.recovery",
+      "selector": "[data-workspace-retry], [data-workspace-finish]",
+      "surface": "Workspace Discovery",
+      "owner": "workspace-creation.js",
+      "availability": "rendered after creation failure or success",
+      "outcome": "Retry protected creation or finish and reload the canonical registry",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "workspace.lifecycle",
+      "selector": "[data-lifecycle-action]",
+      "surface": "Workspace settings",
+      "owner": "workspace-manager.js",
+      "availability": "rendered only for lifecycle actions allowed by the selected workspace",
+      "outcome": "Archive, restore, soft-delete, or purge through the protected Gateway",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "workspace.duplicates",
+      "selector": "[data-open-duplicate-review]",
+      "surface": "Workspace settings",
+      "owner": "workspace-manager.js",
+      "availability": "rendered only for the OS Studio duplicate candidate",
+      "outcome": "Open the immutable-ID comparison dialog",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "planning.review",
+      "selector": "[data-review-blueprint]",
+      "surface": "Confirmed Direction",
+      "owner": "workspace-flow.js",
+      "availability": "disabled until required decisions are resolved",
+      "outcome": "Open Approved Plan or live Build Work according to canonical runtime state",
+      "browserTest": "planning and mission controls route through their authoritative owners"
+    },
+    {
+      "id": "blueprint.approve",
+      "selector": "[data-approve-blueprint]",
+      "surface": "Approved Plan action bar",
+      "owner": "live-approval-controller.js",
+      "availability": "disabled after canonical approval",
+      "outcome": "Run a protected dry run and canonical GitHub approval transaction",
+      "browserTest": "legacy duplicate action surfaces are absent"
+    },
+    {
+      "id": "build.refresh",
+      "selector": "[data-build-refresh]",
+      "surface": "Build Work and build action bar",
+      "owner": "canonical-build-runtime-v2.js",
+      "availability": "enabled when Build Work is visible and not already refreshing",
+      "outcome": "Reload the canonical package, registry, and orchestration state",
+      "browserTest": "planning and mission controls route through their authoritative owners"
+    },
+    {
+      "id": "build.task.open",
+      "selector": "[data-build-queue] .queue-item[data-task-id]",
+      "surface": "Build queue",
+      "owner": "founder-task-details.js",
+      "availability": "enabled for every canonical task",
+      "outcome": "Open task evidence, dependencies, history, and allowed actions",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "build.task.detail",
+      "selector": "[data-task-detail-close], [data-task-detail-refresh], [data-task-detail-build], [data-task-detail-retry], [data-task-detail-review]",
+      "surface": "Task details",
+      "owner": "founder-task-details.js",
+      "availability": "actions render according to task state and ownership",
+      "outcome": "Close, refresh, return to Build Work, retry safely, or open Founder review",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "home.action-center.filter",
+      "selector": "[data-action-center-filter]",
+      "surface": "Founder Home metrics",
+      "owner": "founder-action-center.js",
+      "availability": "enabled after live state loads",
+      "outcome": "Open the matching Founder Action Center list",
+      "browserTest": "Founder Action Center opens and routes a workspace action"
+    },
+    {
+      "id": "home.action-center.controls",
+      "selector": "[data-action-center-close], [data-action-center-refresh], [data-action-center-action]",
+      "surface": "Founder Action Center",
+      "owner": "founder-action-center.js",
+      "availability": "rendered according to selected metric",
+      "outcome": "Close, refresh, open a workspace, or open an approval",
+      "browserTest": "Founder Action Center opens and routes a workspace action"
+    },
+    {
+      "id": "approval.queue",
+      "selector": "[data-approval-refresh], [data-approval-id]",
+      "surface": "Approval Inbox",
+      "owner": "founder-approval-inbox.js",
+      "availability": "rendered when the Approval Inbox is open",
+      "outcome": "Refresh approvals or select a Founder-owned decision gate",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "approval.decision",
+      "selector": "[data-approval-decision]",
+      "surface": "Approval Inbox",
+      "owner": "founder-approval-inbox.js",
+      "availability": "rendered for a selected approval record",
+      "outcome": "Record approve, request changes, defer, reject, or note through the protected Gateway",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "mission.support",
+      "selector": "[data-mission-view]",
+      "surface": "Product Overview",
+      "owner": "mission-control.js",
+      "availability": "rendered in Executive Review",
+      "outcome": "Open Code Status or Product Records through Navigation Manager",
+      "browserTest": "planning and mission controls route through their authoritative owners"
+    },
+    {
+      "id": "mission.action",
+      "selector": "[data-mission-action]",
+      "surface": "Product Overview",
+      "owner": "mission-control.js",
+      "availability": "rendered in Closeout Readiness",
+      "outcome": "Run a local readiness result, prepare closeout, or open Code Status",
+      "browserTest": "planning and mission controls route through their authoritative owners"
+    },
+    {
+      "id": "ai.dispatch",
+      "selector": "[data-start-ai-task]",
+      "surface": "AI Team",
+      "owner": "ai-orchestration.js",
+      "availability": "rendered only for the current ready task",
+      "outcome": "Validate and dispatch the current canonical task through the protected Gateway",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "ai.reset",
+      "selector": "[data-reset-ai-task]",
+      "surface": "AI Team",
+      "owner": "ai-orchestration.js",
+      "availability": "rendered only for the current blocked task",
+      "outcome": "Reset the blocked task while preserving completed upstream work",
+      "browserTest": "static contract only"
+    },
+    {
+      "id": "knowledge.search",
+      "selector": "[data-knowledge-search]",
+      "surface": "Project Records",
+      "owner": "workspace-knowledge-scope.js",
+      "availability": "enabled for every active workspace",
+      "outcome": "Filter only the active workspace knowledge base",
+      "browserTest": "planning and mission controls route through their authoritative owners"
+    }
+  ]
+}
