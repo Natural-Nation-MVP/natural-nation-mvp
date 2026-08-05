@@ -47,30 +47,6 @@
     button.disabled = disabled;
   }
 
-  function removeLegacyApprovalUi(root = document) {
-    root.querySelectorAll?.('[role="dialog"], dialog, .modal, .modal-backdrop, .approval-modal').forEach((node) => {
-      const text = node.textContent || '';
-      if (
-        text.includes('Approve Natural Nation Blueprint') ||
-        text.includes('Founder approval recorded locally') ||
-        text.includes('GitHub synchronization pending gateway support')
-      ) {
-        const backdrop = node.previousElementSibling;
-        node.remove();
-        if (backdrop?.classList?.contains('modal-backdrop')) backdrop.remove();
-        document.body.classList.remove('modal-open');
-      }
-    });
-  }
-
-  function openBlueprint() {
-    if (typeof window.setWorkspace === 'function') window.setWorkspace('blueprint');
-    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('blueprint');
-    document.querySelectorAll('[data-context-module]').forEach((button) => {
-      button.classList.toggle('active', button.dataset.contextModule === 'blueprint');
-    });
-  }
-
   async function ensureReady() {
     await loadBlueprint();
     if (canonicalApproved()) throw new Error('This Blueprint is already approved and locked in GitHub.');
@@ -102,11 +78,10 @@
       throw new Error(window.NNOSRuntimeState?.snapshot?.error || 'The GitHub commit completed, but the canonical live Build Work state is not yet available.');
     }
 
-    if (typeof window.setWorkspace === 'function') window.setWorkspace('build');
-    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('build');
-    document.querySelectorAll('[data-context-module]').forEach((button) => {
-      button.classList.toggle('active', button.dataset.contextModule === 'build');
-    });
+    const opened = window.NNOSNavigationManager?.openView
+      ? window.NNOSNavigationManager.openView('build', 'live-approval-handoff')
+      : window.setWorkspace?.('build');
+    if (!opened) throw new Error('Build Work could not be opened after approval.');
     await window.NNOSCanonicalBuild?.reload?.();
   }
 
@@ -154,45 +129,18 @@
   }
 
   document.addEventListener('click', (event) => {
-    const buildRoute = event.target.closest?.('[data-context-module="build"]');
-    const runtime = window.NNOSRuntimeState?.snapshot;
-    if (buildRoute && !runtime?.buildAvailable) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      openBlueprint();
-      window.alert(runtime?.error
-        ? `Build Work is unavailable.\n\n${runtime.error}`
-        : 'Build Work is locked until the approved Blueprint, NN-BUILD-001, and live Gateway orchestration state are all verified.');
-      return;
-    }
-
     const button = event.target.closest?.('[data-approve-blueprint]');
     if (!button) return;
 
     event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    removeLegacyApprovalUi();
-
     runLiveApproval().catch((error) => {
       if (!canonicalApproved()) stage = 'idle';
       setButton(canonicalApproved() ? 'Blueprint Approved ✓' : 'Validate Approval →', canonicalApproved());
       window.FounderOSGateway?.clearSessionCredential?.();
       window.alert(`Approval action blocked\n\n${error.message}`);
     });
-  }, true);
-
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE) removeLegacyApprovalUi(node);
-      }
-    }
   });
 
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  removeLegacyApprovalUi();
   loadBlueprint().catch(() => {});
 
   window.NNOSLiveApproval = {
