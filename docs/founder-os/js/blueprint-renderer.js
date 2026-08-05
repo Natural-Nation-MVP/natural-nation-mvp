@@ -3,7 +3,6 @@
   let blueprint = null;
 
   const $ = (selector) => document.querySelector(selector);
-  const $$ = (selector) => document.querySelectorAll(selector);
 
   function escapeHtml(value = '') {
     return String(value)
@@ -139,15 +138,6 @@
     render();
     return blueprint;
   }
-
-  document.addEventListener('click', (event) => {
-    const review = event.target.closest?.('[data-review-blueprint]');
-    if (!review) return;
-    event.preventDefault();
-    if (typeof window.setWorkspace === 'function') window.setWorkspace('blueprint');
-    if (typeof window.NNOSShowExecutionBar === 'function') window.NNOSShowExecutionBar('blueprint');
-    $$('[data-context-module]').forEach((button) => button.classList.toggle('active', button.dataset.contextModule === 'blueprint'));
-  });
 
   window.NNOSBlueprintView = { reload: load, get data() { return blueprint; } };
   load().catch((error) => {
