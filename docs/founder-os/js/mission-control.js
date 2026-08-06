@@ -46,6 +46,9 @@ const activeRisks = [
   ['Duplicate Data Risk', 'Low', 'SSOT standard and reference-based records reduce duplication risk.'],
 ];
 
+let missionRenderScheduled = false;
+let missionObserver = null;
+
 function missionCard(title, value, detail) {
   return `<div class="module-card"><strong>${title}</strong><div class="section-title">${value}</div><p class="muted">${detail}</p></div>`;
 }
@@ -70,13 +73,60 @@ function openView(target, source) {
   return window.NNOSNavigationManager?.openView?.(target, source || 'mission-control') || false;
 }
 
-function renderMissionControlRuntime() {
-  const cards = document.querySelector('[data-mission-cards]');
-  const queue = document.querySelector('[data-action-queue]');
-  if (!cards || !queue) return;
+function ensureMissionSurface() {
+  const view = document.querySelector('[data-workspace="mission"]');
+  if (!view) return null;
 
-  cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
-  queue.innerHTML = `<div data-mission-action-output></div><div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, target, label]) => missionViewRow(title, status, detail, target, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, action]) => missionControlAction(title, status, detail, action)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+  let cards = view.querySelector('[data-mission-cards]');
+  let queue = view.querySelector('[data-action-queue]');
+  if (cards && queue) return { cards, queue };
+
+  let runtime = view.querySelector('[data-mission-control-runtime]');
+  if (!runtime) {
+    runtime = document.createElement('section');
+    runtime.className = 'glass-panel mission-control-runtime';
+    runtime.dataset.missionControlRuntime = '';
+    runtime.setAttribute('aria-label', 'Mission Control executive review');
+    runtime.innerHTML = `
+      <div class="eyebrow">Executive Review</div>
+      <h2>Mission Control</h2>
+      <p class="muted">These local Founder controls remain available even when live Gateway status cannot be loaded.</p>
+      <div class="modules-grid" data-mission-cards></div>
+      <div data-action-queue></div>`;
+    view.appendChild(runtime);
+  }
+
+  cards = runtime.querySelector('[data-mission-cards]');
+  queue = runtime.querySelector('[data-action-queue]');
+  return cards && queue ? { cards, queue } : null;
+}
+
+function renderMissionControlRuntime() {
+  const surface = ensureMissionSurface();
+  if (!surface) return;
+
+  surface.cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
+  surface.queue.innerHTML = `<div data-mission-action-output></div><div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, target, label]) => missionViewRow(title, status, detail, target, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, action]) => missionControlAction(title, status, detail, action)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+}
+
+function scheduleMissionRender() {
+  if (missionRenderScheduled) return;
+  missionRenderScheduled = true;
+  window.requestAnimationFrame(() => {
+    missionRenderScheduled = false;
+    renderMissionControlRuntime();
+  });
+}
+
+function installMissionObserver() {
+  const view = document.querySelector('[data-workspace="mission"]');
+  if (!view || missionObserver) return;
+  missionObserver = new MutationObserver(() => {
+    if (!view.querySelector('[data-mission-cards]') || !view.querySelector('[data-action-queue]')) {
+      scheduleMissionRender();
+    }
+  });
+  missionObserver.observe(view, { childList: true, subtree: true });
 }
 
 document.addEventListener('click', (event) => {
@@ -97,8 +147,13 @@ document.addEventListener('click', (event) => {
 });
 
 window.addEventListener('founder-os:workspace-view-changed', (event) => {
-  if (event.detail?.target === 'mission') renderMissionControlRuntime();
+  if (event.detail?.target === 'mission') scheduleMissionRender();
 });
 
-renderMissionControlRuntime();
-setTimeout(renderMissionControlRuntime, 300);
+document.addEventListener('DOMContentLoaded', () => {
+  installMissionObserver();
+  scheduleMissionRender();
+}, { once: true });
+
+installMissionObserver();
+scheduleMissionRender();
