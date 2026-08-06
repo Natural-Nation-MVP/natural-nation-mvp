@@ -56,6 +56,8 @@ const actionSources = {
   actionCenter: await read('docs/founder-os/js/founder-action-center.js'),
   founderActions: await read('docs/founder-os/js/founder-actions.js'),
   missionControl: await read('docs/founder-os/js/mission-control.js'),
+  knowledgeEngine: await read('docs/founder-os/js/knowledge-engine.js'),
+  workspaceKnowledgeScope: await read('docs/founder-os/js/workspace-knowledge-scope.js'),
   buildRuntime: await read('docs/founder-os/js/canonical-build-runtime-v2.js'),
   dispatchBridge: await read('docs/founder-os/js/build-dispatch-bridge.js'),
   workspaceFlow: await read('docs/founder-os/js/workspace-flow.js')
@@ -77,7 +79,10 @@ assert(actionSources.liveApproval.includes("closest?.('[data-approve-blueprint]'
 assert(!actionSources.gatewayStatus.includes('blueprint-approval'), 'Gateway status must not load a second approval runtime.');
 assert(actionSources.actionCenter.includes('NNOSNavigationManager'), 'Founder Action Center must route through Navigation Manager.');
 assert(actionSources.missionControl.includes('data-mission-view') && actionSources.missionControl.includes('data-mission-action'), 'Mission Control must expose owned supporting and closeout controls.');
+assert(actionSources.missionControl.includes('MutationObserver'), 'Mission Control must restore its owned controls after live fallback rendering.');
 assert(actionSources.founderActions.includes("openView(target, 'founder-actions')"), 'Founder utility actions must route through Navigation Manager.');
+assert(actionSources.knowledgeEngine.includes('data-knowledge-search') && actionSources.knowledgeEngine.includes('data-knowledge-action'), 'Knowledge Engine must own Project Records search and actions.');
+assert(!actionSources.workspaceKnowledgeScope.includes('addEventListener'), 'Workspace knowledge scope must remain presentation-free.');
 
 for (const retiredFile of [
   'docs/founder-os/js/blueprint-approval-transaction.js',
