@@ -254,7 +254,7 @@
       "owner": "workspace-flow.js",
       "availability": "disabled until required decisions are resolved",
       "outcome": "Open Approved Plan or live Build Work according to canonical runtime state",
-      "browserTest": "planning and mission controls route through their authoritative owners"
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
     },
     {
       "id": "blueprint.approve",
@@ -272,7 +272,7 @@
       "owner": "canonical-build-runtime-v2.js",
       "availability": "enabled when Build Work is visible and not already refreshing",
       "outcome": "Reload the canonical package, registry, and orchestration state",
-      "browserTest": "planning and mission controls route through their authoritative owners"
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
     },
     {
       "id": "build.task.open",
@@ -293,18 +293,18 @@
       "browserTest": "static contract only"
     },
     {
-      "id": "home.action-center.filter",
+      "id": "mission.action-center.filter",
       "selector": "[data-action-center-filter]",
-      "surface": "Founder Home metrics",
+      "surface": "Product Overview metrics",
       "owner": "founder-action-center.js",
-      "availability": "enabled after live state loads",
+      "availability": "enabled after workspace and live state load",
       "outcome": "Open the matching Founder Action Center list",
       "browserTest": "Founder Action Center opens and routes a workspace action"
     },
     {
-      "id": "home.action-center.controls",
+      "id": "mission.action-center.controls",
       "selector": "[data-action-center-close], [data-action-center-refresh], [data-action-center-action]",
-      "surface": "Founder Action Center",
+      "surface": "Product Overview Action Center",
       "owner": "founder-action-center.js",
       "availability": "rendered according to selected metric",
       "outcome": "Close, refresh, open a workspace, or open an approval",
@@ -333,18 +333,18 @@
       "selector": "[data-mission-view]",
       "surface": "Product Overview",
       "owner": "mission-control.js",
-      "availability": "rendered in Executive Review",
+      "availability": "rendered in Executive Review and restored after fallback rendering",
       "outcome": "Open Code Status or Product Records through Navigation Manager",
-      "browserTest": "planning and mission controls route through their authoritative owners"
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
     },
     {
       "id": "mission.action",
       "selector": "[data-mission-action]",
       "surface": "Product Overview",
       "owner": "mission-control.js",
-      "availability": "rendered in Closeout Readiness",
+      "availability": "rendered in Closeout Readiness and restored after fallback rendering",
       "outcome": "Run a local readiness result, prepare closeout, or open Code Status",
-      "browserTest": "planning and mission controls route through their authoritative owners"
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
     },
     {
       "id": "ai.dispatch",
@@ -368,10 +368,19 @@
       "id": "knowledge.search",
       "selector": "[data-knowledge-search]",
       "surface": "Project Records",
-      "owner": "workspace-knowledge-scope.js",
+      "owner": "knowledge-engine.js",
       "availability": "enabled for every active workspace",
       "outcome": "Filter only the active workspace knowledge base",
-      "browserTest": "planning and mission controls route through their authoritative owners"
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+    },
+    {
+      "id": "knowledge.action",
+      "selector": "[data-knowledge-action]",
+      "surface": "Project Records",
+      "owner": "knowledge-engine.js",
+      "availability": "rendered for repository audits, categories, related records, and record reviews",
+      "outcome": "Run a knowledge audit or filter the canonical records without inline handlers",
+      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
     }
   ]
 }
