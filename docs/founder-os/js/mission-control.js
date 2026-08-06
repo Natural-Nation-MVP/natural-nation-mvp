@@ -48,6 +48,7 @@ const activeRisks = [
 
 let missionRenderScheduled = false;
 let missionObserver = null;
+let missionRetryTimer = null;
 
 function missionCard(title, value, detail) {
   return `<div class="module-card"><strong>${title}</strong><div class="section-title">${value}</div><p class="muted">${detail}</p></div>`;
@@ -71,6 +72,11 @@ function missionAction(title, owner, detail) {
 
 function openView(target, source) {
   return window.NNOSNavigationManager?.openView?.(target, source || 'mission-control') || false;
+}
+
+function missionSurfaceIsMissing() {
+  const view = document.querySelector('[data-workspace="mission"]');
+  return Boolean(view && (!view.querySelector('[data-mission-cards]') || !view.querySelector('[data-action-queue]')));
 }
 
 function ensureMissionSurface() {
@@ -103,10 +109,18 @@ function ensureMissionSurface() {
 
 function renderMissionControlRuntime() {
   const surface = ensureMissionSurface();
-  if (!surface) return;
+  if (!surface) return false;
 
   surface.cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
   surface.queue.innerHTML = `<div data-mission-action-output></div><div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, target, label]) => missionViewRow(title, status, detail, target, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, action]) => missionControlAction(title, status, detail, action)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+  return true;
+}
+
+function scheduleMissionRetry() {
+  window.clearTimeout(missionRetryTimer);
+  missionRetryTimer = window.setTimeout(() => {
+    if (missionSurfaceIsMissing()) scheduleMissionRender();
+  }, 250);
 }
 
 function scheduleMissionRender() {
@@ -115,18 +129,16 @@ function scheduleMissionRender() {
   window.requestAnimationFrame(() => {
     missionRenderScheduled = false;
     renderMissionControlRuntime();
+    scheduleMissionRetry();
   });
 }
 
 function installMissionObserver() {
-  const view = document.querySelector('[data-workspace="mission"]');
-  if (!view || missionObserver) return;
+  if (missionObserver || !document.documentElement) return;
   missionObserver = new MutationObserver(() => {
-    if (!view.querySelector('[data-mission-cards]') || !view.querySelector('[data-action-queue]')) {
-      scheduleMissionRender();
-    }
+    if (missionSurfaceIsMissing()) scheduleMissionRender();
   });
-  missionObserver.observe(view, { childList: true, subtree: true });
+  missionObserver.observe(document.documentElement, { childList: true, subtree: true });
 }
 
 document.addEventListener('click', (event) => {
@@ -147,7 +159,10 @@ document.addEventListener('click', (event) => {
 });
 
 window.addEventListener('founder-os:workspace-view-changed', (event) => {
-  if (event.detail?.target === 'mission') scheduleMissionRender();
+  if (event.detail?.target === 'mission') {
+    scheduleMissionRender();
+    window.setTimeout(scheduleMissionRender, 500);
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
