@@ -104,17 +104,22 @@
     const reviewButton = event.target.closest('[data-review-blueprint]');
     if (!reviewButton) return;
 
+    event.preventDefault();
+
     if (state.buildAvailable) {
-      event.preventDefault();
       openView('build', 'blueprint-review-action');
       window.NNOSCanonicalBuild?.reload?.();
       return;
     }
 
     if (state.billingResolution === 'unresolved') {
-      event.preventDefault();
       window.alert('Choose whether billing belongs in Phase 1 or Phase 2 before continuing to Blueprint.');
+      return;
     }
+
+    // A resolved planning decision must always have a visible destination.
+    // When live Build Work is not ready, the canonical next step is Blueprint.
+    openView('blueprint', 'blueprint-review-action');
   });
 
   window.addEventListener('founder-os:runtime-state-changed', (event) => applyRuntimeSnapshot(event.detail || {}));
