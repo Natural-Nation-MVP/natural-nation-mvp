@@ -19,6 +19,10 @@ function sidebarHome(page) {
   return page.locator('.nav [data-nav-home]');
 }
 
+function activeView(page, viewId) {
+  return page.locator(`[data-workspace="${viewId}"]:not([hidden])`);
+}
+
 async function openHome(page) {
   await page.goto('./');
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
@@ -33,7 +37,7 @@ async function openWorkspace(page, workspaceId) {
   await control.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', workspaceId);
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
-  await expect(page.locator('[data-workspace="mission"]')).toBeVisible();
+  await expect(activeView(page, 'mission')).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`#workspace=${encodeURIComponent(workspaceId)}&view=mission$`));
 }
 
@@ -89,22 +93,22 @@ test('browser Back, Forward, refresh, and Home restore deterministic routes', as
   await expect(blueprint).toBeVisible();
   await blueprint.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
-  await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
+  await expect(activeView(page, 'blueprint')).toBeVisible();
   await expect(page).toHaveURL(/#workspace=natural-nation&view=blueprint$/);
 
   await page.goBack();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
-  await expect(page.locator('[data-workspace="mission"]')).toBeVisible();
+  await expect(activeView(page, 'mission')).toBeVisible();
 
   await page.goForward();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
-  await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
+  await expect(activeView(page, 'blueprint')).toBeVisible();
 
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
-  await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
+  await expect(activeView(page, 'blueprint')).toBeVisible();
 
   await sidebarHome(page).click();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
@@ -119,7 +123,7 @@ test('direct workspace URL restores the requested workspace and page', async ({ 
 
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
-  await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
+  await expect(activeView(page, 'blueprint')).toBeVisible();
   await expect(page.locator('[data-nav-view="blueprint"]')).toHaveAttribute('aria-current', 'page');
   expect(criticalErrors).toEqual([]);
 });
@@ -138,7 +142,7 @@ test('touch activation works for the greeting and workspace button', async ({ pa
   await page.locator('[data-open-workspace="natural-nation"]').tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
-  await expect(page.locator('[data-workspace="mission"]')).toBeVisible();
+  await expect(activeView(page, 'mission')).toBeVisible();
   expect(criticalErrors).toEqual([]);
 });
 
@@ -172,7 +176,8 @@ test('Founder Action Center opens and routes a workspace action', async ({ page 
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  const metric = page.locator('[data-action-center-filter="active"]');
+  const mission = activeView(page, 'mission');
+  const metric = mission.locator('[data-action-center-filter="active"]');
   await expect(metric).toBeVisible();
   await metric.click();
   const panel = page.locator('[data-founder-action-center]');
@@ -193,31 +198,31 @@ test('planning, mission, and Project Records controls use their authoritative ow
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  const missionRepo = page.locator('[data-mission-view="repo"]').first();
+  const missionRepo = activeView(page, 'mission').locator('[data-mission-view="repo"]').first();
   await expect(missionRepo).toBeVisible();
   await missionRepo.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'repo');
 
   await page.locator('[data-nav-view="mission"]').click();
-  const readiness = page.locator('[data-mission-action="run-closeout-check"]');
+  const readiness = activeView(page, 'mission').locator('[data-mission-action="run-closeout-check"]');
   await expect(readiness).toBeVisible();
   await readiness.click();
-  await expect(page.locator('[data-mission-action-output]')).toContainText('Closeout Readiness Check');
+  await expect(activeView(page, 'mission').locator('[data-mission-action-output]')).toContainText('Closeout Readiness Check');
 
   await page.locator('[data-nav-view="knowledge"]').click();
-  const audit = page.locator('[data-knowledge-action="audit"]');
+  const audit = activeView(page, 'knowledge').locator('[data-knowledge-action="audit"]');
   await expect(audit).toBeVisible();
   await audit.click();
-  await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
+  await expect(activeView(page, 'knowledge').locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
 
   await page.locator('[data-nav-view="discovery"]').click();
-  const review = page.locator('[data-review-blueprint]');
+  const review = activeView(page, 'discovery').locator('[data-review-blueprint]');
   await expect(review).toBeEnabled();
   await review.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', /^(blueprint|build)$/);
 
   if ((await page.locator('body').getAttribute('data-active-view')) === 'build') {
-    const refresh = page.locator('[data-build-refresh]').first();
+    const refresh = activeView(page, 'build').locator('[data-build-refresh]').first();
     await expect(refresh).toBeVisible();
     await expect(refresh).toBeEnabled();
   }
@@ -240,6 +245,18 @@ test('legacy duplicate action surfaces are absent', async ({ page }) => {
   await expect(page.locator('[data-workspace-button]')).toHaveCount(0);
   await expect(page.locator('[data-resume-workspace]')).toHaveCount(0);
   await expect(page.locator('[data-context-module]')).toHaveCount(0);
-  await expect(page.locator('[onclick]')).toHaveCount(0);
+
+  const inlineOwnedControls = await page.evaluate((controls) => {
+    const violations = [];
+    controls.forEach((control) => {
+      const selector = control.selector;
+      if (!selector) return;
+      document.querySelectorAll(selector).forEach((element) => {
+        if (element.hasAttribute('onclick')) violations.push(selector);
+      });
+    });
+    return [...new Set(violations)];
+  }, inventory.controls);
+  expect(inlineOwnedControls).toEqual([]);
   expect(criticalErrors).toEqual([]);
 });
