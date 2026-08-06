@@ -170,6 +170,7 @@ test('Founder Home launch actions and filters are functional', async ({ page }) 
 test('Founder Action Center opens and routes a workspace action', async ({ page }) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
+  await openWorkspace(page, 'natural-nation');
 
   const metric = page.locator('[data-action-center-filter="active"]');
   await expect(metric).toBeVisible();
@@ -187,7 +188,7 @@ test('Founder Action Center opens and routes a workspace action', async ({ page 
   expect(criticalErrors).toEqual([]);
 });
 
-test('planning and mission controls route through their authoritative owners', async ({ page }) => {
+test('planning, mission, and Project Records controls use their authoritative owners', async ({ page }) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
@@ -202,6 +203,12 @@ test('planning and mission controls route through their authoritative owners', a
   await expect(readiness).toBeVisible();
   await readiness.click();
   await expect(page.locator('[data-mission-action-output]')).toContainText('Closeout Readiness Check');
+
+  await page.locator('[data-nav-view="knowledge"]').click();
+  const audit = page.locator('[data-knowledge-action="audit"]');
+  await expect(audit).toBeVisible();
+  await audit.click();
+  await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
 
   await page.locator('[data-nav-view="discovery"]').click();
   const review = page.locator('[data-review-blueprint]');
