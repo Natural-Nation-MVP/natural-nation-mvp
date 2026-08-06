@@ -7,12 +7,21 @@
   let pkg = null;
   let registry = null;
   let state = null;
+  let refreshing = false;
 
   const $ = (selector) => document.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   const setText = (selector, value) => { const node = $(selector); if (node) node.textContent = value; };
   const roleName = (id) => registry?.agents?.find((agent) => agent.id === id)?.name || id || 'Complete';
   const statusLabel = (value) => ({ complete: 'Result verified', completed: 'Result verified', ready: 'Ready to run', waiting: 'Waiting', working: 'Provider accepted', blocked: 'Blocked', 'result-verified': 'Result verified', 'founder-approved': 'Founder approved' })[value] || value || 'Unknown';
+
+  function setRefreshControls(isBusy) {
+    document.querySelectorAll('[data-build-refresh]').forEach((button) => {
+      button.disabled = isBusy;
+      button.setAttribute('aria-busy', String(isBusy));
+      button.textContent = isBusy ? 'Refreshing Build Status…' : 'Refresh Build Status';
+    });
+  }
 
   async function fetchJson(url) {
     const separator = url.includes('?') ? '&' : '?';
@@ -51,7 +60,6 @@
     if (assigned) assigned.innerHTML = `<span class="pill">${esc(current ? roleName(current.owner) : 'Founder')}</span>`;
     const plan = $('[data-role-plan]');
     if (plan) plan.innerHTML = current ? `<p><strong>Current:</strong> ${esc(roleName(current.owner))}</p><p class="muted">Next: ${esc(roleName(current.nextRole))}</p>` : '<p><strong>Status:</strong> Complete</p><p class="muted">All five canonical tasks are recorded.</p>';
-    document.querySelectorAll('[data-action="generate"]').forEach((button) => { button.disabled = true; button.textContent = current ? statusLabel(current.status) : 'Build Complete'; });
     renderQueue();
   }
 
@@ -81,8 +89,28 @@
     }
   }
 
+  async function refreshFromControl() {
+    if (refreshing) return null;
+    refreshing = true;
+    setRefreshControls(true);
+    try {
+      return await reload();
+    } finally {
+      refreshing = false;
+      setRefreshControls(false);
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const control = event.target.closest('[data-build-refresh]');
+    if (!control) return;
+    event.preventDefault();
+    refreshFromControl();
+  });
+
   window.NNOSCanonicalBuild = {
     reload,
+    refresh: refreshFromControl,
     get package() { return pkg; },
     get registry() { return registry; },
     get state() { return state; }
@@ -91,4 +119,5 @@
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
     if (event.detail?.target === 'build') reload();
   });
+  setRefreshControls(false);
 })();

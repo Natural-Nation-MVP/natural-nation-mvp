@@ -99,10 +99,13 @@
       <button class="metric metric-action" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}"><span>${escapeHtml(metric.label)}</span><strong>${escapeHtml(metric.value)}</strong><small>Open actions →</small></button>`).join('');
   }
 
-  function openWorkspace(workspaceId, target) {
-    const workspaceButton = document.querySelector(`[data-resume-workspace="${workspaceId}"]`);
-    if (workspaceButton) workspaceButton.click();
-    window.setTimeout(() => { if (target) window.setWorkspace?.(target); }, 220);
+  async function openWorkspace(workspaceId, target) {
+    const manager = window.NNOSNavigationManager;
+    if (!manager?.openWorkspace) throw new Error('Founder OS navigation is unavailable.');
+    const opened = await manager.openWorkspace(workspaceId, 'founder-action-center');
+    if (!opened) throw new Error('The selected workspace could not be opened.');
+    if (target && target !== 'mission') manager.openView(target, 'founder-action-center');
+    closePanel();
   }
 
   function actionButton(label, action, tone = '') {
@@ -154,6 +157,11 @@
     renderMetrics();
   }
 
+  function showActionError(error) {
+    const list = $('[data-action-center-list]');
+    if (list) list.innerHTML = `<article class="action-center-empty"><strong>Action could not be completed.</strong><p>${escapeHtml(error?.message || String(error))}</p></article>`;
+  }
+
   async function refresh() {
     const list = $('[data-action-center-list]');
     if (list) list.innerHTML = '<p class="muted">Refreshing live Founder OS status…</p>';
@@ -166,7 +174,7 @@
     const metric = event.target.closest('[data-action-center-filter]');
     if (metric) { event.preventDefault(); showFilter(metric.dataset.actionCenterFilter); return; }
     if (event.target.closest('[data-action-center-close]')) { event.preventDefault(); closePanel(); return; }
-    if (event.target.closest('[data-action-center-refresh]')) { event.preventDefault(); refresh(); return; }
+    if (event.target.closest('[data-action-center-refresh]')) { event.preventDefault(); refresh().catch(showActionError); return; }
     const action = event.target.closest('[data-action-center-action]');
     if (!action) return;
     event.preventDefault();
@@ -179,7 +187,7 @@
       return;
     }
     const [type, workspaceId, target] = value.split(':');
-    if (type === 'workspace') openWorkspace(workspaceId, target);
+    if (type === 'workspace') openWorkspace(workspaceId, target).catch(showActionError);
   });
 
   window.addEventListener('founder-os:workspace-view-changed', (event) => {

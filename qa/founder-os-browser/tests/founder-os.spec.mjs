@@ -141,3 +141,105 @@ test('touch activation works for the greeting and workspace button', async ({ pa
   await expect(page.locator('[data-workspace="mission"]')).toBeVisible();
   expect(criticalErrors).toEqual([]);
 });
+
+test('Founder Home launch actions and filters are functional', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+
+  const create = page.locator('[data-launch-action="create"]').first();
+  await expect(create).toBeVisible();
+  await create.click();
+  const wizard = page.locator('[data-workspace-creation]');
+  await expect(wizard).toBeVisible();
+  await wizard.locator('[data-workspace-creation-close]').click();
+  await expect(wizard).toBeHidden();
+
+  await page.locator('[data-launch-filter="active"]').first().click();
+  await expect(page.locator('body')).toHaveAttribute('data-launch-filter', 'active');
+  await expect(page.locator('.workspace-card:not([hidden])').first()).toBeVisible();
+
+  await page.locator('[data-launch-filter="all"]').first().click();
+  const search = page.locator('[data-launch-search]');
+  await search.fill('Natural Nation');
+  await expect(page.locator('.workspace-card[data-workspace-id="natural-nation"]')).toBeVisible();
+  await expect(page.locator('.workspace-card[data-workspace-id="founder-os"]')).toBeHidden();
+  await search.fill('');
+  expect(criticalErrors).toEqual([]);
+});
+
+test('Founder Action Center opens and routes a workspace action', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+
+  const metric = page.locator('[data-action-center-filter="active"]');
+  await expect(metric).toBeVisible();
+  await metric.click();
+  const panel = page.locator('[data-founder-action-center]');
+  await expect(panel).toBeVisible();
+
+  const action = panel.locator('[data-action-center-action^="workspace:"]').first();
+  await expect(action).toBeVisible();
+  const value = await action.getAttribute('data-action-center-action');
+  const [, workspaceId, target] = value.split(':');
+  await action.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-workspace', workspaceId);
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', target || 'mission');
+  expect(criticalErrors).toEqual([]);
+});
+
+test('planning, mission, and Project Records controls use their authoritative owners', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+
+  const missionRepo = page.locator('[data-mission-view="repo"]').first();
+  await expect(missionRepo).toBeVisible();
+  await missionRepo.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'repo');
+
+  await page.locator('[data-nav-view="mission"]').click();
+  const readiness = page.locator('[data-mission-action="run-closeout-check"]');
+  await expect(readiness).toBeVisible();
+  await readiness.click();
+  await expect(page.locator('[data-mission-action-output]')).toContainText('Closeout Readiness Check');
+
+  await page.locator('[data-nav-view="knowledge"]').click();
+  const audit = page.locator('[data-knowledge-action="audit"]');
+  await expect(audit).toBeVisible();
+  await audit.click();
+  await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
+
+  await page.locator('[data-nav-view="discovery"]').click();
+  const review = page.locator('[data-review-blueprint]');
+  await expect(review).toBeEnabled();
+  await review.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', /^(blueprint|build)$/);
+
+  if ((await page.locator('body').getAttribute('data-active-view')) === 'build') {
+    const refresh = page.locator('[data-build-refresh]').first();
+    await expect(refresh).toBeVisible();
+    await expect(refresh).toBeEnabled();
+  }
+  expect(criticalErrors).toEqual([]);
+});
+
+test('legacy duplicate action surfaces are absent', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+
+  const inventory = await page.evaluate(async () => {
+    const response = await fetch('./config/action-inventory.json', { cache: 'no-store' });
+    return response.json();
+  });
+  expect(inventory.inventoryId).toBe('FOS-ACTIONS-005');
+  expect(inventory.controls.length).toBeGreaterThanOrEqual(40);
+
+  await expect(page.locator('[data-approval-dialog]')).toHaveCount(0);
+  await expect(page.locator('[data-action]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace-button]')).toHaveCount(0);
+  await expect(page.locator('[data-resume-workspace]')).toHaveCount(0);
+  await expect(page.locator('[data-context-module]')).toHaveCount(0);
+  await expect(page.locator('[onclick]')).toHaveCount(0);
+  expect(criticalErrors).toEqual([]);
+});

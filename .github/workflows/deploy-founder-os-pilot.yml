@@ -12,6 +12,7 @@ on:
       - '.github/workflows/founder-os-stabilization.yml'
       - 'scripts/validate-founder-os.mjs'
       - 'scripts/validate-founder-runtime-controllers.mjs'
+      - 'scripts/validate-founder-action-inventory.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
@@ -46,6 +47,7 @@ jobs:
           for validator in \
             scripts/validate-founder-os.mjs \
             scripts/validate-founder-runtime-controllers.mjs \
+            scripts/validate-founder-action-inventory.mjs \
             scripts/validate-founder-approval-inbox.mjs \
             scripts/validate-founder-ux-001.mjs \
             scripts/validate-founder-ws-001.mjs \
@@ -88,27 +90,44 @@ jobs:
           cp -R docs/orchestration _site/orchestration
 
           test -f _site/founder-os/registry/workspaces.json
+          test -f _site/founder-os/config/action-inventory.json
           test -f _site/founder-os/css/founder-os.css
           test -f _site/founder-os/css/founder-home-functionality.css
           test -f _site/founder-os/css/workspace-launch-center.css
           test -f _site/founder-os/js/workspace-registry.js
           test -f _site/founder-os/js/founder-home-functionality.js
           test -f _site/founder-os/js/navigation-manager-035.js
-          for retired in founder-settings-dialog-fix.js founder-startup-recovery.js founder-interaction-stability-025.js; do
+          for retired in founder-settings-dialog-fix.js founder-startup-recovery.js founder-interaction-stability-025.js blueprint-approval-transaction.js; do
             if test -e "_site/founder-os/js/${retired}" || grep -q "${retired}" _site/founder-os/index.html; then
               echo "Retired Founder OS controller remains in the deployment artifact: ${retired}"
               exit 1
             fi
           done
+          if test -e _site/founder-os/css/blueprint-approval.css; then
+            echo "Retired Blueprint approval stylesheet remains in the deployment artifact."
+            exit 1
+          fi
           jq -e '.schemaVersion == "2.0.0" and (.workspaces | type == "array")' _site/founder-os/registry/workspaces.json >/dev/null
           jq -e '.workspaces[] | select(.workspaceId | startswith("ws_"))' _site/founder-os/registry/workspaces.json >/dev/null
+          jq -e '.inventoryId == "FOS-ACTIONS-005" and (.controls | length >= 40)' _site/founder-os/config/action-inventory.json >/dev/null
           grep -q "registry/workspaces.json" _site/founder-os/js/workspace-registry.js
           grep -q "function merge(" _site/founder-os/js/workspace-registry.js
           grep -q 'data-open-workspace=' _site/founder-os/js/workspace-registry.js
           grep -q 'data-open-workspace' _site/founder-os/js/founder-home-functionality.js
           grep -q 'openWorkspace' _site/founder-os/js/navigation-manager-035.js
+          grep -q 'data-build-refresh' _site/founder-os/index.html
           if grep -q 'data-workspace-link' _site/founder-os/js/workspace-registry.js; then
             echo "Legacy clickable workspace-card link markup remains in the deployment artifact."
+            exit 1
+          fi
+          if grep -Eq 'data-workspace-button|data-resume-workspace|data-context-module|data-page-link-view|onclick=' \
+            _site/founder-os/index.html \
+            _site/founder-os/js/app.js \
+            _site/founder-os/js/founder-action-center.js \
+            _site/founder-os/js/founder-actions.js \
+            _site/founder-os/js/mission-control.js \
+            _site/founder-os/js/live-approval-controller.js; then
+            echo "Legacy or inline action ownership remains in the deployment artifact."
             exit 1
           fi
 
@@ -158,7 +177,8 @@ jobs:
             "runId": "${RUN_ID}",
             "deployedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "entryMode": "canonical-redirect",
-            "workspaceCardMode": "static-grid-explicit-button"
+            "workspaceCardMode": "static-grid-explicit-button",
+            "actionInventory": "FOS-ACTIONS-005"
           }
           EOF
           cp _site/deployment.json _site/founder-os/deployment.json

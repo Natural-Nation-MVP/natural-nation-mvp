@@ -11,11 +11,10 @@
     if (node) node.textContent = value;
   };
 
-  function setBusy(isBusy, label) {
-    $$('[data-action="generate"], [data-start-ai-task], [data-reset-ai-task]').forEach((button) => {
+  function setBusy(isBusy) {
+    $$('[data-start-ai-task], [data-reset-ai-task]').forEach((button) => {
       button.disabled = isBusy;
       button.setAttribute('aria-busy', String(isBusy));
-      if (label && button.dataset.action === 'generate') button.textContent = label;
     });
   }
 
@@ -119,7 +118,7 @@
       let dispatchResult = null;
       let dispatchError = null;
 
-      setBusy(true, 'Preparing protected dispatch…');
+      setBusy(true);
       window.NNOSProcessing.start({
         title: 'Preparing protected dispatch',
         message: 'Founder OS is refreshing the canonical state before validation.',
@@ -133,7 +132,6 @@
           message: 'Checking Founder authorization, task ownership, package scope, and provider readiness.',
           stage: 'Validation'
         });
-        setBusy(true, 'Validating and running provider…');
 
         const dispatchPromise = Promise.resolve(originalDispatch(taskId))
           .then((result) => { dispatchResult = result; return result; })
@@ -160,17 +158,6 @@
       } finally {
         dispatchInProgress = false;
         setBusy(false);
-        const state = window.NNOSCanonicalBuild?.state;
-        const task = taskFromState(state, taskId);
-        $$('[data-action="generate"]').forEach((button) => {
-          button.textContent = task?.status === 'ready'
-            ? 'Validate and Run Current Task →'
-            : task?.status === 'complete'
-              ? 'Result verified'
-              : task?.status === 'blocked'
-                ? 'Task needs attention'
-                : task?.providerStatus || task?.status || 'Refresh Current Task';
-        });
       }
     };
 
