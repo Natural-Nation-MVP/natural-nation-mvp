@@ -75,6 +75,86 @@
     ];
   }
 
+  function teamSummary() {
+    const values = tasks();
+    const count = (statuses) => values.filter((task) => statuses.includes(String(task.status || task.providerStatus || '').toLowerCase())).length;
+    return {
+      ready: count(['ready', 'queued']),
+      working: count(['running', 'in-progress', 'dispatched']),
+      blocked: blockers().length,
+      review: approvals().length
+    };
+  }
+
+  function recentActivity() {
+    const taskRecords = tasks().map((task) => ({
+      at: task.updatedAt || orchestration?.updatedAt || '',
+      title: task.title || task.id || 'AI team task',
+      detail: `${task.owner || 'AI team'} · ${task.providerStatus || task.status || 'updated'}`
+    }));
+    const workspaceRecords = (registry?.workspaces || []).map((workspace) => ({
+      at: workspace.updatedAt || workspace.createdAt || '',
+      title: workspace.name || workspace.id,
+      detail: `Workspace · ${workspace.status || workspace.stage || 'available'}`
+    }));
+    return [...taskRecords, ...workspaceRecords]
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)))
+      .slice(0, 6);
+  }
+
+  function ensureDashboard() {
+    const metrics = $('[data-system-metrics]');
+    if (!metrics) return null;
+    let dashboard = $('[data-founder-command-center]');
+    if (dashboard) return dashboard;
+    dashboard = document.createElement('section');
+    dashboard.className = 'founder-command-center';
+    dashboard.dataset.founderCommandCenter = '';
+    metrics.insertAdjacentElement('afterend', dashboard);
+    return dashboard;
+  }
+
+  function renderDashboard() {
+    const dashboard = ensureDashboard();
+    if (!dashboard || !registry) return;
+    const team = teamSummary();
+    const workspaces = registry?.workspaces || [];
+    const activeWorkspaces = workspaces.filter((workspace) => workspace.status === 'active').length;
+    const activity = recentActivity();
+    dashboard.innerHTML = `
+      <article class="glass-panel command-center-section" data-command-center-section="workspace">
+        <div class="command-center-heading"><div><div class="eyebrow">Workspace Manager</div><h2>Portfolio</h2></div><span class="pill">${activeWorkspaces} active · ${workspaces.length} total</span></div>
+        <p class="muted">Open a workspace card below to continue its approved work or manage its lifecycle.</p>
+      </article>
+      <article class="glass-panel command-center-section" data-command-center-section="ai">
+        <div class="command-center-heading"><div><div class="eyebrow">AI Team Monitor</div><h2>Current workload</h2></div>${actionButton('Open AI Team', 'workspace:natural-nation:ai')}</div>
+        <div class="command-center-stat-grid">
+          <div><strong>${team.ready}</strong><span>Ready</span></div>
+          <div><strong>${team.working}</strong><span>Working</span></div>
+          <div><strong>${team.blocked}</strong><span>Blocked</span></div>
+          <div><strong>${team.review}</strong><span>Founder review</span></div>
+        </div>
+      </article>
+      <article class="glass-panel command-center-section" data-command-center-section="gateway">
+        <div class="command-center-heading"><div><div class="eyebrow">Gateway Status</div><h2>${health ? 'Online' : 'Needs attention'}</h2></div>${actionButton('Open Code Status', 'workspace:founder-os:repo')}</div>
+        <p class="muted">${health ? `Gateway ${escapeHtml(health.version || 'current')} responded successfully.` : 'Live status is unavailable. Open Code Status for recovery information.'}</p>
+      </article>
+      <article class="glass-panel command-center-section" data-command-center-section="activity">
+        <div class="command-center-heading"><div><div class="eyebrow">Activity Feed</div><h2>Recent work</h2></div><button type="button" data-action-center-refresh>Refresh</button></div>
+        <div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div>
+      </article>
+      <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions">
+        <div><div class="eyebrow">Quick Actions</div><h2>Start here</h2></div>
+        <div class="command-center-action-grid">
+          ${actionButton('Create Workspace', 'create', 'primary')}
+          ${actionButton('Approval Inbox', 'inbox')}
+          ${actionButton('Build Studio', 'workspace:natural-nation:build')}
+          ${actionButton('AI Team', 'workspace:natural-nation:ai')}
+          ${actionButton('Gateway Status', 'workspace:founder-os:repo')}
+        </div>
+      </article>`;
+  }
+
   function ensurePanel() {
     const metrics = $('[data-system-metrics]');
     if (!metrics) return null;
@@ -97,6 +177,7 @@
     if (!container || !registry) return;
     container.innerHTML = metricDefinitions().map((metric) => `
       <button class="metric metric-action" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}"><span>${escapeHtml(metric.label)}</span><strong>${escapeHtml(metric.value)}</strong><small>Open actions →</small></button>`).join('');
+    renderDashboard();
   }
 
   async function openWorkspace(workspaceId, target) {
@@ -179,6 +260,12 @@
     if (!action) return;
     event.preventDefault();
     const value = action.dataset.actionCenterAction;
+    if (value === 'create') {
+      const createControl = document.querySelector('[data-launch-action="create"]') || document.querySelector('[data-create-workspace]');
+      if (createControl) createControl.click();
+      else showActionError(new Error('Workspace creation is unavailable.'));
+      return;
+    }
     if (value === 'inbox') { window.NNOSApprovalInbox?.open(); return; }
     if (value.startsWith('approval:')) {
       const taskId = value.slice('approval:'.length);
@@ -191,12 +278,12 @@
   });
 
   window.addEventListener('founder-os:workspace-view-changed', (event) => {
-    if (!event.detail?.workspace && event.detail?.target === 'registry') window.setTimeout(() => { renderMetrics(); ensurePanel(); }, 0);
+    if (!event.detail?.workspace && event.detail?.target === 'registry') window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); }, 0);
   });
   window.addEventListener('founder-os:approval-recorded', refresh);
 
   loadStyles();
-  loadLiveState().then(() => { renderMetrics(); ensurePanel(); }).catch((error) => {
+  loadLiveState().then(() => { renderMetrics(); renderDashboard(); ensurePanel(); }).catch((error) => {
     console.error('Founder Action Center could not load live state.', error);
     registry = { workspaces: [] };
     renderMetrics();
