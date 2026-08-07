@@ -243,3 +243,28 @@ test('legacy duplicate action surfaces are absent', async ({ page }) => {
   await expect(page.locator('[onclick]')).toHaveCount(0);
   expect(criticalErrors).toEqual([]);
 });
+
+
+test('Founder Command Center exposes governed Sprint 1 entry points', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+
+  const dashboard = page.locator('[data-founder-command-center]');
+  await expect(dashboard).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="workspace"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="ai"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="gateway"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="activity"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="quick-actions"]')).toBeVisible();
+
+  await expect(dashboard.locator('[data-action-center-action="create"]')).toBeVisible();
+  await expect(dashboard.locator('[data-action-center-action="inbox"]')).toBeVisible();
+  await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:build"]')).toBeVisible();
+  await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
+  await expect(dashboard.locator('[data-action-center-action="workspace:founder-os:repo"]')).toBeVisible();
+
+  await dashboard.locator('[data-action-center-action="inbox"]').click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'approvals');
+  await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
+  expect(criticalErrors).toEqual([]);
+});
