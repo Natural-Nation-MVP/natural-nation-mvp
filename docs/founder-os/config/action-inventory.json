@@ -295,20 +295,20 @@
     {
       "id": "mission.action-center.filter",
       "selector": "[data-action-center-filter]",
-      "surface": "Product Overview metrics",
+      "surface": "Founder Dashboard metrics",
       "owner": "founder-action-center.js",
       "availability": "enabled after workspace and live state load",
-      "outcome": "Open the matching Founder Action Center list",
-      "browserTest": "Founder Action Center opens and routes a workspace action"
+      "outcome": "Open the matching Founder Action Center list from the command-center summary",
+      "browserTest": "Founder Command Center exposes governed Sprint 1 entry points"
     },
     {
       "id": "mission.action-center.controls",
       "selector": "[data-action-center-close], [data-action-center-refresh], [data-action-center-action]",
-      "surface": "Product Overview Action Center",
+      "surface": "Founder Dashboard and Product Overview Action Center",
       "owner": "founder-action-center.js",
       "availability": "rendered according to selected metric",
-      "outcome": "Close, refresh, open a workspace, or open an approval",
-      "browserTest": "Founder Action Center opens and routes a workspace action"
+      "outcome": "Close, refresh, create a workspace, open Approval Inbox, or route to an existing governed workspace view",
+      "browserTest": "Founder Command Center exposes governed Sprint 1 entry points"
     },
     {
       "id": "approval.queue",
