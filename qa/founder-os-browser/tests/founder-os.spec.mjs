@@ -22,18 +22,13 @@ async function returnHome(page) {
     return;
   }
 
-  const mobileMenu = page.locator('[data-action-center-action="mobile-menu"]:visible').first();
-  if (await mobileMenu.count()) {
-    await mobileMenu.click();
-    const drawerHome = page.locator('[data-mobile-header-popover] [data-action-center-action="home"]:visible').first();
-    await expect(drawerHome).toBeVisible();
-    // The drawer animates continuously in the mobile emulation viewport; force the
-    // already-visible control so this route assertion is not gated on pixel stability.
-    await drawerHome.click({ force: true });
-    return;
-  }
-
-  throw new Error('No visible Home navigation control is available.');
+  // Drawer behavior has its own interaction contract below. Route restoration
+  // uses the public navigation API so animated mobile chrome cannot make these
+  // history assertions depend on transient element geometry.
+  await page.evaluate(() => {
+    if (!window.NNOSNavigationManager?.openHome) throw new Error('Navigation Manager is unavailable.');
+    window.NNOSNavigationManager.openHome('browser-qa', 'push');
+  });
 }
 
 async function openView(page, target) {
