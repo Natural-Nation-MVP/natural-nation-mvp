@@ -354,6 +354,15 @@
     if (!action) return;
     event.preventDefault();
     const value = action.dataset.actionCenterAction;
+    if (value === 'mobile-menu-close') {
+      const popover = action.closest('[data-mobile-header-popover]');
+      if (popover) {
+        popover.hidden = true;
+        delete popover.dataset.mode;
+        popover.closest('[data-mobile-workspace-header]')?.querySelectorAll('[aria-expanded]').forEach((control) => control.setAttribute('aria-expanded', 'false'));
+      }
+      return;
+    }
     if (value === 'mobile-menu' || value === 'mobile-workspaces') {
       const header = action.closest('[data-mobile-workspace-header]');
       const popover = header?.querySelector('[data-mobile-header-popover]');
@@ -369,10 +378,13 @@
       action.setAttribute('aria-expanded', 'true');
       if (value === 'mobile-menu') {
         popover.innerHTML = `
-          <strong>Navigation</strong>
-          ${actionButton('All Workspaces', 'home')}
-          ${actionButton('Approval Inbox', 'inbox')}
-          ${actionButton('Account Settings', 'account')}`;
+          <div class="mobile-drawer-heading"><div><span>Founder OS</span><strong>Navigation</strong></div><button type="button" data-action-center-action="mobile-menu-close" aria-label="Close navigation">×</button></div>
+          <nav class="mobile-drawer-links" aria-label="Founder OS mobile menu">
+            ${actionButton('All Workspaces', 'home')}
+            ${actionButton('Approval Inbox', 'inbox')}
+            ${actionButton('Create Workspace', 'create')}
+            ${actionButton('Account Settings', 'account')}
+          </nav>`;
       } else {
         const workspaces = registry?.workspaces || [];
         popover.innerHTML = `
