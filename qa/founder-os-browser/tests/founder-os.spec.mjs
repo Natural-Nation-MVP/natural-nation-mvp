@@ -311,3 +311,26 @@ test('approved mobile workspace chrome matches the Founder reference', async ({ 
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   expect(criticalErrors).toEqual([]);
 });
+
+
+test('global and workspace mobile navigation expose governed destinations', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile navigation contract runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+
+  const navigation = page.locator('[data-mobile-workspace-navigation]');
+  await expect(navigation).toBeVisible();
+  await expect(navigation.locator('button')).toHaveCount(4);
+  await expect(navigation).toContainText('Workspaces');
+  await expect(navigation).toContainText('Approvals');
+  await expect(navigation).toContainText('Create');
+  await expect(navigation).toContainText('Account');
+
+  await openWorkspace(page, 'natural-nation');
+  await expect(navigation).toContainText('Overview');
+  await expect(navigation).toContainText('Approvals');
+  await expect(navigation).toContainText('Build');
+  await expect(navigation).toContainText('Team');
+  await expect(navigation).not.toContainText('Create');
+  expect(criticalErrors).toEqual([]);
+});
