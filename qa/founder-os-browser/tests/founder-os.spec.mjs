@@ -260,11 +260,33 @@ test('Founder Command Center exposes governed Sprint 1 entry points', async ({ p
   await expect(dashboard.locator('[data-action-center-action="create"]')).toBeVisible();
   await expect(dashboard.locator('[data-action-center-action="inbox"]')).toBeVisible();
   await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:build"]')).toBeVisible();
-  await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="quick-actions"] [data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
   await expect(dashboard.locator('[data-action-center-action="workspace:founder-os:repo"]')).toBeVisible();
 
   await dashboard.locator('[data-action-center-action="inbox"]').click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'approvals');
   await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
+  expect(criticalErrors).toEqual([]);
+});
+
+
+test('workspace dashboard remains isolated and mobile-safe', async ({ page }, testInfo) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+  const dashboard = page.locator('[data-founder-command-center]');
+  await expect(dashboard).toHaveAttribute('data-dashboard-scope', 'natural-nation');
+  await expect(dashboard).toContainText('Natural Nation');
+  await expect(dashboard).not.toContainText('Open Founder OS');
+  await expect(dashboard.locator('[data-action-center-action^="workspace:founder-os:"]')).toHaveCount(0);
+  await expect(page.locator('[data-action-center-filter="current"]')).toBeVisible();
+  await expect(page.locator('[data-action-center-filter="progress"]')).toBeVisible();
+  if (testInfo.project.use.hasTouch) {
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+    const box = await page.locator('.sidebar').boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.width).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
+  }
   expect(criticalErrors).toEqual([]);
 });
