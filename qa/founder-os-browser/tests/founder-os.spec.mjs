@@ -27,7 +27,9 @@ async function returnHome(page) {
     await mobileMenu.click();
     const drawerHome = page.locator('[data-mobile-header-popover] [data-action-center-action="home"]:visible').first();
     await expect(drawerHome).toBeVisible();
-    await drawerHome.click();
+    // The drawer animates continuously in the mobile emulation viewport; force the
+    // already-visible control so this route assertion is not gated on pixel stability.
+    await drawerHome.click({ force: true });
     return;
   }
 
