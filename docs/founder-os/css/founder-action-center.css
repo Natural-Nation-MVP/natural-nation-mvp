@@ -239,3 +239,53 @@ body[data-active-workspace="registry"] .metrics-grid {
   .workspace-next-action>.action-center-item{width:100%}
   .workspace-activity{padding:18px;border-radius:18px}
 }
+
+/* FOS-NAV compact mobile metrics */
+@media(max-width:640px){
+  .workspace-metrics{
+    height:30dvh;
+    max-height:30vh;
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+  }
+  .workspace-metric{
+    min-height:0;
+    height:auto;
+    padding:11px 13px;
+    border-radius:18px;
+    overflow:hidden;
+  }
+  .workspace-metric-icon{
+    width:30px;
+    height:30px;
+    margin-bottom:4px;
+    font-size:1.05rem;
+  }
+  .workspace-metric-label{
+    margin-top:3px;
+    font-size:.58rem;
+    line-height:1.15;
+  }
+  .workspace-metric strong{
+    margin-top:4px;
+    font-size:1.65rem;
+    line-height:1;
+  }
+  .workspace-metric-current strong{
+    font-size:1rem;
+    line-height:1.15;
+  }
+  .workspace-metric p{
+    display:-webkit-box;
+    margin:4px 0 0;
+    overflow:hidden;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    font-size:.68rem;
+    line-height:1.2;
+  }
+  .workspace-progress{
+    height:7px;
+    margin-top:6px;
+  }
+}

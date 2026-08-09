@@ -15,8 +15,20 @@ function collectCriticalErrors(page) {
   return errors;
 }
 
-function sidebarHome(page) {
-  return page.locator('[data-nav-home]:visible').first();
+async function returnHome(page) {
+  const directHome = page.locator('[data-nav-home]:visible').first();
+  if (await directHome.count()) {
+    await directHome.click();
+    return;
+  }
+
+  // Drawer behavior has its own interaction contract below. Route restoration
+  // uses the public navigation API so animated mobile chrome cannot make these
+  // history assertions depend on transient element geometry.
+  await page.evaluate(() => {
+    if (!window.NNOSNavigationManager?.openHome) throw new Error('Navigation Manager is unavailable.');
+    window.NNOSNavigationManager.openHome('browser-qa', 'push');
+  });
 }
 
 async function openView(page, target) {
@@ -82,7 +94,7 @@ test('every explicit Open Workspace button targets its immutable workspace ID', 
 
   for (const workspaceId of workspaceIds) {
     if ((await page.locator('body').getAttribute('data-active-workspace')) !== 'registry') {
-      await sidebarHome(page).click();
+      await returnHome(page);
       await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
       await expect(page.locator(`[data-open-workspace="${workspaceId}"]`)).toBeVisible();
     }
@@ -116,7 +128,7 @@ test('browser Back, Forward, refresh, and Home restore deterministic routes', as
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
   await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
 
-  await sidebarHome(page).click();
+  await returnHome(page);
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
   await expect(page.locator('[data-workspace="registry"]')).toBeVisible();
   await expect(page).toHaveURL((url) => url.hash === '');
@@ -306,8 +318,70 @@ test('approved mobile workspace chrome matches the Founder reference', async ({ 
   await expect(page.locator('.workspace-metric-approvals')).toBeVisible();
   await expect(page.locator('.workspace-metric-progress')).toBeVisible();
   await expect(page.locator('.workspace-metric-blocked')).toBeVisible();
+  const metricShare = await page.locator('.workspace-metrics').evaluate((element) => element.getBoundingClientRect().height / window.innerHeight);
+  expect(metricShare).toBeLessThanOrEqual(0.305);
   await expect(page.locator('[data-command-center-section="next-action"]')).toBeVisible();
   await expect(page.locator('[data-command-center-section="activity"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  expect(criticalErrors).toEqual([]);
+});
+
+
+test('global and workspace mobile navigation expose governed destinations', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile navigation contract runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+
+  const navigation = page.locator('[data-mobile-workspace-navigation]');
+  await expect(navigation).toBeVisible();
+  await expect(navigation.locator('button')).toHaveCount(4);
+  await expect(navigation).toContainText('Workspaces');
+  await expect(navigation).toContainText('Approvals');
+  await expect(navigation).toContainText('Create');
+  await expect(navigation).toContainText('Account');
+
+  await openWorkspace(page, 'natural-nation');
+  await expect(navigation).toContainText('Overview');
+  await expect(navigation).toContainText('Approvals');
+  await expect(navigation).toContainText('Build');
+  await expect(navigation).toContainText('Team');
+  await expect(navigation).not.toContainText('Create');
+  expect(criticalErrors).toEqual([]);
+});
+
+
+test('mobile header controls open menus without leaving the workspace', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile header contract runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+
+  const header = page.locator('[data-mobile-workspace-header]');
+  const menu = header.locator('[data-action-center-action="mobile-menu"]');
+  await menu.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
+  await expect(header).toBeVisible();
+  await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
+  const drawer = header.locator('[data-mobile-header-popover]');
+  await expect(drawer).toContainText('Natural Nation');
+  await expect(drawer).toContainText('Workspace Navigation');
+  await expect(drawer.locator('[data-action-center-action="workspace:natural-nation:mission"]')).toBeVisible();
+  await expect(drawer.locator('[data-action-center-action="workspace:natural-nation:build"]')).toBeVisible();
+  await expect(drawer.locator('[data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
+  await expect(drawer.locator('[data-action-center-action="home"]')).toBeVisible();
+  await expect(drawer).toHaveAttribute('data-mode', 'mobile-menu');
+  const drawerBox = await drawer.boundingBox();
+  expect(drawerBox.x).toBeLessThanOrEqual(1);
+  expect(drawerBox.height).toBeGreaterThanOrEqual((await page.evaluate(() => window.innerHeight)) * 0.95);
+
+  await drawer.locator('[data-action-center-action="mobile-menu-close"]').click();
+  await expect(header.locator('[data-mobile-header-popover]')).toBeHidden();
+
+  const switcher = header.locator('[data-action-center-action="mobile-workspaces"]');
+  await switcher.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
+  await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
+  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Switch Workspace');
+  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Founder OS');
   expect(criticalErrors).toEqual([]);
 });

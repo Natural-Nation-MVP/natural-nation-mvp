@@ -153,16 +153,21 @@
     const workspace = currentWorkspace();
     const name = workspace?.name || 'Founder OS';
     header.innerHTML = `
-      <button type="button" class="mobile-header-menu" data-nav-home aria-label="All workspaces"><span></span><span></span><span></span></button>
+      <button type="button" class="mobile-header-menu" data-action-center-action="mobile-menu" aria-label="Open navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
       <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
-      <button type="button" class="mobile-workspace-selector" data-nav-home>${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>`;
+      <button type="button" class="mobile-workspace-selector" data-action-center-action="mobile-workspaces" aria-expanded="false">${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>
+      <div class="mobile-header-popover" data-mobile-header-popover hidden></div>`;
     navigation.innerHTML = workspace ? `
       <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
       <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
       <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
-      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : `
+      <button type="button" data-nav-home><span aria-hidden="true">⌂</span><small>Workspaces</small></button>
+      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+      <button type="button" data-action-center-action="create"><span aria-hidden="true">＋</span><small>Create</small></button>
+      <button type="button" data-action-center-action="account"><span aria-hidden="true">●</span><small>Account</small></button>`;
     header.hidden = !workspace;
-    navigation.hidden = !workspace;
+    navigation.hidden = false;
   }
 
   function ensureDashboard() {
@@ -349,6 +354,64 @@
     if (!action) return;
     event.preventDefault();
     const value = action.dataset.actionCenterAction;
+    if (value === 'mobile-menu-close') {
+      const popover = action.closest('[data-mobile-header-popover]');
+      if (popover) {
+        popover.hidden = true;
+        delete popover.dataset.mode;
+        popover.closest('[data-mobile-workspace-header]')?.querySelectorAll('[aria-expanded]').forEach((control) => control.setAttribute('aria-expanded', 'false'));
+      }
+      return;
+    }
+    if (value === 'mobile-menu' || value === 'mobile-workspaces') {
+      const header = action.closest('[data-mobile-workspace-header]');
+      const popover = header?.querySelector('[data-mobile-header-popover]');
+      if (!popover) return;
+      const opening = popover.hidden || popover.dataset.mode !== value;
+      header.querySelectorAll('[aria-expanded]').forEach((control) => control.setAttribute('aria-expanded', 'false'));
+      if (!opening) {
+        popover.hidden = true;
+        delete popover.dataset.mode;
+        return;
+      }
+      popover.dataset.mode = value;
+      action.setAttribute('aria-expanded', 'true');
+      if (value === 'mobile-menu') {
+        const workspace = currentWorkspace();
+        const modules = workspace?.modules || [];
+        const fallbackModules = [
+          { target: 'mission', label: 'Overview' },
+          { target: 'build', label: 'Build' },
+          { target: 'ai', label: 'AI Team' }
+        ];
+        const destinations = modules.length ? modules : fallbackModules;
+        popover.innerHTML = `
+          <div class="mobile-drawer-heading"><div><span>${escapeHtml(workspace?.name || 'Founder OS')}</span><strong>Workspace Navigation</strong></div><button type="button" data-action-center-action="mobile-menu-close" aria-label="Close navigation">×</button></div>
+          <nav class="mobile-drawer-links" aria-label="${escapeHtml(workspace?.name || 'Founder OS')} workspace navigation">
+            ${destinations.map((module) => actionButton(module.label || module.title || module.target, `workspace:${workspace.id}:${module.target}`)).join('')}
+            ${actionButton('Approval Inbox', 'inbox')}
+            ${actionButton('All Workspaces', 'home')}
+          </nav>`;
+      } else {
+        const workspaces = registry?.workspaces || [];
+        popover.innerHTML = `
+          <strong>Switch Workspace</strong>
+          ${actionButton('All Workspaces', 'home')}
+          ${workspaces.map((item) => actionButton(item.name, `workspace:${item.id}:${item.resumeWorkspace || 'mission'}`)).join('')}`;
+      }
+      popover.hidden = false;
+      return;
+    }
+    if (value === 'home') {
+      window.NNOSNavigationManager?.openHome?.('mobile-header', 'push');
+      return;
+    }
+    if (value === 'account') {
+      const accountControl = document.querySelector('[data-open-founder-settings]');
+      if (accountControl) accountControl.click();
+      else showActionError(new Error('Account settings are unavailable.'));
+      return;
+    }
     if (value === 'create') {
       const createControl = document.querySelector('[data-launch-action="create"]') || document.querySelector('[data-create-workspace]');
       if (createControl) createControl.click();

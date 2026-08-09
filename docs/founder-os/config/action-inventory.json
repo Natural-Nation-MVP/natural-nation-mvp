@@ -304,11 +304,11 @@
     {
       "id": "mission.action-center.controls",
       "selector": "[data-action-center-close], [data-action-center-refresh], [data-action-center-action]",
-      "surface": "Founder Dashboard and Product Overview Action Center",
+      "surface": "Mobile navigation, Founder Dashboard, and Product Overview Action Center",
       "owner": "founder-action-center.js",
       "availability": "rendered according to selected metric",
-      "outcome": "Close, refresh, create a workspace, open Approval Inbox, or route to an existing governed workspace view",
-      "browserTest": "Founder Command Center exposes governed Sprint 1 entry points"
+      "outcome": "Open and close the active workspace navigation drawer, switch workspaces, refresh panels, create a workspace, open account settings or Approval Inbox, and route to governed workspace views",
+      "browserTest": "Hamburger renders the active workspace navigation without changing routes"
     },
     {
       "id": "approval.queue",
