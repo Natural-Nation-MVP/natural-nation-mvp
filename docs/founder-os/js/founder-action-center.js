@@ -157,10 +157,10 @@
       <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
       <button type="button" class="mobile-workspace-selector" data-nav-home>${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>`;
     navigation.innerHTML = workspace ? `
-      <button type="button" data-nav-view="mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
       <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
-      <button type="button" data-nav-view="build"><span aria-hidden="true">⌁</span><small>Build</small></button>
-      <button type="button" data-nav-view="ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
     header.hidden = !workspace;
     navigation.hidden = !workspace;
   }
