@@ -307,8 +307,8 @@
       "surface": "Mobile navigation, Founder Dashboard, and Product Overview Action Center",
       "owner": "founder-action-center.js",
       "availability": "rendered according to selected metric",
-      "outcome": "Open mobile menus, switch workspaces, close or refresh panels, create a workspace, open account settings or Approval Inbox, and route to governed workspace views",
-      "browserTest": "Mobile header menus remain open until a governed destination is selected"
+      "outcome": "Open and close the left mobile navigation drawer, switch workspaces, refresh panels, create a workspace, open account settings or Approval Inbox, and route to governed workspace views",
+      "browserTest": "Hamburger opens a persistent left navigation drawer without changing routes"
     },
     {
       "id": "approval.queue",
