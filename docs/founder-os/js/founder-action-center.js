@@ -182,6 +182,14 @@
     if (!dashboard || !registry) return;
     ensureMobileWorkspaceChrome();
     const workspace = currentWorkspace();
+    const mobileWorkspace = Boolean(workspace && window.matchMedia('(max-width: 640px)').matches);
+    dashboard.hidden = !mobileWorkspace;
+    if (!mobileWorkspace) {
+      dashboard.innerHTML = '';
+      dashboard.dataset.dashboardScope = workspace?.id || 'global';
+      return;
+    }
+    dashboard.hidden = false;
     const activity = recentActivity();
     if (workspace) {
       const waiting = scopedApprovals();
@@ -204,16 +212,10 @@
         </article>`;
       return;
     }
-    const team = teamSummary();
-    const workspaces = registry?.workspaces || [];
-    const activeWorkspaces = workspaces.filter((item) => item.status === 'active').length;
+    dashboard.hidden = true;
+    dashboard.innerHTML = '';
     dashboard.dataset.dashboardScope = 'global';
-    dashboard.innerHTML = `
-      <article class="glass-panel command-center-section" data-command-center-section="workspace"><div class="command-center-heading"><div><div class="eyebrow">Workspace Manager</div><h2>Portfolio</h2></div><span class="pill">${activeWorkspaces} active · ${workspaces.length} total</span></div><p class="muted">Open a workspace below to continue its approved work or manage its lifecycle.</p></article>
-      <article class="glass-panel command-center-section" data-command-center-section="ai"><div class="command-center-heading"><div><div class="eyebrow">AI Team Monitor</div><h2>Current workload</h2></div>${actionButton('Open AI Team', 'workspace:natural-nation:ai')}</div><div class="command-center-stat-grid"><div><strong>${team.ready}</strong><span>Ready</span></div><div><strong>${team.working}</strong><span>Working</span></div><div><strong>${team.blocked}</strong><span>Blocked</span></div><div><strong>${team.review}</strong><span>Founder review</span></div></div></article>
-      <article class="glass-panel command-center-section" data-command-center-section="gateway"><div class="command-center-heading"><div><div class="eyebrow">Gateway Status</div><h2>${health ? 'Online' : 'Needs attention'}</h2></div>${actionButton('Open Code Status', 'workspace:founder-os:repo')}</div></article>
-      <article class="glass-panel command-center-section" data-command-center-section="activity"><div class="command-center-heading"><div><div class="eyebrow">Activity Feed</div><h2>Recent work</h2></div><button type="button" data-action-center-refresh>Refresh</button></div><div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div></article>
-      <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions"><div><div class="eyebrow">Quick Actions</div><h2>Start here</h2></div><div class="command-center-action-grid">${actionButton('Create Workspace', 'create', 'primary')}${actionButton('Approval Inbox', 'inbox')}${actionButton('Build Studio', 'workspace:natural-nation:build')}${actionButton('AI Team', 'workspace:natural-nation:ai')}${actionButton('Gateway Status', 'workspace:founder-os:repo')}</div></article>`;
+    return;
   }
 
   function ensurePanel() {
@@ -237,10 +239,16 @@
     const container = $('[data-system-metrics]');
     if (!container || !registry) return;
     const workspace = currentWorkspace();
+    const mobileWorkspace = Boolean(workspace && window.matchMedia('(max-width: 640px)').matches);
     const icons = { current: '◎', approvals: '♙', progress: '↗', blocked: '⬡' };
-    const definitions = metricDefinitions();
-    container.classList.toggle('workspace-metrics', Boolean(workspace));
-    container.innerHTML = workspace ? definitions.map((metric) => `
+    const definitions = mobileWorkspace ? metricDefinitions() : [
+      { id: 'active', label: 'Active areas', value: registry?.workspaces?.filter((item) => item.status === 'active').length ?? 0 },
+      { id: 'approvals', label: 'Needs approval', value: approvals().length },
+      { id: 'blocked', label: 'Blocked work', value: blockers().length },
+      { id: 'gateway', label: 'Gateway', value: health ? 'Online' : 'Check' }
+    ];
+    container.classList.toggle('workspace-metrics', mobileWorkspace);
+    container.innerHTML = mobileWorkspace ? definitions.map((metric) => `
       <button class="metric metric-action workspace-metric workspace-metric-${metric.id}" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}">
         <span class="workspace-metric-icon" aria-hidden="true">${icons[metric.id] || '•'}</span>
         <span class="workspace-metric-label">${escapeHtml(metric.label)}</span>
