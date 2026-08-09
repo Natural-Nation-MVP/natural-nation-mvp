@@ -92,3 +92,10 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   body[data-active-workspace]:not([data-active-workspace="registry"]) .command-center-quick-actions{display:none}
   body[data-active-workspace]:not([data-active-workspace="registry"]) .workspace-view{order:6}
 }
+
+/* FOS-227 mobile overlay prevention */
+@media(max-width:640px){
+  .sidebar{display:none!important}
+  .app-shell{display:block}
+  .main{width:100%;max-width:100%;padding-left:14px;padding-right:14px}
+}
