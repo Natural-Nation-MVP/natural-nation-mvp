@@ -66,12 +66,45 @@
     return tasks().filter((task) => task.status === 'blocked' || task.providerStatus === 'verification-failed');
   }
 
+  function currentWorkspace() {
+    return window.NNOSActiveWorkspace || null;
+  }
+
+  function scopedTasks() {
+    const workspace = currentWorkspace();
+    if (!workspace) return tasks();
+    if (orchestration?.workspaceId && orchestration.workspaceId !== workspace.id) return [];
+    return tasks();
+  }
+
+  function scopedApprovals() {
+    const ids = new Set(scopedTasks().map((task) => task.id));
+    return approvals().filter((task) => ids.has(task.id));
+  }
+
+  function scopedBlockers() {
+    const ids = new Set(scopedTasks().map((task) => task.id));
+    return blockers().filter((task) => ids.has(task.id));
+  }
+
   function metricDefinitions() {
+    const workspace = currentWorkspace();
+    if (!workspace) {
+      return [
+        { id: 'active', label: 'Active workspaces', value: registry?.workspaces?.filter((item) => item.status === 'active').length ?? 0, description: 'Open a workspace and continue its real work.' },
+        { id: 'approvals', label: 'Needs approval', value: approvals().length, description: 'Review decisions requiring Founder approval across the portfolio.' },
+        { id: 'blocked', label: 'Blocked work', value: blockers().length, description: 'Review blocked portfolio work.' },
+        { id: 'gateway', label: 'System health', value: health ? 'Online' : 'Check', description: 'Open live repository and deployment status.' }
+      ];
+    }
+    const values = scopedTasks();
+    const completed = values.filter((task) => ['complete', 'completed', 'founder-approved'].includes(String(task.status || '').toLowerCase())).length;
+    const progress = values.length ? Math.round((completed / values.length) * 100) : 0;
     return [
-      { id: 'active', label: 'Active areas', value: registry?.workspaces?.filter((workspace) => workspace.status === 'active').length ?? 0, description: 'Open a workspace and continue its real work.' },
-      { id: 'approvals', label: 'Needs approval', value: approvals().length, description: 'Review live workflow decisions that require Founder approval.' },
-      { id: 'blocked', label: 'Blocked work', value: blockers().length, description: 'Open blocked work and use the protected recovery action.' },
-      { id: 'gateway', label: 'Gateway', value: health ? 'Online' : 'Check', description: 'Open the live repository and deployment status.' }
+      { id: 'current', label: 'Current objective', value: workspace.stage || 'In progress', description: workspace.nextAction || 'Open Product Overview for the current objective.' },
+      { id: 'approvals', label: 'Needs your decision', value: scopedApprovals().length, description: `Review ${workspace.name} decisions requiring Founder authority.` },
+      { id: 'progress', label: 'Build progress', value: `${progress}%`, description: `${completed} of ${values.length} tasks complete.` },
+      { id: 'blocked', label: 'Risks & blockers', value: scopedBlockers().length, description: scopedBlockers().length ? `Review blockers affecting ${workspace.name}.` : 'No blockers.' }
     ];
   }
 
@@ -87,19 +120,18 @@
   }
 
   function recentActivity() {
-    const taskRecords = tasks().map((task) => ({
+    const workspace = currentWorkspace();
+    const taskRecords = scopedTasks().map((task) => ({
       at: task.updatedAt || orchestration?.updatedAt || '',
       title: task.title || task.id || 'AI team task',
       detail: `${task.owner || 'AI team'} · ${task.providerStatus || task.status || 'updated'}`
     }));
-    const workspaceRecords = (registry?.workspaces || []).map((workspace) => ({
-      at: workspace.updatedAt || workspace.createdAt || '',
-      title: workspace.name || workspace.id,
-      detail: `Workspace · ${workspace.status || workspace.stage || 'available'}`
+    const workspaceRecords = workspace ? [] : (registry?.workspaces || []).map((item) => ({
+      at: item.updatedAt || item.createdAt || '',
+      title: item.name || item.id,
+      detail: `Workspace · ${item.status || item.stage || 'available'}`
     }));
-    return [...taskRecords, ...workspaceRecords]
-      .sort((a, b) => String(b.at).localeCompare(String(a.at)))
-      .slice(0, 6);
+    return [...taskRecords, ...workspaceRecords].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 6);
   }
 
   function ensureDashboard() {
@@ -117,42 +149,39 @@
   function renderDashboard() {
     const dashboard = ensureDashboard();
     if (!dashboard || !registry) return;
+    const workspace = currentWorkspace();
+    const activity = recentActivity();
+    if (workspace) {
+      const waiting = scopedApprovals();
+      const nextLabel = waiting.length ? 'Review Decision' : 'Open Product Overview';
+      const nextAction = waiting.length ? (waiting[0]?.title || 'Review the next Founder approval') : (workspace.nextAction || 'Continue the current objective');
+      const nextRoute = waiting.length ? 'inbox' : `workspace:${workspace.id}:mission`;
+      dashboard.dataset.dashboardScope = workspace.id;
+      dashboard.innerHTML = `
+        <article class="glass-panel command-center-section workspace-dashboard-intro" data-command-center-section="workspace">
+          <div class="eyebrow">${escapeHtml(workspace.name)} Workspace</div><h2>Founder Dashboard</h2><p class="muted">Here’s what needs your attention in this workspace.</p>
+        </article>
+        <article class="glass-panel command-center-section workspace-next-action" data-command-center-section="next-action">
+          <div><div class="eyebrow">Your Next Action</div><h2>${escapeHtml(nextAction)}</h2><p class="muted">${waiting.length ? 'A Founder decision is needed to keep the work moving.' : 'Continue the currently approved workspace objective.'}</p></div>
+          ${actionButton(nextLabel, nextRoute, 'primary')}
+        </article>
+        <details class="glass-panel command-center-section workspace-activity" data-command-center-section="activity"><summary>Recent Activity</summary><div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div></details>
+        <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions">
+          <div><div class="eyebrow">Workspace Actions</div><h2>Continue ${escapeHtml(workspace.name)}</h2></div>
+          <div class="command-center-action-grid">${actionButton('Approvals', 'inbox')}${actionButton('Build', `workspace:${workspace.id}:build`)}${actionButton('AI Team', `workspace:${workspace.id}:ai`)}</div>
+        </article>`;
+      return;
+    }
     const team = teamSummary();
     const workspaces = registry?.workspaces || [];
-    const activeWorkspaces = workspaces.filter((workspace) => workspace.status === 'active').length;
-    const activity = recentActivity();
+    const activeWorkspaces = workspaces.filter((item) => item.status === 'active').length;
+    dashboard.dataset.dashboardScope = 'global';
     dashboard.innerHTML = `
-      <article class="glass-panel command-center-section" data-command-center-section="workspace">
-        <div class="command-center-heading"><div><div class="eyebrow">Workspace Manager</div><h2>Portfolio</h2></div><span class="pill">${activeWorkspaces} active · ${workspaces.length} total</span></div>
-        <p class="muted">Open a workspace card below to continue its approved work or manage its lifecycle.</p>
-      </article>
-      <article class="glass-panel command-center-section" data-command-center-section="ai">
-        <div class="command-center-heading"><div><div class="eyebrow">AI Team Monitor</div><h2>Current workload</h2></div>${actionButton('Open AI Team', 'workspace:natural-nation:ai')}</div>
-        <div class="command-center-stat-grid">
-          <div><strong>${team.ready}</strong><span>Ready</span></div>
-          <div><strong>${team.working}</strong><span>Working</span></div>
-          <div><strong>${team.blocked}</strong><span>Blocked</span></div>
-          <div><strong>${team.review}</strong><span>Founder review</span></div>
-        </div>
-      </article>
-      <article class="glass-panel command-center-section" data-command-center-section="gateway">
-        <div class="command-center-heading"><div><div class="eyebrow">Gateway Status</div><h2>${health ? 'Online' : 'Needs attention'}</h2></div>${actionButton('Open Code Status', 'workspace:founder-os:repo')}</div>
-        <p class="muted">${health ? `Gateway ${escapeHtml(health.version || 'current')} responded successfully.` : 'Live status is unavailable. Open Code Status for recovery information.'}</p>
-      </article>
-      <article class="glass-panel command-center-section" data-command-center-section="activity">
-        <div class="command-center-heading"><div><div class="eyebrow">Activity Feed</div><h2>Recent work</h2></div><button type="button" data-action-center-refresh>Refresh</button></div>
-        <div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div>
-      </article>
-      <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions">
-        <div><div class="eyebrow">Quick Actions</div><h2>Start here</h2></div>
-        <div class="command-center-action-grid">
-          ${actionButton('Create Workspace', 'create', 'primary')}
-          ${actionButton('Approval Inbox', 'inbox')}
-          ${actionButton('Build Studio', 'workspace:natural-nation:build')}
-          ${actionButton('AI Team', 'workspace:natural-nation:ai')}
-          ${actionButton('Gateway Status', 'workspace:founder-os:repo')}
-        </div>
-      </article>`;
+      <article class="glass-panel command-center-section" data-command-center-section="workspace"><div class="command-center-heading"><div><div class="eyebrow">Workspace Manager</div><h2>Portfolio</h2></div><span class="pill">${activeWorkspaces} active · ${workspaces.length} total</span></div><p class="muted">Open a workspace below to continue its approved work or manage its lifecycle.</p></article>
+      <article class="glass-panel command-center-section" data-command-center-section="ai"><div class="command-center-heading"><div><div class="eyebrow">AI Team Monitor</div><h2>Current workload</h2></div>${actionButton('Open AI Team', 'workspace:natural-nation:ai')}</div><div class="command-center-stat-grid"><div><strong>${team.ready}</strong><span>Ready</span></div><div><strong>${team.working}</strong><span>Working</span></div><div><strong>${team.blocked}</strong><span>Blocked</span></div><div><strong>${team.review}</strong><span>Founder review</span></div></div></article>
+      <article class="glass-panel command-center-section" data-command-center-section="gateway"><div class="command-center-heading"><div><div class="eyebrow">Gateway Status</div><h2>${health ? 'Online' : 'Needs attention'}</h2></div>${actionButton('Open Code Status', 'workspace:founder-os:repo')}</div></article>
+      <article class="glass-panel command-center-section" data-command-center-section="activity"><div class="command-center-heading"><div><div class="eyebrow">Activity Feed</div><h2>Recent work</h2></div><button type="button" data-action-center-refresh>Refresh</button></div><div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div></article>
+      <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions"><div><div class="eyebrow">Quick Actions</div><h2>Start here</h2></div><div class="command-center-action-grid">${actionButton('Create Workspace', 'create', 'primary')}${actionButton('Approval Inbox', 'inbox')}${actionButton('Build Studio', 'workspace:natural-nation:build')}${actionButton('AI Team', 'workspace:natural-nation:ai')}${actionButton('Gateway Status', 'workspace:founder-os:repo')}</div></article>`;
   }
 
   function ensurePanel() {
@@ -194,8 +223,16 @@
   }
 
   function renderActiveItems() {
-    return (registry?.workspaces || []).filter((workspace) => workspace.status === 'active').map((workspace) => `
-      <article class="action-center-record"><div><span class="status">${escapeHtml(workspace.stage)}</span><h3>${escapeHtml(workspace.name)}</h3><p>${escapeHtml(workspace.nextAction)}</p></div>${actionButton(`Open ${workspace.name}`, `workspace:${workspace.id}:${workspace.resumeWorkspace || 'mission'}`, 'primary')}</article>`).join('');
+    const workspace = currentWorkspace();
+    const workspaces = workspace ? [workspace] : (registry?.workspaces || []).filter((item) => item.status === 'active');
+    return workspaces.map((item) => `
+      <article class="action-center-record"><div><span class="status">${escapeHtml(item.stage)}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.nextAction)}</p></div>${actionButton(`Open ${item.name}`, `workspace:${item.id}:${item.resumeWorkspace || 'mission'}`, 'primary')}</article>`).join('');
+  }
+
+  function renderCurrentWorkspace() {
+    const workspace = currentWorkspace();
+    if (!workspace) return renderActiveItems();
+    return `<article class="action-center-record"><div><span class="status">${escapeHtml(workspace.stage || 'Current')}</span><h3>${escapeHtml(workspace.name)}</h3><p>${escapeHtml(workspace.nextAction || 'Continue the current objective.')}</p></div>${actionButton('Open Product Overview', `workspace:${workspace.id}:mission`, 'primary')}</article>`;
   }
 
   function renderTaskItems(items, emptyMessage, mode) {
@@ -221,8 +258,9 @@
     if (description) description.textContent = definition?.description || '';
     if (list) {
       if (filter === 'active') list.innerHTML = renderActiveItems();
-      if (filter === 'approvals') list.innerHTML = renderTaskItems(approvals(), 'The live workflow reports no Founder approvals waiting.', 'approval');
-      if (filter === 'blocked') list.innerHTML = renderTaskItems(blockers(), 'The live workflow reports no blocked tasks.', 'blocked');
+      if (filter === 'current' || filter === 'progress') list.innerHTML = renderCurrentWorkspace();
+      if (filter === 'approvals') list.innerHTML = renderTaskItems(currentWorkspace() ? scopedApprovals() : approvals(), 'The live workflow reports no Founder approvals waiting.', 'approval');
+      if (filter === 'blocked') list.innerHTML = renderTaskItems(currentWorkspace() ? scopedBlockers() : blockers(), 'The live workflow reports no blocked tasks.', 'blocked');
       if (filter === 'gateway') list.innerHTML = renderGateway();
     }
     panel.hidden = false;
@@ -277,8 +315,11 @@
     if (type === 'workspace') openWorkspace(workspaceId, target).catch(showActionError);
   });
 
-  window.addEventListener('founder-os:workspace-view-changed', (event) => {
-    if (!event.detail?.workspace && event.detail?.target === 'registry') window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); }, 0);
+  window.addEventListener('founder-os:workspace-view-changed', () => {
+    activeFilter = null;
+    const panel = $('[data-founder-action-center]');
+    if (panel) panel.hidden = true;
+    window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); }, 0);
   });
   window.addEventListener('founder-os:approval-recorded', refresh);
 
