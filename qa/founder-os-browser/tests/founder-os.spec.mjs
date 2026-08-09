@@ -164,11 +164,11 @@ test('Founder Home launch actions and filters are functional', async ({ page }) 
   await wizard.locator('[data-workspace-creation-close]').click();
   await expect(wizard).toBeHidden();
 
-  await page.locator('[data-launch-filter="active"]').first().click();
+  await page.locator('[data-launch-filter="active"]:visible').first().click();
   await expect(page.locator('body')).toHaveAttribute('data-launch-filter', 'active');
   await expect(page.locator('.workspace-card:not([hidden])').first()).toBeVisible();
 
-  await page.locator('[data-launch-filter="all"]').first().click();
+  await page.locator('[data-launch-filter="all"]:visible').first().click();
   const search = page.locator('[data-launch-search]');
   await search.fill('Natural Nation');
   await expect(page.locator('.workspace-card[data-workspace-id="natural-nation"]')).toBeVisible();
