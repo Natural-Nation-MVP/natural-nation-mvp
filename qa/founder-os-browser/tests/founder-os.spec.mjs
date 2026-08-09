@@ -350,9 +350,14 @@ test('mobile header controls open menus without leaving the workspace', async ({
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(header).toBeVisible();
   await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
-  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Navigation');
+  const drawer = header.locator('[data-mobile-header-popover]');
+  await expect(drawer).toContainText('Navigation');
+  await expect(drawer).toHaveAttribute('data-mode', 'mobile-menu');
+  const drawerBox = await drawer.boundingBox();
+  expect(drawerBox.x).toBeLessThanOrEqual(1);
+  expect(drawerBox.height).toBeGreaterThanOrEqual((await page.evaluate(() => window.innerHeight)) * 0.95);
 
-  await menu.click();
+  await drawer.locator('[data-action-center-action="mobile-menu-close"]').click();
   await expect(header.locator('[data-mobile-header-popover]')).toBeHidden();
 
   const switcher = header.locator('[data-action-center-action="mobile-workspaces"]');
