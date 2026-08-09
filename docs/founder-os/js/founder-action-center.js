@@ -160,9 +160,13 @@
       <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
       <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
       <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
-      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : `
+      <button type="button" data-nav-home><span aria-hidden="true">⌂</span><small>Workspaces</small></button>
+      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+      <button type="button" data-action-center-action="create"><span aria-hidden="true">＋</span><small>Create</small></button>
+      <button type="button" data-action-center-action="account"><span aria-hidden="true">●</span><small>Account</small></button>`;
     header.hidden = !workspace;
-    navigation.hidden = !workspace;
+    navigation.hidden = false;
   }
 
   function ensureDashboard() {
@@ -349,6 +353,12 @@
     if (!action) return;
     event.preventDefault();
     const value = action.dataset.actionCenterAction;
+    if (value === 'account') {
+      const accountControl = document.querySelector('[data-open-founder-settings]');
+      if (accountControl) accountControl.click();
+      else showActionError(new Error('Account settings are unavailable.'));
+      return;
+    }
     if (value === 'create') {
       const createControl = document.querySelector('[data-launch-action="create"]') || document.querySelector('[data-create-workspace]');
       if (createControl) createControl.click();
