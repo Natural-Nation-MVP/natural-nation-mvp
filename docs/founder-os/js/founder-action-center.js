@@ -377,13 +377,20 @@
       popover.dataset.mode = value;
       action.setAttribute('aria-expanded', 'true');
       if (value === 'mobile-menu') {
+        const workspace = currentWorkspace();
+        const modules = workspace?.modules || [];
+        const fallbackModules = [
+          { target: 'mission', label: 'Overview' },
+          { target: 'build', label: 'Build' },
+          { target: 'ai', label: 'AI Team' }
+        ];
+        const destinations = modules.length ? modules : fallbackModules;
         popover.innerHTML = `
-          <div class="mobile-drawer-heading"><div><span>Founder OS</span><strong>Navigation</strong></div><button type="button" data-action-center-action="mobile-menu-close" aria-label="Close navigation">×</button></div>
-          <nav class="mobile-drawer-links" aria-label="Founder OS mobile menu">
-            ${actionButton('All Workspaces', 'home')}
+          <div class="mobile-drawer-heading"><div><span>${escapeHtml(workspace?.name || 'Founder OS')}</span><strong>Workspace Navigation</strong></div><button type="button" data-action-center-action="mobile-menu-close" aria-label="Close navigation">×</button></div>
+          <nav class="mobile-drawer-links" aria-label="${escapeHtml(workspace?.name || 'Founder OS')} workspace navigation">
+            ${destinations.map((module) => actionButton(module.label || module.title || module.target, `workspace:${workspace.id}:${module.target}`)).join('')}
             ${actionButton('Approval Inbox', 'inbox')}
-            ${actionButton('Create Workspace', 'create')}
-            ${actionButton('Account Settings', 'account')}
+            ${actionButton('All Workspaces', 'home')}
           </nav>`;
       } else {
         const workspaces = registry?.workspaces || [];
