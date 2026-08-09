@@ -255,32 +255,22 @@ test('legacy duplicate action surfaces are absent', async ({ page }) => {
 });
 
 
-test('Founder Command Center exposes governed Sprint 1 entry points', async ({ page }) => {
+test('desktop Founder Home preserves the established Launch Center', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
+  test.skip(Boolean(testInfo.project.use.hasTouch), 'Desktop contract runs in desktop projects.');
   await openHome(page);
-
-  const dashboard = page.locator('[data-founder-command-center]');
-  await expect(dashboard).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="workspace"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="ai"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="gateway"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="activity"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="quick-actions"]')).toBeVisible();
-
-  await expect(dashboard.locator('[data-action-center-action="create"]')).toBeVisible();
-  await expect(dashboard.locator('[data-action-center-action="inbox"]')).toBeVisible();
-  await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:build"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="quick-actions"] [data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
-  await expect(dashboard.locator('[data-command-center-section="quick-actions"] [data-action-center-action="workspace:founder-os:repo"]')).toBeVisible();
-
-  await dashboard.locator('[data-action-center-action="inbox"]').click();
-  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'approvals');
-  await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
+  await expect(page.locator('[data-founder-command-center]')).toBeHidden();
+  await expect(page.locator('[data-action-center-filter="active"]')).toBeVisible();
+  await expect(page.locator('[data-action-center-filter="approvals"]')).toBeVisible();
+  await expect(page.locator('[data-action-center-filter="blocked"]')).toBeVisible();
+  await expect(page.locator('[data-action-center-filter="gateway"]')).toBeVisible();
+  await expect(page.locator('[data-launch-action="create"]').first()).toBeVisible();
+  await expect(page.locator('.sidebar')).toBeVisible();
   expect(criticalErrors).toEqual([]);
 });
 
-
 test('workspace dashboard remains isolated and mobile-safe', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Workspace dashboard redesign is mobile-only.');
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
