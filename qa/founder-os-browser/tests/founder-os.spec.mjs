@@ -336,3 +336,30 @@ test('global and workspace mobile navigation expose governed destinations', asyn
   await expect(navigation).not.toContainText('Create');
   expect(criticalErrors).toEqual([]);
 });
+
+
+test('mobile header controls open menus without leaving the workspace', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile header contract runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+
+  const header = page.locator('[data-mobile-workspace-header]');
+  const menu = header.locator('[data-action-center-action="mobile-menu"]');
+  await menu.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
+  await expect(header).toBeVisible();
+  await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
+  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Navigation');
+
+  await menu.click();
+  await expect(header.locator('[data-mobile-header-popover]')).toBeHidden();
+
+  const switcher = header.locator('[data-action-center-action="mobile-workspaces"]');
+  await switcher.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
+  await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
+  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Switch Workspace');
+  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Founder OS');
+  expect(criticalErrors).toEqual([]);
+});
