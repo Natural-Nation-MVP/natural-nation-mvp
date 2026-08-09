@@ -306,6 +306,8 @@ test('approved mobile workspace chrome matches the Founder reference', async ({ 
   await expect(page.locator('.workspace-metric-approvals')).toBeVisible();
   await expect(page.locator('.workspace-metric-progress')).toBeVisible();
   await expect(page.locator('.workspace-metric-blocked')).toBeVisible();
+  const metricShare = await page.locator('.workspace-metrics').evaluate((element) => element.getBoundingClientRect().height / window.innerHeight);
+  expect(metricShare).toBeLessThanOrEqual(0.305);
   await expect(page.locator('[data-command-center-section="next-action"]')).toBeVisible();
   await expect(page.locator('[data-command-center-section="activity"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
