@@ -66,13 +66,156 @@
     return tasks().filter((task) => task.status === 'blocked' || task.providerStatus === 'verification-failed');
   }
 
+  function currentWorkspace() {
+    return window.NNOSActiveWorkspace || null;
+  }
+
+  function scopedTasks() {
+    const workspace = currentWorkspace();
+    if (!workspace) return tasks();
+    if (orchestration?.workspaceId && orchestration.workspaceId !== workspace.id) return [];
+    return tasks();
+  }
+
+  function scopedApprovals() {
+    const ids = new Set(scopedTasks().map((task) => task.id));
+    return approvals().filter((task) => ids.has(task.id));
+  }
+
+  function scopedBlockers() {
+    const ids = new Set(scopedTasks().map((task) => task.id));
+    return blockers().filter((task) => ids.has(task.id));
+  }
+
   function metricDefinitions() {
+    const workspace = currentWorkspace();
+    if (!workspace) {
+      return [
+        { id: 'active', label: 'Active workspaces', value: registry?.workspaces?.filter((item) => item.status === 'active').length ?? 0, description: 'Open a workspace and continue its real work.' },
+        { id: 'approvals', label: 'Needs approval', value: approvals().length, description: 'Review decisions requiring Founder approval across the portfolio.' },
+        { id: 'blocked', label: 'Blocked work', value: blockers().length, description: 'Review blocked portfolio work.' },
+        { id: 'gateway', label: 'System health', value: health ? 'Online' : 'Check', description: 'Open live repository and deployment status.' }
+      ];
+    }
+    const values = scopedTasks();
+    const completed = values.filter((task) => ['complete', 'completed', 'founder-approved'].includes(String(task.status || '').toLowerCase())).length;
+    const progress = values.length ? Math.round((completed / values.length) * 100) : 0;
     return [
-      { id: 'active', label: 'Active areas', value: registry?.workspaces?.filter((workspace) => workspace.status === 'active').length ?? 0, description: 'Open a workspace and continue its real work.' },
-      { id: 'approvals', label: 'Needs approval', value: approvals().length, description: 'Review live workflow decisions that require Founder approval.' },
-      { id: 'blocked', label: 'Blocked work', value: blockers().length, description: 'Open blocked work and use the protected recovery action.' },
-      { id: 'gateway', label: 'Gateway', value: health ? 'Online' : 'Check', description: 'Open the live repository and deployment status.' }
+      { id: 'current', label: 'Current objective', value: workspace.stage || 'In progress', description: workspace.nextAction || 'Open Product Overview for the current objective.' },
+      { id: 'approvals', label: 'Needs your decision', value: scopedApprovals().length, description: `Review ${workspace.name} decisions requiring Founder authority.` },
+      { id: 'progress', label: 'Build progress', value: `${progress}%`, description: `${completed} of ${values.length} tasks complete.` },
+      { id: 'blocked', label: 'Risks & blockers', value: scopedBlockers().length, description: scopedBlockers().length ? `Review blockers affecting ${workspace.name}.` : 'No blockers.' }
     ];
+  }
+
+  function teamSummary() {
+    const values = tasks();
+    const count = (statuses) => values.filter((task) => statuses.includes(String(task.status || task.providerStatus || '').toLowerCase())).length;
+    return {
+      ready: count(['ready', 'queued']),
+      working: count(['running', 'in-progress', 'dispatched']),
+      blocked: blockers().length,
+      review: approvals().length
+    };
+  }
+
+  function recentActivity() {
+    const workspace = currentWorkspace();
+    const taskRecords = scopedTasks().map((task) => ({
+      at: task.updatedAt || orchestration?.updatedAt || '',
+      title: task.title || task.id || 'AI team task',
+      detail: `${task.owner || 'AI team'} · ${task.providerStatus || task.status || 'updated'}`
+    }));
+    const workspaceRecords = workspace ? [] : (registry?.workspaces || []).map((item) => ({
+      at: item.updatedAt || item.createdAt || '',
+      title: item.name || item.id,
+      detail: `Workspace · ${item.status || item.stage || 'available'}`
+    }));
+    return [...taskRecords, ...workspaceRecords].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 6);
+  }
+
+  function ensureMobileWorkspaceChrome() {
+    let header = $('[data-mobile-workspace-header]');
+    let navigation = $('[data-mobile-workspace-navigation]');
+    if (!header) {
+      header = document.createElement('header');
+      header.className = 'mobile-workspace-header';
+      header.dataset.mobileWorkspaceHeader = '';
+      document.body.prepend(header);
+    }
+    if (!navigation) {
+      navigation = document.createElement('nav');
+      navigation.className = 'mobile-workspace-navigation';
+      navigation.dataset.mobileWorkspaceNavigation = '';
+      navigation.setAttribute('aria-label', 'Workspace navigation');
+      document.body.appendChild(navigation);
+    }
+    const workspace = currentWorkspace();
+    const name = workspace?.name || 'Founder OS';
+    header.innerHTML = `
+      <button type="button" class="mobile-header-menu" data-nav-home aria-label="All workspaces"><span></span><span></span><span></span></button>
+      <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
+      <button type="button" class="mobile-workspace-selector" data-nav-home>${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>`;
+    navigation.innerHTML = workspace ? `
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
+      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
+      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
+    header.hidden = !workspace;
+    navigation.hidden = !workspace;
+  }
+
+  function ensureDashboard() {
+    const metrics = $('[data-system-metrics]');
+    if (!metrics) return null;
+    let dashboard = $('[data-founder-command-center]');
+    if (dashboard) return dashboard;
+    dashboard = document.createElement('section');
+    dashboard.className = 'founder-command-center';
+    dashboard.dataset.founderCommandCenter = '';
+    metrics.insertAdjacentElement('afterend', dashboard);
+    return dashboard;
+  }
+
+  function renderDashboard() {
+    const dashboard = ensureDashboard();
+    if (!dashboard || !registry) return;
+    ensureMobileWorkspaceChrome();
+    const workspace = currentWorkspace();
+    const mobileWorkspace = Boolean(workspace && window.matchMedia('(max-width: 640px)').matches);
+    dashboard.hidden = !mobileWorkspace;
+    if (!mobileWorkspace) {
+      dashboard.innerHTML = '';
+      dashboard.dataset.dashboardScope = workspace?.id || 'global';
+      return;
+    }
+    dashboard.hidden = false;
+    const activity = recentActivity();
+    if (workspace) {
+      const waiting = scopedApprovals();
+      const nextLabel = waiting.length ? 'Review Decision' : 'Open Product Overview';
+      const nextAction = waiting.length ? (waiting[0]?.title || 'Review the next Founder approval') : (workspace.nextAction || 'Continue the current objective');
+      const nextRoute = waiting.length ? 'inbox' : `workspace:${workspace.id}:mission`;
+      dashboard.dataset.dashboardScope = workspace.id;
+      dashboard.innerHTML = `
+        <article class="glass-panel command-center-section workspace-dashboard-intro" data-command-center-section="workspace">
+          <div class="eyebrow">${escapeHtml(workspace.name)} Workspace</div><h2>Founder Dashboard</h2><p class="muted">Here’s what needs your attention in this workspace.</p>
+        </article>
+        <article class="glass-panel command-center-section workspace-next-action" data-command-center-section="next-action">
+          <div><div class="eyebrow">Your Next Action</div><h2>${escapeHtml(nextAction)}</h2><p class="muted">${waiting.length ? 'A Founder decision is needed to keep the work moving.' : 'Continue the currently approved workspace objective.'}</p></div>
+          ${actionButton(nextLabel, nextRoute, 'primary')}
+        </article>
+        <details class="glass-panel command-center-section workspace-activity" data-command-center-section="activity"><summary>Recent Activity</summary><div class="command-center-activity">${activity.length ? activity.map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>`).join('') : '<p class="muted">No recent activity is available yet.</p>'}</div></details>
+        <article class="glass-panel command-center-section command-center-quick-actions" data-command-center-section="quick-actions">
+          <div><div class="eyebrow">Workspace Actions</div><h2>Continue ${escapeHtml(workspace.name)}</h2></div>
+          <div class="command-center-action-grid">${actionButton('Approvals', 'inbox')}${actionButton('Build', `workspace:${workspace.id}:build`)}${actionButton('AI Team', `workspace:${workspace.id}:ai`)}</div>
+        </article>`;
+      return;
+    }
+    dashboard.hidden = true;
+    dashboard.innerHTML = '';
+    dashboard.dataset.dashboardScope = 'global';
+    return;
   }
 
   function ensurePanel() {
@@ -95,8 +238,26 @@
   function renderMetrics() {
     const container = $('[data-system-metrics]');
     if (!container || !registry) return;
-    container.innerHTML = metricDefinitions().map((metric) => `
+    const workspace = currentWorkspace();
+    const mobileWorkspace = Boolean(workspace && window.matchMedia('(max-width: 640px)').matches);
+    const icons = { current: '◎', approvals: '♙', progress: '↗', blocked: '⬡' };
+    const definitions = mobileWorkspace ? metricDefinitions() : [
+      { id: 'active', label: 'Active areas', value: registry?.workspaces?.filter((item) => item.status === 'active').length ?? 0 },
+      { id: 'approvals', label: 'Needs approval', value: approvals().length },
+      { id: 'blocked', label: 'Blocked work', value: blockers().length },
+      { id: 'gateway', label: 'Gateway', value: health ? 'Online' : 'Check' }
+    ];
+    container.classList.toggle('workspace-metrics', mobileWorkspace);
+    container.innerHTML = mobileWorkspace ? definitions.map((metric) => `
+      <button class="metric metric-action workspace-metric workspace-metric-${metric.id}" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}">
+        <span class="workspace-metric-icon" aria-hidden="true">${icons[metric.id] || '•'}</span>
+        <span class="workspace-metric-label">${escapeHtml(metric.label)}</span>
+        <strong>${escapeHtml(metric.value)}</strong>
+        <p>${escapeHtml(metric.description)}</p>
+        ${metric.id === 'progress' ? `<span class="workspace-progress" aria-hidden="true"><i style="width:${escapeHtml(metric.value)}"></i></span>` : ''}
+      </button>`).join('') : definitions.map((metric) => `
       <button class="metric metric-action" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}"><span>${escapeHtml(metric.label)}</span><strong>${escapeHtml(metric.value)}</strong><small>Open actions →</small></button>`).join('');
+    renderDashboard();
   }
 
   async function openWorkspace(workspaceId, target) {
@@ -113,8 +274,16 @@
   }
 
   function renderActiveItems() {
-    return (registry?.workspaces || []).filter((workspace) => workspace.status === 'active').map((workspace) => `
-      <article class="action-center-record"><div><span class="status">${escapeHtml(workspace.stage)}</span><h3>${escapeHtml(workspace.name)}</h3><p>${escapeHtml(workspace.nextAction)}</p></div>${actionButton(`Open ${workspace.name}`, `workspace:${workspace.id}:${workspace.resumeWorkspace || 'mission'}`, 'primary')}</article>`).join('');
+    const workspace = currentWorkspace();
+    const workspaces = workspace ? [workspace] : (registry?.workspaces || []).filter((item) => item.status === 'active');
+    return workspaces.map((item) => `
+      <article class="action-center-record"><div><span class="status">${escapeHtml(item.stage)}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.nextAction)}</p></div>${actionButton(`Open ${item.name}`, `workspace:${item.id}:${item.resumeWorkspace || 'mission'}`, 'primary')}</article>`).join('');
+  }
+
+  function renderCurrentWorkspace() {
+    const workspace = currentWorkspace();
+    if (!workspace) return renderActiveItems();
+    return `<article class="action-center-record"><div><span class="status">${escapeHtml(workspace.stage || 'Current')}</span><h3>${escapeHtml(workspace.name)}</h3><p>${escapeHtml(workspace.nextAction || 'Continue the current objective.')}</p></div>${actionButton('Open Product Overview', `workspace:${workspace.id}:mission`, 'primary')}</article>`;
   }
 
   function renderTaskItems(items, emptyMessage, mode) {
@@ -140,8 +309,9 @@
     if (description) description.textContent = definition?.description || '';
     if (list) {
       if (filter === 'active') list.innerHTML = renderActiveItems();
-      if (filter === 'approvals') list.innerHTML = renderTaskItems(approvals(), 'The live workflow reports no Founder approvals waiting.', 'approval');
-      if (filter === 'blocked') list.innerHTML = renderTaskItems(blockers(), 'The live workflow reports no blocked tasks.', 'blocked');
+      if (filter === 'current' || filter === 'progress') list.innerHTML = renderCurrentWorkspace();
+      if (filter === 'approvals') list.innerHTML = renderTaskItems(currentWorkspace() ? scopedApprovals() : approvals(), 'The live workflow reports no Founder approvals waiting.', 'approval');
+      if (filter === 'blocked') list.innerHTML = renderTaskItems(currentWorkspace() ? scopedBlockers() : blockers(), 'The live workflow reports no blocked tasks.', 'blocked');
       if (filter === 'gateway') list.innerHTML = renderGateway();
     }
     panel.hidden = false;
@@ -179,6 +349,12 @@
     if (!action) return;
     event.preventDefault();
     const value = action.dataset.actionCenterAction;
+    if (value === 'create') {
+      const createControl = document.querySelector('[data-launch-action="create"]') || document.querySelector('[data-create-workspace]');
+      if (createControl) createControl.click();
+      else showActionError(new Error('Workspace creation is unavailable.'));
+      return;
+    }
     if (value === 'inbox') { window.NNOSApprovalInbox?.open(); return; }
     if (value.startsWith('approval:')) {
       const taskId = value.slice('approval:'.length);
@@ -190,13 +366,16 @@
     if (type === 'workspace') openWorkspace(workspaceId, target).catch(showActionError);
   });
 
-  window.addEventListener('founder-os:workspace-view-changed', (event) => {
-    if (!event.detail?.workspace && event.detail?.target === 'registry') window.setTimeout(() => { renderMetrics(); ensurePanel(); }, 0);
+  window.addEventListener('founder-os:workspace-view-changed', () => {
+    activeFilter = null;
+    const panel = $('[data-founder-action-center]');
+    if (panel) panel.hidden = true;
+    window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); }, 0);
   });
   window.addEventListener('founder-os:approval-recorded', refresh);
 
   loadStyles();
-  loadLiveState().then(() => { renderMetrics(); ensurePanel(); }).catch((error) => {
+  loadLiveState().then(() => { renderMetrics(); renderDashboard(); ensurePanel(); }).catch((error) => {
     console.error('Founder Action Center could not load live state.', error);
     registry = { workspaces: [] };
     renderMetrics();
