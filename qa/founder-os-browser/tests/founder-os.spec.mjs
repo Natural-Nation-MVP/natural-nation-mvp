@@ -290,3 +290,24 @@ test('workspace dashboard remains isolated and mobile-safe', async ({ page }, te
   }
   expect(criticalErrors).toEqual([]);
 });
+
+
+test('approved mobile workspace chrome matches the Founder reference', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile workspace chrome runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+  await expect(page.locator('[data-mobile-workspace-header]')).toBeVisible();
+  await expect(page.locator('[data-mobile-workspace-header]')).toContainText('Natural Nation');
+  await expect(page.locator('[data-mobile-workspace-navigation]')).toBeVisible();
+  await expect(page.locator('[data-mobile-workspace-navigation] button')).toHaveCount(4);
+  await expect(page.locator('.workspace-metric')).toHaveCount(4);
+  await expect(page.locator('.workspace-metric-current')).toBeVisible();
+  await expect(page.locator('.workspace-metric-approvals')).toBeVisible();
+  await expect(page.locator('.workspace-metric-progress')).toBeVisible();
+  await expect(page.locator('.workspace-metric-blocked')).toBeVisible();
+  await expect(page.locator('[data-command-center-section="next-action"]')).toBeVisible();
+  await expect(page.locator('[data-command-center-section="activity"]')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  expect(criticalErrors).toEqual([]);
+});
