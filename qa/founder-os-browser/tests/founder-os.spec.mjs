@@ -15,8 +15,23 @@ function collectCriticalErrors(page) {
   return errors;
 }
 
-function sidebarHome(page) {
-  return page.locator('[data-nav-home]:visible').first();
+async function returnHome(page) {
+  const directHome = page.locator('[data-nav-home]:visible').first();
+  if (await directHome.count()) {
+    await directHome.click();
+    return;
+  }
+
+  const mobileMenu = page.locator('[data-action-center-action="mobile-menu"]:visible').first();
+  if (await mobileMenu.count()) {
+    await mobileMenu.click();
+    const drawerHome = page.locator('[data-mobile-header-popover] [data-action-center-action="home"]:visible').first();
+    await expect(drawerHome).toBeVisible();
+    await drawerHome.click();
+    return;
+  }
+
+  throw new Error('No visible Home navigation control is available.');
 }
 
 async function openView(page, target) {
@@ -82,7 +97,7 @@ test('every explicit Open Workspace button targets its immutable workspace ID', 
 
   for (const workspaceId of workspaceIds) {
     if ((await page.locator('body').getAttribute('data-active-workspace')) !== 'registry') {
-      await sidebarHome(page).click();
+      await returnHome(page);
       await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
       await expect(page.locator(`[data-open-workspace="${workspaceId}"]`)).toBeVisible();
     }
@@ -116,7 +131,7 @@ test('browser Back, Forward, refresh, and Home restore deterministic routes', as
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
   await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
 
-  await sidebarHome(page).click();
+  await returnHome(page);
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'registry');
   await expect(page.locator('[data-workspace="registry"]')).toBeVisible();
   await expect(page).toHaveURL((url) => url.hash === '');
