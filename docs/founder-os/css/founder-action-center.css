@@ -209,3 +209,33 @@ body[data-active-workspace="registry"] .metrics-grid {
   .command-center-action-grid .action-center-item{min-width:0;padding:11px 9px}
   .founder-action-center{margin:10px 0}.founder-action-center-header{align-items:flex-start;flex-direction:column}.action-center-close{width:100%}
 }
+
+/* FOS-227 reference card styling */
+.workspace-metrics{background:transparent;border:0;box-shadow:none;padding:0}
+.workspace-metric{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:245px;padding:22px;border-left-width:1px}
+.workspace-metric:nth-child(1){border-left:1px solid rgba(116,82,213,.14);background:linear-gradient(145deg,#fff,rgba(239,232,255,.78))}
+.workspace-metric:nth-child(2){border-left:1px solid rgba(222,143,0,.14);background:linear-gradient(145deg,#fff,rgba(255,246,221,.86))}
+.workspace-metric:nth-child(3){border-left:1px solid rgba(23,126,76,.14);background:linear-gradient(145deg,#fff,rgba(230,247,237,.82))}
+.workspace-metric:nth-child(4){border-left:1px solid rgba(48,101,185,.14);background:linear-gradient(145deg,#fff,rgba(234,241,255,.8))}
+.workspace-metric-icon{display:grid;place-items:center;width:48px;height:48px;margin-bottom:auto;border-radius:50%;font-size:1.55rem;background:rgba(255,255,255,.72)}
+.workspace-metric-label{margin-top:20px;font-size:.78rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.workspace-metric-current .workspace-metric-label{color:#6845cf}.workspace-metric-approvals .workspace-metric-label{color:#d47c00}
+.workspace-metric-progress .workspace-metric-label{color:#147744}.workspace-metric-blocked .workspace-metric-label{color:#2456a2}
+.workspace-metric strong{margin-top:10px;font-size:2.45rem;line-height:1.05}.workspace-metric-current strong{font-size:1.5rem;line-height:1.25}
+.workspace-metric p{margin:8px 0 0;font-size:1rem;font-weight:500;line-height:1.35}
+.workspace-progress{display:block;width:100%;height:12px;margin-top:16px;overflow:hidden;border-radius:20px;background:#dfe5e5}
+.workspace-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#147744,#29915d)}
+.workspace-dashboard-intro{padding:0;border:0;background:transparent;box-shadow:none}
+.workspace-dashboard-intro .eyebrow{color:#17794b;letter-spacing:.18em}.workspace-dashboard-intro h2{font-size:2.6rem}.workspace-dashboard-intro p{font-size:1.15rem}
+.workspace-next-action{border:1px solid rgba(15,36,65,.1);background:#fff}.workspace-next-action>.action-center-item{background:#071d47;color:#fff}
+.workspace-activity{background:#fff}
+@media(max-width:640px){
+  .workspace-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+  .workspace-metric{min-height:230px;padding:18px;border-radius:22px}
+  .workspace-metric-icon{width:44px;height:44px}.workspace-metric-label{font-size:.7rem}
+  .workspace-metric strong{font-size:2.25rem}.workspace-metric-current strong{font-size:1.35rem}
+  .workspace-dashboard-intro h2{font-size:2.5rem;line-height:1.08}.workspace-dashboard-intro p{font-size:1.05rem}
+  .workspace-next-action{display:grid;grid-template-columns:1fr;gap:14px;padding:20px;border-radius:20px}
+  .workspace-next-action>.action-center-item{width:100%}
+  .workspace-activity{padding:18px;border-radius:18px}
+}
