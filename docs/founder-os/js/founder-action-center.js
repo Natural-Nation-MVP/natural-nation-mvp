@@ -134,6 +134,37 @@
     return [...taskRecords, ...workspaceRecords].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 6);
   }
 
+  function ensureMobileWorkspaceChrome() {
+    let header = $('[data-mobile-workspace-header]');
+    let navigation = $('[data-mobile-workspace-navigation]');
+    if (!header) {
+      header = document.createElement('header');
+      header.className = 'mobile-workspace-header';
+      header.dataset.mobileWorkspaceHeader = '';
+      document.body.prepend(header);
+    }
+    if (!navigation) {
+      navigation = document.createElement('nav');
+      navigation.className = 'mobile-workspace-navigation';
+      navigation.dataset.mobileWorkspaceNavigation = '';
+      navigation.setAttribute('aria-label', 'Workspace navigation');
+      document.body.appendChild(navigation);
+    }
+    const workspace = currentWorkspace();
+    const name = workspace?.name || 'Founder OS';
+    header.innerHTML = `
+      <button type="button" class="mobile-header-menu" data-nav-home aria-label="All workspaces"><span></span><span></span><span></span></button>
+      <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
+      <button type="button" class="mobile-workspace-selector" data-nav-home>${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>`;
+    navigation.innerHTML = workspace ? `
+      <button type="button" data-nav-view="mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
+      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+      <button type="button" data-nav-view="build"><span aria-hidden="true">⌁</span><small>Build</small></button>
+      <button type="button" data-nav-view="ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : '';
+    header.hidden = !workspace;
+    navigation.hidden = !workspace;
+  }
+
   function ensureDashboard() {
     const metrics = $('[data-system-metrics]');
     if (!metrics) return null;
@@ -149,6 +180,7 @@
   function renderDashboard() {
     const dashboard = ensureDashboard();
     if (!dashboard || !registry) return;
+    ensureMobileWorkspaceChrome();
     const workspace = currentWorkspace();
     const activity = recentActivity();
     if (workspace) {
@@ -204,7 +236,18 @@
   function renderMetrics() {
     const container = $('[data-system-metrics]');
     if (!container || !registry) return;
-    container.innerHTML = metricDefinitions().map((metric) => `
+    const workspace = currentWorkspace();
+    const icons = { current: '◎', approvals: '♙', progress: '↗', blocked: '⬡' };
+    const definitions = metricDefinitions();
+    container.classList.toggle('workspace-metrics', Boolean(workspace));
+    container.innerHTML = workspace ? definitions.map((metric) => `
+      <button class="metric metric-action workspace-metric workspace-metric-${metric.id}" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}">
+        <span class="workspace-metric-icon" aria-hidden="true">${icons[metric.id] || '•'}</span>
+        <span class="workspace-metric-label">${escapeHtml(metric.label)}</span>
+        <strong>${escapeHtml(metric.value)}</strong>
+        <p>${escapeHtml(metric.description)}</p>
+        ${metric.id === 'progress' ? `<span class="workspace-progress" aria-hidden="true"><i style="width:${escapeHtml(metric.value)}"></i></span>` : ''}
+      </button>`).join('') : definitions.map((metric) => `
       <button class="metric metric-action" type="button" data-action-center-filter="${metric.id}" aria-expanded="${activeFilter === metric.id}"><span>${escapeHtml(metric.label)}</span><strong>${escapeHtml(metric.value)}</strong><small>Open actions →</small></button>`).join('');
     renderDashboard();
   }
