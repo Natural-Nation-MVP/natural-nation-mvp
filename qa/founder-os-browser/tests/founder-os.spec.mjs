@@ -156,7 +156,7 @@ test('Founder Home launch actions and filters are functional', async ({ page }) 
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
 
-  const create = page.locator('[data-launch-action="create"]').first();
+  const create = page.locator('[data-launch-action="create"]:visible, [data-create-workspace]:visible').first();
   await expect(create).toBeVisible();
   await create.click();
   const wizard = page.locator('[data-workspace-creation]');
@@ -177,12 +177,13 @@ test('Founder Home launch actions and filters are functional', async ({ page }) 
   expect(criticalErrors).toEqual([]);
 });
 
-test('Founder Action Center opens and routes a workspace action', async ({ page }) => {
+test('Founder Action Center opens and routes a workspace action', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  const metric = page.locator('[data-action-center-filter="current"]');
+  const metricId = testInfo.project.use.hasTouch ? 'current' : 'active';
+  const metric = page.locator(`[data-action-center-filter="${metricId}"]`);
   await expect(metric).toBeVisible();
   await metric.click();
   const panel = page.locator('[data-founder-action-center]');
