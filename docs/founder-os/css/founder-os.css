@@ -71,7 +71,7 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .mobile-header-brand{display:flex;align-items:center;gap:10px;min-width:0;text-transform:uppercase;letter-spacing:.06em}
   .mobile-header-brand>span{font-size:1.8rem}.mobile-header-brand strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:1rem}
   .mobile-workspace-selector{min-height:46px;padding:10px 13px;border-radius:15px;font-weight:800}
-  body[data-active-workspace]:not([data-active-workspace="registry"]) .mobile-workspace-navigation{
+  .mobile-workspace-navigation{
     position:fixed;inset:auto 0 0 0;z-index:60;display:grid;grid-template-columns:repeat(4,1fr);
     padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(15,36,65,.12);
     background:rgba(255,255,255,.96);box-shadow:0 -8px 28px rgba(8,23,45,.1);backdrop-filter:blur(18px)
@@ -98,4 +98,11 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .sidebar{display:none!important}
   .app-shell{display:block}
   .main{width:100%;max-width:100%;padding-left:14px;padding-right:14px}
+}
+
+/* FOS-227 global mobile navigation */
+@media(max-width:640px){
+  body[data-active-workspace="registry"] .mobile-workspace-navigation [data-nav-home]{color:#167c4a}
+  body[data-active-workspace="registry"] .main{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+  [data-mobile-workspace-navigation][hidden]{display:none!important}
 }
