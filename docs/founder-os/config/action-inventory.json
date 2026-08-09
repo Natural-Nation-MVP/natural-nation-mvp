@@ -307,8 +307,8 @@
       "surface": "Mobile navigation, Founder Dashboard, and Product Overview Action Center",
       "owner": "founder-action-center.js",
       "availability": "rendered according to selected metric",
-      "outcome": "Close, refresh, create a workspace, open account settings or Approval Inbox, and route to existing governed workspace views",
-      "browserTest": "Global and workspace mobile navigation expose governed destinations"
+      "outcome": "Open mobile menus, switch workspaces, close or refresh panels, create a workspace, open account settings or Approval Inbox, and route to governed workspace views",
+      "browserTest": "Mobile header menus remain open until a governed destination is selected"
     },
     {
       "id": "approval.queue",
