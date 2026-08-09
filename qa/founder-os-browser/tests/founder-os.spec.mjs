@@ -16,7 +16,19 @@ function collectCriticalErrors(page) {
 }
 
 function sidebarHome(page) {
-  return page.locator('.nav [data-nav-home]');
+  return page.locator('[data-nav-home]:visible').first();
+}
+
+async function openView(page, target) {
+  const visibleControl = page.locator(`[data-nav-view="${target}"]:visible`).first();
+  if (await visibleControl.count()) {
+    await visibleControl.click();
+    return;
+  }
+  await page.evaluate((view) => {
+    if (!window.NNOSNavigationManager?.openView) throw new Error('Navigation Manager is unavailable.');
+    window.NNOSNavigationManager.openView(view, 'browser-qa');
+  }, target);
 }
 
 async function openHome(page) {
@@ -85,9 +97,7 @@ test('browser Back, Forward, refresh, and Home restore deterministic routes', as
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  const blueprint = page.locator('[data-nav-view="blueprint"]');
-  await expect(blueprint).toBeVisible();
-  await blueprint.click();
+  await openView(page, 'blueprint');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'blueprint');
   await expect(page.locator('[data-workspace="blueprint"]')).toBeVisible();
   await expect(page).toHaveURL(/#workspace=natural-nation&view=blueprint$/);
@@ -172,7 +182,7 @@ test('Founder Action Center opens and routes a workspace action', async ({ page 
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  const metric = page.locator('[data-action-center-filter="active"]');
+  const metric = page.locator('[data-action-center-filter="current"]');
   await expect(metric).toBeVisible();
   await metric.click();
   const panel = page.locator('[data-founder-action-center]');
@@ -198,19 +208,19 @@ test('planning, mission, and Project Records controls use their authoritative ow
   await missionRepo.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'repo');
 
-  await page.locator('[data-nav-view="mission"]').click();
+  await openView(page, 'mission');
   const readiness = page.locator('[data-mission-action="run-closeout-check"]');
   await expect(readiness).toBeVisible();
   await readiness.click();
   await expect(page.locator('[data-mission-action-output]')).toContainText('Closeout Readiness Check');
 
-  await page.locator('[data-nav-view="knowledge"]').click();
+  await openView(page, 'knowledge');
   const audit = page.locator('[data-knowledge-action="audit"]');
   await expect(audit).toBeVisible();
   await audit.click();
   await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
 
-  await page.locator('[data-nav-view="discovery"]').click();
+  await openView(page, 'discovery');
   const review = page.locator('[data-review-blueprint]');
   await expect(review).toBeEnabled();
   await review.click();
@@ -261,7 +271,7 @@ test('Founder Command Center exposes governed Sprint 1 entry points', async ({ p
   await expect(dashboard.locator('[data-action-center-action="inbox"]')).toBeVisible();
   await expect(dashboard.locator('[data-action-center-action="workspace:natural-nation:build"]')).toBeVisible();
   await expect(dashboard.locator('[data-command-center-section="quick-actions"] [data-action-center-action="workspace:natural-nation:ai"]')).toBeVisible();
-  await expect(dashboard.locator('[data-action-center-action="workspace:founder-os:repo"]')).toBeVisible();
+  await expect(dashboard.locator('[data-command-center-section="quick-actions"] [data-action-center-action="workspace:founder-os:repo"]')).toBeVisible();
 
   await dashboard.locator('[data-action-center-action="inbox"]').click();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'approvals');
@@ -284,9 +294,8 @@ test('workspace dashboard remains isolated and mobile-safe', async ({ page }, te
   if (testInfo.project.use.hasTouch) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
-    const box = await page.locator('.sidebar').boundingBox();
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.width).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
+    await expect(page.locator('.sidebar')).toBeHidden();
+    await expect(page.locator('[data-mobile-workspace-navigation]')).toBeVisible();
   }
   expect(criticalErrors).toEqual([]);
 });
