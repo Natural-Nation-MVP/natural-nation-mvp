@@ -371,8 +371,12 @@ test('mobile header controls open menus without leaving the workspace', async ({
   await expect(drawer.locator('[data-action-center-action="home"]')).toBeVisible();
   await expect(drawer).toHaveAttribute('data-mode', 'mobile-menu');
   const drawerBox = await drawer.boundingBox();
+  const viewportHeight = await page.evaluate(() => window.innerHeight);
+  const bottomNavigationBox = await page.locator('[data-mobile-workspace-navigation]').boundingBox();
   expect(drawerBox.x).toBeLessThanOrEqual(1);
-  expect(drawerBox.height).toBeGreaterThanOrEqual((await page.evaluate(() => window.innerHeight)) * 0.95);
+  expect(drawerBox.width).toBeLessThanOrEqual((await page.evaluate(() => window.innerWidth)) * 0.83);
+  expect(drawerBox.y + drawerBox.height).toBeLessThanOrEqual(bottomNavigationBox.y + 1);
+  expect(drawerBox.height).toBeLessThan(viewportHeight);
 
   await drawer.locator('[data-action-center-action="mobile-menu-close"]').click();
   await expect(header.locator('[data-mobile-header-popover]')).toBeHidden();
@@ -381,7 +385,12 @@ test('mobile header controls open menus without leaving the workspace', async ({
   await switcher.click();
   await expect(page.locator('body')).toHaveAttribute('data-active-workspace', 'natural-nation');
   await expect(header.locator('[data-mobile-header-popover]')).toBeVisible();
-  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Switch Workspace');
-  await expect(header.locator('[data-mobile-header-popover]')).toContainText('Founder OS');
+  const workspacePopover = header.locator('[data-mobile-header-popover]');
+  await expect(workspacePopover).toContainText('Switch Workspace');
+  await expect(workspacePopover).toContainText('Founder OS');
+  const switcherBox = await workspacePopover.boundingBox();
+  expect(switcherBox.width).toBeLessThanOrEqual(300);
+  expect(switcherBox.height).toBeLessThanOrEqual((await page.evaluate(() => window.innerHeight)) * 0.63);
+  await expect(header.locator('.mobile-header-brand strong')).toBeHidden();
   expect(criticalErrors).toEqual([]);
 });
