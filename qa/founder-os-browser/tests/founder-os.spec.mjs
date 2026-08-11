@@ -247,6 +247,33 @@ test('planning, mission, and Project Records controls use their authoritative ow
   expect(criticalErrors).toEqual([]);
 });
 
+test('Approval Inbox and AI Team Monitor expose founder decision status', async ({ page }) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+
+  await openView(page, 'approvals');
+  await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
+  await expect(page.locator('[data-approval-refresh]')).toBeVisible();
+  const approvalSummary = page.locator('[data-approval-summary]');
+  await expect(approvalSummary).toBeVisible();
+  await expect(approvalSummary).toContainText('Needs your decision');
+  await expect(approvalSummary).toContainText('Workspaces represented');
+  await expect(approvalSummary).toContainText('Gateway coverage');
+
+  await openView(page, 'ai');
+  await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
+  const monitor = page.locator('[data-ai-monitor-summary]');
+  await expect(monitor).toBeVisible();
+  await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
+  await expect(monitor.locator('[data-ai-current-task]')).not.toBeEmpty();
+  await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+$/);
+  await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+$/);
+  await expect(monitor.locator('[data-ai-provider-health]')).toContainText('Providers configured');
+  await expect(monitor.locator('[data-ai-refresh]')).toBeVisible();
+  expect(criticalErrors).toEqual([]);
+});
+
 test('legacy duplicate action surfaces are absent', async ({ page }) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
