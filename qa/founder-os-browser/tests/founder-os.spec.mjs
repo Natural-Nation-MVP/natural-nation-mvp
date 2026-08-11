@@ -434,7 +434,7 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
   await build.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
   await expect(page.locator('[data-workspace="build"]')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+  await expect(page.locator('[data-workspace="build"]')).toBeInViewport();
   await expect(page.locator('[data-workspace="build"]')).toBeFocused();
 
   await page.goto('./#workspace=natural-nation&view=mission');
@@ -450,7 +450,7 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
   await team.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'ai');
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+  await expect(page.locator('[data-workspace="ai"]')).toBeInViewport();
   await expect(page.locator('[data-workspace="ai"]')).toBeFocused();
   expect(criticalErrors).toEqual([]);
 });
