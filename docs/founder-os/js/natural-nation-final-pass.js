@@ -120,7 +120,13 @@
       });
       const handoffs = $('[data-ai-handoffs]');
       if (handoffs && !handoffs.querySelector('[data-routing-note]')) {
-        handoffs.insertAdjacentHTML('afterbegin', '<article class="module-card" data-routing-note><strong>Routing standard</strong><p>Preferred provider first. Approved failures may use a fallback provider that temporarily assumes the same role for one request, then releases it.</p></article>');
+        const routing = document.createElement('article');
+        routing.className = 'module-card';
+        routing.dataset.routingNote = '';
+        routing.innerHTML = '<strong>Routing standard</strong><p>Preferred provider first. Approved failures may use a fallback provider that temporarily assumes the same role for one request, then releases it.</p>';
+        const monitor = handoffs.querySelector('[data-ai-monitor-summary]');
+        if (monitor) monitor.insertAdjacentElement('afterend', routing);
+        else handoffs.prepend(routing);
       }
     }, 850);
   }
