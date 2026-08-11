@@ -381,6 +381,15 @@
       "availability": "rendered for repository audits, categories, related records, and record reviews",
       "outcome": "Run a knowledge audit or filter the canonical records without inline handlers",
       "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+    },
+    {
+      "id": "workspace.ai-team.governed-controls",
+      "selector": "[data-founder-ai-override] [data-ai-control]",
+      "surface": "Assigned AI Team → Founder override and recovery",
+      "owner": "ai-orchestration.js",
+      "availability": "collapsed by default; enabled only when an eligible canonical task exists",
+      "outcome": "Allow the Founder to override AI-composed ownership, recovery, provider, or review routing only when necessary",
+      "browserTest": "Approval Inbox and AI Team Monitor expose founder decision status"
     }
   ]
 }

@@ -12,6 +12,11 @@ function parseStateRoute(pathname) {
   return match ? { workspaceId: decodeURIComponent(match[1]), packageId: decodeURIComponent(match[2]) } : null;
 }
 
+function parseTeamPlanRoute(pathname) {
+  const match = pathname.match(/^\/v1\/workspaces\/([^/]+)\/packages\/([^/]+)\/team-plan$/);
+  return match ? { workspaceId: decodeURIComponent(match[1]), packageId: decodeURIComponent(match[2]) } : null;
+}
+
 function parseTaskRoute(pathname, action) {
   const match = pathname.match(new RegExp(`^/v1/workspaces/([^/]+)/packages/([^/]+)/tasks/([^/]+)/${action}$`));
   return match ? {
@@ -110,6 +115,169 @@ async function resetTask(env, route, actor, reason) {
     files: [{ path: STATE_PATH, content: resetState }]
   });
   return { state: resetState, repository };
+}
+
+const CONTROL_ACTIONS = new Set(["handoff", "reassign", "provider_switch", "submit_review"]);
+const TEMPLATE_ROLE_IDS = new Set(["art", "codex", "gemini", "gpose", "founder"]);
+const PROVIDER_IDS = new Set(["openai", "google"]);
+
+function normalizePlannedRole(value) {
+  const role = value && typeof value === "object" ? value : {};
+  const id = String(role.id || "").trim().toLowerCase();
+  const name = String(role.name || role.title || "").trim();
+  const purpose = String(role.purpose || role.reason || "").trim();
+  const provider = String(role.provider || "").trim().toLowerCase();
+  const capabilities = Array.isArray(role.capabilities) ? role.capabilities.map((item) => String(item).trim()).filter(Boolean) : [];
+  if (!/^[a-z][a-z0-9-]{1,47}$/.test(id)) throw new Error("Each AI-created role needs a stable lowercase role ID.");
+  if (!name || !purpose || capabilities.length === 0) throw new Error(`Role ${id} requires a name, purpose, and capabilities.`);
+  if (!PROVIDER_IDS.has(provider)) throw new Error(`Role ${id} uses an unsupported provider.`);
+  return {
+    id, name, role: String(role.role || role.title || name).trim(), purpose, provider,
+    capabilities, allowedActions: capabilities,
+    requiresFounderApprovalFor: Array.isArray(role.requiresFounderApprovalFor)
+      ? role.requiresFounderApprovalFor.map((item) => String(item).trim()).filter(Boolean)
+      : [],
+    templateId: TEMPLATE_ROLE_IDS.has(String(role.templateId || "").trim().toLowerCase())
+      ? String(role.templateId).trim().toLowerCase()
+      : null,
+    createdBy: "ai-team-composer"
+  };
+}
+
+async function recordAiTeamPlan(env, route, actor, body) {
+  const roles = Array.isArray(body.roles) ? body.roles.map(normalizePlannedRole) : [];
+  const rationale = String(body.rationale || "").trim();
+  if (roles.length === 0 || roles.length > 12) throw new Error("The AI team plan must contain between 1 and 12 roles.");
+  if (new Set(roles.map((role) => role.id)).size !== roles.length) throw new Error("AI-created role IDs must be unique.");
+  if (!rationale) throw new Error("The AI team plan must explain why these roles are needed.");
+
+  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  if (state.workspaceId !== route.workspaceId || state.packageId !== route.packageId) {
+    throw new Error("No orchestration state exists for this workspace and package.");
+  }
+  if (body.expectedUpdatedAt && body.expectedUpdatedAt !== state.updatedAt) {
+    throw new Error("Canonical work changed after team analysis began. Recompose the team from current state.");
+  }
+  const now = new Date().toISOString();
+  const founderRole = {
+    id: "founder", name: "Founder", role: "Protected Approval",
+    purpose: "Retains final authority over protected and consequential decisions.",
+    provider: "manual", capabilities: ["approve", "reject", "request-changes"],
+    allowedActions: ["approve", "reject", "request-changes"],
+    requiresFounderApprovalFor: [], createdBy: "governance"
+  };
+  const teamPlan = {
+    version: "1.0.0", generatedBy: actor.id || "ai-team-composer", generatedAt: now,
+    rationale, objective: String(body.objective || "").trim() || null,
+    roles: [...roles, founderRole],
+    status: "active", founderOverrideAvailable: true
+  };
+  const nextState = { ...state, teamPlan, updatedAt: now };
+  const repository = await commitFilesAtomically(env, {
+    message: `orchestration: compose AI team for ${route.packageId}`,
+    files: [
+      { path: STATE_PATH, content: nextState },
+      { path: `docs/orchestration/${route.workspaceId}/${route.packageId}/team-plan.json`, content: teamPlan }
+    ]
+  });
+  return { state: nextState, teamPlan, repository };
+}
+
+async function controlAiTask(env, route, actor, body) {
+  const action = String(body.action || "").trim().toLowerCase();
+  const note = String(body.note || "").trim();
+  const targetRole = String(body.targetRole || "").trim().toLowerCase();
+  const provider = String(body.provider || "").trim().toLowerCase();
+  if (!CONTROL_ACTIONS.has(action)) throw new Error("Unsupported AI Team control.");
+  if (!note) throw new Error("A Founder note is required for AI Team controls.");
+
+  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  if (state.workspaceId !== route.workspaceId || state.packageId !== route.packageId) {
+    throw new Error("No orchestration state exists for this workspace and package.");
+  }
+  if (body.expectedUpdatedAt && body.expectedUpdatedAt !== state.updatedAt) {
+    throw new Error("Canonical work changed after this screen loaded. Refresh before applying a control.");
+  }
+  const task = state.tasks.find((item) => item.id === route.taskId);
+  if (!task) throw new Error("The requested AI task does not exist.");
+  if (["complete", "completed", "founder-approved", "rejected"].includes(task.status)) {
+    throw new Error("Completed work cannot be changed through AI Team controls.");
+  }
+  if (action === "provider_switch" && (task.owner === "founder" || !PROVIDER_IDS.has(provider))) {
+    throw new Error("Provider switching requires an active AI-owned task and a supported provider.");
+  }
+  const availableRoleIds = new Set([
+    ...TEMPLATE_ROLE_IDS,
+    ...(Array.isArray(state.teamPlan?.roles) ? state.teamPlan.roles.map((role) => role.id) : [])
+  ]);
+  if (["handoff", "reassign"].includes(action) && (!availableRoleIds.has(targetRole) || targetRole === "founder")) {
+    throw new Error("Select an active workspace-scoped AI role for this override.");
+  }
+
+  const now = new Date().toISOString();
+  let nextOwner = task.owner;
+  let nextStatus = task.status;
+  let nextProviderStatus = task.providerStatus;
+  const controlledTask = {
+    ...task,
+    updatedAt: now,
+    founderControls: [...(Array.isArray(task.founderControls) ? task.founderControls : []), {
+      action, note, targetRole: targetRole || null, provider: provider || null,
+      recordedAt: now, recordedBy: actor.id
+    }]
+  };
+
+  if (action === "handoff" || action === "reassign") {
+    nextOwner = targetRole;
+    nextStatus = "ready";
+    nextProviderStatus = "ready";
+    controlledTask.owner = targetRole;
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.nextRole = task.nextRole === targetRole ? null : task.nextRole;
+    controlledTask.executionProviderOverride = null;
+  }
+  if (action === "provider_switch") {
+    nextStatus = "ready";
+    nextProviderStatus = "ready";
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.executionProviderOverride = provider;
+    controlledTask.providerOverrideScope = "single-request";
+  }
+  if (action === "submit_review") {
+    nextOwner = "founder";
+    nextStatus = "ready";
+    nextProviderStatus = "manual-review-required";
+    controlledTask.owner = "founder";
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.nextRole = null;
+    controlledTask.executionProviderOverride = null;
+  }
+
+  const nextState = {
+    ...state,
+    status: nextStatus,
+    currentOwner: nextOwner,
+    nextOwner: controlledTask.nextRole || null,
+    founderApprovalRequired: nextOwner === "founder",
+    updatedAt: now,
+    tasks: state.tasks.map((item) => item.id === route.taskId ? controlledTask : item)
+  };
+  const controlRecord = {
+    version: "1.0.0", workspaceId: route.workspaceId, packageId: route.packageId,
+    taskId: route.taskId, action, note, targetRole: targetRole || null,
+    provider: provider || null, recordedAt: now, recordedBy: actor.id
+  };
+  const repository = await commitFilesAtomically(env, {
+    message: `founder: ${action.replace("_", " ")} ${route.taskId}`,
+    files: [
+      { path: STATE_PATH, content: nextState },
+      { path: `docs/orchestration/${route.workspaceId}/${route.packageId}/${route.taskId}.control.json`, content: controlRecord }
+    ]
+  });
+  return { state: nextState, control: controlRecord, repository };
 }
 
 async function recordFounderDecision(env, route, actor, body) {
@@ -230,13 +398,15 @@ export async function handleAiOrchestration(request, env, pathname) {
   }
 
   const stateRoute = parseStateRoute(pathname);
+  const teamPlanRoute = parseTeamPlanRoute(pathname);
   const dispatchRoute = parseTaskRoute(pathname, "dispatch");
   const resultRoute = parseTaskRoute(pathname, "result");
   const recoverRoute = parseTaskRoute(pathname, "recover");
   const resetRoute = parseTaskRoute(pathname, "reset");
   const decisionRoute = parseTaskRoute(pathname, "decision");
+  const controlRoute = parseTaskRoute(pathname, "control");
   const repositoryExecutionRoute = parseTaskRoute(pathname, "repository-execution");
-  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !decisionRoute && !repositoryExecutionRoute) return null;
+  if (!stateRoute && !teamPlanRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !decisionRoute && !controlRoute && !repositoryExecutionRoute) return null;
 
   if (stateRoute) {
     if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
@@ -245,6 +415,32 @@ export async function handleAiOrchestration(request, env, pathname) {
       return json(request, { ok: true, state });
     } catch (error) {
       return errorResponse(request, 404, "ORCHESTRATION_NOT_FOUND", error.message);
+    }
+  }
+
+  if (controlRoute) {
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to apply an AI Team control.");
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    const body = await readJson(request);
+    try {
+      const controlled = await controlAiTask(env, controlRoute, auth.actor, body);
+      return json(request, { ok: true, status: `control-${body.action}-recorded`, ...controlled });
+    } catch (error) {
+      return errorResponse(request, 409, "AI_TEAM_CONTROL_REJECTED", error.message || "The AI Team control could not be recorded.");
+    }
+  }
+
+  if (teamPlanRoute) {
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to publish an AI-composed team plan.");
+    const auth = authenticateAgentCallback(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    const body = await readJson(request);
+    try {
+      const planned = await recordAiTeamPlan(env, teamPlanRoute, auth.actor, body);
+      return json(request, { ok: true, status: "ai-team-composed", ...planned });
+    } catch (error) {
+      return errorResponse(request, 409, "AI_TEAM_PLAN_REJECTED", error.message || "The AI team plan could not be recorded.");
     }
   }
 

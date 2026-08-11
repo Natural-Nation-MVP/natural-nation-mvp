@@ -9,6 +9,7 @@ on:
       - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-action-inventory.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
+      - 'scripts/validate-founder-ai-team-controls.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
       - 'scripts/validate-founder-ws-005.mjs'
@@ -26,6 +27,7 @@ on:
       - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-action-inventory.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
+      - 'scripts/validate-founder-ai-team-controls.mjs'
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
       - 'scripts/validate-founder-ws-005.mjs'
@@ -59,6 +61,7 @@ jobs:
             scripts/validate-founder-runtime-controllers.mjs
             scripts/validate-founder-action-inventory.mjs
             scripts/validate-founder-approval-inbox.mjs
+            scripts/validate-founder-ai-team-controls.mjs
             scripts/validate-founder-ux-001.mjs
             scripts/validate-founder-ws-001.mjs
             scripts/validate-founder-ws-005.mjs
