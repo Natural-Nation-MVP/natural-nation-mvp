@@ -189,3 +189,20 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   }
   .mobile-header-popover[data-mode="mobile-workspaces"] .action-center-item{min-height:40px;padding:9px 12px}
 }
+
+
+/* Sprint 1 founder AI Team Monitor */
+.ai-monitor-summary{display:grid;gap:1rem;margin-bottom:1rem}
+.ai-monitor-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.ai-monitor-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
+.ai-monitor-metrics>div{display:grid;gap:.35rem;min-width:0;padding:.9rem;border:1px solid rgba(15,36,65,.1);border-radius:14px;background:rgba(255,255,255,.72)}
+.ai-monitor-metrics small{color:#657083;font-weight:700}
+.ai-monitor-metrics strong{overflow-wrap:anywhere;color:#0b1830}
+@media(max-width:640px){
+  .ai-monitor-heading{align-items:center}
+  .ai-monitor-heading button{min-height:40px;padding:8px 12px}
+  .ai-monitor-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+  .ai-monitor-metrics>div{padding:.75rem}
+  .ai-monitor-metrics small{font-size:.7rem}
+  .ai-monitor-metrics strong{font-size:.9rem}
+}
