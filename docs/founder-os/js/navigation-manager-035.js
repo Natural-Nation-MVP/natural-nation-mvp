@@ -83,7 +83,20 @@
 
   function scrollMainTop() {
     var main = one('.main');
-    if (main) main.scrollTop = 0;
+    var activeView = one('[data-workspace].active');
+    if (activeView) {
+      if (!activeView.hasAttribute('tabindex')) activeView.setAttribute('tabindex', '-1');
+      try { activeView.focus({ preventScroll: true }); } catch (error) { activeView.focus(); }
+    }
+    function resetScrollPosition() {
+      if (main) main.scrollTop = 0;
+      var scrollingElement = document.scrollingElement || document.documentElement;
+      if (scrollingElement) scrollingElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      if (window.scrollTo) window.scrollTo(0, 0);
+    }
+    resetScrollPosition();
+    if (window.requestAnimationFrame) window.requestAnimationFrame(resetScrollPosition);
   }
 
   function makeHash(workspaceId, view) {
