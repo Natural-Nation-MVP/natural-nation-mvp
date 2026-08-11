@@ -81,22 +81,27 @@
     return { workspace: match, target: target };
   }
 
-  function scrollMainTop() {
+  function focusRouteTarget(target) {
     var main = one('.main');
     var activeView = one('[data-workspace].active');
+    var focusSelectedSection = Boolean(activeView && target && !['registry', 'mission'].includes(target));
     if (activeView) {
       if (!activeView.hasAttribute('tabindex')) activeView.setAttribute('tabindex', '-1');
       try { activeView.focus({ preventScroll: true }); } catch (error) { activeView.focus(); }
     }
-    function resetScrollPosition() {
+    function resetRoutePosition() {
+      if (focusSelectedSection) {
+        activeView.scrollIntoView({ behavior: 'auto', block: 'start', inline: 'nearest' });
+        return;
+      }
       if (main) main.scrollTop = 0;
       var scrollingElement = document.scrollingElement || document.documentElement;
       if (scrollingElement) scrollingElement.scrollTop = 0;
       if (document.body) document.body.scrollTop = 0;
       if (window.scrollTo) window.scrollTo(0, 0);
     }
-    resetScrollPosition();
-    if (window.requestAnimationFrame) window.requestAnimationFrame(resetScrollPosition);
+    resetRoutePosition();
+    if (window.requestAnimationFrame) window.requestAnimationFrame(resetRoutePosition);
   }
 
   function makeHash(workspaceId, view) {
@@ -149,7 +154,7 @@
       window.NNOSActiveWorkspace = resolved.workspace;
       renderWorkspaceNavigation(resolved.workspace, target);
       if (typeof window.setWorkspace !== 'function' || !window.setWorkspace(target)) throw new Error('Workspace page could not be displayed.');
-      scrollMainTop();
+      focusRouteTarget(target);
       if (!restoringHistory) writeHistory(requestedId, target, historyMode || 'replace');
       trace('workspace-opened', { workspaceId: requestedId, target: target, source: source || 'api', historyMode: historyMode || 'replace' });
       return true;
@@ -180,7 +185,7 @@
     if (!restoringHistory) writeHistory(null, null, historyMode || 'push');
     if (typeof window.setWorkspace === 'function') window.setWorkspace('registry');
     try { window.dispatchEvent(new CustomEvent('founder-os:navigation-home-render-requested')); } catch (error) {}
-    scrollMainTop();
+    focusRouteTarget('registry');
     trace('home-opened', { source: source || 'api', historyMode: historyMode || 'push' });
     return true;
   }
@@ -196,7 +201,7 @@
     var opened = typeof window.setWorkspace === 'function' && window.setWorkspace(target);
     if (opened) {
       if (!restoringHistory) writeHistory(workspace.id, target, 'push');
-      scrollMainTop();
+      focusRouteTarget(target);
     }
     trace(opened ? 'view-opened' : 'view-rejected', { target: target, source: source || 'api', workspaceId: workspace.id });
     return opened;
