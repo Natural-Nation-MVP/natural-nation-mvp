@@ -412,6 +412,17 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
   const build = navigation.locator('[data-action-center-action="workspace:natural-nation:build"]');
   const team = navigation.locator('[data-action-center-action="workspace:natural-nation:ai"]');
 
+  const navigationIdentityPreserved = await page.evaluate(async () => {
+    const before = document.querySelector('[data-mobile-workspace-navigation]');
+    const beforeBuild = before?.querySelector('[data-action-center-action="workspace:natural-nation:build"]');
+    window.dispatchEvent(new CustomEvent('founder-os:workspace-view-changed', { detail: { target: 'mission' } }));
+    await new Promise((resolve) => window.setTimeout(resolve, 0));
+    const after = document.querySelector('[data-mobile-workspace-navigation]');
+    const afterBuild = after?.querySelector('[data-action-center-action="workspace:natural-nation:build"]');
+    return before === after && beforeBuild === afterBuild;
+  });
+  expect(navigationIdentityPreserved).toBe(true);
+
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
   await build.tap();
