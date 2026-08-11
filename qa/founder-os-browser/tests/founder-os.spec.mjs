@@ -252,7 +252,10 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
 
-  await openView(page, 'approvals');
+  await page.evaluate(() => {
+    if (!window.NNOSApprovalInbox?.open) throw new Error('Approval Inbox controller is unavailable.');
+    window.NNOSApprovalInbox.open();
+  });
   await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
   await expect(page.locator('[data-approval-refresh]')).toBeVisible();
   const approvalSummary = page.locator('[data-approval-summary]');
