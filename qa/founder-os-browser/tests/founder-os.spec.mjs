@@ -425,6 +425,11 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
 
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+  await page.evaluate(() => {
+    window.NNOSNavigationManager.openWorkspace = () => {
+      throw new Error('Current-workspace tabs must not reopen the workspace.');
+    };
+  });
   await build.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
   await expect(page.locator('[data-workspace="build"]')).toBeVisible();
@@ -433,6 +438,11 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+  await page.evaluate(() => {
+    window.NNOSNavigationManager.openWorkspace = () => {
+      throw new Error('Current-workspace tabs must not reopen the workspace.');
+    };
+  });
   await team.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'ai');
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
