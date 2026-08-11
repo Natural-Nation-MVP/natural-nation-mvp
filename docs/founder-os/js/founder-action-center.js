@@ -283,9 +283,8 @@
   async function openWorkspace(workspaceId, target) {
     const manager = window.NNOSNavigationManager;
     if (!manager?.openWorkspace) throw new Error('Founder OS navigation is unavailable.');
-    const opened = await manager.openWorkspace(workspaceId, 'founder-action-center');
+    const opened = await manager.openWorkspace(workspaceId, 'founder-action-center', target || null);
     if (!opened) throw new Error('The selected workspace could not be opened.');
-    if (target && target !== 'mission') manager.openView(target, 'founder-action-center');
     closePanel();
   }
 

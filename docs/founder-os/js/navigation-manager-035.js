@@ -155,7 +155,8 @@
   }
 
   function openWorkspace(workspaceId, source) {
-    return activateWorkspace(workspaceId, source || 'api', null, 'push');
+    var requestedView = arguments.length > 2 ? arguments[2] : null;
+    return activateWorkspace(workspaceId, source || 'api', requestedView || null, 'push');
   }
 
   function openHome(source, historyMode) {
