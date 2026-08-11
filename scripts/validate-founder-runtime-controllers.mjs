@@ -32,6 +32,7 @@ const expectedStaticControllers = [
   'interaction-availability.js',
   'founder-home-functionality.js',
   'workspace-knowledge-scope.js',
+  'ai-orchestration.js',
   'navigation-manager-035.js'
 ];
 
