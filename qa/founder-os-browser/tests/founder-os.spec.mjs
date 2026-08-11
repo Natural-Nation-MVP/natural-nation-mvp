@@ -376,6 +376,28 @@ test('global and workspace mobile navigation expose governed destinations', asyn
   await expect(navigation).toContainText('Build');
   await expect(navigation).toContainText('Team');
   await expect(navigation).not.toContainText('Create');
+  const overview = navigation.locator('[data-action-center-action$=":mission"]');
+  const approvals = navigation.locator('[data-action-center-action="inbox"]');
+  const team = navigation.locator('[data-action-center-action$=":ai"]');
+  await expect(overview).toHaveAttribute('aria-current', 'page');
+
+  await approvals.click();
+  await expect(page.locator('[data-workspace="approvals"]')).toBeVisible();
+  await expect(page.locator('[data-founder-action-center]')).toBeHidden();
+  await expect(approvals).toHaveAttribute('aria-current', 'page');
+  await expect(overview).not.toHaveAttribute('aria-current', 'page');
+
+  await team.click();
+  await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
+  await expect(team).toHaveAttribute('aria-current', 'page');
+  await expect(overview).not.toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('[data-ai-monitor-summary]')).toBeVisible();
+  const monitorBeforeRoles = await page.evaluate(() => {
+    const monitorPanel = document.querySelector('[data-ai-monitor-summary]')?.closest('article');
+    const rolesPanel = document.querySelector('[data-ai-roles]')?.closest('article');
+    return Boolean(monitorPanel && rolesPanel && (monitorPanel.compareDocumentPosition(rolesPanel) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  expect(monitorBeforeRoles).toBe(true);
   expect(criticalErrors).toEqual([]);
 });
 

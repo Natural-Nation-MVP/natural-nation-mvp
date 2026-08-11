@@ -184,10 +184,23 @@
       </article>`;
   }
 
+  function orderMonitorPanels(roles, handoffs) {
+    const rolesPanel = roles.closest('article');
+    const workPanel = handoffs.closest('article');
+    const parent = rolesPanel?.parentElement;
+    if (!parent || workPanel?.parentElement !== parent) return;
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      if (workPanel.nextElementSibling !== rolesPanel) parent.insertBefore(workPanel, rolesPanel);
+    } else if (rolesPanel.nextElementSibling !== workPanel) {
+      parent.insertBefore(rolesPanel, workPanel);
+    }
+  }
+
   async function render() {
     const roles = document.querySelector('[data-ai-roles]');
     const handoffs = document.querySelector('[data-ai-handoffs]');
     if (!roles || !handoffs) return currentState;
+    orderMonitorPanels(roles, handoffs);
     const workspace = window.NNOSActiveWorkspace;
     if (!workspace) { roles.innerHTML = '<p class="muted">Open a workspace to see its AI team.</p>'; handoffs.innerHTML = '<p class="muted">No workspace selected.</p>'; return null; }
     if (workspace.id !== 'natural-nation' || !workspace.activePackageId) {

@@ -78,7 +78,7 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   }
   .mobile-workspace-navigation button{display:grid;place-items:center;gap:3px;min-height:54px;padding:4px;border:0;background:transparent;color:#5d6473;box-shadow:none}
   .mobile-workspace-navigation button span{font-size:1.55rem;line-height:1}.mobile-workspace-navigation button small{font-size:.72rem}
-  .mobile-workspace-navigation [data-action-center-action$=":mission"]{color:#167c4a}
+  .mobile-workspace-navigation button[aria-current="page"]{color:#167c4a}
   body[data-active-workspace]:not([data-active-workspace="registry"]) .main{
     display:flex;flex-direction:column;padding:24px 18px calc(86px + env(safe-area-inset-bottom));background:#fbfcfd
   }
