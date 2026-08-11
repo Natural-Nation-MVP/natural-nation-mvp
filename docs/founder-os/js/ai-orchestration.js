@@ -24,12 +24,33 @@
     'ready-for-architecture': 'Ready for architecture', 'in-progress': 'In progress'
   })[status] || status;
 
+  function effectiveTeam(registry, state) {
+    const templates = Array.isArray(registry?.agents) ? registry.agents : [];
+    const plannedRoles = Array.isArray(state?.teamPlan?.roles) ? state.teamPlan.roles : [];
+    const roles = plannedRoles.length ? plannedRoles : templates.filter((agent) =>
+      agent.id === 'founder' || (state?.tasks || []).some((task) => task.owner === agent.id || task.nextRole === agent.id)
+    );
+    return roles.map((role) => {
+      const template = templates.find((item) => item.id === role.templateId || item.id === role.id) || {};
+      return {
+        ...template,
+        ...role,
+        name: role.name || template.name || role.id,
+        role: role.role || role.title || template.role || 'Workspace AI role',
+        purpose: role.purpose || role.reason || template.purpose || 'Created by the AI team plan for this workspace.',
+        provider: role.provider || template.provider || 'openai',
+        allowedActions: role.allowedActions || role.capabilities || template.allowedActions || [],
+        requiresFounderApprovalFor: role.requiresFounderApprovalFor || template.requiresFounderApprovalFor || []
+      };
+    });
+  }
+
   function validateState(registry, state, workspace) {
     if (!workspace) throw new Error('Open a workspace to view its AI team.');
     if (state.workspaceId !== workspace.id) throw new Error('This work belongs to another workspace.');
     if (workspace.activePackageId && state.packageId !== workspace.activePackageId) throw new Error('The active build package does not match this work.');
 
-    const agentIds = new Set(registry.agents.map((agent) => agent.id));
+    const agentIds = new Set(effectiveTeam(registry, state).map((agent) => agent.id));
     for (const task of state.tasks) {
       if (task.workspaceId !== state.workspaceId || task.packageId !== state.packageId) throw new Error('A task is not scoped to the active workspace and package.');
       if (!agentIds.has(task.owner)) throw new Error(`Unknown task owner: ${task.owner}`);
@@ -48,7 +69,7 @@
     return `<article class="module-card ${ownsCurrentWork ? 'active-agent-card' : ''}" data-ai-agent="${escapeHtml(agent.id)}" data-current-owner="${ownsCurrentWork}">
       <div class="workspace-card-top"><div><strong>${escapeHtml(agent.name)}</strong><p class="muted">${escapeHtml(agent.role)}</p></div><span class="status">${escapeHtml(providerLabel(agent))}</span></div>
       <p>${escapeHtml(agent.purpose)}</p><p class="muted">${ownsCurrentWork ? 'Owns the current canonical step.' : 'Available for an assigned handoff.'}</p>
-      <div class="record-row"><span>Role identity</span><strong>Permanent</strong></div>
+      <div class="record-row"><span>Role identity</span><strong>Workspace-scoped</strong></div>
       <div class="record-row"><span>Execution provider</span><strong>${escapeHtml(agent.provider === 'manual' ? 'Founder' : agent.provider)}</strong></div>
       <details class="founder-details"><summary>See responsibilities</summary><p class="muted">${escapeHtml(agent.allowedActions.join(', '))}</p><p class="muted">Founder gates: ${escapeHtml((agent.requiresFounderApprovalFor || []).join(', ') || 'None')}</p></details>
     </article>`;
@@ -174,22 +195,27 @@
     const hasAiTask = Boolean(task && task.owner !== 'founder');
     const blocked = hasAiTask && task.status === 'blocked';
     const canReview = hasAiTask && ['ready', 'working', 'blocked'].includes(task.status);
+    const plan = state.teamPlan;
     return `
       <article class="glass-panel ai-team-controls" data-ai-team-controls>
-        <div class="eyebrow">Founder Controls</div>
-        <div class="section-title">Governed AI Team Actions</div>
-        <p class="muted">${task ? `${escapeHtml(owner?.name || task.owner)} owns ${escapeHtml(task.title)}. Every change requires your Founder Key and is recorded in canonical history.` : 'No active AI-owned task is available. Controls are safely unavailable.'}</p>
-        <div class="record-row"><span>Role identity</span><strong>${task ? 'Permanent' : 'No active role'}</strong></div>
-        <div class="record-row"><span>Provider override</span><strong>${escapeHtml(task?.executionProviderOverride ? `${task.executionProviderOverride} · one request` : 'None')}</strong></div>
-        <div class="approval-actions" aria-label="Governed AI Team controls">
-          <button type="button" data-ai-control="open" ${task ? '' : 'disabled'}>Open task</button>
-          <button type="button" data-ai-control="retry" ${blocked ? '' : 'disabled'}>Retry safely</button>
-          <button type="button" data-ai-control="handoff" ${hasAiTask ? '' : 'disabled'}>Handoff</button>
-          <button type="button" data-ai-control="reassign" ${hasAiTask ? '' : 'disabled'}>Reassign</button>
-          <button type="button" data-ai-control="provider_switch" ${hasAiTask ? '' : 'disabled'}>Switch provider</button>
-          <button type="button" class="generate" data-ai-control="submit_review" ${canReview ? '' : 'disabled'}>Submit for Founder review</button>
-        </div>
-        <p class="muted">Provider switches apply to one request only. They never rename or replace the assigned AI role.</p>
+        <div class="eyebrow">AI-Controlled Team</div>
+        <div class="section-title">Workspace Team Plan</div>
+        <p>${escapeHtml(plan?.rationale || 'Founder OS assembled the active roles from the canonical work package. AI may add workspace-scoped roles when new capabilities are required.')}</p>
+        <div class="record-row"><span>Composition owner</span><strong>${escapeHtml(plan?.generatedBy || 'Founder OS orchestration')}</strong></div>
+        <div class="record-row"><span>Active roles</span><strong>${registry.agents.filter((agent) => agent.id !== 'founder').length}</strong></div>
+        <div class="record-row"><span>Founder involvement</span><strong>${state.founderApprovalRequired ? 'Decision required' : 'Monitor by exception'}</strong></div>
+        <details class="founder-details" data-founder-ai-override>
+          <summary>Founder override and recovery</summary>
+          <p class="muted">Use only when the AI team is blocked, exceeds its authority, or you choose to change its plan. Every override requires your Founder Key and a recorded reason.</p>
+          <div class="approval-actions" aria-label="Founder AI Team overrides">
+            <button type="button" data-ai-control="open" ${task ? '' : 'disabled'}>Open task</button>
+            <button type="button" data-ai-control="retry" ${blocked ? '' : 'disabled'}>Retry safely</button>
+            <button type="button" data-ai-control="handoff" ${hasAiTask ? '' : 'disabled'}>Override handoff</button>
+            <button type="button" data-ai-control="reassign" ${hasAiTask ? '' : 'disabled'}>Override assignment</button>
+            <button type="button" data-ai-control="provider_switch" ${hasAiTask ? '' : 'disabled'}>Override provider</button>
+            <button type="button" data-ai-control="submit_review" ${canReview ? '' : 'disabled'}>Send to Founder review</button>
+          </div>
+        </details>
       </article>`;
   }
 
@@ -205,7 +231,7 @@
     let targetRole = '';
     let provider = '';
     if (action === 'handoff' || action === 'reassign') {
-      targetRole = String(window.prompt('Enter the AI role: art, codex, gemini, or gpose.') || '').trim().toLowerCase();
+      targetRole = String(window.prompt('Enter the workspace-scoped role ID shown in the team plan.') || '').trim().toLowerCase();
       if (!targetRole) return { cancelled: true };
     }
     if (action === 'provider_switch') {
@@ -291,9 +317,11 @@
         fetch(`${GATEWAY_URL}/v1/ai/providers?v=${Date.now()}`, { cache: 'no-store' }).then((response) => response.ok ? response.json() : null).catch(() => null)
       ]);
       validateState(registry, state, workspace);
-      currentRegistry = registry; currentState = state; providerStatus = providersResponse?.providers || null;
-      roles.innerHTML = registry.agents.map((agent) => renderAgent(agent, state)).join('');
-      handoffs.innerHTML = `${monitorSummary(state, registry)}${teamControlPanel(state, registry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(registry.agents.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(registry.agents.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, registry)).join('')}</div>`;
+      const team = effectiveTeam(registry, state);
+      const teamRegistry = { ...registry, agents: team };
+      currentRegistry = teamRegistry; currentState = state; providerStatus = providersResponse?.providers || null;
+      roles.innerHTML = team.map((agent) => renderAgent(agent, state)).join('');
+      handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}${teamControlPanel(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, teamRegistry)).join('')}</div>`;
       return state;
     } catch (error) {
       console.error(error);
