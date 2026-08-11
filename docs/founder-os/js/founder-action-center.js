@@ -134,6 +134,20 @@
     return [...taskRecords, ...workspaceRecords].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 6);
   }
 
+  function syncMobileNavigation(target = document.body.dataset.activeView || 'mission') {
+    const navigation = $('[data-mobile-workspace-navigation]');
+    if (!navigation) return;
+    const workspace = currentWorkspace();
+    navigation.querySelectorAll('button').forEach((button) => {
+      button.removeAttribute('aria-current');
+      const action = button.dataset.actionCenterAction || '';
+      const active = workspace
+        ? (target === 'approvals' ? action === 'inbox' : action.endsWith(`:${target}`))
+        : button.hasAttribute('data-nav-home') && target === 'registry';
+      if (active) button.setAttribute('aria-current', 'page');
+    });
+  }
+
   function ensureMobileWorkspaceChrome() {
     let header = $('[data-mobile-workspace-header]');
     let navigation = $('[data-mobile-workspace-navigation]');
@@ -168,6 +182,7 @@
       <button type="button" data-action-center-action="account"><span aria-hidden="true">●</span><small>Account</small></button>`;
     header.hidden = !workspace;
     navigation.hidden = false;
+    syncMobileNavigation(workspace ? (document.body.dataset.activeView || 'mission') : 'registry');
   }
 
   function ensureDashboard() {
@@ -429,11 +444,12 @@
     if (type === 'workspace') openWorkspace(workspaceId, target).catch(showActionError);
   });
 
-  window.addEventListener('founder-os:workspace-view-changed', () => {
+  window.addEventListener('founder-os:workspace-view-changed', (event) => {
     activeFilter = null;
     const panel = $('[data-founder-action-center]');
     if (panel) panel.hidden = true;
-    window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); }, 0);
+    syncMobileNavigation(event.detail?.target || document.body.dataset.activeView || 'mission');
+    window.setTimeout(() => { renderMetrics(); renderDashboard(); ensurePanel(); syncMobileNavigation(event.detail?.target || document.body.dataset.activeView || 'mission'); }, 0);
   });
   window.addEventListener('founder-os:approval-recorded', refresh);
 
