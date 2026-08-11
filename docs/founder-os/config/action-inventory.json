@@ -384,11 +384,11 @@
     },
     {
       "id": "workspace.ai-team.governed-controls",
-      "selector": "[data-ai-control]",
-      "surface": "Assigned AI Team",
+      "selector": "[data-founder-ai-override] [data-ai-control]",
+      "surface": "Assigned AI Team → Founder override and recovery",
       "owner": "ai-orchestration.js",
-      "availability": "enabled only for the canonical active AI-owned task; unavailable controls remain disabled",
-      "outcome": "Open task details, safely retry, hand off, reassign, switch a single-request provider, or submit work for Founder review through the protected Gateway",
+      "availability": "collapsed by default; enabled only when an eligible canonical task exists",
+      "outcome": "Allow the Founder to override AI-composed ownership, recovery, provider, or review routing only when necessary",
       "browserTest": "Approval Inbox and AI Team Monitor expose founder decision status"
     }
   ]
