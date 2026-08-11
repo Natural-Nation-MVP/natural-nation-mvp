@@ -154,8 +154,8 @@
     });
   }
 
-  function openWorkspace(workspaceId, source) {
-    return activateWorkspace(workspaceId, source || 'api', null, 'push');
+  function openWorkspace(workspaceId, source, requestedView) {
+    return activateWorkspace(workspaceId, source || 'api', requestedView || null, 'push');
   }
 
   function openHome(source, historyMode) {
