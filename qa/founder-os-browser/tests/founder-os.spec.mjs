@@ -402,6 +402,33 @@ test('global and workspace mobile navigation expose governed destinations', asyn
 });
 
 
+test('mobile Build and Team routes open on the first tap after refresh', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.use.hasTouch, 'Mobile first-tap navigation runs in touch projects.');
+  const criticalErrors = collectCriticalErrors(page);
+  await page.goto('./#workspace=natural-nation&view=mission');
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+
+  const navigation = page.locator('[data-mobile-workspace-navigation]');
+  const build = navigation.locator('[data-action-center-action="workspace:natural-nation:build"]');
+  const team = navigation.locator('[data-action-center-action="workspace:natural-nation:ai"]');
+
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+  await build.tap();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
+  await expect(page.locator('[data-workspace="build"]')).toBeVisible();
+
+  await page.goto('./#workspace=natural-nation&view=mission');
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+  await page.reload();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
+  await team.tap();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'ai');
+  await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
+  expect(criticalErrors).toEqual([]);
+});
+
+
 test('mobile header controls open menus without leaving the workspace', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.use.hasTouch, 'Mobile header contract runs in touch projects.');
   const criticalErrors = collectCriticalErrors(page);
