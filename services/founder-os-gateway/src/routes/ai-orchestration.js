@@ -112,6 +112,103 @@ async function resetTask(env, route, actor, reason) {
   return { state: resetState, repository };
 }
 
+const CONTROL_ACTIONS = new Set(["handoff", "reassign", "provider_switch", "submit_review"]);
+const ROLE_IDS = new Set(["art", "codex", "gemini", "gpose", "founder"]);
+const PROVIDER_IDS = new Set(["openai", "google"]);
+
+async function controlAiTask(env, route, actor, body) {
+  const action = String(body.action || "").trim().toLowerCase();
+  const note = String(body.note || "").trim();
+  const targetRole = String(body.targetRole || "").trim().toLowerCase();
+  const provider = String(body.provider || "").trim().toLowerCase();
+  if (!CONTROL_ACTIONS.has(action)) throw new Error("Unsupported AI Team control.");
+  if (!note) throw new Error("A Founder note is required for AI Team controls.");
+
+  const { content: state } = await readRepositoryJson(env, STATE_PATH);
+  if (state.workspaceId !== route.workspaceId || state.packageId !== route.packageId) {
+    throw new Error("No orchestration state exists for this workspace and package.");
+  }
+  if (body.expectedUpdatedAt && body.expectedUpdatedAt !== state.updatedAt) {
+    throw new Error("Canonical work changed after this screen loaded. Refresh before applying a control.");
+  }
+  const task = state.tasks.find((item) => item.id === route.taskId);
+  if (!task) throw new Error("The requested AI task does not exist.");
+  if (["complete", "completed", "founder-approved", "rejected"].includes(task.status)) {
+    throw new Error("Completed work cannot be changed through AI Team controls.");
+  }
+  if (action === "provider_switch" && (task.owner === "founder" || !PROVIDER_IDS.has(provider))) {
+    throw new Error("Provider switching requires an active AI-owned task and a supported provider.");
+  }
+  if (["handoff", "reassign"].includes(action) && (!ROLE_IDS.has(targetRole) || targetRole === "founder")) {
+    throw new Error("Select a supported AI role for this handoff.");
+  }
+
+  const now = new Date().toISOString();
+  let nextOwner = task.owner;
+  let nextStatus = task.status;
+  let nextProviderStatus = task.providerStatus;
+  const controlledTask = {
+    ...task,
+    updatedAt: now,
+    founderControls: [...(Array.isArray(task.founderControls) ? task.founderControls : []), {
+      action, note, targetRole: targetRole || null, provider: provider || null,
+      recordedAt: now, recordedBy: actor.id
+    }]
+  };
+
+  if (action === "handoff" || action === "reassign") {
+    nextOwner = targetRole;
+    nextStatus = "ready";
+    nextProviderStatus = "ready";
+    controlledTask.owner = targetRole;
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.nextRole = task.nextRole === targetRole ? null : task.nextRole;
+    controlledTask.executionProviderOverride = null;
+  }
+  if (action === "provider_switch") {
+    nextStatus = "ready";
+    nextProviderStatus = "ready";
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.executionProviderOverride = provider;
+    controlledTask.providerOverrideScope = "single-request";
+  }
+  if (action === "submit_review") {
+    nextOwner = "founder";
+    nextStatus = "ready";
+    nextProviderStatus = "manual-review-required";
+    controlledTask.owner = "founder";
+    controlledTask.status = nextStatus;
+    controlledTask.providerStatus = nextProviderStatus;
+    controlledTask.nextRole = null;
+    controlledTask.executionProviderOverride = null;
+  }
+
+  const nextState = {
+    ...state,
+    status: nextStatus,
+    currentOwner: nextOwner,
+    nextOwner: controlledTask.nextRole || null,
+    founderApprovalRequired: nextOwner === "founder",
+    updatedAt: now,
+    tasks: state.tasks.map((item) => item.id === route.taskId ? controlledTask : item)
+  };
+  const controlRecord = {
+    version: "1.0.0", workspaceId: route.workspaceId, packageId: route.packageId,
+    taskId: route.taskId, action, note, targetRole: targetRole || null,
+    provider: provider || null, recordedAt: now, recordedBy: actor.id
+  };
+  const repository = await commitFilesAtomically(env, {
+    message: `founder: ${action.replace("_", " ")} ${route.taskId}`,
+    files: [
+      { path: STATE_PATH, content: nextState },
+      { path: `docs/orchestration/${route.workspaceId}/${route.packageId}/${route.taskId}.control.json`, content: controlRecord }
+    ]
+  });
+  return { state: nextState, control: controlRecord, repository };
+}
+
 async function recordFounderDecision(env, route, actor, body) {
   const decision = String(body.decision || "").trim();
   if (!["approve", "request_changes"].includes(decision)) {
@@ -235,8 +332,9 @@ export async function handleAiOrchestration(request, env, pathname) {
   const recoverRoute = parseTaskRoute(pathname, "recover");
   const resetRoute = parseTaskRoute(pathname, "reset");
   const decisionRoute = parseTaskRoute(pathname, "decision");
+  const controlRoute = parseTaskRoute(pathname, "control");
   const repositoryExecutionRoute = parseTaskRoute(pathname, "repository-execution");
-  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !decisionRoute && !repositoryExecutionRoute) return null;
+  if (!stateRoute && !dispatchRoute && !resultRoute && !recoverRoute && !resetRoute && !decisionRoute && !controlRoute && !repositoryExecutionRoute) return null;
 
   if (stateRoute) {
     if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use GET to read AI work status.");
@@ -245,6 +343,19 @@ export async function handleAiOrchestration(request, env, pathname) {
       return json(request, { ok: true, state });
     } catch (error) {
       return errorResponse(request, 404, "ORCHESTRATION_NOT_FOUND", error.message);
+    }
+  }
+
+  if (controlRoute) {
+    if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to apply an AI Team control.");
+    const auth = authenticateFounder(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
+    const body = await readJson(request);
+    try {
+      const controlled = await controlAiTask(env, controlRoute, auth.actor, body);
+      return json(request, { ok: true, status: `control-${body.action}-recorded`, ...controlled });
+    } catch (error) {
+      return errorResponse(request, 409, "AI_TEAM_CONTROL_REJECTED", error.message || "The AI Team control could not be recorded.");
     }
   }
 
