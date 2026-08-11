@@ -206,3 +206,18 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .ai-monitor-metrics small{font-size:.7rem}
   .ai-monitor-metrics strong{font-size:.9rem}
 }
+
+
+/* Structured records — keep labels and values readable in cards and summaries. */
+.record-row{
+  display:grid;
+  grid-template-columns:minmax(8rem,auto) minmax(0,1fr);
+  align-items:start;
+  gap:.35rem 1rem;
+  padding:.2rem 0;
+}
+.record-row > :last-child{min-width:0;text-align:right;overflow-wrap:anywhere}
+@media (max-width:640px){
+  .record-row{grid-template-columns:1fr;gap:.1rem}
+  .record-row > :last-child{text-align:left}
+}
