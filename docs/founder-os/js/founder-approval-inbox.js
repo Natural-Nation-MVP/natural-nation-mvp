@@ -3,7 +3,8 @@
   const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const registryUrl = paths.asset('config/workspace-registry.json');
   let registry = null;
-  let state = null;
+  let states = [];
+  let loadFailures = [];
   let selectedId = null;
   let loading = false;
 
@@ -44,6 +45,7 @@
         <div><div class="eyebrow">Founder Control</div><div class="section-title">Approval Inbox</div><p class="muted">Review decisions that require your authority across active workspaces.</p></div>
         <button type="button" data-approval-refresh>Refresh approvals</button>
       </article>
+      <div class="approval-inbox-summary" data-approval-summary aria-live="polite"></div>
       <div class="approval-inbox-shell">
         <article class="glass-panel approval-inbox-list"><div class="eyebrow">Waiting</div><h2>Approval Queue</h2><div class="approval-inbox-list-items" data-approval-list aria-live="polite"></div></article>
         <article class="glass-panel approval-inbox-detail" data-approval-detail><div class="approval-empty"><strong>Select an approval.</strong><p class="muted">Open an item to review evidence, risks, recommendation, and available decisions.</p></div></article>
@@ -53,8 +55,8 @@
     return view;
   }
 
-  function naturalNationWorkspace() {
-    return registry?.workspaces?.find((workspace) => workspace.id === 'natural-nation') || null;
+  function governedWorkspaces() {
+    return (registry?.workspaces || []).filter((workspace) => workspace.status === 'active' && workspace.activePackageId);
   }
 
   async function load() {
@@ -62,41 +64,51 @@
     loading = true;
     try {
       registry = await fetchJson(registryUrl);
-      const workspace = naturalNationWorkspace();
-      if (!workspace?.activePackageId) {
-        state = null;
-      } else {
-        const body = await fetchJson(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(workspace.activePackageId)}/orchestration`);
-        state = body?.state || null;
-      }
+      const results = await Promise.all(governedWorkspaces().map(async (workspace) => {
+        try {
+          const body = await fetchJson(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/packages/${encodeURIComponent(workspace.activePackageId)}/orchestration`);
+          return { workspace, state: body?.state || null, error: null };
+        } catch (error) {
+          return { workspace, state: null, error };
+        }
+      }));
+      states = results.map((result) => result.state).filter(Boolean);
+      loadFailures = results.filter((result) => result.error).map((result) => ({
+        workspaceId: result.workspace.id,
+        message: result.error.message || 'Orchestration state unavailable.'
+      }));
       render();
     } catch (error) {
-      state = null;
-      renderError(error.message || 'Approvals could not be loaded.');
+      states = [];
+      loadFailures = [{ workspaceId: 'registry', message: error.message || 'Approvals could not be loaded.' }];
+      renderError(loadFailures[0].message);
     } finally {
       loading = false;
     }
   }
 
   function approvalRecords() {
-    const tasks = Array.isArray(state?.tasks) ? state.tasks : [];
-    return tasks.filter((task) => task.owner === 'founder' && !['complete', 'completed', 'founder-approved', 'rejected'].includes(task.status)).map((task) => ({
-      id: task.id,
-      category: task.approvalType || (task.providerStatus === 'manual-review-required' ? 'Implementation review' : 'Founder decision'),
-      title: task.title || task.id,
-      status: task.providerStatus || task.status || 'waiting',
-      workspaceId: state.workspaceId,
-      packageId: state.packageId,
-      owner: task.owner,
-      updatedAt: task.updatedAt || state.updatedAt,
-      whatChanged: task.resultSummary || task.description || 'The workflow reached a Founder-controlled decision gate.',
-      whyChanged: task.reason || task.blockedReason || 'Founder authority is required before the workflow may continue.',
-      evidence: Array.isArray(task.evidence) ? task.evidence : [task.resultSummary || 'Canonical orchestration state identifies this item as requiring Founder review.'],
-      risks: Array.isArray(task.risks) ? task.risks : [task.blockedReason || 'Proceeding without a recorded Founder decision may bypass the approved governance gate.'],
-      recommendation: task.recommendation || (task.providerStatus === 'manual-review-required' ? 'Review the verified implementation evidence before approving or returning the work.' : 'Review the request and record a governed decision.'),
-      pullRequestUrl: String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i)?.[0] || null,
-      founderNotes: Array.isArray(task.founderNotes) ? task.founderNotes : []
-    }));
+    return states.flatMap((state) => {
+      const tasks = Array.isArray(state?.tasks) ? state.tasks : [];
+      return tasks.filter((task) => task.owner === 'founder' && !['complete', 'completed', 'founder-approved', 'rejected'].includes(task.status)).map((task) => ({
+        id: task.id,
+        recordKey: `${state.workspaceId}:${state.packageId}:${task.id}`,
+        category: task.approvalType || (task.providerStatus === 'manual-review-required' ? 'Implementation review' : 'Founder decision'),
+        title: task.title || task.id,
+        status: task.providerStatus || task.status || 'waiting',
+        workspaceId: state.workspaceId,
+        packageId: state.packageId,
+        owner: task.owner,
+        updatedAt: task.updatedAt || state.updatedAt,
+        whatChanged: task.resultSummary || task.description || 'The workflow reached a Founder-controlled decision gate.',
+        whyChanged: task.reason || task.blockedReason || 'Founder authority is required before the workflow may continue.',
+        evidence: Array.isArray(task.evidence) ? task.evidence : [task.resultSummary || 'Canonical orchestration state identifies this item as requiring Founder review.'],
+        risks: Array.isArray(task.risks) ? task.risks : [task.blockedReason || 'Proceeding without a recorded Founder decision may bypass the approved governance gate.'],
+        recommendation: task.recommendation || (task.providerStatus === 'manual-review-required' ? 'Review the verified implementation evidence before approving or returning the work.' : 'Review the request and record a governed decision.'),
+        pullRequestUrl: String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i)?.[0] || null,
+        founderNotes: Array.isArray(task.founderNotes) ? task.founderNotes : []
+      }));
+    }).sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')));
   }
 
   function listMarkup(values, className) {
@@ -111,7 +123,7 @@
       return;
     }
     list.innerHTML = records.map((record) => `
-      <button type="button" class="approval-item ${selectedId === record.id ? 'active' : ''}" data-approval-id="${esc(record.id)}" aria-pressed="${selectedId === record.id}">
+      <button type="button" class="approval-item ${selectedId === record.recordKey ? 'active' : ''}" data-approval-id="${esc(record.recordKey)}" aria-pressed="${selectedId === record.recordKey}">
         <small>${esc(record.category)}</small><strong>${esc(record.title)}</strong><small>${esc(record.workspaceId)} · ${esc(record.status)}</small>
       </button>`).join('');
   }
@@ -148,13 +160,25 @@
       </div>`;
   }
 
+  function renderSummary(records) {
+    const summary = $('[data-approval-summary]');
+    if (!summary) return;
+    const workspaceCount = new Set(records.map((record) => record.workspaceId)).size;
+    const status = loadFailures.length ? `${loadFailures.length} unavailable` : 'Connected';
+    summary.innerHTML = `
+      <article><small>Needs your decision</small><strong>${records.length}</strong></article>
+      <article><small>Workspaces represented</small><strong>${workspaceCount}</strong></article>
+      <article><small>Gateway coverage</small><strong>${esc(status)}</strong></article>`;
+  }
+
   function render() {
     ensureView();
     const records = approvalRecords();
-    if (selectedId && !records.some((record) => record.id === selectedId)) selectedId = null;
-    if (!selectedId && records.length === 1) selectedId = records[0].id;
+    if (selectedId && !records.some((record) => record.recordKey === selectedId)) selectedId = null;
+    if (!selectedId && records.length) selectedId = records[0].recordKey;
     renderList(records);
-    renderDetail(records.find((record) => record.id === selectedId));
+    renderSummary(records);
+    renderDetail(records.find((record) => record.recordKey === selectedId));
   }
 
   function renderError(message) {
@@ -166,7 +190,7 @@
   }
 
   async function recordDecision(decision) {
-    const record = approvalRecords().find((item) => item.id === selectedId);
+    const record = approvalRecords().find((item) => item.recordKey === selectedId);
     if (!record) return;
     const note = $('[data-approval-note]')?.value?.trim() || '';
     if (['request_changes', 'defer', 'reject', 'note'].includes(decision) && !note) {
@@ -201,7 +225,7 @@
   }
 
   function openApproval(taskId) {
-    selectedId = taskId || selectedId;
+    selectedId = approvalRecords().find((record) => record.id === taskId)?.recordKey || taskId || selectedId;
     window.setWorkspace?.('approvals');
     load().then(() => {
       render();
@@ -222,7 +246,7 @@
   });
   window.addEventListener('founder-os:approval-requested', (event) => openApproval(event.detail?.taskId));
 
-  window.NNOSApprovalInbox = { load, open: openApproval, get records() { return approvalRecords(); } };
+  window.NNOSApprovalInbox = { load, open: openApproval, get records() { return approvalRecords(); }, get failures() { return [...loadFailures]; } };
   loadStyles();
   ensureView();
 })();
