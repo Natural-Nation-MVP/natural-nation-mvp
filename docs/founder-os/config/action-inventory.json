@@ -381,6 +381,15 @@
       "availability": "rendered for repository audits, categories, related records, and record reviews",
       "outcome": "Run a knowledge audit or filter the canonical records without inline handlers",
       "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+    },
+    {
+      "id": "workspace.ai-team.governed-controls",
+      "selector": "[data-ai-control]",
+      "surface": "Assigned AI Team",
+      "owner": "ai-orchestration.js",
+      "availability": "enabled only for the canonical active AI-owned task; unavailable controls remain disabled",
+      "outcome": "Open task details, safely retry, hand off, reassign, switch a single-request provider, or submit work for Founder review through the protected Gateway",
+      "browserTest": "Approval Inbox and AI Team Monitor expose founder decision status"
     }
   ]
 }
