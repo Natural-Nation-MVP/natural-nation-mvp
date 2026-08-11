@@ -430,9 +430,12 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
       throw new Error('Current-workspace tabs must not reopen the workspace.');
     };
   });
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await build.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
   await expect(page.locator('[data-workspace="build"]')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+  await expect(page.locator('[data-workspace="build"]')).toBeFocused();
 
   await page.goto('./#workspace=natural-nation&view=mission');
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'mission');
@@ -443,9 +446,12 @@ test('mobile Build and Team routes open on the first tap after refresh', async (
       throw new Error('Current-workspace tabs must not reopen the workspace.');
     };
   });
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await team.tap();
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'ai');
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThanOrEqual(1);
+  await expect(page.locator('[data-workspace="ai"]')).toBeFocused();
   expect(criticalErrors).toEqual([]);
 });
 
