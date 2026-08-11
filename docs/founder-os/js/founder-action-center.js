@@ -166,20 +166,27 @@
     }
     const workspace = currentWorkspace();
     const name = workspace?.name || 'Founder OS';
-    header.innerHTML = `
-      <button type="button" class="mobile-header-menu" data-action-center-action="mobile-menu" aria-label="Open navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
-      <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
-      <button type="button" class="mobile-workspace-selector" data-action-center-action="mobile-workspaces" aria-expanded="false">${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>
-      <div class="mobile-header-popover" data-mobile-header-popover hidden></div>`;
-    navigation.innerHTML = workspace ? `
-      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
-      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
-      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
-      <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : `
-      <button type="button" data-nav-home><span aria-hidden="true">⌂</span><small>Workspaces</small></button>
-      <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
-      <button type="button" data-action-center-action="create"><span aria-hidden="true">＋</span><small>Create</small></button>
-      <button type="button" data-action-center-action="account"><span aria-hidden="true">●</span><small>Account</small></button>`;
+    const navigationScope = workspace?.id || 'registry';
+    if (header.dataset.navigationScope !== navigationScope) {
+      header.innerHTML = `
+        <button type="button" class="mobile-header-menu" data-action-center-action="mobile-menu" aria-label="Open navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
+        <div class="mobile-header-brand"><span aria-hidden="true">☘</span><strong>${escapeHtml(name)}</strong></div>
+        <button type="button" class="mobile-workspace-selector" data-action-center-action="mobile-workspaces" aria-expanded="false">${escapeHtml(name)} <span aria-hidden="true">⌄</span></button>
+        <div class="mobile-header-popover" data-mobile-header-popover hidden></div>`;
+      header.dataset.navigationScope = navigationScope;
+    }
+    if (navigation.dataset.navigationScope !== navigationScope) {
+      navigation.innerHTML = workspace ? `
+        <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:mission"><span aria-hidden="true">⌂</span><small>Overview</small></button>
+        <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+        <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:build"><span aria-hidden="true">⌁</span><small>Build</small></button>
+        <button type="button" data-action-center-action="workspace:${escapeHtml(workspace.id)}:ai"><span aria-hidden="true">♙</span><small>Team</small></button>` : `
+        <button type="button" data-nav-home><span aria-hidden="true">⌂</span><small>Workspaces</small></button>
+        <button type="button" data-action-center-action="inbox"><span aria-hidden="true">▣</span><small>Approvals</small></button>
+        <button type="button" data-action-center-action="create"><span aria-hidden="true">＋</span><small>Create</small></button>
+        <button type="button" data-action-center-action="account"><span aria-hidden="true">●</span><small>Account</small></button>`;
+      navigation.dataset.navigationScope = navigationScope;
+    }
     header.hidden = !workspace;
     navigation.hidden = false;
     syncMobileNavigation(workspace ? (document.body.dataset.activeView || 'mission') : 'registry');
