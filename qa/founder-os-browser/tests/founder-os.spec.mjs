@@ -247,7 +247,7 @@ test('planning, mission, and Project Records controls use their authoritative ow
   expect(criticalErrors).toEqual([]);
 });
 
-test('Approval Inbox and AI Team Monitor expose founder decision status', async ({ page }) => {
+test('Approval Inbox and AI Team Monitor expose founder decision status', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
@@ -290,6 +290,13 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
     return Boolean(teamPlan && rolesPanel && (teamPlan.compareDocumentPosition(rolesPanel) & Node.DOCUMENT_POSITION_FOLLOWING));
   });
   expect(teamPlanBeforeRoles).toBe(true);
+  await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
+  await expect(page.locator('[data-ai-roles] .ai-role-details').first()).not.toHaveAttribute('open', '');
+  await expect(page.locator('[data-ai-roles] .ai-role-status')).toHaveCount(5);
+  if (testInfo.project.use.hasTouch) {
+    const roleColumns = await page.locator('[data-ai-roles]').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    expect(roleColumns).toBe(1);
+  }
   const activeTasks = await page.locator('.orchestration-task:not([data-task-status="complete"]):not([data-task-status="completed"])').count();
   if (activeTasks === 0) await expect(teamControls.locator('[data-ai-control="submit_review"]')).toBeDisabled();
   expect(criticalErrors).toEqual([]);
