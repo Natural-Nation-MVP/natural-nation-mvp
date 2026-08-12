@@ -64,14 +64,38 @@
     return providerStatus[agent.provider] ? 'Provider configured' : 'Provider unavailable';
   }
 
+  function roleInitial(agent) {
+    return String(agent.name || agent.id || '?').trim().charAt(0).toUpperCase();
+  }
+
+  function roleStatus(agent, ownsCurrentWork) {
+    if (agent.provider === 'manual') return 'By exception';
+    if (ownsCurrentWork) return 'Working';
+    if (providerStatus && !providerStatus[agent.provider]) return 'Unavailable';
+    return 'Ready';
+  }
+
   function renderAgent(agent, state) {
     const ownsCurrentWork = state.currentOwner === agent.id;
-    return `<article class="module-card ${ownsCurrentWork ? 'active-agent-card' : ''}" data-ai-agent="${escapeHtml(agent.id)}" data-current-owner="${ownsCurrentWork}">
-      <div class="workspace-card-top"><div><strong>${escapeHtml(agent.name)}</strong><p class="muted">${escapeHtml(agent.role)}</p></div><span class="status">${escapeHtml(providerLabel(agent))}</span></div>
-      <p>${escapeHtml(agent.purpose)}</p><p class="muted">${ownsCurrentWork ? 'Owns the current canonical step.' : 'Available for an assigned handoff.'}</p>
-      <div class="record-row"><span>Role identity</span><strong>Workspace-scoped</strong></div>
-      <div class="record-row"><span>Execution provider</span><strong>${escapeHtml(agent.provider === 'manual' ? 'Founder' : agent.provider)}</strong></div>
-      <details class="founder-details"><summary>See responsibilities</summary><p class="muted">${escapeHtml(agent.allowedActions.join(', '))}</p><p class="muted">Founder gates: ${escapeHtml((agent.requiresFounderApprovalFor || []).join(', ') || 'None')}</p></details>
+    const status = roleStatus(agent, ownsCurrentWork);
+    return `<article class="ai-role-card ${ownsCurrentWork ? 'active-agent-card' : ''}" data-ai-agent="${escapeHtml(agent.id)}" data-current-owner="${ownsCurrentWork}">
+      <div class="ai-role-summary">
+        <span class="ai-role-avatar" aria-hidden="true">${escapeHtml(roleInitial(agent))}</span>
+        <div class="ai-role-copy">
+          <strong>${escapeHtml(agent.name)}</strong>
+          <span>${escapeHtml(agent.role)}</span>
+          <p>${escapeHtml(agent.purpose)}</p>
+          <span class="ai-role-status ai-role-status--${escapeHtml(status.toLowerCase().replaceAll(' ', '-'))}">${escapeHtml(status)}</span>
+        </div>
+        <span class="ai-role-chevron" aria-hidden="true">›</span>
+      </div>
+      <details class="founder-details ai-role-details">
+        <summary>Role details</summary>
+        <div class="record-row"><span>Role identity</span><strong>Workspace-scoped</strong></div>
+        <div class="record-row"><span>Execution provider</span><strong>${escapeHtml(agent.provider === 'manual' ? 'Founder' : agent.provider)}</strong></div>
+        <p class="muted"><strong>Responsibilities:</strong> ${escapeHtml(agent.allowedActions.join(', ') || 'Assigned by the workspace team plan')}</p>
+        <p class="muted"><strong>Founder gates:</strong> ${escapeHtml((agent.requiresFounderApprovalFor || []).join(', ') || 'None')}</p>
+      </details>
     </article>`;
   }
 
@@ -196,14 +220,18 @@
     const blocked = hasAiTask && task.status === 'blocked';
     const canReview = hasAiTask && ['ready', 'working', 'blocked'].includes(task.status);
     const plan = state.teamPlan;
+    const roleCount = registry.agents.length;
+    const blockedCount = (state.tasks || []).filter((item) => item.status === 'blocked').length;
     return `
       <article class="glass-panel ai-team-controls" data-ai-team-controls>
-        <div class="eyebrow">AI-Controlled Team</div>
-        <div class="section-title">Workspace Team Plan</div>
-        <p>${escapeHtml(plan?.rationale || 'Founder OS assembled the active roles from the canonical work package. AI may add workspace-scoped roles when new capabilities are required.')}</p>
-        <div class="record-row"><span>Composition owner</span><strong>${escapeHtml(plan?.generatedBy || 'Founder OS orchestration')}</strong></div>
-        <div class="record-row"><span>Active roles</span><strong>${registry.agents.filter((agent) => agent.id !== 'founder').length}</strong></div>
-        <div class="record-row"><span>Founder involvement</span><strong>${state.founderApprovalRequired ? 'Decision required' : 'Monitor by exception'}</strong></div>
+        <div class="ai-team-plan-heading">
+          <div><div class="eyebrow">Workspace Team Plan</div><p>${escapeHtml(plan?.rationale || 'Founder OS assembled the roles needed for the current build.')}</p></div>
+        </div>
+        <div class="ai-team-plan-metrics">
+          <div><strong>${roleCount}</strong><span>Active roles</span></div>
+          <div><strong>${blockedCount}</strong><span>Blocked</span></div>
+          <div><strong>${state.founderApprovalRequired ? 'Decision required' : 'Monitor by exception'}</strong><span>Founder</span></div>
+        </div>
         <details class="founder-details" data-founder-ai-override>
           <summary>Founder override and recovery</summary>
           <p class="muted">Use only when the AI team is blocked, exceeds its authority, or you choose to change its plan. Every override requires your Founder Key and a recorded reason.</p>
@@ -265,22 +293,24 @@
     const currentTask = tasks.find((task) => task.owner === state.currentOwner && !['complete', 'completed', 'founder-approved'].includes(task.status));
     const blocked = tasks.filter((task) => task.status === 'blocked').length;
     const approvals = tasks.filter((task) => task.owner === 'founder' && !['complete', 'completed', 'founder-approved', 'rejected'].includes(task.status)).length;
-    const configuredProviders = providerStatus ? Object.values(providerStatus).filter(Boolean).length : 0;
-    const totalProviders = providerStatus ? Object.keys(providerStatus).length : 0;
     const owner = registry.agents.find((agent) => agent.id === state.currentOwner);
+    const assignmentCopy = currentTask
+      ? `${owner?.name || state.currentOwner} owns ${currentTask.title}.`
+      : 'The team is ready for the next approved build package.';
     return `
-      <article class="glass-panel ai-monitor-summary" data-ai-monitor-summary>
-        <div class="ai-monitor-heading">
-          <div><div class="eyebrow">AI Team Monitor</div><div class="section-title">Live Work Status</div></div>
-          <button type="button" data-ai-refresh>Refresh</button>
+      <article class="ai-current-assignment" data-ai-monitor-summary>
+        <div>
+          <div class="eyebrow">Current Assignment</div>
+          <strong data-ai-current-task>${escapeHtml(currentTask?.title || 'No active task')}</strong>
         </div>
-        <div class="ai-monitor-metrics">
-          <div><small>Current owner</small><strong data-ai-current-owner>${escapeHtml(owner?.name || state.currentOwner)}</strong></div>
-          <div><small>Current task</small><strong data-ai-current-task>${escapeHtml(currentTask?.title || 'No active task')}</strong></div>
-          <div><small>Blocked</small><strong data-ai-blocked-count>${blocked}</strong></div>
-          <div><small>Founder decisions</small><strong data-ai-approval-count>${approvals}</strong></div>
+        <p data-ai-assignment-copy>${escapeHtml(assignmentCopy)}</p>
+        <div class="ai-assignment-status">
+          <span data-ai-current-owner>${escapeHtml(owner?.name || state.currentOwner)}</span>
+          <span data-ai-blocked-count>${blocked} blocked</span>
+          <span data-ai-approval-count>${approvals} Founder decisions</span>
         </div>
-        <p class="muted" data-ai-provider-health>Providers configured: ${configuredProviders} of ${totalProviders}. Canonical package: ${escapeHtml(state.packageId)}.</p>
+        <button type="button" data-ai-refresh aria-label="Refresh AI team status">Refresh</button>
+        <span class="sr-only" data-ai-provider-health>Provider status is available in each role's details.</span>
       </article>`;
   }
 
