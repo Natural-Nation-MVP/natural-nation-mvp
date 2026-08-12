@@ -247,7 +247,7 @@ test('planning, mission, and Project Records controls use their authoritative ow
   expect(criticalErrors).toEqual([]);
 });
 
-test('Approval Inbox and AI Team Monitor expose founder decision status', async ({ page }) => {
+test('Approval Inbox and AI Team Monitor expose founder decision status', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
@@ -270,20 +270,35 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(monitor).toBeVisible();
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
   await expect(monitor.locator('[data-ai-current-task]')).not.toBeEmpty();
-  await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+$/);
-  await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+$/);
+  await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+ blocked$/);
+  await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+ Founder decisions$/);
   await expect(monitor.locator('[data-ai-provider-health]')).toContainText('Providers configured');
   await expect(monitor.locator('[data-ai-refresh]')).toBeVisible();
   const teamControls = page.locator('[data-ai-team-controls]');
   await expect(teamControls).toBeVisible();
   await expect(teamControls).toContainText('AI-Controlled Team');
   await expect(teamControls).toContainText('Workspace Team Plan');
-  await expect(teamControls).toContainText('Composition owner');
-  await expect(teamControls).toContainText('Founder involvement');
+  await expect(teamControls).toContainText('Active roles');
+  await expect(teamControls).toContainText('Blocked');
+  await expect(teamControls).toContainText('Founder');
+  await expect(teamControls).toContainText(/Monitor by exception|Decision required/);
   const override = teamControls.locator('[data-founder-ai-override]');
   await expect(override).toBeVisible();
   await expect(override).not.toHaveAttribute('open', '');
   await expect(override.locator('[data-ai-control]')).toHaveCount(6);
+  const teamPlanBeforeRoles = await page.evaluate(() => {
+    const teamPlan = document.querySelector('[data-ai-team-controls]');
+    const rolesPanel = document.querySelector('[data-ai-roles]')?.closest('article');
+    return Boolean(teamPlan && rolesPanel && (teamPlan.compareDocumentPosition(rolesPanel) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  expect(teamPlanBeforeRoles).toBe(true);
+  await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
+  await expect(page.locator('[data-ai-roles] .ai-role-details').first()).not.toHaveAttribute('open', '');
+  await expect(page.locator('[data-ai-roles] .ai-role-status')).toHaveCount(5);
+  if (testInfo.project.use.hasTouch) {
+    const roleColumns = await page.locator('[data-ai-roles]').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    expect(roleColumns).toBe(1);
+  }
   const activeTasks = await page.locator('.orchestration-task:not([data-task-status="complete"]):not([data-task-status="completed"])').count();
   if (activeTasks === 0) await expect(teamControls.locator('[data-ai-control="submit_review"]')).toBeDisabled();
   expect(criticalErrors).toEqual([]);
