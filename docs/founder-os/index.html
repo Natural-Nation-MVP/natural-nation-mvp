@@ -6,12 +6,12 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="founder-os-build" content="fos-actions-008" />
+  <meta name="founder-os-build" content="fos-actions-009" />
   <title>Founder OS</title>
-  <link rel="stylesheet" href="./css/founder-os.css?v=fos-actions-008" />
-  <link rel="stylesheet" href="./css/workspace-manager.css?v=fos-actions-008" />
-  <link rel="stylesheet" href="./css/founder-home-functionality.css?v=fos-actions-008" />
-  <link rel="stylesheet" href="./css/workspace-launch-center.css?v=fos-actions-008" data-workspace-launch-styles />
+  <link rel="stylesheet" href="./css/founder-os.css?v=fos-actions-009" />
+  <link rel="stylesheet" href="./css/workspace-manager.css?v=fos-actions-009" />
+  <link rel="stylesheet" href="./css/founder-home-functionality.css?v=fos-actions-009" />
+  <link rel="stylesheet" href="./css/workspace-launch-center.css?v=fos-actions-009" data-workspace-launch-styles />
 </head>
 <body>
   <div class="app-shell">
@@ -30,30 +30,30 @@
       <section class="workspace-view" data-workspace="knowledge"><article class="glass-panel"><div class="eyebrow">Workspace Knowledge</div><div class="section-title">Find Approved Information</div><p>Search records belonging to the active workspace only.</p><input class="search-input" type="search" placeholder="Search workspace records..." data-knowledge-search /></article><article class="glass-panel"><div class="eyebrow">Results</div><div class="section-title" data-knowledge-count>Matching Records</div><div class="modules-grid" data-knowledge-results></div></article></section>
       <section class="workspace-view" data-workspace="build"><div class="workspace-grid production-build-grid"><div><article class="glass-panel selected-build production-selected-build"><div class="grid-2"><div><div class="eyebrow">Ready for the Build Team</div><div class="section-title" data-selected-id>No Build Package Selected</div><div data-selected-title>Open a workspace with approved work.</div><p class="muted" data-selected-meta>No package loaded.</p></div><div><div class="eyebrow">Assigned To</div><div class="button-grid" data-target-buttons></div></div></div><div class="plan-grid"><div><div class="eyebrow">Ready?</div><p data-validation-status>No package loaded.</p><span class="pill" data-build-approval>Build Package Required</span></div><div><div class="eyebrow">Build Team</div><div data-role-plan></div></div><div><div class="eyebrow">Work Order</div><p data-execution-order>Architecture → Build → Review → Founder</p></div></div></article><article class="glass-panel action-explainer target-impact-panel"><div class="eyebrow">Why This Work Matters</div><div class="section-title">Expected Result</div><p class="impact-lead" data-impact-statement>The package explains what the team should change and what must remain untouched.</p></article><details class="glass-panel founder-details"><summary>See the full build package</summary><pre class="output-box" data-package-preview>No package loaded.</pre></details></div><aside class="right-rail"><article class="glass-panel queue-panel"><div class="eyebrow">Coming Up</div><div class="section-title">Build Queue</div><div class="queue-scroll" data-build-queue></div></article><details><summary>Build actions</summary><div class="action-stack"><button type="button" data-build-refresh>Refresh Build Status</button></div></details><details><summary>Recent work</summary><div data-package-history><p class="muted">No recent build packages.</p></div></details></aside></div></section>
       <section class="workspace-view" data-workspace="repo"><article class="glass-panel"><div class="eyebrow">Technical Status</div><div class="section-title">Code & Deployments</div><p>See whether the source code and live system are healthy.</p><div class="modules-grid" data-repo-status></div></article><details class="glass-panel founder-details"><summary>See technical checks</summary><div data-repo-checklist></div></details></section>
-      <section class="workspace-view" data-workspace="ai"><article class="glass-panel"><div class="eyebrow">Build Team</div><div class="section-title">Who Is Responsible</div><p>See each role, what it owns, and what it is working on.</p><div class="modules-grid" data-ai-roles></div></article><article class="glass-panel"><div class="eyebrow">Current Work</div><div class="section-title">Work in Progress</div><div data-ai-handoffs></div></article></section>
+      <section class="workspace-view" data-workspace="ai"><div data-ai-team-plan></div><article class="glass-panel"><div class="eyebrow">Build Team</div><div class="section-title">Who Is Responsible</div><p>See each role, what it owns, and what it is working on.</p><div class="modules-grid" data-ai-roles></div></article><article class="glass-panel"><div class="eyebrow">Current Work</div><div class="section-title">Work in Progress</div><div data-ai-handoffs></div></article></section>
     </main>
     <div class="bottom-bar" data-execution-bar="build" hidden><div><span class="muted">Assigned To</span><br /><strong data-bottom-target>Build Team</strong></div><div><span class="muted">Next Step</span><br /><strong data-delivery>Review Package</strong></div><div><span class="muted">Status</span><br /><strong data-approval>Build Package Required</strong></div><button class="generate" type="button" data-build-refresh>Refresh Build Status</button></div>
     <div class="bottom-bar" data-execution-bar="blueprint" hidden><div><span class="muted">Plan Readiness</span><br /><strong data-sticky-confidence>Loading</strong></div><div><span class="muted">What Approval Does</span><br /><strong data-blueprint-approval-effect>Loading...</strong></div><div><span class="muted">Decisions</span><br /><strong data-sticky-decisions>Loading</strong></div><button class="generate" type="button" data-approve-blueprint>Review Approval</button></div>
   </div>
-  <script src="./js/runtime-paths.js?v=fos-actions-008"></script>
-  <script src="./js/internal-navigation-only.js?v=fos-actions-008"></script>
-  <script src="./js/app.js?v=fos-actions-008"></script>
-  <script src="./js/build-studio-polish.js?v=fos-actions-008"></script>
-  <script src="./js/gateway-status.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-discovery.js?v=fos-actions-008"></script>
-  <script src="./js/gateway-client-v2.js?v=fos-actions-008"></script>
-  <script src="./js/live-approval-controller.js?v=fos-actions-008"></script>
-  <script src="./js/blueprint-renderer.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-registry.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-manager.js?v=fos-actions-008"></script>
-  <script src="./js/founder-ux-002.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-creation.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-identity-ui.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-flow.js?v=fos-actions-008"></script>
-  <script src="./js/interaction-availability.js?v=fos-actions-008"></script>
-  <script src="./js/founder-home-functionality.js?v=fos-actions-008"></script>
-  <script src="./js/workspace-knowledge-scope.js?v=fos-actions-008"></script>
-  <script src="./js/ai-orchestration.js?v=fos-actions-008"></script>
-  <script src="./js/navigation-manager-035.js?v=fos-actions-008"></script>
+  <script src="./js/runtime-paths.js?v=fos-actions-009"></script>
+  <script src="./js/internal-navigation-only.js?v=fos-actions-009"></script>
+  <script src="./js/app.js?v=fos-actions-009"></script>
+  <script src="./js/build-studio-polish.js?v=fos-actions-009"></script>
+  <script src="./js/gateway-status.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-discovery.js?v=fos-actions-009"></script>
+  <script src="./js/gateway-client-v2.js?v=fos-actions-009"></script>
+  <script src="./js/live-approval-controller.js?v=fos-actions-009"></script>
+  <script src="./js/blueprint-renderer.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-registry.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-manager.js?v=fos-actions-009"></script>
+  <script src="./js/founder-ux-002.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-creation.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-identity-ui.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-flow.js?v=fos-actions-009"></script>
+  <script src="./js/interaction-availability.js?v=fos-actions-009"></script>
+  <script src="./js/founder-home-functionality.js?v=fos-actions-009"></script>
+  <script src="./js/workspace-knowledge-scope.js?v=fos-actions-009"></script>
+  <script src="./js/ai-orchestration.js?v=fos-actions-009"></script>
+  <script src="./js/navigation-manager-035.js?v=fos-actions-009"></script>
 </body>
 </html>
