@@ -224,6 +224,7 @@
     const blockedCount = (state.tasks || []).filter((item) => item.status === 'blocked').length;
     return `
       <article class="glass-panel ai-team-controls" data-ai-team-controls>
+        <span class="sr-only">AI-Controlled Team</span>
         <div class="ai-team-plan-heading">
           <div><div class="eyebrow">Workspace Team Plan</div><p>${escapeHtml(plan?.rationale || 'Founder OS assembled the roles needed for the current build.')}</p></div>
         </div>
