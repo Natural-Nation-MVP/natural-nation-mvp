@@ -284,6 +284,12 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(override).toBeVisible();
   await expect(override).not.toHaveAttribute('open', '');
   await expect(override.locator('[data-ai-control]')).toHaveCount(6);
+  const teamPlanBeforeRoles = await page.evaluate(() => {
+    const teamPlan = document.querySelector('[data-ai-team-controls]');
+    const rolesPanel = document.querySelector('[data-ai-roles]')?.closest('article');
+    return Boolean(teamPlan && rolesPanel && (teamPlan.compareDocumentPosition(rolesPanel) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  expect(teamPlanBeforeRoles).toBe(true);
   const activeTasks = await page.locator('.orchestration-task:not([data-task-status="complete"]):not([data-task-status="completed"])').count();
   if (activeTasks === 0) await expect(teamControls.locator('[data-ai-control="submit_review"]')).toBeDisabled();
   expect(criticalErrors).toEqual([]);
