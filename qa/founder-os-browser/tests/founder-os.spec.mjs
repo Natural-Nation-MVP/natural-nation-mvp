@@ -278,8 +278,10 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(teamControls).toBeVisible();
   await expect(teamControls).toContainText('AI-Controlled Team');
   await expect(teamControls).toContainText('Workspace Team Plan');
-  await expect(teamControls).toContainText('Composition owner');
-  await expect(teamControls).toContainText('Founder involvement');
+  await expect(teamControls).toContainText('Active roles');
+  await expect(teamControls).toContainText('Blocked');
+  await expect(teamControls).toContainText('Founder');
+  await expect(teamControls).toContainText(/Monitor by exception|Decision required/);
   const override = teamControls.locator('[data-founder-ai-override]');
   await expect(override).toBeVisible();
   await expect(override).not.toHaveAttribute('open', '');
