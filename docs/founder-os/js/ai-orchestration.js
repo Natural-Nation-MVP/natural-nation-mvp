@@ -297,18 +297,21 @@
   }
 
   async function render() {
+    const planPanel = document.querySelector('[data-ai-team-plan]');
     const roles = document.querySelector('[data-ai-roles]');
     const handoffs = document.querySelector('[data-ai-handoffs]');
-    if (!roles || !handoffs) return currentState;
+    if (!planPanel || !roles || !handoffs) return currentState;
     orderMonitorPanels(roles, handoffs);
     const workspace = window.NNOSActiveWorkspace;
-    if (!workspace) { roles.innerHTML = '<p class="muted">Open a workspace to see its AI team.</p>'; handoffs.innerHTML = '<p class="muted">No workspace selected.</p>'; return null; }
+    if (!workspace) { planPanel.innerHTML = ''; roles.innerHTML = '<p class="muted">Open a workspace to see its AI team.</p>'; handoffs.innerHTML = '<p class="muted">No workspace selected.</p>'; return null; }
     if (workspace.id !== 'natural-nation' || !workspace.activePackageId) {
+      planPanel.innerHTML = '';
       roles.innerHTML = '<p class="muted">No product execution package is assigned to this workspace.</p>';
       handoffs.innerHTML = '<article class="module-card"><strong>No active orchestration chain</strong><p>Founder OS management work is reviewed through its own platform backlog.</p></article>';
       return null;
     }
 
+    planPanel.innerHTML = '<p class="muted">Loading the workspace team plan...</p>';
     roles.innerHTML = '<p class="muted">Loading the AI team...</p>';
     handoffs.innerHTML = '<p class="muted">Loading canonical work status...</p>';
     try {
@@ -320,11 +323,13 @@
       const team = effectiveTeam(registry, state);
       const teamRegistry = { ...registry, agents: team };
       currentRegistry = teamRegistry; currentState = state; providerStatus = providersResponse?.providers || null;
+      planPanel.innerHTML = teamControlPanel(state, teamRegistry);
       roles.innerHTML = team.map((agent) => renderAgent(agent, state)).join('');
-      handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}${teamControlPanel(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, teamRegistry)).join('')}</div>`;
+      handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, teamRegistry)).join('')}</div>`;
       return state;
     } catch (error) {
       console.error(error);
+      planPanel.innerHTML = '';
       roles.innerHTML = '<p class="muted">The AI team could not be loaded.</p>';
       handoffs.innerHTML = `<article class="module-card"><strong>Needs attention</strong><p>${escapeHtml(error.message)}</p></article>`;
       throw error;
