@@ -39,7 +39,7 @@
     mission: { title: 'Product Overview', subtitle: 'See the current objective, live task, project health, and safest next action.', badge: 'Executive Status' },
     knowledge: { title: 'Project Records', subtitle: 'Find approved decisions, plans, and project information.', badge: 'Records' },
     repo: { title: 'Code Status', subtitle: 'Review source code, checks, deployment, and merge readiness.', badge: 'Founder Repository Control' },
-    ai: { title: 'AI Team', subtitle: 'See each stable role, provider readiness, current handoff, and verified task status.', badge: 'Live Assignments' }
+    ai: { title: 'AI Team', subtitle: 'See the AI-composed workspace team, provider readiness, current handoff, and verified task status.', badge: 'Live Assignments' }
   };
 
   function setText(selector, value) {
