@@ -221,3 +221,77 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .record-row{grid-template-columns:1fr;gap:.1rem}
   .record-row > :last-child{text-align:left}
 }
+
+
+/* AI Team — founder-first compact overview */
+.ai-team-controls{display:grid;gap:1rem;padding:20px}
+.ai-team-plan-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.ai-team-plan-heading p{margin:.25rem 0 0;color:var(--fos-muted)}
+.ai-team-plan-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--fos-line);border-radius:14px;background:rgba(255,255,255,.76);overflow:hidden}
+.ai-team-plan-metrics>div{display:grid;gap:.1rem;align-content:center;min-height:76px;padding:14px 18px;border-right:1px solid var(--fos-line)}
+.ai-team-plan-metrics>div:last-child{border-right:0}
+.ai-team-plan-metrics strong{font-size:1.45rem;line-height:1.1;color:var(--fos-ink)}
+.ai-team-plan-metrics span{color:var(--fos-muted);font-size:.86rem;font-weight:700}
+.ai-team-controls>[data-founder-ai-override]{margin:0;background:var(--fos-surface-soft)}
+.ai-team-controls>[data-founder-ai-override] summary{min-height:44px}
+
+.ai-current-assignment{display:grid;grid-template-columns:minmax(150px,.75fr) minmax(260px,1.5fr) auto auto;align-items:center;gap:1rem;padding:15px 18px;border:1px solid var(--fos-line);border-radius:14px;background:#fff}
+.ai-current-assignment strong{display:block;font-size:1.12rem}
+.ai-current-assignment p{margin:0;color:var(--fos-muted)}
+.ai-assignment-status{display:flex;flex-wrap:wrap;gap:.35rem .6rem;color:var(--fos-muted);font-size:.78rem;font-weight:700}
+.ai-current-assignment button{min-height:40px;padding:8px 12px}
+
+.ai-role-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ai-role-grid>*{padding:0}
+.ai-role-card{min-width:0;border:1px solid var(--fos-line);border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 6px 16px rgba(15,35,65,.05)}
+.ai-role-card.active-agent-card{border-color:rgba(19,138,87,.48);box-shadow:0 0 0 2px rgba(19,138,87,.1)}
+.ai-role-summary{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:start;gap:12px;padding:15px}
+.ai-role-avatar{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--fos-blue),var(--fos-purple));color:#fff;font-size:1.1rem;font-weight:900}
+.ai-role-card:nth-child(2n) .ai-role-avatar{background:linear-gradient(135deg,#1474d4,#2456bb)}
+.ai-role-card:nth-child(3n) .ai-role-avatar{background:linear-gradient(135deg,#f97316,#f59e0b)}
+.ai-role-card:nth-child(4n) .ai-role-avatar{background:linear-gradient(135deg,#0891b2,#12a594)}
+.ai-role-card:nth-child(5n) .ai-role-avatar{background:linear-gradient(135deg,#167a42,#43a65f)}
+.ai-role-copy{display:grid;min-width:0;gap:.12rem}
+.ai-role-copy>strong{font-size:1.02rem}
+.ai-role-copy>span:not(.ai-role-status){color:var(--fos-muted);font-size:.86rem}
+.ai-role-copy p{display:-webkit-box;min-height:2.6em;margin:.35rem 0;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.3;font-size:.88rem}
+.ai-role-chevron{align-self:center;color:var(--fos-muted);font-size:1.7rem;line-height:1}
+.ai-role-status{justify-self:start;display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:999px;background:var(--fos-green-soft);color:var(--fos-green);font-size:.78rem;font-weight:800}
+.ai-role-status::before{content:"";width:7px;height:7px;margin-right:6px;border-radius:50%;background:currentColor}
+.ai-role-status--by-exception{background:var(--fos-blue-soft);color:var(--fos-blue)}
+.ai-role-status--working{background:var(--fos-amber-soft);color:#a46100}
+.ai-role-status--unavailable{background:var(--fos-red-soft);color:var(--fos-red)}
+.ai-role-details{margin:0;border:0;border-top:1px solid var(--fos-line);border-radius:0;background:var(--fos-surface-soft)}
+.ai-role-details summary{min-height:44px;padding:9px 15px;font-size:.86rem}
+
+@media(max-width:900px){
+  .ai-role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ai-current-assignment{grid-template-columns:minmax(130px,.8fr) minmax(220px,1.4fr) auto}
+  .ai-current-assignment button{grid-column:3;grid-row:1 / span 2}
+  .ai-assignment-status{grid-column:1 / 3}
+}
+@media(max-width:640px){
+  [data-workspace="ai"]>.glass-panel{padding:16px}
+  .ai-team-controls{gap:.75rem;padding:15px}
+  .ai-team-plan-heading p{font-size:.9rem;line-height:1.4}
+  .ai-team-plan-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ai-team-plan-metrics>div{min-height:66px;padding:11px 13px}
+  .ai-team-plan-metrics>div:nth-child(2){border-right:0}
+  .ai-team-plan-metrics>div:last-child{grid-column:1 / -1;border-top:1px solid var(--fos-line);border-right:0}
+  .ai-team-plan-metrics strong{font-size:1.18rem}
+  .ai-team-controls>[data-founder-ai-override] summary{min-height:48px}
+
+  .ai-current-assignment{grid-template-columns:minmax(0,1fr) auto;gap:.45rem .75rem;padding:13px}
+  .ai-current-assignment>div:first-child{min-width:0}
+  .ai-current-assignment p{grid-column:1 / -1;font-size:.88rem;line-height:1.4}
+  .ai-assignment-status{grid-column:1 / -1;font-size:.72rem}
+  .ai-current-assignment button{grid-column:2;grid-row:1;min-width:44px;min-height:44px;padding:7px;font-size:0}
+  .ai-current-assignment button::before{content:"↻";font-size:1.2rem}
+
+  .ai-role-grid{grid-template-columns:1fr;gap:9px}
+  .ai-role-summary{grid-template-columns:42px minmax(0,1fr) auto;gap:10px;min-height:118px;padding:13px}
+  .ai-role-avatar{width:42px;height:42px;font-size:1rem}
+  .ai-role-copy p{min-height:auto;margin:.25rem 0;font-size:.84rem;-webkit-line-clamp:2}
+  .ai-role-chevron{font-size:1.5rem}
+  .ai-role-details summary{min-height:48px}
+}
