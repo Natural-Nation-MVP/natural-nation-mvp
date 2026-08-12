@@ -270,8 +270,8 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(monitor).toBeVisible();
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
   await expect(monitor.locator('[data-ai-current-task]')).not.toBeEmpty();
-  await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+$/);
-  await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+$/);
+  await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+ blocked$/);
+  await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+ Founder decisions$/);
   await expect(monitor.locator('[data-ai-provider-health]')).toContainText('Providers configured');
   await expect(monitor.locator('[data-ai-refresh]')).toBeVisible();
   const teamControls = page.locator('[data-ai-team-controls]');
