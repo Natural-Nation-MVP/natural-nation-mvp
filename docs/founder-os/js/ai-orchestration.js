@@ -295,6 +295,8 @@
     const blocked = tasks.filter((task) => task.status === 'blocked').length;
     const approvals = tasks.filter((task) => task.owner === 'founder' && !['complete', 'completed', 'founder-approved', 'rejected'].includes(task.status)).length;
     const owner = registry.agents.find((agent) => agent.id === state.currentOwner);
+    const configuredProviders = providerStatus ? Object.values(providerStatus).filter(Boolean).length : 0;
+    const totalProviders = providerStatus ? Object.keys(providerStatus).length : 0;
     const assignmentCopy = currentTask
       ? `${owner?.name || state.currentOwner} owns ${currentTask.title}.`
       : 'The team is ready for the next approved build package.';
@@ -311,7 +313,7 @@
           <span data-ai-approval-count>${approvals} Founder decisions</span>
         </div>
         <button type="button" data-ai-refresh aria-label="Refresh AI team status">Refresh</button>
-        <span class="sr-only" data-ai-provider-health>Provider status is available in each role's details.</span>
+        <span class="sr-only" data-ai-provider-health>Providers configured: ${configuredProviders} of ${totalProviders}. Provider status is available in each role's details.</span>
       </article>`;
   }
 
