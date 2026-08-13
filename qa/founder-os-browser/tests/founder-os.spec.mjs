@@ -293,10 +293,14 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   });
   expect(teamPlanBeforeRoles).toBe(true);
   await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
-  const firstRoleDetails = page.locator('[data-ai-roles] .ai-role-details').first();
-  await expect(firstRoleDetails).not.toHaveAttribute('open', '');
-  await firstRoleDetails.locator(':scope > summary').click();
-  await expect(firstRoleDetails).toHaveAttribute('open', '');
+  const firstRoleCard = page.locator('[data-ai-roles] .ai-role-card').first();
+  const firstRoleToggle = firstRoleCard.locator('[data-ai-role-toggle]');
+  const firstRoleDetails = firstRoleCard.locator('[data-ai-role-details]');
+  await expect(firstRoleToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(firstRoleDetails).toBeHidden();
+  await firstRoleToggle.click();
+  await expect(firstRoleToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(firstRoleDetails).toBeVisible();
   await expect(firstRoleDetails).toContainText('Current responsibility');
   await expect(firstRoleDetails).toContainText('Expected result');
   await expect(firstRoleDetails).toContainText('Next handoff');
