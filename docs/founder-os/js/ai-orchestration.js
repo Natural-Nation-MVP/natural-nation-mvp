@@ -357,6 +357,21 @@
     }
   }
 
+  function bindRoleAccordions(roles) {
+    roles.querySelectorAll('[data-ai-role-toggle]').forEach((roleToggle) => {
+      roleToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const roleDetails = document.getElementById(roleToggle.getAttribute('aria-controls'));
+        if (!roleDetails) return;
+        const expanded = roleToggle.getAttribute('aria-expanded') === 'true';
+        roleToggle.setAttribute('aria-expanded', String(!expanded));
+        roleDetails.hidden = expanded;
+        roleToggle.closest('.ai-role-card')?.setAttribute('data-role-expanded', String(!expanded));
+      });
+    });
+  }
+
   async function render() {
     const planPanel = document.querySelector('[data-ai-team-plan]');
     const roles = document.querySelector('[data-ai-roles]');
@@ -386,6 +401,7 @@
       currentRegistry = teamRegistry; currentState = state; providerStatus = providersResponse?.providers || null;
       planPanel.innerHTML = teamControlPanel(state, teamRegistry);
       roles.innerHTML = team.map((agent) => renderAgent(agent, state, teamRegistry)).join('');
+      bindRoleAccordions(roles);
       handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task, index) => renderTask(task, teamRegistry, index)).join('')}</div>`;
       return state;
     } catch (error) {
@@ -398,17 +414,6 @@
   }
 
   document.addEventListener('click', (event) => {
-    const roleToggle = event.target.closest('[data-ai-role-toggle]');
-    if (roleToggle) {
-      event.preventDefault();
-      const roleDetails = document.getElementById(roleToggle.getAttribute('aria-controls'));
-      if (!roleDetails) return;
-      const expanded = roleToggle.getAttribute('aria-expanded') === 'true';
-      roleToggle.setAttribute('aria-expanded', String(!expanded));
-      roleDetails.hidden = expanded;
-      roleToggle.closest('.ai-role-card')?.setAttribute('data-role-expanded', String(!expanded));
-      return;
-    }
     const refreshButton = event.target.closest('[data-ai-refresh]');
     if (refreshButton) {
       event.preventDefault();
