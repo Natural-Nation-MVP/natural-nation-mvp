@@ -33,7 +33,7 @@ function mockGithub(registry = structuredClone(REGISTRY)) {
     const path = new URL(url).pathname;
     const method = options.method || "GET";
     if (path.includes("/contents/docs/founder-os/registry/knowledge-records.json") && method === "GET") return Response.json({ type: "file", content: encode(registry), sha: "registry-sha" });
-    if (path.includes("/git/ref/heads/")) return Response.json({ object: { sha: method === "GET" ? "parent-sha" : "commit-sha" } });
+    if (path.includes("/git/ref/heads/") || path.includes("/git/refs/heads/")) return Response.json({ object: { sha: method === "GET" ? "parent-sha" : "commit-sha" } });
     if (path.includes("/git/commits/parent-sha")) return Response.json({ tree: { sha: "parent-tree" } });
     if (path.endsWith("/git/blobs")) { const body = JSON.parse(options.body); writes.push(body.content); return Response.json({ sha: `blob-${writes.length}` }); }
     if (path.endsWith("/git/trees")) return Response.json({ sha: "tree-sha" });
