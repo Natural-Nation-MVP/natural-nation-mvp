@@ -73,9 +73,11 @@
   function detail(record){
     if(!record)return '<div class="knowledge-empty">Select a record to see its summary and available actions.</div>';
     const s=normalizedState(record);
-    const links=(record.links||[]).slice(0,5).map((link)=>`<div class="knowledge-link"><span>${escapeHtml(link.label||link.targetId)}</span><span>${escapeHtml(link.type==='reference'?'Connected':'Aligned')}</span></div>`).join('')||'<p class="muted">No connected work is recorded yet.</p>';
+    const approvedLinks=(record.links||[]).slice(0,5).map((link)=>`<div class="knowledge-link"><span>${escapeHtml(link.label||link.targetId)}</span><span>${escapeHtml(link.type==='reference'?'Connected':'Aligned')}</span></div>`);
+    const proposedLinks=(record.proposedLinks||[]).slice(0,5).map((link)=>`<div class="knowledge-link"><span>${escapeHtml(link.label||link.targetId)}</span><span>Proposed · Founder review</span></div>`);
+    const links=[...approvedLinks,...proposedLinks].join('')||'<p class="muted">No connected work is recorded yet.</p>';
     const changes=(record.changes||record.history?.slice(-3).map((h)=>`Version ${h.version} preserved in history.`)||[]).map((change)=>`<li>${escapeHtml(change)}</li>`).join('')||'<li>No recent changes recorded.</li>';
-    const primary=s==='approval-required'?'<button class="btn primary" data-knowledge-action="approve">Approve</button><button class="btn secondary" data-knowledge-action="request-changes">Request changes</button>':s==='draft'?'<button class="btn primary" data-knowledge-action="review-draft">Review draft</button>':`<a class="btn primary" href="${escapeHtml(record.path?'../'+record.path.replace('docs/',''):repositoryRoot)}" target="_blank" rel="noopener">Open Record</a>`;
+    const primary=['approval-required','draft'].includes(s)?'<button class="btn primary" data-knowledge-action="approve">Approve</button><button class="btn secondary" data-knowledge-action="request-changes">Request changes</button>':`<a class="btn primary" href="${escapeHtml(record.path?'../'+record.path.replace('docs/',''):repositoryRoot)}" target="_blank" rel="noopener">Open Record</a>`;
     return `<button class="btn secondary knowledge-mobile-detail-close" type="button" data-knowledge-action="close-detail">← Back to records</button>
       <div class="knowledge-detail-header"><div class="knowledge-detail-icon" aria-hidden="true">${s==='locked'?'🔒':'●'}</div><div><h3>${escapeHtml(record.title)}</h3><div class="knowledge-state">${escapeHtml(stateLabel(record))} · Version ${escapeHtml(record.version||1)}</div></div></div>
       <div class="knowledge-detail-section"><h4>Plain-Language Summary</h4><p>${escapeHtml(record.summary||'No summary has been recorded.')}</p></div>
@@ -101,7 +103,7 @@
     state.records=scopedKnowledge(); state.live=false; render();
     try{
       const payload=await gateway(endpoint(),{method:'GET'});
-      if(Array.isArray(payload.records)&&payload.records.length){state.records=payload.records.map((record)=>({...record,changes:(record.history||[]).slice(-3).map((item)=>`Version ${item.version} preserved in history.`)}));state.live=true;state.selectedId=state.records[0]?.recordId||null;render();}
+      if(Array.isArray(payload.records)){state.records=payload.records.map((record)=>({...record,changes:(record.history||[]).slice(-3).map((item)=>`Version ${item.version} preserved in history.`)}));state.live=true;state.selectedId=state.records[0]?.recordId||null;render();}
     }catch(error){const feedback=document.querySelector('[data-knowledge-feedback]');if(feedback)feedback.textContent='Showing synchronized repository records. Live protected actions will request your Founder key when used.';}
   }
   function selected(){return state.records.find((r)=>r.recordId===state.selectedId);}
@@ -111,7 +113,6 @@
     if(action==='export'){const blob=new Blob([JSON.stringify(record,null,2)],{type:'application/json'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`${record.recordId}.json`;link.click();URL.revokeObjectURL(link.href);return;}
     if(action==='more'){document.querySelector('.knowledge-technical')?.setAttribute('open','');return;}
     if(action==='request-changes'){if(feedback)feedback.textContent='Request changes will be added when an approval-required record is selected.';return;}
-    if(action==='review-draft'){document.querySelector('.knowledge-technical')?.setAttribute('open','');return;}
     if(action==='audit'){if(feedback)feedback.textContent=`Knowledge Audit Complete · ${state.records.length} workspace records checked · ${count((r)=>normalizedState(r)==='approval-required')} need Founder review.`;return;}
     if(action==='new-draft'){if(feedback)feedback.textContent='AI creates drafts in the background. Founder creation controls remain intentionally secondary.';return;}
     if(action==='approve'&&record){
