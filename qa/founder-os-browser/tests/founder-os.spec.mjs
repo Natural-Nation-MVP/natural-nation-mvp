@@ -293,8 +293,21 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   });
   expect(teamPlanBeforeRoles).toBe(true);
   await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
-  await expect(page.locator('[data-ai-roles] .ai-role-details').first()).not.toHaveAttribute('open', '');
+  const firstRoleDetails = page.locator('[data-ai-roles] .ai-role-details').first();
+  await expect(firstRoleDetails).not.toHaveAttribute('open', '');
+  await firstRoleDetails.locator(':scope > summary').click();
+  await expect(firstRoleDetails).toHaveAttribute('open', '');
+  await expect(firstRoleDetails).toContainText('Current responsibility');
+  await expect(firstRoleDetails).toContainText('Expected result');
+  await expect(firstRoleDetails).toContainText('Next handoff');
+  const technicalDetails = firstRoleDetails.locator('.ai-technical-details');
+  await expect(technicalDetails).not.toHaveAttribute('open', '');
   await expect(page.locator('[data-ai-roles] .ai-role-status')).toHaveCount(5);
+  const workflowSteps = page.locator('.ai-workflow-step');
+  await expect(workflowSteps).toHaveCount(5);
+  await expect(workflowSteps.first()).toContainText('Expected result');
+  await expect(workflowSteps.first()).toContainText('Next handoff');
+  await expect(workflowSteps.first().locator('.ai-task-evidence')).not.toHaveAttribute('open', '');
   if (testInfo.project.use.hasTouch) {
     const roleColumns = await page.locator('[data-ai-roles]').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
     expect(roleColumns).toBe(1);
