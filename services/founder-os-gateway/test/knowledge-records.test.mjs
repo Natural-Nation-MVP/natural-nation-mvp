@@ -61,6 +61,8 @@ test("allows AI to create a draft and writes registry plus audit", async () => {
     const payload = await response.json();
     assert.equal(response.status, 200);
     assert.equal(payload.record.status, "draft");
+    assert.equal(payload.record.state, "approval-required");
+    assert.equal(payload.record.approvalRequired, true);
     assert.equal(payload.record.createdBy, "ai-provider");
     assert.equal(mock.writes.length, 2);
   } finally { mock.restore(); }
@@ -94,5 +96,62 @@ test("supersede rejects cross-workspace replacement with zero writes", async () 
     const response = await handleKnowledgeRecords(request("/v1/workspaces/natural-nation/knowledge-records/KR-0001", { action: "supersede", replacementRecordId: "KR-0002" }), env(), "/v1/workspaces/natural-nation/knowledge-records/KR-0001");
     assert.equal(response.status, 409);
     assert.equal(mock.writes.length, 0);
+  } finally { mock.restore(); }
+});
+
+
+test("keeps an AI link proposal pending until Founder approval", async () => {
+  const mock = mockGithub();
+  try {
+    const response = await handleKnowledgeRecords(request(
+      "/v1/workspaces/natural-nation/knowledge-records/KR-0001",
+      { action: "propose-link", link: { type: "decision", targetId: "DEC-001", label: "Founder decision" } },
+      "ai-secret"
+    ), env(), "/v1/workspaces/natural-nation/knowledge-records/KR-0001");
+    const payload = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(payload.record.state, "approval-required");
+    assert.equal(payload.record.links.length, 0);
+    assert.deepEqual(payload.record.proposedLinks, [{ type: "decision", targetId: "DEC-001", label: "Founder decision" }]);
+    assert.equal(mock.writes.length, 2);
+  } finally { mock.restore(); }
+});
+
+test("Founder approval promotes pending links and clears review state", async () => {
+  const registry = structuredClone(REGISTRY);
+  registry.records[0].approvalRequired = true;
+  registry.records[0].proposedLinks = [{ type: "decision", targetId: "DEC-001", label: "Founder decision" }];
+  const mock = mockGithub(registry);
+  try {
+    const response = await handleKnowledgeRecords(request(
+      "/v1/workspaces/natural-nation/knowledge-records/KR-0001",
+      { action: "approve" }
+    ), env(), "/v1/workspaces/natural-nation/knowledge-records/KR-0001");
+    const payload = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(payload.record.status, "current");
+    assert.equal(payload.record.state, "current");
+    assert.equal(payload.record.approvalRequired, false);
+    assert.deepEqual(payload.record.proposedLinks, []);
+    assert.deepEqual(payload.record.links, [{ type: "decision", targetId: "DEC-001", label: "Founder decision" }]);
+    assert.equal(payload.record.approvedBy, "founder");
+    assert.equal(mock.writes.length, 2);
+  } finally { mock.restore(); }
+});
+
+test("AI draft edits remain queued for Founder review", async () => {
+  const mock = mockGithub();
+  try {
+    const response = await handleKnowledgeRecords(request(
+      "/v1/workspaces/natural-nation/knowledge-records/KR-0001",
+      { action: "edit-draft", summary: "Updated by AI" },
+      "ai-secret"
+    ), env(), "/v1/workspaces/natural-nation/knowledge-records/KR-0001");
+    const payload = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(payload.record.summary, "Updated by AI");
+    assert.equal(payload.record.state, "approval-required");
+    assert.equal(payload.record.approvalRequired, true);
+    assert.equal(mock.writes.length, 2);
   } finally { mock.restore(); }
 });
