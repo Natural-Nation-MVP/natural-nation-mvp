@@ -261,8 +261,10 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
 .ai-role-status--by-exception{background:var(--fos-blue-soft);color:var(--fos-blue)}
 .ai-role-status--working{background:var(--fos-amber-soft);color:#a46100}
 .ai-role-status--unavailable{background:var(--fos-red-soft);color:var(--fos-red)}
-.ai-role-details{margin:0;border:0;border-top:1px solid var(--fos-line);border-radius:0;background:var(--fos-surface-soft)}
-.ai-role-details summary{min-height:44px;padding:9px 15px;font-size:.86rem}
+.ai-role-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:9px 15px;border:0;border-top:1px solid var(--fos-line);border-radius:0;background:var(--fos-surface-soft);color:var(--fos-ink);font:inherit;font-size:.86rem;font-weight:800;text-align:left;cursor:pointer}
+.ai-role-toggle[aria-expanded="true"]{background:#fff;color:var(--fos-green)}
+.ai-role-toggle[aria-expanded="true"] span:last-child{transform:rotate(180deg)}
+.ai-role-details{border-top:1px solid var(--fos-line);background:#fff}
 
 @media(max-width:900px){
   .ai-role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -293,18 +295,13 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .ai-role-avatar{width:42px;height:42px;font-size:1rem}
   .ai-role-copy p{min-height:auto;margin:.25rem 0;font-size:.84rem;-webkit-line-clamp:2}
   .ai-role-chevron{font-size:1.5rem}
-  .ai-role-details summary{min-height:48px}
+  .ai-role-toggle{min-height:48px}
 }
 
 
 /* Founder-first role details and workflow — FOS-S2 follow-up */
-.ai-role-details[open]{
-  background:#fff;
-}
-.ai-role-details[open]>summary{
-  border-bottom:1px solid var(--fos-line);
-  color:var(--fos-green);
-}
+.ai-role-details[hidden]{display:none}
+.ai-role-card[data-role-expanded="true"] .ai-role-toggle{border-bottom:1px solid var(--fos-line)}
 .ai-role-founder-view{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
