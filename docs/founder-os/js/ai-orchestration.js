@@ -396,6 +396,14 @@
   }
 
   document.addEventListener('click', (event) => {
+    const roleSummary = event.target.closest('.ai-role-details > summary');
+    if (roleSummary) {
+      event.preventDefault();
+      const roleDetails = roleSummary.parentElement;
+      roleDetails.open = !roleDetails.open;
+      roleSummary.setAttribute('aria-expanded', String(roleDetails.open));
+      return;
+    }
     const refreshButton = event.target.closest('[data-ai-refresh]');
     if (refreshButton) {
       event.preventDefault();
