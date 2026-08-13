@@ -94,8 +94,10 @@
         </div>
         <span class="ai-role-chevron" aria-hidden="true">›</span>
       </div>
-      <details class="founder-details ai-role-details">
-        <summary>View role</summary>
+      <button class="ai-role-toggle" type="button" data-ai-role-toggle aria-expanded="false" aria-controls="ai-role-details-${escapeHtml(agent.id)}">
+        <span>View role</span><span aria-hidden="true">⌄</span>
+      </button>
+      <div class="ai-role-details" id="ai-role-details-${escapeHtml(agent.id)}" data-ai-role-details hidden>
         <div class="ai-role-founder-view">
           <div><span>Current responsibility</span><strong>${escapeHtml(assignedTask?.title || agent.purpose)}</strong></div>
           <div><span>Status</span><strong>${escapeHtml(status)}</strong></div>
@@ -109,7 +111,7 @@
           <p class="muted"><strong>Allowed actions:</strong> ${escapeHtml(agent.allowedActions.join(', ') || 'Assigned by the workspace team plan')}</p>
           <p class="muted"><strong>Founder gates:</strong> ${escapeHtml((agent.requiresFounderApprovalFor || []).join(', ') || 'None')}</p>
         </details>
-      </details>
+      </div>
     </article>`;
   }
 
@@ -396,12 +398,15 @@
   }
 
   document.addEventListener('click', (event) => {
-    const roleSummary = event.target.closest('.ai-role-details > summary');
-    if (roleSummary) {
+    const roleToggle = event.target.closest('[data-ai-role-toggle]');
+    if (roleToggle) {
       event.preventDefault();
-      const roleDetails = roleSummary.parentElement;
-      roleDetails.open = !roleDetails.open;
-      roleSummary.setAttribute('aria-expanded', String(roleDetails.open));
+      const roleDetails = document.getElementById(roleToggle.getAttribute('aria-controls'));
+      if (!roleDetails) return;
+      const expanded = roleToggle.getAttribute('aria-expanded') === 'true';
+      roleToggle.setAttribute('aria-expanded', String(!expanded));
+      roleDetails.hidden = expanded;
+      roleToggle.closest('.ai-role-card')?.setAttribute('data-role-expanded', String(!expanded));
       return;
     }
     const refreshButton = event.target.closest('[data-ai-refresh]');
