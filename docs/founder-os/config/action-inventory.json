@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "inventoryId": "FOS-ACTIONS-006",
+  "inventoryId": "FOS-ACTIONS-005",
   "generatedAt": "2026-08-13",
   "scope": "Canonical Founder OS shell and dynamically loaded Founder OS controllers",
   "controls": [
