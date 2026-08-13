@@ -383,8 +383,8 @@
       const teamRegistry = { ...registry, agents: team };
       currentRegistry = teamRegistry; currentState = state; providerStatus = providersResponse?.providers || null;
       planPanel.innerHTML = teamControlPanel(state, teamRegistry);
-      roles.innerHTML = team.map((agent) => renderAgent(agent, state)).join('');
-      handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task) => renderTask(task, teamRegistry)).join('')}</div>`;
+      roles.innerHTML = team.map((agent) => renderAgent(agent, state, teamRegistry)).join('');
+      handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task, index) => renderTask(task, teamRegistry, index)).join('')}</div>`;
       return state;
     } catch (error) {
       console.error(error);
