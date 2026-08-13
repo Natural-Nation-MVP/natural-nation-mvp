@@ -42,5 +42,5 @@
  .knowledge-row-summary{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
  .knowledge-detail{display:none;position:fixed;inset:0;z-index:80;overflow-y:auto;border:0;border-radius:0;padding:calc(env(safe-area-inset-top) + 20px) 20px calc(100px + env(safe-area-inset-bottom));box-shadow:none}
  .knowledge-detail.mobile-open{display:block}.knowledge-mobile-detail-close{display:inline-flex;margin-bottom:18px}
- .knowledge-actions{position:sticky;bottom:0;padding:12px 0;background:linear-gradient(180deg,rgba(255,255,255,.3),#fff 20%)}
+ .knowledge-actions{position:static;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:#fff}
 }
