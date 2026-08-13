@@ -112,7 +112,8 @@
     if(action==='more'){document.querySelector('.knowledge-technical')?.setAttribute('open','');return;}
     if(action==='request-changes'){if(feedback)feedback.textContent='Request changes will be added when an approval-required record is selected.';return;}
     if(action==='review-draft'){document.querySelector('.knowledge-technical')?.setAttribute('open','');return;}
-    if(action==='audit'){if(feedback)feedback.textContent=`Knowledge Audit Complete · ${state.records.length} workspace records checked · ${count((r)=>normalizedState(r)==='approval-required')} need Founder review.`;return;}\n    if(action==='new-draft'){if(feedback)feedback.textContent='AI creates drafts in the background. Founder creation controls remain intentionally secondary.';return;}
+    if(action==='audit'){if(feedback)feedback.textContent=`Knowledge Audit Complete · ${state.records.length} workspace records checked · ${count((r)=>normalizedState(r)==='approval-required')} need Founder review.`;return;}
+    if(action==='new-draft'){if(feedback)feedback.textContent='AI creates drafts in the background. Founder creation controls remain intentionally secondary.';return;}
     if(action==='approve'&&record){
       if(!window.confirm(`Approve ${record.title} as the current workspace record?`))return;
       try{if(feedback)feedback.textContent='Recording Founder approval…';await gateway(endpoint(record.recordId),{method:'POST',body:JSON.stringify({action:'approve'})});window.FounderOSGateway?.clearSessionCredential?.();await load();}catch(error){if(feedback)feedback.textContent=error.message;}
