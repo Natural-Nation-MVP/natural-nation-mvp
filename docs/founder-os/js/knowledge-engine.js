@@ -43,10 +43,12 @@
   }
   function endpoint(recordId=''){return `/v1/workspaces/${encodeURIComponent(workspaceId())}/knowledge-records${recordId?'/'+encodeURIComponent(recordId):''}`;}
   async function gateway(path,options={}){
+    const protectedAction=options.method&&options.method!=='GET';
     const requestKey=window.FounderOSGateway?.requestFounderKey;
-    if(!requestKey)throw new Error('Protected gateway client is unavailable.');
+    if(protectedAction&&!requestKey)throw new Error('Protected gateway client is unavailable.');
+    const authorization=protectedAction?{authorization:`Bearer ${requestKey()}`}:{ };
     const response=await fetch(`https://founder-os-gateway.dmoseley1024.workers.dev${path}`,{
-      ...options,headers:{'content-type':'application/json',authorization:`Bearer ${requestKey()}`,...(options.headers||{})}
+      ...options,headers:{'content-type':'application/json',...authorization,...(options.headers||{})}
     });
     const payload=await response.json().catch(()=>({}));
     if(!response.ok||payload.ok===false)throw new Error(payload.error?.message||`Gateway returned ${response.status}.`);
