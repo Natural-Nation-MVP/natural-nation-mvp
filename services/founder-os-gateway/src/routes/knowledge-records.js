@@ -62,7 +62,9 @@ function immutableSnapshot(record) {
     summary: record.summary,
     content: record.content,
     links: record.links,
+    proposedLinks: record.proposedLinks || [],
     status: record.status,
+    approvalRequired: Boolean(record.approvalRequired),
     recordedAt: record.updatedAt,
     recordedBy: record.updatedBy
   };
@@ -82,8 +84,9 @@ function applyAction(records, route, action, body, actor, now) {
       content: clean(body.content, 20000),
       version: 1,
       status: "draft",
-      approvalRequired: false,
-      links: Array.isArray(body.links) ? body.links.map(validateLink) : [],
+      approvalRequired: true,
+      links: [],
+      proposedLinks: Array.isArray(body.links) ? body.links.map(validateLink) : [],
       history: [],
       createdAt: now,
       createdBy: actor.id,
@@ -106,16 +109,37 @@ function applyAction(records, route, action, body, actor, now) {
       title: clean(body.title, 200) || prior.title,
       summary: body.summary === undefined ? prior.summary : clean(body.summary, 1000),
       content: body.content === undefined ? prior.content : clean(body.content, 20000),
+      approvalRequired: true,
       version: prior.version + 1
     };
-  } else if (action === "link" || action === "propose-link") {
+  } else if (action === "link") {
     const link = validateLink(body.link);
     const duplicate = (prior.links || []).some((item) => item.type === link.type && item.targetId === link.targetId);
     if (duplicate) throw new Error("This record already has that link.");
     record = { ...record, links: [...(prior.links || []), link], version: prior.version + 1 };
+  } else if (action === "propose-link") {
+    const link = validateLink(body.link);
+    const duplicate = [...(prior.links || []), ...(prior.proposedLinks || [])]
+      .some((item) => item.type === link.type && item.targetId === link.targetId);
+    if (duplicate) throw new Error("This record already has that link or proposal.");
+    record = {
+      ...record,
+      proposedLinks: [...(prior.proposedLinks || []), link],
+      approvalRequired: true,
+      version: prior.version + 1
+    };
   } else if (action === "approve") {
     if (prior.status === "superseded") throw new Error("Superseded records cannot be approved.");
-    record = { ...record, status: "current", approvalRequired: false, approvedAt: now, approvedBy: actor.id, version: prior.version + 1 };
+    record = {
+      ...record,
+      status: "current",
+      links: [...(prior.links || []), ...(prior.proposedLinks || [])],
+      proposedLinks: [],
+      approvalRequired: false,
+      approvedAt: now,
+      approvedBy: actor.id,
+      version: prior.version + 1
+    };
   } else if (action === "lock") {
     if (prior.status !== "current") throw new Error("Approve a record before locking it.");
     record = { ...record, lockedAt: now, lockedBy: actor.id, version: prior.version + 1 };
