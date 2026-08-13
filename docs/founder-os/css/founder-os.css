@@ -261,8 +261,10 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
 .ai-role-status--by-exception{background:var(--fos-blue-soft);color:var(--fos-blue)}
 .ai-role-status--working{background:var(--fos-amber-soft);color:#a46100}
 .ai-role-status--unavailable{background:var(--fos-red-soft);color:var(--fos-red)}
-.ai-role-details{margin:0;border:0;border-top:1px solid var(--fos-line);border-radius:0;background:var(--fos-surface-soft)}
-.ai-role-details summary{min-height:44px;padding:9px 15px;font-size:.86rem}
+.ai-role-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:9px 15px;border:0;border-top:1px solid var(--fos-line);border-radius:0;background:var(--fos-surface-soft);color:var(--fos-ink);font:inherit;font-size:.86rem;font-weight:800;text-align:left;cursor:pointer}
+.ai-role-toggle[aria-expanded="true"]{background:#fff;color:var(--fos-green)}
+.ai-role-toggle[aria-expanded="true"] span:last-child{transform:rotate(180deg)}
+.ai-role-details{border-top:1px solid var(--fos-line);background:#fff}
 
 @media(max-width:900px){
   .ai-role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -293,5 +295,206 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .ai-role-avatar{width:42px;height:42px;font-size:1rem}
   .ai-role-copy p{min-height:auto;margin:.25rem 0;font-size:.84rem;-webkit-line-clamp:2}
   .ai-role-chevron{font-size:1.5rem}
-  .ai-role-details summary{min-height:48px}
+  .ai-role-toggle{min-height:48px}
+}
+
+
+/* Founder-first role details and workflow — FOS-S2 follow-up */
+.ai-role-details[hidden]{display:none}
+.ai-role-card[data-role-expanded="true"] .ai-role-toggle{border-bottom:1px solid var(--fos-line)}
+.ai-role-founder-view{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  padding:14px;
+}
+.ai-role-founder-view>div{
+  display:grid;
+  gap:5px;
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--fos-line);
+  border-radius:12px;
+  background:var(--fos-surface-soft);
+}
+.ai-role-founder-view span,
+.ai-workflow-founder-fields span{
+  color:var(--fos-muted);
+  font-size:.76rem;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.ai-role-founder-view strong,
+.ai-workflow-founder-fields strong{
+  overflow-wrap:anywhere;
+  font-size:.9rem;
+  line-height:1.35;
+}
+.ai-technical-details{
+  margin:0 14px 14px;
+  border:1px solid var(--fos-line);
+  border-radius:12px;
+  background:#fff;
+}
+.ai-technical-details>summary{
+  min-height:44px;
+  padding:10px 12px;
+  color:var(--fos-muted);
+  font-size:.82rem;
+  font-weight:800;
+}
+.ai-technical-details[open]>summary{
+  border-bottom:1px solid var(--fos-line);
+}
+.orchestration-task-list{
+  display:grid;
+  gap:0;
+  margin-top:14px;
+}
+.ai-workflow-step{
+  position:relative;
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr);
+  gap:12px;
+  padding:0 0 18px;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+.ai-workflow-step:not(:last-child)::before{
+  content:"";
+  position:absolute;
+  top:40px;
+  bottom:0;
+  left:19px;
+  width:2px;
+  background:var(--fos-line);
+}
+.ai-workflow-marker{
+  position:relative;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border:2px solid #fff;
+  border-radius:50%;
+  background:var(--fos-blue);
+  box-shadow:0 0 0 1px var(--fos-line);
+  color:#fff;
+  font-weight:900;
+}
+.ai-workflow-step[data-task-status="complete"] .ai-workflow-marker,
+.ai-workflow-step[data-task-status="completed"] .ai-workflow-marker{
+  background:var(--fos-green);
+}
+.ai-workflow-step-main{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid var(--fos-line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 6px 16px rgba(15,35,65,.05);
+}
+.ai-workflow-step-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px;
+  border-bottom:1px solid var(--fos-line);
+}
+.ai-workflow-step-heading>div{
+  display:grid;
+  min-width:0;
+  gap:3px;
+}
+.ai-workflow-step-heading strong{
+  overflow-wrap:anywhere;
+  font-size:1rem;
+  line-height:1.3;
+}
+.ai-workflow-founder-fields{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(140px,.65fr);
+  gap:10px;
+  padding:14px;
+}
+.ai-workflow-founder-fields>div{
+  display:grid;
+  gap:5px;
+  min-width:0;
+}
+.ai-workflow-note{
+  margin:0 14px 14px;
+  padding:10px 12px;
+  border-left:3px solid var(--fos-amber);
+  border-radius:6px;
+  background:var(--fos-amber-soft);
+  color:var(--fos-ink);
+  font-size:.86rem;
+  line-height:1.4;
+}
+.ai-task-evidence{
+  margin-top:0;
+}
+.ai-workflow-step-main>.generate,
+.ai-workflow-step-main>.secondary-action{
+  margin:0 14px 14px;
+}
+
+@media (max-width:640px){
+  [data-workspace="ai"]{
+    padding-bottom:calc(154px + env(safe-area-inset-bottom));
+  }
+  .ai-role-founder-view{
+    grid-template-columns:1fr;
+    gap:8px;
+    padding:12px;
+  }
+  .ai-role-founder-view>div{
+    padding:10px 11px;
+  }
+  .ai-role-founder-view strong,
+  .ai-workflow-founder-fields strong{
+    font-size:.86rem;
+  }
+  .ai-technical-details{
+    margin:0 12px 12px;
+  }
+  .ai-workflow-step{
+    grid-template-columns:32px minmax(0,1fr);
+    gap:9px;
+    padding-bottom:14px;
+  }
+  .ai-workflow-marker{
+    width:32px;
+    height:32px;
+    font-size:.82rem;
+  }
+  .ai-workflow-step:not(:last-child)::before{
+    top:32px;
+    left:15px;
+  }
+  .ai-workflow-step-heading{
+    display:grid;
+    gap:9px;
+    padding:12px;
+  }
+  .ai-workflow-step-heading .status{
+    justify-self:start;
+  }
+  .ai-workflow-founder-fields{
+    grid-template-columns:1fr;
+    gap:12px;
+    padding:12px;
+  }
+  .ai-workflow-founder-fields>div+div{
+    padding-top:10px;
+    border-top:1px solid var(--fos-line);
+  }
+  .ai-workflow-note{
+    margin:0 12px 12px;
+  }
 }

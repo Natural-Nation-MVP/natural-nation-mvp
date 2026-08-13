@@ -293,8 +293,25 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   });
   expect(teamPlanBeforeRoles).toBe(true);
   await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
-  await expect(page.locator('[data-ai-roles] .ai-role-details').first()).not.toHaveAttribute('open', '');
+  const firstRoleCard = page.locator('[data-ai-roles] .ai-role-card').first();
+  const firstRoleToggle = firstRoleCard.locator('[data-ai-role-toggle]');
+  const firstRoleDetails = firstRoleCard.locator('[data-ai-role-details]');
+  await expect(firstRoleToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(firstRoleDetails).toBeHidden();
+  await firstRoleToggle.click();
+  await expect(firstRoleToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(firstRoleDetails).toBeVisible();
+  await expect(firstRoleDetails).toContainText('Current responsibility');
+  await expect(firstRoleDetails).toContainText('Expected result');
+  await expect(firstRoleDetails).toContainText('Next handoff');
+  const technicalDetails = firstRoleDetails.locator('.ai-technical-details');
+  await expect(technicalDetails).not.toHaveAttribute('open', '');
   await expect(page.locator('[data-ai-roles] .ai-role-status')).toHaveCount(5);
+  const workflowSteps = page.locator('.ai-workflow-step');
+  expect(await workflowSteps.count()).toBeGreaterThanOrEqual(1);
+  await expect(workflowSteps.first()).toContainText('Expected result');
+  await expect(workflowSteps.first()).toContainText('Next handoff');
+  await expect(workflowSteps.first().locator('.ai-task-evidence')).not.toHaveAttribute('open', '');
   if (testInfo.project.use.hasTouch) {
     const roleColumns = await page.locator('[data-ai-roles]').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
     expect(roleColumns).toBe(1);
