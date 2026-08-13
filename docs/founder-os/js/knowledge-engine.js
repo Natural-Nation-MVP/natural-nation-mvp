@@ -34,7 +34,7 @@
   function workspaceId(){return window.NNOSKnowledgeScope?.activeWorkspaceId?.()||window.NNOSActiveWorkspace?.id||'founder-os';}
   function workspaceName(){return window.NNOSActiveWorkspace?.name||'Founder OS';}
   function belongs(item,id){const fn=window.NNOSKnowledgeScope?.recordBelongsToWorkspace;return typeof fn==='function'?fn(item,id):item.workspaces?.includes(id);}
-  function fallbackRecords(){
+  function scopedKnowledge(){
     return repositoryKnowledge.filter((item)=>belongs(item,workspaceId())).map((item,index)=>({
       recordId:item.id,workspaceId:workspaceId(),title:item.title,summary:item.summary,category:item.category,path:item.path,
       links:item.related.map((label)=>({type:'reference',targetId:label,label})),version:1,status:'current',
@@ -98,7 +98,7 @@
     </div>`;
   }
   async function load(){
-    state.records=fallbackRecords(); state.live=false; render();
+    state.records=scopedKnowledge(); state.live=false; render();
     try{
       const payload=await gateway(endpoint(),{method:'GET'});
       if(Array.isArray(payload.records)&&payload.records.length){state.records=payload.records.map((record)=>({...record,changes:(record.history||[]).slice(-3).map((item)=>`Version ${item.version} preserved in history.`)}));state.live=true;state.selectedId=state.records[0]?.recordId||null;render();}
