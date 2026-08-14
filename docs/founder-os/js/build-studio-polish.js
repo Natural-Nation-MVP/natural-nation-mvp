@@ -27,7 +27,6 @@ function loadExecutionModules() {
   loadScriptOnce(asset('js/processing-status.js?v=processing-v4&release=sprint-128-runtime-v2'), 'data-processing-status-loader');
   loadScriptOnce(asset('js/canonical-build-runtime-v2.js?v=sprint-128-runtime-v2'), 'data-canonical-build-loader');
   loadScriptOnce(asset('js/founder-actions.js?v=r3-actions-1'), 'data-founder-actions-loader');
-  loadScriptOnce(asset('js/knowledge-engine.js?v=kb-wave-5'), 'data-knowledge-engine-loader');
   loadScriptOnce(asset('js/repository-intelligence.js?v=r3-repo-intel-3'), 'data-repository-intelligence-loader');
   loadScriptOnce(asset('js/mission-control.js?v=r3-mission-5'), 'data-mission-control-loader');
   loadScriptOnce(asset('js/ai-orchestration.js?v=processing-v4&release=sprint-128-runtime-v2'), 'data-ai-orchestration-loader');
