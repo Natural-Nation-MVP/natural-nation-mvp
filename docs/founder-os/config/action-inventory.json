@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "inventoryId": "FOS-ACTIONS-005",
-  "generatedAt": "2026-08-05",
+  "generatedAt": "2026-08-13",
   "scope": "Canonical Founder OS shell and dynamically loaded Founder OS controllers",
   "controls": [
     {
@@ -367,20 +367,20 @@
     {
       "id": "knowledge.search",
       "selector": "[data-knowledge-search]",
-      "surface": "Project Records",
+      "surface": "Knowledge Records",
       "owner": "knowledge-engine.js",
       "availability": "enabled for every active workspace",
-      "outcome": "Filter only the active workspace knowledge base",
-      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+      "outcome": "Filter the active workspace record list without exposing another workspace",
+      "browserTest": "Knowledge Records supports workspace-scoped search, state filters, selection, and mobile detail focus"
     },
     {
       "id": "knowledge.action",
-      "selector": "[data-knowledge-action]",
-      "surface": "Project Records",
+      "selector": "[data-knowledge-action], [data-knowledge-filter], [data-knowledge-record]",
+      "surface": "Knowledge Records",
       "owner": "knowledge-engine.js",
-      "availability": "rendered for repository audits, categories, related records, and record reviews",
-      "outcome": "Run a knowledge audit or filter the canonical records without inline handlers",
-      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+      "availability": "rendered according to record state and Founder authority",
+      "outcome": "Filter or select records, open mobile details, export readable records, and authorize protected Founder record decisions",
+      "browserTest": "Knowledge Records supports workspace-scoped search, state filters, selection, and mobile detail focus"
     },
     {
       "id": "workspace.ai-team.governed-controls",

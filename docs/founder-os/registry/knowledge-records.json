@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-13T00:00:00.000Z",
+  "records": [
+    {
+      "schemaVersion": "1.0.0",
+      "recordId": "KR-0001",
+      "workspaceId": "founder-os",
+      "title": "Founder OS Product Overview",
+      "summary": "Canonical platform status and operating context.",
+      "content": "",
+      "version": 1,
+      "status": "current",
+      "approvalRequired": false,
+      "links": [
+        {
+          "type": "workspace",
+          "targetId": "founder-os",
+          "label": "Founder OS"
+        }
+      ],
+      "history": [],
+      "createdAt": "2026-08-13T00:00:00.000Z",
+      "createdBy": "system-migration",
+      "updatedAt": "2026-08-13T00:00:00.000Z",
+      "updatedBy": "system-migration"
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "recordId": "KR-0002",
+      "workspaceId": "natural-nation",
+      "title": "Natural Nation Product Overview",
+      "summary": "Canonical product status and operating context.",
+      "content": "",
+      "version": 1,
+      "status": "current",
+      "approvalRequired": false,
+      "links": [
+        {
+          "type": "workspace",
+          "targetId": "natural-nation",
+          "label": "Natural Nation"
+        }
+      ],
+      "history": [],
+      "createdAt": "2026-08-13T00:00:00.000Z",
+      "createdBy": "system-migration",
+      "updatedAt": "2026-08-13T00:00:00.000Z",
+      "updatedBy": "system-migration"
+    }
+  ]
+}
