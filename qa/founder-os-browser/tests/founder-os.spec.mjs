@@ -211,7 +211,7 @@ test('Founder Action Center opens and routes a workspace action', async ({ page 
   expect(criticalErrors).toEqual([]);
 });
 
-test('planning, mission, and Project Records controls use their authoritative owners', async ({ page }) => {
+test('planning, mission, and Project Records controls use their authoritative owners', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
@@ -233,6 +233,23 @@ test('planning, mission, and Project Records controls use their authoritative ow
   await expect(audit).toBeVisible();
   await audit.click();
   await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
+
+  if (testInfo.project.use.hasTouch) {
+    await page.locator('[data-knowledge-record]').first().click();
+    const detail = page.locator('[data-knowledge-detail]');
+    await expect(detail).toBeVisible();
+    await expect(detail.locator('.knowledge-mobile-detail-close')).toContainText('Product Records');
+    await expect(detail.locator('.knowledge-actions > .primary')).toBeVisible();
+    await expect(detail.locator('.knowledge-actions > .primary')).toContainText(/Open Record|Approve/);
+    await expect(detail.locator('.knowledge-secondary-actions .btn')).toHaveCount(2);
+    const fitsViewport = await detail.locator('.knowledge-actions').evaluate((node) => node.scrollWidth <= node.clientWidth);
+    expect(fitsViewport).toBe(true);
+    const touchTargets = await detail.locator('.knowledge-actions .btn, .knowledge-technical summary').evaluateAll((nodes) =>
+      nodes.every((node) => node.getBoundingClientRect().height >= 48)
+    );
+    expect(touchTargets).toBe(true);
+    await detail.locator('[data-knowledge-action="close-detail"]').click();
+  }
 
   await openView(page, 'discovery');
   const review = page.locator('[data-review-blueprint]');
