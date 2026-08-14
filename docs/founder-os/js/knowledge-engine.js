@@ -78,12 +78,12 @@
     const links=[...approvedLinks,...proposedLinks].join('')||'<p class="muted">No connected work is recorded yet.</p>';
     const changes=(record.changes||record.history?.slice(-3).map((h)=>`Version ${h.version} preserved in history.`)||[]).map((change)=>`<li>${escapeHtml(change)}</li>`).join('')||'<li>No recent changes recorded.</li>';
     const primary=['approval-required','draft'].includes(s)?'<button class="btn primary" data-knowledge-action="approve">Approve</button><button class="btn secondary" data-knowledge-action="request-changes">Request changes</button>':`<a class="btn primary" href="${escapeHtml(record.path?'../'+record.path.replace('docs/',''):repositoryRoot)}" target="_blank" rel="noopener">Open Record</a>`;
-    return `<button class="btn secondary knowledge-mobile-detail-close" type="button" data-knowledge-action="close-detail">← Back to records</button>
+    return `<button class="btn secondary knowledge-mobile-detail-close" type="button" data-knowledge-action="close-detail"><span aria-hidden="true">←</span> Product Records</button>
       <div class="knowledge-detail-header"><div class="knowledge-detail-icon" aria-hidden="true">${s==='locked'?'🔒':'●'}</div><div><h3>${escapeHtml(record.title)}</h3><div class="knowledge-state">${escapeHtml(stateLabel(record))} · Version ${escapeHtml(record.version||1)}</div></div></div>
-      <div class="knowledge-detail-section"><h4>Plain-Language Summary</h4><p>${escapeHtml(record.summary||'No summary has been recorded.')}</p></div>
-      <div class="knowledge-detail-section"><h4>Linked Work</h4><div class="knowledge-links">${links}</div></div>
-      <div class="knowledge-detail-section"><h4>What Changed</h4><ul class="knowledge-changes">${changes}</ul></div>
-      <div class="knowledge-actions">${primary}<button class="btn secondary" data-knowledge-action="export">Export</button><button class="btn secondary" data-knowledge-action="more">More</button></div>
+      <div class="knowledge-detail-section knowledge-summary-detail"><h4>Plain-Language Summary</h4><p>${escapeHtml(record.summary||'No summary has been recorded.')}</p></div>
+      <div class="knowledge-detail-section knowledge-metadata"><div><h4>Linked Work</h4><div class="knowledge-links">${links}</div></div><div><h4>Status</h4><p class="knowledge-alignment">${escapeHtml(s==='superseded'?'History':'Aligned')}</p></div></div>
+      <div class="knowledge-detail-section knowledge-change-card"><h4>What Changed</h4><ul class="knowledge-changes">${changes}</ul></div>
+      <div class="knowledge-actions">${primary}<div class="knowledge-secondary-actions"><button class="btn secondary" data-knowledge-action="export">Export</button><button class="btn secondary" data-knowledge-action="more">More</button></div></div>
       <details class="knowledge-technical"><summary>Technical details</summary><dl><dt>Record ID</dt><dd>${escapeHtml(record.recordId)}</dd><dt>Workspace</dt><dd>${escapeHtml(record.workspaceId)}</dd><dt>Repository path</dt><dd>${escapeHtml(record.path||'Canonical registry')}</dd><dt>Updated</dt><dd>${escapeHtml(relativeTime(record.updatedAt))}</dd></dl></details>`;
   }
   function render(){
