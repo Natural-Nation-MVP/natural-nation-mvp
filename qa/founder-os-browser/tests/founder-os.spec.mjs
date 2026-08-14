@@ -215,6 +215,7 @@ test('planning, mission, and Project Records controls use their authoritative ow
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
+  await expect(page.locator('script[src*="knowledge-engine.js"]')).toHaveCount(1);
 
   const missionRepo = page.locator('[data-mission-view="repo"]').first();
   await expect(missionRepo).toBeVisible();
