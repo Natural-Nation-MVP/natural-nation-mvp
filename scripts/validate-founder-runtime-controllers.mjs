@@ -52,12 +52,12 @@ assert.deepEqual(
   'The canonical shell must load the approved runtime controllers once and in deterministic order.'
 );
 assert.equal(new Set(staticScripts.map(({ file }) => file)).size, staticScripts.length, 'A static runtime controller may load only once.');
-assert(staticScripts.every(({ version }) => version === 'fos-actions-012'), 'Every static runtime controller must use the FOS-ACTIONS-012 source version.');
-assert(html.includes('<meta name="founder-os-build" content="fos-actions-012" />'), 'The canonical source build marker must match FOS-ACTIONS-012.');
+assert(staticScripts.every(({ version }) => version === 'fos-actions-013'), 'Every static runtime controller must use the FOS-ACTIONS-013 source version.');
+assert(html.includes('<meta name="founder-os-build" content="fos-actions-013" />'), 'The canonical source build marker must match FOS-ACTIONS-013.');
 
 const staticStyles = [...html.matchAll(/<link\s+rel="stylesheet"\s+href="[^"]+\?v=([^"]+)"/g)].map((match) => match[1]);
 assert(staticStyles.length >= 4, 'The canonical shell must retain its required static stylesheets.');
-assert(staticStyles.every((version) => version === 'fos-actions-012'), 'Every static stylesheet must use the FOS-ACTIONS-012 source version.');
+assert(staticStyles.every((version) => version === 'fos-actions-013'), 'Every static stylesheet must use the FOS-ACTIONS-013 source version.');
 
 for (const file of retiredControllers) {
   assert(!html.includes(file), `Retired controller remains loaded: ${file}`);
