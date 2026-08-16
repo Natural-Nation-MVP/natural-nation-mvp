@@ -231,8 +231,32 @@ test('planning, mission, and Project Records controls use their authoritative ow
   await openView(page, 'knowledge');
   const audit = page.locator('[data-knowledge-action="audit"]');
   await expect(audit).toBeVisible();
+  await expect(page.locator('[data-workspace="knowledge"] [data-workspace-settings-panel]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace="knowledge"]')).not.toContainText('Manage Natural Nation');
   await audit.click();
   await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
+
+  if (!testInfo.project.use.hasTouch) {
+    const browser = page.locator('.knowledge-browser');
+    const detail = page.locator('[data-knowledge-detail]');
+    const primary = detail.locator('.knowledge-actions > .primary');
+    await expect(browser).toBeVisible();
+    await expect(detail).toBeVisible();
+    await expect(primary).toBeVisible();
+    await expect(primary).toContainText(/Open Record|Approve/);
+    await expect(detail.locator('.knowledge-secondary-actions .btn')).toHaveCount(2);
+    const desktopLayout = await browser.evaluate((node) => {
+      const list = node.querySelector('.knowledge-list')?.getBoundingClientRect();
+      const panel = node.querySelector('.knowledge-detail')?.getBoundingClientRect();
+      const action = node.querySelector('.knowledge-actions > .primary')?.getBoundingClientRect();
+      return Boolean(list && panel && action
+        && panel.width > list.width
+        && action.width > 0
+        && action.right <= panel.right
+        && action.height >= 48);
+    });
+    expect(desktopLayout).toBe(true);
+  }
 
   if (testInfo.project.use.hasTouch) {
     await page.locator('[data-knowledge-record]').first().click();
