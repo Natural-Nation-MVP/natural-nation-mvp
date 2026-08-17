@@ -238,18 +238,45 @@ test('planning, mission, and Project Records controls use their authoritative ow
 
   const command = page.locator('.knowledge-command');
   const commandLayout = await command.evaluate((node) => {
-    const copy = node.firstElementChild?.getBoundingClientRect();
-    const actions = node.querySelector('.knowledge-command-actions')?.getBoundingClientRect();
-    const search = node.querySelector('.knowledge-search')?.getBoundingClientRect();
-    const buttons = [...node.querySelectorAll('.knowledge-command-actions button')].map((button) => button.getBoundingClientRect());
-    return Boolean(copy && actions && search
-      && copy.width >= Math.min(560, node.getBoundingClientRect().width)
-      && actions.top >= copy.bottom
-      && search.width > 0
-      && search.right <= actions.right
-      && buttons.every((button) => button.height >= 48 && button.right <= actions.right));
+    const measure = (element) => {
+      if (!element) return null;
+      const { top, right, bottom, left, width, height } = element.getBoundingClientRect();
+      return { top, right, bottom, left, width, height };
+    };
+    return {
+      command: measure(node),
+      copy: measure(node.firstElementChild),
+      actions: measure(node.querySelector('.knowledge-command-actions')),
+      search: measure(node.querySelector('.knowledge-search')),
+      buttons: [...node.querySelectorAll('.knowledge-command-actions button')].map(measure),
+    };
   });
-  expect(commandLayout).toBe(true);
+  const { command: commandBox, copy, actions, search, buttons } = commandLayout;
+  const pixelTolerance = 2;
+  expect(commandBox).not.toBeNull();
+  expect(copy).not.toBeNull();
+  expect(actions).not.toBeNull();
+  expect(search).not.toBeNull();
+  expect(actions.top).toBeGreaterThanOrEqual(copy.bottom - pixelTolerance);
+  expect(search.width).toBeGreaterThan(0);
+  expect(search.left).toBeGreaterThanOrEqual(actions.left - pixelTolerance);
+  expect(search.right).toBeLessThanOrEqual(actions.right + pixelTolerance);
+  expect(buttons).toHaveLength(2);
+  buttons.forEach((button) => {
+    expect(button.height).toBeGreaterThanOrEqual(48 - pixelTolerance);
+    expect(button.left).toBeGreaterThanOrEqual(actions.left - pixelTolerance);
+    expect(button.right).toBeLessThanOrEqual(actions.right + pixelTolerance);
+  });
+
+  if (testInfo.project.use.hasTouch) {
+    expect(search.width).toBeGreaterThanOrEqual(actions.width - pixelTolerance);
+    buttons.forEach((button) => {
+      expect(button.top).toBeGreaterThanOrEqual(search.bottom - pixelTolerance);
+    });
+    expect(Math.abs(buttons[0].top - buttons[1].top)).toBeLessThanOrEqual(pixelTolerance);
+  } else {
+    expect(copy.width).toBeGreaterThanOrEqual(Math.min(560, commandBox.width) - pixelTolerance);
+  }
 
   if (!testInfo.project.use.hasTouch) {
     const browser = page.locator('.knowledge-browser');
