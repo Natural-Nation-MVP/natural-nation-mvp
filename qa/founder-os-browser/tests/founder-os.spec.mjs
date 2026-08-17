@@ -236,6 +236,21 @@ test('planning, mission, and Project Records controls use their authoritative ow
   await audit.click();
   await expect(page.locator('[data-knowledge-action-output]')).toContainText('Knowledge Audit Complete');
 
+  const command = page.locator('.knowledge-command');
+  const commandLayout = await command.evaluate((node) => {
+    const copy = node.firstElementChild?.getBoundingClientRect();
+    const actions = node.querySelector('.knowledge-command-actions')?.getBoundingClientRect();
+    const search = node.querySelector('.knowledge-search')?.getBoundingClientRect();
+    const buttons = [...node.querySelectorAll('.knowledge-command-actions button')].map((button) => button.getBoundingClientRect());
+    return Boolean(copy && actions && search
+      && copy.width >= Math.min(560, node.getBoundingClientRect().width)
+      && actions.top >= copy.bottom
+      && search.width > 0
+      && search.right <= actions.right
+      && buttons.every((button) => button.height >= 48 && button.right <= actions.right));
+  });
+  expect(commandLayout).toBe(true);
+
   if (!testInfo.project.use.hasTouch) {
     const browser = page.locator('.knowledge-browser');
     const detail = page.locator('[data-knowledge-detail]');
