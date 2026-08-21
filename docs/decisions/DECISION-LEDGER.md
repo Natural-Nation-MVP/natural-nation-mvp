@@ -65,6 +65,9 @@ The Decision Ledger records Founder approval events without duplicating full sou
 | DL-046 | Phase 4.2 GitHub-managed Gateway foundation passed Founder validation and is complete | R4.2 | Gateway | Complete | docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md |
 | DL-047 | GitHub main is the canonical deployment source for founder-os-gateway | R4.2 | Gateway | Approved | docs/releases/PHASE-4.2-GITHUB-MANAGED-GATEWAY-COMPLETE.md |
 | DL-048 | Phase 4.3 begins with the Protected Transaction Engine and Blueprint approval as its first protected route | R4.3 | Founder OS | Approved | docs/architecture/GATEWAY-API-V2-BLUEPRINT-APPROVAL.md |
+| DL-049 | Founder OS Phase 1 Natural Nation Operational Roadmap is complete and locked | FOS Phase 1 | Natural Nation | Complete | docs/releases/FOS-PHASES-001-002-CLOSEOUT.md |
+| DL-050 | Founder OS Phase 2 Governed GitHub Execution is complete and locked | FOS Phase 2 | Founder OS | Complete | docs/releases/FOS-PHASES-001-002-CLOSEOUT.md |
+| DL-051 | Founder OS Phase 3 AI Team Integration is the active operational phase | FOS Phase 3 | Founder OS | Approved | docs/founder-os/FOS-NEXT-FIVE-PHASES.md |
 
 ## Related Records
 
