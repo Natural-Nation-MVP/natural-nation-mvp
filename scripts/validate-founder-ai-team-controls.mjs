@@ -48,10 +48,21 @@ assert(route.includes('active workspace-scoped AI role'));
 
 assert.equal(registry.registryVersion, '2.0.0');
 assert.equal(registry.operatingModel, 'role-templates-for-ai-composed-workspace-teams');
+const requiredGovernedRoles = new Set(['art', 'codex', 'gemini', 'gpose', 'duey', 'founder']);
+for (const roleId of requiredGovernedRoles) {
+  assert(registry.agents.some((agent) => agent.id === roleId), `Missing governed AI role template: ${roleId}`);
+}
 for (const agent of registry.agents) {
   assert(agent.role && agent.provider && Array.isArray(agent.allowedActions));
   assert('templateOnly' in agent);
   assert(agent.workspaceRoleSource);
 }
+
+const duey = registry.agents.find((agent) => agent.id === 'duey');
+assert.equal(duey.workspaceRoleSource, 'ai-team-plan');
+assert.equal(duey.templateOnly, true);
+assert(duey.allowedActions.includes('validate-protocol-logic'));
+assert(duey.requiresFounderApprovalFor.includes('mentor-identity-change'));
+assert(route.includes('"duey"'), 'Duey must be available to governed AI-composed workspace plans.');
 
 console.log('Founder OS AI-controlled team composition validation passed.');
