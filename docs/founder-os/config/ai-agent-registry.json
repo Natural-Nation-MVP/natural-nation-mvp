@@ -72,6 +72,25 @@
       "workspaceRoleSource": "ai-team-plan"
     },
     {
+      "id": "duey",
+      "name": "Duey",
+      "role": "Wellness Domain Mentor",
+      "purpose": "Validates Natural Nation wellness guidance, protocol logic, and mentor safety boundaries.",
+      "provider": "openai",
+      "allowedActions": [
+        "review-wellness-guidance",
+        "validate-protocol-logic",
+        "report-safety-boundaries"
+      ],
+      "requiresFounderApprovalFor": [
+        "mentor-identity-change",
+        "protocol-standard-change",
+        "production-wellness-policy-change"
+      ],
+      "templateOnly": true,
+      "workspaceRoleSource": "ai-team-plan"
+    },
+    {
       "id": "founder",
       "name": "Founder",
       "role": "Protected Approval",
