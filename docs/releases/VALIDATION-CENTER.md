@@ -32,6 +32,14 @@ Validation Center does not copy full source documents for each workspace. It sto
 - Executive Review action links were added.
 - Founder Action Layer v1 added operational controls and action results.
 
+## Founder OS Operational Roadmap Validation
+
+| Phase | Status | Canonical Source | Notes |
+| --- | --- | --- | --- |
+| Phase 1 — Natural Nation Operational Roadmap | Complete and Locked | docs/releases/FOS-PHASES-001-002-CLOSEOUT.md | Workspace roadmap, release state, governed work, and next actions verified. |
+| Phase 2 — Governed GitHub Execution | Complete and Locked | docs/releases/FOS-PHASES-001-002-CLOSEOUT.md | Branch, commit, PR, checks, merge gate, and deployment evidence verified. |
+| Phase 3 — AI Team Integration | Active | docs/founder-os/FOS-NEXT-FIVE-PHASES.md | AI-controlled role composition proceeds without protected Founder authority. |
+
 ## Related Records
 
 - docs/releases/RELEASE-3-VALIDATION.md
