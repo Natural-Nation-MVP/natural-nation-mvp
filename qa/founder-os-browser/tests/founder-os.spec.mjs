@@ -347,6 +347,34 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(approvalSummary).toContainText('Needs your decision');
   await expect(approvalSummary).toContainText('Workspaces represented');
   await expect(approvalSummary).toContainText('Gateway coverage');
+  const approvalImpact = await page.evaluate(() => {
+    const complete = window.NNOSApprovalInbox.describeImpact({
+      changeSummary: 'Adds governed approval controls.',
+      projectEffect: 'Founder OS can record a protected decision without changing member-facing behavior.',
+      changedFiles: [{
+        path: 'docs/founder-os/js/founder-approval-inbox.js',
+        purpose: 'Approval behavior',
+        projectEffect: 'Connects Founder decisions to the governed action flow.',
+        risk: 'Medium'
+      }],
+      evidence: ['Cross-browser checks passed.'],
+      verificationSummary: '5 checks passed',
+      overallRisk: 'Medium',
+      rollbackPlan: 'Revert this change set.'
+    });
+    const incomplete = window.NNOSApprovalInbox.describeImpact({ resultSummary: 'Approval is waiting.' });
+    return { complete, incomplete };
+  });
+  expect(approvalImpact.complete.filesComplete).toBe(true);
+  expect(approvalImpact.complete.files[0]).toEqual({
+    path: 'docs/founder-os/js/founder-approval-inbox.js',
+    purpose: 'Approval behavior',
+    effect: 'Connects Founder decisions to the governed action flow.',
+    risk: 'Medium'
+  });
+  expect(approvalImpact.complete.verification).toBe('5 checks passed');
+  expect(approvalImpact.incomplete.filesComplete).toBe(false);
+  expect(approvalImpact.incomplete.projectEffect).toContain('Do not approve');
 
   await openView(page, 'ai');
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
