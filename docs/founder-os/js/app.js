@@ -27,7 +27,7 @@
   addScript('js/canonical-runtime-state.js?v=runtime-state-1', 'data-canonical-runtime-state-loader');
   addScript('js/ux-completion.js?v=runtime-state-1');
   addScript('js/founder-action-center.js?v=fos-actions-007', 'data-founder-action-center-loader');
-  addScript('js/founder-approval-inbox.js?v=section-2', 'data-founder-approval-inbox-loader');
+  addScript('js/founder-approval-inbox.js?v=file-impact-approval', 'data-founder-approval-inbox-loader');
   addScript('js/founder-task-details.js?v=section-3', 'data-founder-task-details-loader');
 
   var pageMeta = {

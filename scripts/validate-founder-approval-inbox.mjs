@@ -25,12 +25,16 @@ const inboxContracts = [
   'data-approval-decision="request_changes"',
   'data-approval-decision="defer"',
   'data-approval-decision="reject"',
-  'data-approval-decision="note"',
   '/decision',
   '/approval-action',
   'Founder Key',
   'founderNotes',
-  'Decision history',
+  'Change summary',
+  'Files changed',
+  'Verification and risk',
+  'Your decision',
+  'Project effect not supplied',
+  'filesComplete',
   'window.NNOSApprovalInbox'
 ];
 
@@ -79,7 +83,7 @@ if (!app.includes("approvals: { title: 'Approval Inbox'") || !app.includes("targ
 
 const usesRouteSafeLoader = app.includes("var paths = window.NNOSPaths") &&
   app.includes("script.src = paths.asset(path)") &&
-  app.includes("addScript('js/founder-approval-inbox.js?v=section-2'");
+  app.includes("addScript('js/founder-approval-inbox.js?v=file-impact-approval'");
 
 if (!usesRouteSafeLoader) {
   throw new Error('Approval Inbox runtime is not loaded through route-safe NNOSPaths.');

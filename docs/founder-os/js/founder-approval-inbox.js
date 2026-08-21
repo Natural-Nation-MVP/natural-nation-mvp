@@ -17,7 +17,7 @@
     if (document.querySelector('[data-founder-approval-inbox-styles]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = paths.asset('css/founder-approval-inbox.css?v=section-2-live-actions');
+    link.href = paths.asset('css/founder-approval-inbox.css?v=file-impact-approval');
     link.dataset.founderApprovalInboxStyles = 'true';
     document.head.appendChild(link);
   }
@@ -48,11 +48,60 @@
       <div class="approval-inbox-summary" data-approval-summary aria-live="polite"></div>
       <div class="approval-inbox-shell">
         <article class="glass-panel approval-inbox-list"><div class="eyebrow">Waiting</div><h2>Approval Queue</h2><div class="approval-inbox-list-items" data-approval-list aria-live="polite"></div></article>
-        <article class="glass-panel approval-inbox-detail" data-approval-detail><div class="approval-empty"><strong>Select an approval.</strong><p class="muted">Open an item to review evidence, risks, recommendation, and available decisions.</p></div></article>
+        <article class="glass-panel approval-inbox-detail" data-approval-detail><div class="approval-empty"><strong>Select an approval.</strong><p class="muted">Open an item to see which files change, how they affect the project, and the available decisions.</p></div></article>
       </div>`;
     const firstView = main.querySelector('.workspace-view');
     if (firstView) firstView.insertAdjacentElement('beforebegin', view); else main.appendChild(view);
     return view;
+  }
+
+  function parseResultSummary(value) {
+    if (!value || typeof value !== 'string') return {};
+    try { return JSON.parse(value); } catch { return { summary: value }; }
+  }
+
+  function extractChangedFilePaths(task) {
+    const explicit = task.changedFiles || task.filesChanged || task.fileImpacts;
+    if (Array.isArray(explicit)) return explicit;
+    const source = [task.resultSummary, task.requiredInput].filter(Boolean).join(' ');
+    const match = source.match(/(?:changed files?|exact changed files?):\s*([^.]*)/i);
+    if (!match) return [];
+    return match[1].split(',').map((path) => path.trim()).filter(Boolean);
+  }
+
+  function normalizeFileImpact(entry) {
+    const item = typeof entry === 'string' ? { path: entry } : (entry || {});
+    return {
+      path: item.path || item.file || item.filename || 'File path unavailable',
+      purpose: item.purpose || item.change || item.summary || 'Purpose not supplied',
+      effect: item.projectEffect || item.effect || item.impact || 'Project effect not supplied',
+      risk: item.risk || item.riskLevel || 'Unknown'
+    };
+  }
+
+  function riskRank(value) {
+    return ({ none: 0, low: 1, medium: 2, high: 3, critical: 4, unknown: 5 })[String(value || 'unknown').toLowerCase()] ?? 5;
+  }
+
+  function approvalImpact(task) {
+    const result = parseResultSummary(task.resultSummary);
+    const files = extractChangedFilePaths(task).map(normalizeFileImpact);
+    const risks = Array.isArray(task.risks) ? task.risks : (Array.isArray(result.risks) ? result.risks : []);
+    const evidence = Array.isArray(task.evidence) ? task.evidence : (Array.isArray(result.evidence) ? result.evidence : []);
+    const highestFileRisk = files.reduce((highest, file) => riskRank(file.risk) > riskRank(highest) ? file.risk : highest, 'None');
+    return {
+      summary: task.changeSummary || result.summary || task.resultSummary || task.description || 'The workflow reached a Founder-controlled decision gate.',
+      files,
+      filesComplete: files.length > 0 && files.every((file) => file.effect !== 'Project effect not supplied' && file.risk !== 'Unknown'),
+      projectEffect: task.projectEffect || result.projectEffect || (files.length
+        ? 'The listed files are the complete supplied change set. Review each project effect before deciding.'
+        : 'No file-impact manifest was supplied. Do not approve until the changed files and their project effects are available.'),
+      evidence,
+      verification: task.verificationSummary || result.verificationSummary || (evidence.length ? `${evidence.length} verification item${evidence.length === 1 ? '' : 's'} supplied` : 'Verification details not supplied'),
+      risks,
+      overallRisk: task.overallRisk || result.overallRisk || (risks.length ? 'Review required' : highestFileRisk),
+      rollback: task.rollbackPlan || result.rollbackPlan || 'Rollback plan not supplied'
+    };
   }
 
   function governedWorkspaces() {
@@ -100,19 +149,11 @@
         packageId: state.packageId,
         owner: task.owner,
         updatedAt: task.updatedAt || state.updatedAt,
-        whatChanged: task.resultSummary || task.description || 'The workflow reached a Founder-controlled decision gate.',
-        whyChanged: task.reason || task.blockedReason || 'Founder authority is required before the workflow may continue.',
-        evidence: Array.isArray(task.evidence) ? task.evidence : [task.resultSummary || 'Canonical orchestration state identifies this item as requiring Founder review.'],
-        risks: Array.isArray(task.risks) ? task.risks : [task.blockedReason || 'Proceeding without a recorded Founder decision may bypass the approved governance gate.'],
-        recommendation: task.recommendation || (task.providerStatus === 'manual-review-required' ? 'Review the verified implementation evidence before approving or returning the work.' : 'Review the request and record a governed decision.'),
+        impact: approvalImpact(task),
         pullRequestUrl: String(task.resultSummary || '').match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/i)?.[0] || null,
         founderNotes: Array.isArray(task.founderNotes) ? task.founderNotes : []
       }));
     }).sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')));
-  }
-
-  function listMarkup(values, className) {
-    return `<ul class="${className}">${values.map((value) => `<li>${esc(typeof value === 'string' ? value : JSON.stringify(value))}</li>`).join('')}</ul>`;
   }
 
   function renderList(records) {
@@ -128,35 +169,43 @@
       </button>`).join('');
   }
 
-  function noteHistory(record) {
-    if (!record.founderNotes.length) return '<p class="muted">No Founder notes have been recorded.</p>';
-    return `<ul class="approval-evidence-list">${record.founderNotes.map((entry) => `<li><strong>${esc(entry.action || 'note')}</strong> · ${esc(entry.recordedAt || 'recently')}<br>${esc(entry.note || '')}</li>`).join('')}</ul>`;
+  function fileImpactMarkup(impact) {
+    if (!impact.files.length) return '<div class="approval-missing-impact" role="alert"><strong>File-impact details are missing.</strong><p>The approval payload does not identify the changed files or explain their effect on the project. Request changes before approving.</p></div>';
+    return `<div class="approval-file-table" role="table" aria-label="Files changed and project impact">
+      <div class="approval-file-row approval-file-head" role="row"><span>File</span><span>Purpose</span><span>Project effect</span><span>Risk</span></div>
+      ${impact.files.map((file) => `<article class="approval-file-row" role="row">
+        <div data-label="File"><code>${esc(file.path)}</code></div>
+        <div data-label="Purpose">${esc(file.purpose)}</div>
+        <div data-label="Project effect">${esc(file.effect)}</div>
+        <div data-label="Risk"><span class="approval-risk approval-risk-${esc(String(file.risk).toLowerCase().replace(/[^a-z0-9-]/g, '-'))}">${esc(file.risk)}</span></div>
+      </article>`).join('')}</div>`;
+  }
+
+  function compactList(values, emptyText) {
+    if (!values.length) return `<p class="muted">${esc(emptyText)}</p>`;
+    return `<ul class="approval-compact-list">${values.map((value) => `<li>${esc(typeof value === 'string' ? value : JSON.stringify(value))}</li>`).join('')}</ul>`;
   }
 
   function renderDetail(record) {
     const detail = $('[data-approval-detail]');
     if (!detail) return;
     if (!record) {
-      detail.innerHTML = '<div class="approval-empty"><strong>Select an approval.</strong><p class="muted">Open an item to review evidence, risks, recommendation, and available decisions.</p></div>';
+      detail.innerHTML = '<div class="approval-empty"><strong>Select an approval.</strong><p class="muted">Open an item to see which files change, how they affect the project, and the available decisions.</p></div>';
       return;
     }
     detail.innerHTML = `
       <div class="approval-inbox-header"><div><div class="eyebrow">${esc(record.category)}</div><h2>${esc(record.title)}</h2><p class="muted">${esc(record.workspaceId)} · ${esc(record.packageId)} · ${esc(record.id)}</p></div><span class="pill approval-status">${esc(record.status)}</span></div>
-      <div class="approval-detail-grid">
-        <section class="approval-detail-card"><h3>What changed</h3><p>${esc(record.whatChanged)}</p></section>
-        <section class="approval-detail-card"><h3>Why it changed</h3><p>${esc(record.whyChanged)}</p></section>
-        <section class="approval-detail-card"><h3>Evidence</h3>${listMarkup(record.evidence, 'approval-evidence-list')}</section>
-        <section class="approval-detail-card"><h3>Risks</h3>${listMarkup(record.risks, 'approval-risk-list')}</section>
-        <section class="approval-detail-card full"><h3>AI team recommendation</h3><p>${esc(record.recommendation)}</p>${record.pullRequestUrl ? `<p><a href="${esc(record.pullRequestUrl)}" target="_blank" rel="noopener">Open related pull request ↗</a></p>` : ''}</section>
-        <section class="approval-detail-card full"><h3>Founder note</h3><textarea class="approval-note" data-approval-note placeholder="Add context, required corrections, or the reason for your decision."></textarea><p class="muted">A note is required for request changes, defer, reject, and note-only actions.</p></section>
-        <section class="approval-detail-card full"><h3>Decision history</h3>${noteHistory(record)}</section>
+      <div class="approval-detail-flow">
+        <section class="approval-detail-section" data-approval-area="summary"><div class="approval-section-number">1</div><div><h3>Change summary</h3><p>${esc(record.impact.summary)}</p><p class="approval-effect-rollup"><strong>Overall project effect:</strong> ${esc(record.impact.projectEffect)}</p></div></section>
+        <section class="approval-detail-section approval-files-section" data-approval-area="files"><div class="approval-section-number">2</div><div><h3>Files changed</h3><p class="muted">What each file does and how the change affects the project.</p>${fileImpactMarkup(record.impact)}</div></section>
+        <section class="approval-detail-section" data-approval-area="verification"><div class="approval-section-number">3</div><div><h3>Verification and risk</h3><div class="approval-verification-grid"><article><small>Verification</small><strong>${esc(record.impact.verification)}</strong></article><article><small>Overall risk</small><strong>${esc(record.impact.overallRisk)}</strong></article><article><small>Rollback</small><strong>${esc(record.impact.rollback)}</strong></article></div>${compactList(record.impact.risks, 'No additional risks were supplied.')}${record.pullRequestUrl ? `<p><a href="${esc(record.pullRequestUrl)}" target="_blank" rel="noopener">Open related pull request ↗</a></p>` : ''}</div></section>
+        <section class="approval-detail-section" data-approval-area="decision"><div class="approval-section-number">4</div><div><h3>Your decision</h3><p>Approve this exact file set and its stated project effects, or return it with direction.</p><label class="approval-note-label" for="approval-founder-note">Optional Founder note</label><textarea id="approval-founder-note" class="approval-note" data-approval-note placeholder="Add context, required corrections, or the reason for your decision."></textarea><p class="muted">A note is required for request changes, defer, and reject.</p></div></section>
       </div>
-      <div class="approval-actions" aria-label="Founder approval actions">
-        <button type="button" class="generate" data-approval-decision="approve">Approve</button>
+      <div class="approval-actions" aria-label="Founder approval actions" data-approval-actions>
+        <button type="button" class="generate" data-approval-decision="approve" ${record.impact.filesComplete ? '' : 'disabled title="Complete file-impact details are required before approval."'}>Approve changes</button>
         <button type="button" data-approval-decision="request_changes">Request changes</button>
         <button type="button" data-approval-decision="defer">Defer</button>
         <button type="button" data-approval-decision="reject">Reject</button>
-        <button type="button" data-approval-decision="note">Add note</button>
       </div>`;
   }
 
@@ -246,7 +295,7 @@
   });
   window.addEventListener('founder-os:approval-requested', (event) => openApproval(event.detail?.taskId));
 
-  window.NNOSApprovalInbox = { load, open: openApproval, get records() { return approvalRecords(); }, get failures() { return [...loadFailures]; } };
+  window.NNOSApprovalInbox = { load, open: openApproval, describeImpact: approvalImpact, get records() { return approvalRecords(); }, get failures() { return [...loadFailures]; } };
   loadStyles();
   ensureView();
 })();
