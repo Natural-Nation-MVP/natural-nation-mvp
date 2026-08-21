@@ -6,6 +6,10 @@ Current release: Phase 4.4 — Build Studio Execution
 
 Current priority: Execute canonical package `NN-BUILD-001` through the governed Build Studio and Codex implementation flow.
 
+Founder OS operational roadmap: Phases 1–2 complete and locked; Phase 3 AI Team Integration active.
+
+Operational roadmap closeout: docs/releases/FOS-PHASES-001-002-CLOSEOUT.md
+
 Canonical runtime: docs/founder-os/
 
 Canonical knowledge base: docs/knowledge/INDEX.md
