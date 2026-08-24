@@ -656,3 +656,31 @@ test('mobile header controls open menus without leaving the workspace', async ({
   await expect(header.locator('.mobile-header-brand strong')).toBeHidden();
   expect(criticalErrors).toEqual([]);
 });
+
+
+test('Evidence and Audit presents founder impact with secondary technical proof', async ({ page }, testInfo) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'natural-nation');
+  await openView(page, 'evidence');
+
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'evidence');
+  const evidence = page.locator('[data-evidence-audit-app]');
+  await expect(evidence).toBeVisible();
+  await expect(evidence).toContainText('Evidence & Audit');
+  await expect(evidence).toContainText('Verified runs');
+  await expect(evidence).toContainText('Exceptions');
+  await expect(evidence).toContainText('Recorded cost');
+  await expect(evidence).toContainText('Project impact');
+  await expect(evidence).toContainText('Affected files');
+  await expect(evidence).toContainText('Decision & outcome');
+  await expect(evidence.locator('.evidence-proof').first()).not.toHaveAttribute('open', '');
+
+  if (testInfo.project.use.hasTouch) {
+    const columns = await evidence.locator('.evidence-workspace').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    expect(columns).toBe(1);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(criticalErrors).toEqual([]);
+});
