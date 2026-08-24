@@ -12,6 +12,7 @@ import { handleCreateWorkspaceV2 } from "./routes/create-workspace-v2.js";
 import { handleFounderApprovalActions } from "./routes/founder-approval-actions.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleKnowledgeRecords } from "./routes/knowledge-records.js";
+import { handleEvidenceRecords } from "./routes/evidence-records.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 import { handleWorkspaceLifecycle } from "./routes/workspace-lifecycle.js";
 
@@ -111,7 +112,8 @@ function systemRoute(request, env, pathname) {
         founderApprovalInboxActions: "enabled",
         governedKnowledgeRecords: "repository-backed",
         aiKnowledgeDrafts: "enabled",
-        founderKnowledgeAuthority: "enabled"
+        founderKnowledgeAuthority: "enabled",
+        founderEvidenceAudit: "repository-backed"
       }
     });
   }
@@ -152,6 +154,9 @@ export default {
 
       const knowledgeRecordsResponse = await handleKnowledgeRecords(request, env, pathname);
       if (knowledgeRecordsResponse) return knowledgeRecordsResponse;
+
+      const evidenceRecordsResponse = await handleEvidenceRecords(request, env, pathname);
+      if (evidenceRecordsResponse) return evidenceRecordsResponse;
 
       const orchestrationResponse = await handleAiOrchestration(request, env, pathname);
       if (orchestrationResponse) return orchestrationResponse;
