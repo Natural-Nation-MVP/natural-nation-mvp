@@ -176,9 +176,20 @@ jobs:
           echo "Browser-equivalent Build Work requests verified."
 
       - name: Verify NN-KS-002 workflow endpoint
+        shell: bash
         run: |
-          RESPONSE="$(curl --fail --silent --show-error -H 'x-founder-os-workspace: workspace-natural-nation' https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002)"
-          echo "$RESPONSE" | grep -q '"id":"nn-ks-002"'
-          echo "$RESPONSE" | grep -q '"workspaceId":"workspace-natural-nation"'
-          echo "$RESPONSE" | grep -q '"persisted":true'
+          set -euo pipefail
+          endpoint="https://founder-os-gateway.dmoseley1024.workers.dev/api/founder-os/workflows/nn-ks-002"
+          body_file="$(mktemp)"
+          trap 'rm -f "$body_file"' EXIT
+          status="$(curl --silent --show-error --output "$body_file" --write-out '%{http_code}' -H 'x-founder-os-workspace: workspace-natural-nation' "$endpoint")"
+          body="$(cat "$body_file")"
+
+          echo "NN-KS-002 status: $status"
+          echo "NN-KS-002 response: $body"
+
+          test "$status" = "200"
+          echo "$body" | jq -e '.workflow.id == "nn-ks-002"' >/dev/null
+          echo "$body" | jq -e '.workflow.workspaceId == "workspace-natural-nation"' >/dev/null
+          echo "$body" | jq -e '.persisted == true' >/dev/null
           echo "NN-KS-002 live workflow endpoint and persistence verified."
