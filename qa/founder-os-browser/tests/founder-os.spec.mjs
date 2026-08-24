@@ -677,7 +677,7 @@ test('Evidence and Audit presents founder impact with secondary technical proof'
   await expect(evidence.locator('.evidence-proof').first()).not.toHaveAttribute('open', '');
 
   if (testInfo.project.use.hasTouch) {
-    const columns = await evidence.locator('.evidence-workspace').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    const columns = await evidence.locator('.evidence-layout').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
     expect(columns).toBe(1);
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
