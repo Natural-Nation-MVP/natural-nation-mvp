@@ -673,7 +673,7 @@ test('Evidence and Audit presents founder impact with secondary technical proof'
   await expect(evidence).toContainText('Recorded cost');
   await expect(evidence).toContainText('Project impact');
   await expect(evidence).toContainText('Affected files');
-  await expect(evidence).toContainText('Decision & outcome');
+  await expect(evidence).toContainText('Decision and outcome');
   await expect(evidence.locator('.evidence-proof').first()).not.toHaveAttribute('open', '');
 
   if (testInfo.project.use.hasTouch) {
