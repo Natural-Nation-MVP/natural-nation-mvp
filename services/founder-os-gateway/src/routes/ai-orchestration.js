@@ -118,7 +118,7 @@ async function resetTask(env, route, actor, reason) {
 }
 
 const CONTROL_ACTIONS = new Set(["handoff", "reassign", "provider_switch", "submit_review"]);
-const TEMPLATE_ROLE_IDS = new Set(["art", "codex", "gemini", "gpose", "founder"]);
+const TEMPLATE_ROLE_IDS = new Set(["art", "codex", "gemini", "gpose", "duey", "founder"]);
 const PROVIDER_IDS = new Set(["openai", "google"]);
 
 function normalizePlannedRole(value) {
