@@ -15,9 +15,22 @@ function env() {
     GITHUB_TOKEN:"token",
     GITHUB_OWNER:"Natural-Nation-MVP",
     GITHUB_REPOSITORY:"natural-nation-mvp",
-    GITHUB_BRANCH:"main",
-    __TEST_REPOSITORY_JSON: registry
+    GITHUB_BRANCH:"main"
   };
+}
+
+const originalFetch = globalThis.fetch;
+
+test.after(() => {
+  globalThis.fetch = originalFetch;
+});
+
+function installRepositoryFetch() {
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    type: "file",
+    sha: "registry-sha",
+    content: Buffer.from(JSON.stringify(registry), "utf8").toString("base64")
+  }), { status: 200, headers: { "content-type": "application/json" } });
 }
 
 test("redacts secret-shaped fields recursively", () => {
@@ -31,6 +44,7 @@ test("rejects unauthenticated reads", async () => {
 });
 
 test("returns only workspace-scoped evidence and immutable references", async () => {
+  installRepositoryFetch();
   const request = new Request("https://gateway.test/v1/workspaces/natural-nation/evidence", { headers:{ authorization:"Bearer founder-test" } });
   const response = await handleEvidenceRecords(request, env(), "/v1/workspaces/natural-nation/evidence");
   assert.equal(response.status, 200);
