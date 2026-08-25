@@ -28,7 +28,8 @@
       { target: 'build', label: 'Build Work', group: 'Execution' },
       { target: 'ai', label: 'Assigned AI Team', group: 'Execution' },
       { target: 'repo', label: 'Code Status', group: 'Execution' },
-      { target: 'knowledge', label: 'Product Records', group: 'Records' }
+      { target: 'knowledge', label: 'Product Records', group: 'Records' },
+      { target: 'evidence', label: 'Evidence & Audit', group: 'Records' }
     ];
     return [
       { target: 'mission', label: 'Overview', group: 'Start' },

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-24T17:00:00.000Z",
+  "records": [
+    {
+      "schemaVersion": "1.0.0",
+      "evidenceId": "EV-0001",
+      "workspaceId": "natural-nation",
+      "eventType": "deployment",
+      "title": "Founder OS gateway diagnostics deployed",
+      "summary": "The governed workflow endpoint is available to release validation.",
+      "projectImpact": "Restores automated verification of the NN-KS-002 workflow without changing Natural Nation member-facing behavior.",
+      "changedFiles": [
+        {
+          "path": "services/founder-os-gateway/src/routes/nn-ks-002.js",
+          "effect": "Exposes the workspace-scoped diagnostic response used by release checks.",
+          "risk": "low"
+        },
+        {
+          "path": ".github/workflows/deploy-founder-os-gateway.yml",
+          "effect": "Verifies the diagnostic endpoint after deployment.",
+          "risk": "low"
+        }
+      ],
+      "decision": {
+        "status": "approved",
+        "actor": "founder",
+        "recordedAt": "2026-08-24T16:59:00.000Z"
+      },
+      "outcome": {
+        "status": "verified",
+        "summary": "Gateway deployment and the main validation job passed."
+      },
+      "provider": {
+        "name": "Cloudflare Workers",
+        "status": "ready"
+      },
+      "cost": {
+        "amount": 0.12,
+        "currency": "USD"
+      },
+      "payloadHash": "sha256:76b87f36e3b4478777996ce115bb7f4b6d76f32bd46e3265306c3d7d508b5f15",
+      "repository": {
+        "owner": "Natural-Nation-MVP",
+        "name": "natural-nation-mvp",
+        "ref": "main",
+        "commit": "380559b"
+      },
+      "occurredAt": "2026-08-24T16:59:00.000Z",
+      "technicalProof": {
+        "workflow": "Deploy Founder OS Gateway",
+        "run": 41,
+        "checks": [
+          "validate-and-deploy"
+        ]
+      }
+    },
+    {
+      "schemaVersion": "1.0.0",
+      "evidenceId": "EV-0002",
+      "workspaceId": "natural-nation",
+      "eventType": "approval",
+      "title": "Phase 3 closeout approved",
+      "summary": "The Founder accepted the completed AI team and governance work.",
+      "projectImpact": "Allows Phase 4 evidence and audit work to begin while preserving the existing Founder approval boundary.",
+      "changedFiles": [],
+      "decision": {
+        "status": "approved",
+        "actor": "founder",
+        "recordedAt": "2026-08-24T17:00:00.000Z"
+      },
+      "outcome": {
+        "status": "verified",
+        "summary": "Phase 3 is closed and Phase 4 is authorized."
+      },
+      "provider": {
+        "name": "Founder",
+        "status": "manual"
+      },
+      "cost": {
+        "amount": 0,
+        "currency": "USD"
+      },
+      "payloadHash": "sha256:aec6a50f7aba6a264e688d2711aca2d6ff85d675e853892966245eaf39cd9e4f",
+      "repository": {
+        "owner": "Natural-Nation-MVP",
+        "name": "natural-nation-mvp",
+        "ref": "main",
+        "commit": "380559b"
+      },
+      "occurredAt": "2026-08-24T17:00:00.000Z",
+      "technicalProof": {
+        "issue": 103,
+        "approval": "conversation-record"
+      }
+    }
+  ]
+}
