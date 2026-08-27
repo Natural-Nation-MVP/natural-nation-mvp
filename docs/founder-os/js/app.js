@@ -38,6 +38,8 @@
     build: { title: 'Build Work', subtitle: 'See the live current owner, ready task, next handoff, and protected execution action.', badge: 'Live Execution' },
     mission: { title: 'Product Overview', subtitle: 'See the current objective, live task, project health, and safest next action.', badge: 'Executive Status' },
     knowledge: { title: 'Project Records', subtitle: 'Find approved decisions, plans, and project information.', badge: 'Records' },
+    evidence: { title: 'Evidence & Audit', subtitle: 'Review verified work, outcomes, project impact, and technical proof.', badge: 'Evidence' },
+    analytics: { title: 'Usage Analytics', subtitle: 'See what is consuming AI and automation usage and where optimization is working.', badge: 'Optimization' },
     repo: { title: 'Code Status', subtitle: 'Review source code, checks, deployment, and merge readiness.', badge: 'Founder Repository Control' },
     ai: { title: 'AI Team', subtitle: 'See the AI-composed workspace team, provider readiness, current handoff, and verified task status.', badge: 'Live Assignments' }
   };

@@ -1,0 +1,37 @@
+{
+  "policyVersion": "1.0.0",
+  "policyId": "founder-os-usage-optimization",
+  "status": "active",
+  "effectiveAt": "2026-08-27T00:00:00.000Z",
+  "scope": "all-workspaces",
+  "objective": "Reduce redundant AI and automation usage without removing project history, evidence, decisions, or verification quality.",
+  "memoryLayers": [
+    "permanent-archive",
+    "verified-project-state",
+    "task-context-pack"
+  ],
+  "controls": {
+    "compactTaskContext": true,
+    "unrelatedConversationHistoryExcluded": true,
+    "onDemandEvidenceRetrieval": true,
+    "payloadFingerprinting": true,
+    "duplicateDispatchProtection": true,
+    "unchangedValidationReuse": true,
+    "eventDrivenStatusChecks": true,
+    "differentialVisualReview": true,
+    "batchRepositoryOperations": true,
+    "preserveRawEvidence": true,
+    "preserveFounderAuthority": true
+  },
+  "qualityGates": [
+    "Do not remove approved requirements or acceptance criteria from a task context pack.",
+    "Do not reuse validation after the payload, commit, environment, or acceptance criteria changes.",
+    "Do not replace exact measured usage with estimates.",
+    "Escalate protected decisions and material risks to the Founder."
+  ],
+  "routing": {
+    "routineStatusAndFormatting": "lowest-capability model that satisfies the exact contract",
+    "implementationAndReview": "capability-matched governed role",
+    "architectureAndMaterialRisk": "strong reasoning model with Founder gates preserved"
+  }
+}

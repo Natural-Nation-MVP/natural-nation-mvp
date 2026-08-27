@@ -6,10 +6,12 @@ import {
 import { deliverToProvider } from "./ai-provider-adapters.js";
 import { executeCodexRepositoryResult } from "./codex-repository-bridge.js";
 import { structuredLog } from "./structured-log.js";
+import { buildUsageRecord, mergeUsageRecord } from "./usage-telemetry.js";
 import { verifyTaskResult } from "./result-verification.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const AGENT_PATH = "docs/founder-os/config/ai-agent-registry.json";
+const USAGE_PATH = "docs/founder-os/registry/usage-records.json";
 const CANONICAL_STATE_URL = "https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/ai-orchestration-state.json";
 
 function taskPath(workspaceId, packageId, taskId) {
@@ -22,6 +24,40 @@ function resultPath(workspaceId, packageId, taskId) {
 
 function routingContext({ workspaceId, packageId, taskId, dispatchId = null, assignedRole = null }) {
   return { workspaceId, packageId, taskId, dispatchId, assignedRole };
+}
+
+async function sha256(value) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return `sha256:${[...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+}
+
+async function buildContextPack(dispatch) {
+  const payload = {
+    workspaceId: dispatch.workspaceId,
+    packageId: dispatch.packageId,
+    taskId: dispatch.taskId,
+    requiredInput: dispatch.requiredInput,
+    expectedOutput: dispatch.expectedOutput,
+    evidenceContract: dispatch.evidenceContract || null
+  };
+  return {
+    version: "1.0.0",
+    compact: true,
+    payloadFingerprint: await sha256(JSON.stringify(payload)),
+    includes: ["task-scope", "required-input", "expected-output", "relevant-evidence", "acceptance-contract"],
+    excludes: ["unrelated-conversation-history", "unrelated-workspace-state", "unchanged-artifacts"]
+  };
+}
+
+async function usageRegistry(env, record) {
+  let registry;
+  try {
+    ({ content: registry } = await readRepositoryJson(env, USAGE_PATH));
+  } catch {
+    registry = { schemaVersion: "1.0.0", records: [] };
+  }
+  return mergeUsageRecord(registry, record);
 }
 
 function validateScope(state, workspaceId, packageId, taskId) {
@@ -165,6 +201,9 @@ async function recordSynchronousOutcome({ env, state, task, dispatchRecord, deli
     executionConfirmed: delivery.delivered === true
   };
   const verification = verifyTaskResult(task, result);
+  const meteredTask = { ...task, contextPack: dispatchRecord.contextPack || task.contextPack || null };
+  const usage = buildUsageRecord({ state, task: meteredTask, result, delivery, actor });
+  const meteredRegistry = await usageRegistry(env, usage);
   if (!verification.ok) {
     const failedState = verificationFailedState(state, task.id, verification.reason);
     const failedResult = resultRecord(state, task, result, actor, "failed", verification.reason);
@@ -173,7 +212,8 @@ async function recordSynchronousOutcome({ env, state, task, dispatchRecord, deli
       files: [
         { path: STATE_PATH, content: failedState },
         { path: taskPath(state.workspaceId, state.packageId, task.id), content: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false } },
-        { path: resultPath(state.workspaceId, state.packageId, task.id), content: failedResult }
+        { path: resultPath(state.workspaceId, state.packageId, task.id), content: failedResult },
+        { path: USAGE_PATH, content: meteredRegistry }
       ]
     });
     return {
@@ -192,7 +232,8 @@ async function recordSynchronousOutcome({ env, state, task, dispatchRecord, deli
     files: [
       { path: STATE_PATH, content: passedState },
       { path: taskPath(state.workspaceId, state.packageId, task.id), content: { ...deliveredRecord, status: "completed", executionConfirmed: true } },
-      { path: resultPath(state.workspaceId, state.packageId, task.id), content: passedResult }
+      { path: resultPath(state.workspaceId, state.packageId, task.id), content: passedResult },
+      { path: USAGE_PATH, content: meteredRegistry }
     ]
   });
   return {
@@ -233,6 +274,7 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     provider: agent.provider || "manual"
   };
   dispatchRecord = await enrichDispatchWithEvidence(env, task, dispatchRecord);
+  dispatchRecord.contextPack = await buildContextPack(dispatchRecord);
 
   structuredLog(dryRun ? "dispatch.validated" : "dispatch.started", {
     ...context,

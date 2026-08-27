@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyRef": "docs/founder-os/config/usage-optimization-policy.json",
+  "updatedAt": "2026-08-27T00:00:00.000Z",
+  "historicalCoverage": {
+    "status": "unmetered",
+    "message": "Historical ChatGPT and pre-telemetry AI usage is preserved in the project archive but does not contain exact provider token telemetry. Exact measurement begins with future governed runs."
+  },
+  "records": []
+}

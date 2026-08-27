@@ -1,5 +1,5 @@
 /*
- * Founder OS Gateway Worker v0.8.0
+ * Founder OS Gateway Worker v0.9.0
  *
  * Canonical Cloudflare Worker source for protected Founder approvals,
  * repository-backed AI orchestration, live workflows, and governed review.
@@ -13,10 +13,11 @@ import { handleFounderApprovalActions } from "./routes/founder-approval-actions.
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleKnowledgeRecords } from "./routes/knowledge-records.js";
 import { handleEvidenceRecords } from "./routes/evidence-records.js";
+import { handleUsageAnalytics } from "./routes/usage-analytics.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 import { handleWorkspaceLifecycle } from "./routes/workspace-lifecycle.js";
 
-const VERSION = "0.8.0";
+const VERSION = "0.9.0";
 
 function safeBindingDiagnostics(env) {
   const receivedBindingNames = Object.keys(env || {}).sort();
@@ -113,7 +114,11 @@ function systemRoute(request, env, pathname) {
         governedKnowledgeRecords: "repository-backed",
         aiKnowledgeDrafts: "enabled",
         founderKnowledgeAuthority: "enabled",
-        founderEvidenceAudit: "repository-backed"
+        founderEvidenceAudit: "repository-backed",
+        usageOptimization: "active",
+        usageAnalytics: "repository-backed",
+        compactTaskContext: "enabled",
+        providerUsageTelemetry: "enabled"
       }
     });
   }
@@ -157,6 +162,9 @@ export default {
 
       const evidenceRecordsResponse = await handleEvidenceRecords(request, env, pathname);
       if (evidenceRecordsResponse) return evidenceRecordsResponse;
+
+      const usageAnalyticsResponse = await handleUsageAnalytics(request, env, pathname);
+      if (usageAnalyticsResponse) return usageAnalyticsResponse;
 
       const orchestrationResponse = await handleAiOrchestration(request, env, pathname);
       if (orchestrationResponse) return orchestrationResponse;
