@@ -13,6 +13,7 @@ on:
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
       - 'scripts/validate-founder-ws-005.mjs'
+      - 'scripts/validate-usage-optimization.mjs'
       - 'scripts/verify-founder-os-live-deployment.mjs'
       - '.github/workflows/deploy-founder-os-pilot.yml'
       - '.github/workflows/founder-os-stabilization.yml'
@@ -31,6 +32,7 @@ on:
       - 'scripts/validate-founder-ux-001.mjs'
       - 'scripts/validate-founder-ws-001.mjs'
       - 'scripts/validate-founder-ws-005.mjs'
+      - 'scripts/validate-usage-optimization.mjs'
       - 'scripts/verify-founder-os-live-deployment.mjs'
       - '.github/workflows/deploy-founder-os-pilot.yml'
       - '.github/workflows/founder-os-stabilization.yml'
@@ -65,6 +67,7 @@ jobs:
             scripts/validate-founder-ux-001.mjs
             scripts/validate-founder-ws-001.mjs
             scripts/validate-founder-ws-005.mjs
+            scripts/validate-usage-optimization.mjs
           )
           for validator in "${validators[@]}"; do
             echo "::group::$validator"

@@ -684,3 +684,31 @@ test('Evidence and Audit presents founder impact with secondary technical proof'
   expect(overflow).toBeLessThanOrEqual(1);
   expect(criticalErrors).toEqual([]);
 });
+
+test('Usage Analytics identifies the highest recorded driver with responsive charts', async ({ page }, testInfo) => {
+  const criticalErrors = collectCriticalErrors(page);
+  await openHome(page);
+  await openWorkspace(page, 'founder-os');
+  await openView(page, 'analytics');
+
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'analytics');
+  const analytics = page.locator('[data-usage-analytics-app]');
+  await expect(analytics).toBeVisible();
+  await expect(analytics).toContainText('Usage Analytics');
+  await expect(analytics).toContainText('Highest measured usage');
+  await expect(analytics).toContainText('Cloudflare Workers');
+  await expect(analytics).toContainText('$0.12');
+  await expect(analytics).toContainText('Historical usage is preserved but unmetered');
+  await expect(analytics.locator('.usage-bars')).toBeVisible();
+  await expect(analytics.locator('.usage-pie')).toBeVisible();
+  await expect(analytics.locator('.usage-trend')).toBeVisible();
+  await expect(analytics.locator('[data-analytics-highest]')).toContainText('recorded cost');
+
+  if (testInfo.project.use.hasTouch) {
+    const columns = await analytics.locator('.usage-chart-grid').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    expect(columns).toBe(1);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(criticalErrors).toEqual([]);
+});

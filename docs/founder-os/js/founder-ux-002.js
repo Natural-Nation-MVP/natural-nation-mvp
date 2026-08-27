@@ -3,7 +3,7 @@
 
   function one(selector, root) { return (root || document).querySelector(selector); }
   function all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
-  var VERSION = 'v0.8.0';
+  var VERSION = 'v0.9.0';
   var DRAFT_KEY = 'founder-os-workspace-discovery-draft-v4';
   var icons = { plus: '＋', clock: '◷', duplicate: '⧉', archive: '▣', health: '⌁', arrow: '›' };
 

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/usage-record.schema.json",
+  "title": "Founder OS Usage Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "usageId",
+    "workspaceId",
+    "source",
+    "provider",
+    "requests",
+    "tokens",
+    "optimization",
+    "occurredAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "usageId": { "type": "string", "minLength": 1 },
+    "workspaceId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "packageId": { "type": ["string", "null"] },
+    "taskId": { "type": ["string", "null"] },
+    "dispatchId": { "type": ["string", "null"] },
+    "source": { "enum": ["ai-orchestration", "automation", "deployment", "manual"] },
+    "roleId": { "type": ["string", "null"] },
+    "provider": { "type": "string", "minLength": 1 },
+    "model": { "type": ["string", "null"] },
+    "requests": { "type": "integer", "minimum": 0 },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input", "output", "total", "cached"],
+      "properties": {
+        "input": { "type": "integer", "minimum": 0 },
+        "output": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 },
+        "cached": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "cost": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["amount", "currency", "status"],
+      "properties": {
+        "amount": { "type": ["number", "null"], "minimum": 0 },
+        "currency": { "const": "USD" },
+        "status": { "enum": ["recorded", "unavailable"] }
+      }
+    },
+    "optimization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compactContext", "payloadFingerprint", "retryCount", "fallbackUsed"],
+      "properties": {
+        "compactContext": { "type": "boolean" },
+        "payloadFingerprint": { "type": ["string", "null"] },
+        "retryCount": { "type": "integer", "minimum": 0 },
+        "fallbackUsed": { "type": "boolean" },
+        "duplicateSuppressed": { "type": "boolean" }
+      }
+    },
+    "occurredAt": { "type": "string", "format": "date-time" }
+  }
+}

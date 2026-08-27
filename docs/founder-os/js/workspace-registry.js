@@ -8,7 +8,7 @@
     });
   }
 
-  var managementPath = window.NNOSPaths.asset('config/workspace-registry.json?v=1.6.1');
+  var managementPath = window.NNOSPaths.asset('config/workspace-registry.json?v=1.7.0');
   var canonicalPath = window.NNOSPaths.asset('registry/workspaces.json?v=2.1.0');
   var registry = null;
   var loadPromise = null;
@@ -19,6 +19,7 @@
       { target: 'mission', label: 'Overview', group: 'Start' },
       { target: 'ai', label: 'AI Team', group: 'Operations' },
       { target: 'repo', label: 'Code Status', group: 'Operations' },
+      { target: 'analytics', label: 'Usage Analytics', group: 'Operations' },
       { target: 'knowledge', label: 'System Records', group: 'Records' }
     ];
     if (id === 'natural-nation') return [

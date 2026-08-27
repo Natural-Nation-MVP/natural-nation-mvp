@@ -35,6 +35,7 @@ const expectedStaticControllers = [
   'knowledge-engine.js',
   'ai-orchestration.js',
   'evidence-audit.js',
+  'usage-analytics.js',
   'navigation-manager-035.js'
 ];
 

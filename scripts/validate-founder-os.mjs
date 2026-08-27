@@ -132,7 +132,9 @@ assert(orchestrationState.tasks.filter((task) => ['ready', 'blocked'].includes(t
 
 assert(gatewayIndex.includes('handleAiOrchestration') && gatewayIndex.includes('handleNnKs002'));
 assert(gatewayIndex.includes('handleCreateWorkspaceV2'));
-assert(gatewayIndex.includes('const VERSION = "0.8.0"'));
+assert(gatewayIndex.includes('const VERSION = "0.9.0"'));
+assert(gatewayIndex.includes('handleUsageAnalytics'));
+assert(gatewayIndex.includes('usageOptimization: "active"'));
 assert(gatewayIndex.includes('protectedWorkspaceCreation: "enabled"'));
 assert(gatewayIndex.includes('canonicalOrchestrationRoute: "enabled"'));
 assert(gatewayIndex.includes('normalizePathname') && gatewayIndex.includes('systemRoute'));
