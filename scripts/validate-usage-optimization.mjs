@@ -17,6 +17,10 @@ const [policy, registry, workspaceRegistry, html, analytics, gateway, orchestrat
 
 assert.equal(policy.status, 'active');
 assert.equal(policy.scope, 'all-workspaces');
+assert.equal(policy.liveAnalytics.refreshSeconds, 30);
+assert.equal(policy.liveAnalytics.refreshOnlyWhileVisible, true);
+assert.equal(policy.liveAnalytics.readOnly, true);
+assert.equal(policy.liveAnalytics.alertThresholds.retryRatePercent, 10);
 assert.deepEqual(policy.memoryLayers, ['permanent-archive', 'verified-project-state', 'task-context-pack']);
 for (const control of [
   'compactTaskContext',
@@ -51,8 +55,10 @@ assert.ok(founderWorkspace.modules.some((module) => module.target === 'analytics
 assert(html.includes('data-workspace="analytics"'));
 assert(html.includes('usage-analytics.js?v=fos-actions-014'));
 assert(html.includes('usage-analytics.css?v=fos-actions-014'));
-for (const required of ['Highest measured usage', 'usage-pie', 'usage-trend', 'Historical usage is preserved but unmetered']) assert(analytics.includes(required));
+for (const required of ['Live usage, history, and high-usage problems', 'Highest measured usage', 'usage-pie', 'usage-trend', 'High-usage problems', 'Historical usage is preserved but unmetered']) assert(analytics.includes(required));
 assert(gateway.includes('handleUsageAnalytics'));
+assert(gateway.includes('liveUsageAnalytics: "read-only-aggregate"'));
+assert(gateway.includes('highUsageDetection: "enabled"'));
 assert(orchestration.includes('payloadFingerprint'));
 assert(orchestration.includes('USAGE_PATH'));
 assert(orchestration.includes('unrelated-conversation-history'));

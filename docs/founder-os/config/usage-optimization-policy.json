@@ -33,5 +33,19 @@
     "routineStatusAndFormatting": "lowest-capability model that satisfies the exact contract",
     "implementationAndReview": "capability-matched governed role",
     "architectureAndMaterialRisk": "strong reasoning model with Founder gates preserved"
+  },
+  "liveAnalytics": {
+    "refreshSeconds": 30,
+    "refreshOnlyWhileVisible": true,
+    "readOnly": true,
+    "alertThresholds": {
+      "retryRatePercent": 10,
+      "retryMinimumRequests": 3,
+      "cacheReusePercent": 10,
+      "cacheMinimumTokens": 1000,
+      "providerConcentrationPercent": 60,
+      "dailySpikeMultiplier": 2,
+      "longRunningMinutes": 15
+    }
   }
 }
