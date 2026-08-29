@@ -331,20 +331,20 @@
     {
       "id": "mission.support",
       "selector": "[data-mission-view]",
-      "surface": "Product Overview",
+      "surface": "Founder Command Center",
       "owner": "mission-control.js",
-      "availability": "rendered in Executive Review and restored after fallback rendering",
-      "outcome": "Open Code Status or Product Records through Navigation Manager",
-      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+      "availability": "rendered for live and repository-snapshot portfolio summaries",
+      "outcome": "Open the authoritative AI, approval, repository, usage, or records screen through Navigation Manager",
+      "browserTest": "planning, live Command Center, and Project Records use their authoritative owners"
     },
     {
-      "id": "mission.action",
-      "selector": "[data-mission-action]",
-      "surface": "Product Overview",
+      "id": "mission.refresh",
+      "selector": "[data-command-center-refresh]",
+      "surface": "Founder Command Center",
       "owner": "mission-control.js",
-      "availability": "rendered in Closeout Readiness and restored after fallback rendering",
-      "outcome": "Run a local readiness result, prepare closeout, or open Code Status",
-      "browserTest": "planning, mission, and Project Records controls use their authoritative owners"
+      "availability": "rendered in the read-only portfolio overview",
+      "outcome": "Refresh the live read-only portfolio aggregation without executing a protected action",
+      "browserTest": "planning, live Command Center, and Project Records use their authoritative owners"
     },
     {
       "id": "ai.dispatch",

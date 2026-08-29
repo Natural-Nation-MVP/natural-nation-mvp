@@ -78,8 +78,8 @@ assert(!actionSources.blueprintRenderer.includes('data-review-blueprint'), 'Blue
 assert(actionSources.liveApproval.includes("closest?.('[data-approve-blueprint]')"), 'Live Approval must own the Blueprint approval action.');
 assert(!actionSources.gatewayStatus.includes('blueprint-approval'), 'Gateway status must not load a second approval runtime.');
 assert(actionSources.actionCenter.includes('NNOSNavigationManager'), 'Founder Action Center must route through Navigation Manager.');
-assert(actionSources.missionControl.includes('data-mission-view') && actionSources.missionControl.includes('data-mission-action'), 'Mission Control must expose owned supporting and closeout controls.');
-assert(actionSources.missionControl.includes('MutationObserver'), 'Mission Control must restore its owned controls after live fallback rendering.');
+assert(actionSources.missionControl.includes('data-mission-view') && actionSources.missionControl.includes('data-command-center-refresh'), 'Founder Command Center must expose owned navigation and read-only refresh controls.');
+assert(actionSources.missionControl.includes('snapshotFallback') && actionSources.missionControl.includes('missionIsVisible'), 'Founder Command Center must preserve a safe fallback and refresh only while visible.');
 assert(actionSources.founderActions.includes("openView(target, 'founder-actions')"), 'Founder utility actions must route through Navigation Manager.');
 assert(actionSources.knowledgeEngine.includes('data-knowledge-search') && actionSources.knowledgeEngine.includes('data-knowledge-action'), 'Knowledge Engine must own Project Records search and actions.');
 assert(!actionSources.workspaceKnowledgeScope.includes('addEventListener'), 'Workspace knowledge scope must remain presentation-free.');
