@@ -1,159 +1,71 @@
-const missionSignals = [
-  ['Project Health', 'Healthy', 'Release 3 foundation is implemented and in final validation.'],
-  ['Release 3', 'Executive Review', 'All planned workspaces and cross-workspace checks have passed Founder validation.'],
-  ['Validation Progress', 'Final Gate', 'Executive Review is now actionable inside Mission Control.'],
-  ['Repository Sync', 'Synchronized', 'Project State, Session Log, validation events, Decision Ledger, and Validation Center are aligned.'],
-  ['Current Initiative', 'Executive Review', 'Review release readiness and use the supporting controls before closeout.'],
-  ['Next Up', 'Release 3 Closeout', 'After Executive Review passes, prepare the synchronized release closeout package.'],
-];
+const COMMAND_CENTER_ENDPOINT = 'https://founder-os-gateway.dmoseley1024.workers.dev/v1/public/command-center';
+const REFRESH_MS = 30000;
+let commandCenterTimer = null;
+let commandCenterLoading = false;
 
-const executiveReview = [
-  ['Release Status', 'Ready for Review', 'Release 3 Foundation has passed all implementation and layout validations.', 'knowledge', 'Open Product Records'],
-  ['Validation Summary', 'PASS', 'Build Studio, Knowledge Graph, Repository Intelligence, Mission Control, AI Operations, Navigation, Action Bar, and iPad Layout passed.', 'repo', 'Open Validation Status'],
-  ['Repository Sync', 'PASS', 'Project State, Session Log, validation events, and release records are synchronized.', 'repo', 'Open Code Status'],
-  ['Knowledge Base Sync', 'PASS', 'Founder OS knowledge records reference canonical source-of-truth documents.', 'knowledge', 'Open Product Records'],
-  ['Decision Ledger', 'READY', 'Final release approval can be recorded during closeout.', 'knowledge', 'Open Decision Records'],
-  ['Validation Center', 'READY', 'Final validation result can be recorded during closeout.', 'repo', 'Open Validation Status'],
-  ['Blockers', 'None Known', 'No blocking issues are currently reported.', 'repo', 'Open Blocker Status'],
-];
-
-const closeoutActions = [
-  ['Run Closeout Readiness Check', 'Action', 'Check visible release readiness conditions before closeout.', 'run-closeout-check'],
-  ['Prepare Release 3 Closeout', 'Action', 'Prepare the final closeout sequence for repository synchronization.', 'prepare-closeout'],
-  ['Review Repository Sync', 'Action', 'Open Code Status before closeout.', 'open-repo'],
-];
-
-const attentionItems = [
-  ['Validate Executive Review actions', 'Founder', 'Confirm the review panel includes active supporting controls and action results.'],
-  ['Approve Release 3 Closeout', 'Founder', 'After Executive Review passes, approve the final synchronized closeout.'],
-];
-
-const recentChanges = [
-  ['Workspace Navigation', 'PASS', 'Founder validated switching across core workspaces.'],
-  ['Bottom Action Bar', 'PASS', 'Founder validated build status actions appear only in Build Work.'],
-  ['iPad Layout', 'PASS', 'Founder validated portrait and landscape layouts.'],
-  ['Founder Action Layer', 'PASS', 'Mission Control now uses owned controls without inline handlers or legacy hashes.'],
-];
-
-const pendingDecisions = [
-  ['Executive Review approval', 'Pending', 'Awaiting Founder validation of visible panel, active controls, and actions.'],
-  ['Release 3 closeout approval', 'Pending', 'Requires Executive Review PASS before final closeout.'],
-];
-
-const activeRisks = [
-  ['Executive Review actions', 'Resolved', 'Supporting controls route through the canonical Navigation Manager.'],
-  ['Release Closeout', 'Pending', 'Final records still need to be synchronized after Executive Review passes.'],
-  ['Duplicate Data Risk', 'Low', 'SSOT standard and reference-based records reduce duplication risk.'],
-];
-
-let missionRenderScheduled = false;
-let missionObserver = null;
-
-function missionCard(title, value, detail) {
-  return `<div class="module-card"><strong>${title}</strong><div class="section-title">${value}</div><p class="muted">${detail}</p></div>`;
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]));
 }
-
-function missionRow(title, status, detail) {
-  return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span class="status">${status}</span></div>`;
-}
-
-function missionViewRow(title, status, detail, target, label) {
-  return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span class="status">${status}</span><button class="status" type="button" data-mission-view="${target}">${label}</button></div>`;
-}
-
-function missionControlAction(title, status, detail, action) {
-  return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span class="status">${status}</span><button class="btn small" type="button" data-mission-action="${action}">Run</button></div>`;
-}
-
-function missionAction(title, owner, detail) {
-  return `<div class="record-row"><span><strong>${title}</strong><br><small>${detail}</small></span><span>${owner}</span><span class="status">Next</span></div>`;
-}
-
-function openView(target, source) {
-  return window.NNOSNavigationManager?.openView?.(target, source || 'mission-control') || false;
-}
-
+function openView(target) { return window.NNOSNavigationManager?.openView?.(target, 'founder-command-center') || false; }
 function ensureMissionSurface() {
   const view = document.querySelector('[data-workspace="mission"]');
   if (!view) return null;
-
   let cards = view.querySelector('[data-mission-cards]');
   let queue = view.querySelector('[data-action-queue]');
-  if (cards && queue) return { cards, queue };
-
-  let runtime = view.querySelector('[data-mission-control-runtime]');
-  if (!runtime) {
-    runtime = document.createElement('section');
-    runtime.className = 'glass-panel mission-control-runtime';
-    runtime.dataset.missionControlRuntime = '';
-    runtime.setAttribute('aria-label', 'Mission Control executive review');
-    runtime.innerHTML = `
-      <div class="eyebrow">Executive Review</div>
-      <h2>Mission Control</h2>
-      <p class="muted">These local Founder controls remain available even when live Gateway status cannot be loaded.</p>
-      <div class="modules-grid" data-mission-cards></div>
-      <div data-action-queue></div>`;
-    view.appendChild(runtime);
-  }
-
-  cards = runtime.querySelector('[data-mission-cards]');
-  queue = runtime.querySelector('[data-action-queue]');
-  return cards && queue ? { cards, queue } : null;
+  if (cards && queue) return { view, cards, queue };
+  const runtime = document.createElement('section');
+  runtime.className = 'glass-panel command-center-runtime';
+  runtime.setAttribute('aria-label', 'Founder Command Center');
+  runtime.innerHTML = '<div class="command-center-summary" data-mission-cards></div><div data-action-queue></div>';
+  view.appendChild(runtime);
+  return { view, cards:runtime.querySelector('[data-mission-cards]'), queue:runtime.querySelector('[data-action-queue]') };
 }
-
-function renderMissionControlRuntime() {
-  const surface = ensureMissionSurface();
-  if (!surface) return;
-
-  surface.cards.innerHTML = missionSignals.map(([title, value, detail]) => missionCard(title, value, detail)).join('');
-  surface.queue.innerHTML = `<div data-mission-action-output></div><div class="module-card"><strong>Executive Review</strong><p class="muted">Final Founder review gate before Release 3 closeout.</p>${executiveReview.map(([title, status, detail, target, label]) => missionViewRow(title, status, detail, target, label)).join('')}</div><div class="module-card"><strong>Closeout Readiness</strong>${closeoutActions.map(([title, status, detail, action]) => missionControlAction(title, status, detail, action)).join('')}</div><div class="module-card"><strong>What Requires Attention Now</strong>${attentionItems.map(([title, owner, detail]) => missionAction(title, owner, detail)).join('')}</div><div class="module-card"><strong>What Changed Recently</strong>${recentChanges.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Pending Founder Decisions</strong>${pendingDecisions.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div><div class="module-card"><strong>Active Risks</strong>${activeRisks.map(([title, status, detail]) => missionRow(title, status, detail)).join('')}</div>`;
+function snapshotFallback() {
+  return { ok:true, readOnly:true, live:false, generatedAt:null,
+    summary:{workspaces:2,activeWork:0,pendingApprovals:0,blockingRisks:0,providersReady:0,providersTotal:2,verifiedEvidence:2,recordedCost:.12,currency:'USD'},
+    workspaces:[
+      {workspaceId:'founder-os',name:'Founder OS',status:'active',health:'Core system online',currentMilestone:'Phase 5 audit',progress:54,nextAction:'Review live operational intelligence'},
+      {workspaceId:'natural-nation',name:'Natural Nation',status:'active',health:'Approved plan; product incomplete',currentMilestone:'Build Foundation',progress:52,nextAction:'Review product status before the next build package'}],
+    activeWork:[],approvals:[],risks:[],providers:[{name:'OpenAI',ready:false},{name:'Google AI',ready:false}],
+    repository:{status:'repository snapshot',latestCommit:'380559b',latestRef:'main',updatedAt:'2026-08-24T17:00:00.000Z'},
+    evidence:{verified:2,needsReview:0,exceptions:0,recent:[]},usage:{requests:0,tokens:0,retries:0,cacheRate:0,recordedCost:.12,currency:'USD',alerts:[]} };
 }
-
-function scheduleMissionRender() {
-  if (missionRenderScheduled) return;
-  missionRenderScheduled = true;
-  window.requestAnimationFrame(() => {
-    missionRenderScheduled = false;
-    renderMissionControlRuntime();
-  });
+function summaryCard(label,value,detail,target) {
+  return `<button class="command-center-stat" type="button" data-mission-view="${target}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(detail)}</small></button>`;
 }
-
-function installMissionObserver() {
-  const view = document.querySelector('[data-workspace="mission"]');
-  if (!view || missionObserver) return;
-  missionObserver = new MutationObserver(() => {
-    if (!view.querySelector('[data-mission-cards]') || !view.querySelector('[data-action-queue]')) {
-      scheduleMissionRender();
-    }
-  });
-  missionObserver.observe(view, { childList: true, subtree: true });
+function statusRow(title,detail,status,target) {
+  return `<button class="command-center-row" type="button" data-mission-view="${target}"><span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></span><span class="status">${escapeHtml(status)}</span></button>`;
 }
-
-document.addEventListener('click', (event) => {
-  const viewButton = event.target.closest('[data-mission-view]');
-  if (viewButton) {
-    event.preventDefault();
-    openView(viewButton.dataset.missionView, 'mission-supporting-control');
-    return;
-  }
-
-  const actionButton = event.target.closest('[data-mission-action]');
-  if (!actionButton) return;
-  event.preventDefault();
-  const action = actionButton.dataset.missionAction;
-  if (action === 'run-closeout-check') window.NNOSActions?.runCloseoutCheck?.();
-  if (action === 'prepare-closeout') window.NNOSActions?.prepareReleaseCloseout?.();
-  if (action === 'open-repo') openView('repo', 'mission-closeout-action');
-});
-
-window.addEventListener('founder-os:workspace-view-changed', (event) => {
-  if (event.detail?.target === 'mission') scheduleMissionRender();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  installMissionObserver();
-  scheduleMissionRender();
-}, { once: true });
-
-installMissionObserver();
-scheduleMissionRender();
+function renderCommandCenter(data,errorMessage) {
+  const surface=ensureMissionSurface(); if(!surface)return;
+  const summary=data.summary||{};
+  const liveLabel=data.live?`Live · updated ${new Date(data.generatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})}`:'Repository snapshot';
+  surface.cards.className='command-center-summary';
+  surface.cards.innerHTML=[
+    summaryCard('Active work',summary.activeWork||0,'Governed tasks running now','ai'),
+    summaryCard('Needs approval',summary.pendingApprovals||0,'Founder decisions waiting','approvals'),
+    summaryCard('Blocking risks',summary.blockingRisks||0,'Problems requiring attention','repo'),
+    summaryCard('Providers ready',`${summary.providersReady||0}/${summary.providersTotal||0}`,'Configured AI providers','ai'),
+    summaryCard('Verified evidence',summary.verifiedEvidence||0,'Recorded outcomes','knowledge'),
+    summaryCard('Recorded cost',`$${Number(summary.recordedCost||0).toFixed(2)}`,summary.currency||'USD','analytics')].join('');
+  const attention=[
+    ...(data.approvals||[]).map((item)=>({title:item.title,detail:`${item.workspaceId} · approval required`,status:'Approval',target:'approvals'})),
+    ...(data.risks||[]).map((item)=>({title:item.title,detail:item.reason,status:'Blocked',target:'repo'})),
+    ...((data.usage&&data.usage.alerts)||[]).map((item)=>({title:item.title,detail:item.message,status:item.severity,target:'analytics'}))];
+  const attentionRows=attention.length?attention.slice(0,6).map((item)=>statusRow(item.title,item.detail,item.status,item.target)).join(''):'<div class="command-center-empty"><strong>No current exceptions</strong><span>Approvals, blockers, and usage alerts are within measured limits.</span></div>';
+  const roadmapRows=(data.workspaces||[]).map((item)=>statusRow(item.name,`${item.currentMilestone} · ${item.progress||0}% · Next: ${item.nextAction}`,item.status,item.workspaceId==='founder-os'?'mission':'build')).join('');
+  const recentRows=(data.evidence?.recent||[]).map((item)=>statusRow(item.title,`${item.workspaceId} · ${item.summary||item.eventType}`,item.status,'knowledge')).join('')||'<div class="command-center-empty"><strong>No recent evidence in this response</strong><span>Open System Records for repository-backed history.</span></div>';
+  const repo=data.repository||{}; const providerReady=(data.providers||[]).filter((item)=>item.ready).length;
+  surface.queue.innerHTML=`<section class="command-center-header"><div><div class="eyebrow">Founder OS</div><h2>Founder Command Center</h2><p>Current work, decisions, risk, roadmap, providers, repository evidence, and cost in one read-only overview.</p></div><div class="command-center-live"><span>${escapeHtml(liveLabel)}</span><button class="btn small" type="button" data-command-center-refresh>Refresh now</button></div></section>
+    ${errorMessage?`<p class="command-center-notice" role="status">Live Gateway data is unavailable. Showing a safe repository snapshot. ${escapeHtml(errorMessage)}</p>`:''}
+    <div class="command-center-grid"><section class="module-card"><div class="eyebrow">Attention</div><h3>What needs a decision</h3>${attentionRows}</section><section class="module-card"><div class="eyebrow">Roadmap</div><h3>Workspace progress</h3>${roadmapRows}</section><section class="module-card"><div class="eyebrow">Operations</div><h3>Live system status</h3>
+    ${statusRow('AI providers',`${providerReady} of ${(data.providers||[]).length} ready`,providerReady?'Available':'Review','ai')}${statusRow('Repository',`${repo.latestRef||'No ref'} · ${repo.latestCommit||'No commit recorded'}`,repo.status||'Unknown','repo')}${statusRow('Usage',`${data.usage?.tokens||0} tokens · $${Number(data.usage?.recordedCost||0).toFixed(2)} recorded`,(data.usage?.alerts||[]).length?'Attention':'Measured','analytics')}${statusRow('Evidence',`${data.evidence?.verified||0} verified · ${data.evidence?.exceptions||0} exceptions`,'Recorded','knowledge')}</section><section class="module-card"><div class="eyebrow">Evidence</div><h3>Recent verified activity</h3>${recentRows}</section></div>`;
+}
+function missionIsVisible(){const view=document.querySelector('[data-workspace="mission"]');return Boolean(view&&!view.hidden&&document.visibilityState!=='hidden');}
+async function refreshCommandCenter(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(COMMAND_CENTER_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderCommandCenter(await response.json());}catch(error){renderCommandCenter(snapshotFallback(),error.message);}finally{commandCenterLoading=false;}}
+function scheduleRefresh(){window.clearInterval(commandCenterTimer);commandCenterTimer=window.setInterval(()=>{if(missionIsVisible())refreshCommandCenter();},REFRESH_MS);}
+document.addEventListener('click',(event)=>{const refresh=event.target.closest('[data-command-center-refresh]');if(refresh){event.preventDefault();refreshCommandCenter();return;}const view=event.target.closest('[data-mission-view]');if(view){event.preventDefault();openView(view.dataset.missionView);}});
+window.addEventListener('founder-os:workspace-view-changed',(event)=>{if(event.detail?.target==='mission')refreshCommandCenter();});
+document.addEventListener('visibilitychange',()=>{if(missionIsVisible())refreshCommandCenter();});
+document.addEventListener('DOMContentLoaded',()=>{renderCommandCenter(snapshotFallback());refreshCommandCenter();scheduleRefresh();},{once:true});
+renderCommandCenter(snapshotFallback());

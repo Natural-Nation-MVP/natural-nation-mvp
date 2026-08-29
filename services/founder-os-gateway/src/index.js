@@ -14,6 +14,7 @@ import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleKnowledgeRecords } from "./routes/knowledge-records.js";
 import { handleEvidenceRecords } from "./routes/evidence-records.js";
 import { handleUsageAnalytics } from "./routes/usage-analytics.js";
+import { handleCommandCenter } from "./routes/command-center.js";
 import { handleNnKs002 } from "./routes/nn-ks-002.js";
 import { handleWorkspaceLifecycle } from "./routes/workspace-lifecycle.js";
 
@@ -120,7 +121,9 @@ function systemRoute(request, env, pathname) {
         liveUsageAnalytics: "read-only-aggregate",
         highUsageDetection: "enabled",
         compactTaskContext: "enabled",
-        providerUsageTelemetry: "enabled"
+        providerUsageTelemetry: "enabled",
+        liveCommandCenter: "read-only-aggregate",
+        portfolioOperationalIntelligence: "enabled"
       }
     });
   }
@@ -164,6 +167,9 @@ export default {
 
       const evidenceRecordsResponse = await handleEvidenceRecords(request, env, pathname);
       if (evidenceRecordsResponse) return evidenceRecordsResponse;
+
+      const commandCenterResponse = await handleCommandCenter(request, env, pathname);
+      if (commandCenterResponse) return commandCenterResponse;
 
       const usageAnalyticsResponse = await handleUsageAnalytics(request, env, pathname);
       if (usageAnalyticsResponse) return usageAnalyticsResponse;

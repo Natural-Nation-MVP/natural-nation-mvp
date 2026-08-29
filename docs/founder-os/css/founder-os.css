@@ -222,6 +222,23 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   .record-row > :last-child{text-align:left}
 }
 
+/* FOS-PHASE-5-COMMAND-CENTER-001: live, read-only portfolio overview. */
+.command-center-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px;min-width:0}
+.command-center-stat{display:grid;gap:7px;min-width:0;padding:18px;text-align:left;border:1px solid var(--fos-line);border-radius:16px;background:var(--fos-surface);color:var(--fos-ink);cursor:pointer}
+.command-center-stat:hover,.command-center-stat:focus-visible,.command-center-row:hover,.command-center-row:focus-visible{border-color:var(--fos-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--fos-blue) 18%,transparent)}
+.command-center-stat span,.command-center-stat small{color:var(--fos-muted)}
+.command-center-stat strong{font-size:1.8rem;line-height:1}
+.command-center-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:22px;margin-bottom:18px;border:1px solid var(--fos-line);border-radius:18px;background:var(--fos-surface)}
+.command-center-header h2,.command-center-header p{margin:6px 0 0}.command-center-header p{color:var(--fos-muted);max-width:720px}
+.command-center-live{display:grid;gap:10px;justify-items:end;flex:0 0 auto}.command-center-live span{font-weight:800;white-space:nowrap}
+.command-center-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;min-width:0}.command-center-grid>.module-card{min-width:0}
+.command-center-row{display:flex;width:100%;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;text-align:left;border:0;border-top:1px solid var(--fos-line);background:transparent;color:var(--fos-ink);cursor:pointer}
+.command-center-row>span:first-child{display:grid;gap:4px;min-width:0}.command-center-row small{color:var(--fos-muted);overflow-wrap:anywhere}.command-center-row .status{flex:0 0 auto}
+.command-center-empty{display:grid;gap:6px;padding:18px;margin-top:12px;border-radius:14px;background:var(--fos-green-soft)}.command-center-empty span{color:var(--fos-muted)}
+.command-center-notice{padding:12px 14px;border-left:3px solid var(--fos-amber);background:var(--fos-amber-soft);border-radius:8px}
+@media (max-width:900px){.command-center-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.command-center-grid{grid-template-columns:1fr}}
+@media (max-width:560px){[data-workspace="mission"]{min-width:0;overflow-x:hidden}.command-center-summary{grid-template-columns:1fr}.command-center-header{display:grid;padding:16px}.command-center-live{justify-items:start}.command-center-stat{padding:15px}.command-center-row{align-items:flex-start}.command-center-row .status{max-width:38%;white-space:normal;text-align:center}}
+
 
 /* AI Team — founder-first compact overview */
 .ai-team-controls{display:grid;gap:1rem;padding:20px}
