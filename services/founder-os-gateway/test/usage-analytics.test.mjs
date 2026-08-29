@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { handleUsageAnalytics, summarizeUsage } from "../src/routes/usage-analytics.js";
+import { activeUsage, detectUsageAlerts, handleUsageAnalytics, summarizeUsage } from "../src/routes/usage-analytics.js";
 
 const usageRegistry = {
   policyRef: "docs/founder-os/config/usage-optimization-policy.json",
@@ -17,6 +17,14 @@ const evidenceRegistry = { records:[
   { workspaceId:"founder-os", cost:{ amount:0.03 } }
 ] };
 
+const orchestrationState = {
+  workspaceId:"natural-nation", packageId:"NN-BUILD-001", tasks:[
+    { id:"AI-TASK-001", workspaceId:"natural-nation", packageId:"NN-BUILD-001", title:"Active provider review", owner:"gemini", status:"working", providerStatus:"running", startedAt:"2026-08-27T11:00:00.000Z" },
+    { id:"AI-TASK-002", workspaceId:"natural-nation", packageId:"NN-BUILD-001", title:"Completed work", owner:"codex", status:"complete", providerStatus:"result-verified", startedAt:"2026-08-27T10:00:00.000Z" }
+  ]
+};
+const agentRegistry = { agents:[{ id:"gemini", provider:"google" }, { id:"codex", provider:"openai" }] };
+
 function env() {
   return { FOUNDER_API_KEY:"founder-test", GITHUB_TOKEN:"token", GITHUB_OWNER:"Natural-Nation-MVP", GITHUB_REPOSITORY:"natural-nation-mvp", GITHUB_BRANCH:"main" };
 }
@@ -26,7 +34,8 @@ test.after(() => { globalThis.fetch = originalFetch; });
 
 function installRepositoryFetch() {
   globalThis.fetch = async (url) => {
-    const body = String(url).includes("usage-records.json") ? usageRegistry : evidenceRegistry;
+    const value = String(url);
+    const body = value.includes("usage-records.json") ? usageRegistry : value.includes("evidence-records.json") ? evidenceRegistry : value.includes("ai-agent-registry.json") ? agentRegistry : orchestrationState;
     return new Response(JSON.stringify({ type:"file", sha:"registry-sha", content:Buffer.from(JSON.stringify(body), "utf8").toString("base64") }), { status:200, headers:{ "content-type":"application/json" } });
   };
 }
@@ -47,6 +56,36 @@ test("requires Founder authentication", async () => {
   const request = new Request("https://gateway.test/v1/workspaces/founder-os/usage-analytics");
   const response = await handleUsageAnalytics(request, env(), "/v1/workspaces/founder-os/usage-analytics");
   assert.equal(response.status, 401);
+});
+
+test("public live analytics are read-only and omit exact records", async () => {
+  installRepositoryFetch();
+  const request = new Request("https://gateway.test/v1/public/usage-analytics?workspaceId=founder-os");
+  const response = await handleUsageAnalytics(request, env(), "/v1/public/usage-analytics");
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.live, true);
+  assert.equal(body.readOnly, true);
+  assert.equal(body.active.length, 1);
+  assert.equal(body.active[0].provider, "google");
+  assert.equal(body.records, undefined);
+  assert.match(response.headers.get("cache-control"), /no-store/);
+});
+
+test("detects long-running work, retries, fallback, and provider concentration", () => {
+  const active = activeUsage(orchestrationState, "founder-os", new Date("2026-08-27T11:20:00.000Z"));
+  const summary = {
+    requests:10, tokens:2000, cachedTokens:0, cacheRate:0, retries:2, fallbacks:1,
+    highestUsage:{ label:"openai", tokens:1600 }
+  };
+  const alerts = detectUsageAlerts(summary, [{ date:"2026-08-26", requests:2, tokens:500 }, { date:"2026-08-27", requests:8, tokens:2000 }], active);
+  const codes = alerts.map((alert) => alert.code);
+  assert(codes.includes("RETRY_RATE"));
+  assert(codes.includes("LOW_CACHE_REUSE"));
+  assert(codes.includes("PROVIDER_FALLBACK"));
+  assert(codes.includes("PROVIDER_CONCENTRATION"));
+  assert(codes.includes("LONG_RUNNING_TASK"));
+  assert(codes.includes("USAGE_SPIKE"));
 });
 
 test("Founder OS receives portfolio analytics while product workspaces remain isolated", async () => {

@@ -117,6 +117,8 @@ function systemRoute(request, env, pathname) {
         founderEvidenceAudit: "repository-backed",
         usageOptimization: "active",
         usageAnalytics: "repository-backed",
+        liveUsageAnalytics: "read-only-aggregate",
+        highUsageDetection: "enabled",
         compactTaskContext: "enabled",
         providerUsageTelemetry: "enabled"
       }
