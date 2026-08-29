@@ -126,6 +126,9 @@
     }
 
     var meta = pageMeta[safeTarget] || pageMeta.registry;
+    if (safeTarget === 'mission' && workspace && workspace.id === 'founder-os') {
+      meta = { title: 'Founder Command Center', subtitle: 'See live work, decisions, risks, roadmap, providers, evidence, and recorded cost.', badge: 'Live Portfolio' };
+    }
     var workspaceName = workspace && workspace.name ? workspace.name : 'Founder OS';
     setText('[data-workspace-title]', meta.title);
     setText('[data-workspace-subtitle]', meta.subtitle);
