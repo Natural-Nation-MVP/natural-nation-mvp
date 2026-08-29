@@ -211,7 +211,7 @@ test('Founder Action Center opens and routes a workspace action', async ({ page 
   expect(criticalErrors).toEqual([]);
 });
 
-test('planning, live Command Center, and Project Records use their authoritative owners', async ({ page }, testInfo) => {
+test('planning, live workspace backlog, and Project Records use their authoritative owners', async ({ page }, testInfo) => {
   const criticalErrors = collectCriticalErrors(page);
   await openHome(page);
   await openWorkspace(page, 'natural-nation');
@@ -223,11 +223,11 @@ test('planning, live Command Center, and Project Records use their authoritative
   await expect(page.locator('body')).toHaveAttribute('data-active-view', 'repo');
 
   await openView(page, 'mission');
-  await expect(page.locator('[data-workspace="mission"]')).toContainText('Founder Command Center');
-  await expect(page.locator('[data-workspace="mission"]')).toContainText('Active work');
-  await expect(page.locator('[data-workspace="mission"]')).toContainText('Needs approval');
-  await expect(page.locator('[data-workspace="mission"]')).toContainText('Workspace progress');
-  await expect(page.locator('[data-workspace="mission"]')).toContainText('Live system status');
+  await expect(page.locator('[data-workspace="mission"]')).toContainText('Live Natural Nation Backlog');
+  await expect(page.locator('[data-workspace="mission"]')).toContainText('Needs reconciliation');
+  await expect(page.locator('[data-workspace="mission"]')).toContainText('Owner role');
+  await expect(page.locator('[data-workspace="mission"]')).toContainText('Approval class');
+  await expect(page.locator('[data-workspace="mission"]')).toContainText('Release target');
   await expect(page.locator('[data-command-center-refresh]')).toBeVisible();
   await expect(page.locator('[data-workspace="mission"]')).not.toContainText('Release 3');
   if (testInfo.project.use.hasTouch) {

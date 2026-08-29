@@ -28,7 +28,7 @@ function loadExecutionModules() {
   loadScriptOnce(asset('js/canonical-build-runtime-v2.js?v=sprint-128-runtime-v2'), 'data-canonical-build-loader');
   loadScriptOnce(asset('js/founder-actions.js?v=r3-actions-1'), 'data-founder-actions-loader');
   loadScriptOnce(asset('js/repository-intelligence.js?v=r3-repo-intel-3'), 'data-repository-intelligence-loader');
-  loadScriptOnce(asset('js/mission-control.js?v=fos-phase-5-command-center-001'), 'data-mission-control-loader');
+  loadScriptOnce(asset('js/mission-control.js?v=fos-phase-6-live-backlog-001'), 'data-mission-control-loader');
   loadScriptOnce(asset('js/ai-orchestration.js?v=processing-v4&release=sprint-128-runtime-v2'), 'data-ai-orchestration-loader');
   loadScriptOnce(asset('js/build-dispatch-bridge.js?v=processing-v4&release=sprint-128-runtime-v2'), 'data-build-dispatch-bridge-loader');
   loadScriptOnce(asset('js/natural-nation-final-pass.js?v=workspace-review-1'), 'data-natural-nation-final-pass-loader');

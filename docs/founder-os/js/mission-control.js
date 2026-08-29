@@ -1,4 +1,5 @@
 const COMMAND_CENTER_ENDPOINT = 'https://founder-os-gateway.dmoseley1024.workers.dev/v1/public/command-center';
+const NATURAL_NATION_BACKLOG_ENDPOINT = 'https://founder-os-gateway.dmoseley1024.workers.dev/v1/public/workspaces/natural-nation/backlog';
 const REFRESH_MS = 30000;
 let commandCenterTimer = null;
 let commandCenterLoading = false;
@@ -36,6 +37,21 @@ function summaryCard(label,value,detail,target) {
 function statusRow(title,detail,status,target) {
   return `<button class="command-center-row" type="button" data-mission-view="${target}"><span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></span><span class="status">${escapeHtml(status)}</span></button>`;
 }
+function backlogLabel(value){return String(value||'').replace(/-/g,' ').replace(/\b\w/g,(letter)=>letter.toUpperCase());}
+function renderBacklog(data,errorMessage){
+  const surface=ensureMissionSurface();if(!surface)return;
+  const summaryPanel=surface.cards.closest('.glass-panel');
+  if(summaryPanel){const eyebrow=summaryPanel.querySelector('.eyebrow');const title=summaryPanel.querySelector('.section-title');if(eyebrow)eyebrow.textContent='Workspace #1';if(title)title.textContent='Live Natural Nation backlog';}
+  const summary=data.summary||{};
+  surface.cards.className='command-center-summary backlog-summary';
+  surface.cards.innerHTML=[
+    summaryCard('Ready',summary.ready||0,'Approved scope ready to package','build'),
+    summaryCard('In progress',summary.inProgress||0,'Work with an active owner','build'),
+    summaryCard('Needs reconciliation',summary.needsReconciliation||0,'Conflicting canonical records','repo'),
+    summaryCard('Founder decisions',summary.founderDecisions||0,'Protected decisions waiting','approvals')].join('');
+  const items=(data.items||[]).map((item,index)=>`<article class="backlog-item backlog-status-${escapeHtml(item.status)}"><div class="backlog-index">${index+1}</div><div class="backlog-main"><div class="backlog-heading"><div><span class="eyebrow">${escapeHtml(item.backlogId)}</span><h3>${escapeHtml(item.title)}</h3></div><span class="status">${escapeHtml(backlogLabel(item.status))}</span></div><dl class="backlog-fields"><div><dt>GitHub issue</dt><dd>#${escapeHtml(item.issueNumber)}</dd></div><div><dt>Owner role</dt><dd>${escapeHtml(backlogLabel(item.ownerRole))}</dd></div><div><dt>Approval class</dt><dd>${escapeHtml(backlogLabel(item.approvalClass))}</dd></div><div><dt>Release target</dt><dd>${escapeHtml(item.release?.target)} · ${escapeHtml(item.release?.phase)}</dd></div><div class="backlog-next"><dt>Next action</dt><dd>${escapeHtml(item.nextAction)}</dd></div></dl></div><a class="btn small backlog-issue-link" href="${escapeHtml(item.issueUrl)}" target="_blank" rel="noopener noreferrer">Open issue</a></article>`).join('');
+  surface.queue.innerHTML=`<section class="command-center-header backlog-header"><div><div class="eyebrow">Natural Nation</div><h2>Live Natural Nation Backlog</h2><p>Repository-backed implementation status, ownership, approval boundaries, release linkage, and next actions.</p></div><div class="command-center-live"><span>${data.live?'Live · Workspace #1 only':'Repository snapshot'}</span><button class="btn small" type="button" data-command-center-refresh>Refresh now</button></div></section>${errorMessage?`<p class="command-center-notice" role="status">Live backlog data is unavailable. ${escapeHtml(errorMessage)}</p>`:''}<div class="backlog-list">${items||'<div class="command-center-empty"><strong>No backlog items recorded</strong><span>The registry contains no current work.</span></div>'}</div>`;
+}
 function renderCommandCenter(data,errorMessage) {
   const surface=ensureMissionSurface(); if(!surface)return;
   const summaryPanel=surface.cards.closest('.glass-panel');
@@ -65,10 +81,12 @@ function renderCommandCenter(data,errorMessage) {
     ${statusRow('AI providers',`${providerReady} of ${(data.providers||[]).length} ready`,providerReady?'Available':'Review','ai')}${statusRow('Repository',`${repo.latestRef||'No ref'} · ${repo.latestCommit||'No commit recorded'}`,repo.status||'Unknown','repo')}${statusRow('Usage',`${data.usage?.tokens||0} tokens · $${Number(data.usage?.recordedCost||0).toFixed(2)} recorded`,(data.usage?.alerts||[]).length?'Attention':'Measured','analytics')}${statusRow('Evidence',`${data.evidence?.verified||0} verified · ${data.evidence?.exceptions||0} exceptions`,'Recorded','knowledge')}</section><section class="module-card"><div class="eyebrow">Evidence</div><h3>Recent verified activity</h3>${recentRows}</section></div>`;
 }
 function missionIsVisible(){const view=document.querySelector('[data-workspace="mission"]');return Boolean(view&&!view.hidden&&document.visibilityState!=='hidden');}
+function currentWorkspaceId(){return window.NNOSActiveWorkspace?.id||document.body.getAttribute('data-active-workspace')||'founder-os';}
 async function refreshCommandCenter(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(COMMAND_CENTER_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderCommandCenter(await response.json());}catch(error){renderCommandCenter(snapshotFallback(),error.message);}finally{commandCenterLoading=false;}}
-function scheduleRefresh(){window.clearInterval(commandCenterTimer);commandCenterTimer=window.setInterval(()=>{if(missionIsVisible())refreshCommandCenter();},REFRESH_MS);}
-document.addEventListener('click',(event)=>{const refresh=event.target.closest('[data-command-center-refresh]');if(refresh){event.preventDefault();refreshCommandCenter();return;}const view=event.target.closest('[data-mission-view]');if(view){event.preventDefault();openView(view.dataset.missionView);}});
-window.addEventListener('founder-os:workspace-view-changed',(event)=>{if(event.detail?.target==='mission')refreshCommandCenter();});
-document.addEventListener('visibilitychange',()=>{if(missionIsVisible())refreshCommandCenter();});
-document.addEventListener('DOMContentLoaded',()=>{renderCommandCenter(snapshotFallback());refreshCommandCenter();scheduleRefresh();},{once:true});
-renderCommandCenter(snapshotFallback());
+async function refreshBacklog(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(NATURAL_NATION_BACKLOG_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderBacklog(await response.json());}catch(error){renderBacklog({live:false,summary:{},items:[]},error.message);}finally{commandCenterLoading=false;}}
+function refreshMissionData(){return currentWorkspaceId()==='natural-nation'?refreshBacklog():refreshCommandCenter();}
+function scheduleRefresh(){window.clearInterval(commandCenterTimer);commandCenterTimer=window.setInterval(()=>{if(missionIsVisible())refreshMissionData();},REFRESH_MS);}
+document.addEventListener('click',(event)=>{const refresh=event.target.closest('[data-command-center-refresh]');if(refresh){event.preventDefault();refreshMissionData();return;}const view=event.target.closest('[data-mission-view]');if(view){event.preventDefault();openView(view.dataset.missionView);}});
+window.addEventListener('founder-os:workspace-view-changed',(event)=>{if(event.detail?.target==='mission')refreshMissionData();});
+document.addEventListener('visibilitychange',()=>{if(missionIsVisible())refreshMissionData();});
+document.addEventListener('DOMContentLoaded',()=>{refreshMissionData();scheduleRefresh();},{once:true});

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0.0",
+  "registryId": "natural-nation-live-backlog",
+  "workspaceId": "natural-nation",
+  "workspaceNumber": 1,
+  "sourceBlueprint": "docs/founder-os/config/natural-nation-blueprint.json",
+  "sourcePackage": "docs/execution-packages/NN-BUILD-001.json",
+  "releaseTarget": "Natural Nation MVP / Phase 1",
+  "updatedAt": "2026-08-29T21:00:00.000Z",
+  "items": [
+    {
+      "backlogId": "NN-BACKLOG-001",
+      "issueNumber": 262,
+      "issueUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/issues/262",
+      "title": "Reconcile NN-BUILD-001 canonical status",
+      "status": "needs-reconciliation",
+      "ownerRole": "codex",
+      "supportingRoles": ["art"],
+      "approvalClass": "routine-review-founder-consequential",
+      "release": { "target": "Natural Nation MVP", "phase": "Phase 1" },
+      "nextAction": "Resolve the ready-versus-complete record conflict without inventing completion.",
+      "evidenceRefs": ["docs/execution-packages/NN-BUILD-001.json", "docs/founder-os/config/ai-orchestration-state.json"],
+      "order": 1
+    },
+    {
+      "backlogId": "NN-BACKLOG-002",
+      "issueNumber": 260,
+      "issueUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/issues/260",
+      "title": "Day 1 onboarding and dashboard",
+      "status": "ready",
+      "ownerRole": "codex",
+      "supportingRoles": ["art", "gpose"],
+      "approvalClass": "approved-scope-founder-merge",
+      "release": { "target": "Natural Nation MVP", "phase": "Phase 1" },
+      "nextAction": "Prepare the first reviewable implementation package from the approved Blueprint.",
+      "evidenceRefs": ["docs/founder-os/config/natural-nation-blueprint.json"],
+      "order": 2
+    },
+    {
+      "backlogId": "NN-BACKLOG-003",
+      "issueNumber": 259,
+      "issueUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/issues/259",
+      "title": "Daily Protocol and wellness scores",
+      "status": "planned",
+      "ownerRole": "codex",
+      "supportingRoles": ["duey", "gpose"],
+      "approvalClass": "approved-scope-founder-merge",
+      "release": { "target": "Natural Nation MVP", "phase": "Phase 1" },
+      "nextAction": "Break the approved protocol and deterministic score scope into testable tasks.",
+      "evidenceRefs": ["docs/founder-os/config/natural-nation-blueprint.json"],
+      "order": 3
+    },
+    {
+      "backlogId": "NN-BACKLOG-004",
+      "issueNumber": 261,
+      "issueUrl": "https://github.com/Natural-Nation-MVP/natural-nation-mvp/issues/261",
+      "title": "Duey mentor integration",
+      "status": "planned",
+      "ownerRole": "codex",
+      "supportingRoles": ["duey", "art"],
+      "approvalClass": "approved-scope-founder-merge",
+      "release": { "target": "Natural Nation MVP", "phase": "Phase 1" },
+      "nextAction": "Define the workspace-scoped mentor integration contract and validation evidence.",
+      "evidenceRefs": ["docs/founder-os/config/natural-nation-blueprint.json", "docs/founder-os/config/ai-agent-registry.json"],
+      "order": 4
+    }
+  ]
+}
