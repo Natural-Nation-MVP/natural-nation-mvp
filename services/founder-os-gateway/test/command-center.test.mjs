@@ -25,13 +25,16 @@ const originalFetch=globalThis.fetch;
 test.after(()=>{globalThis.fetch=originalFetch;});
 function installFetch(){
   const files=[management,canonical,orchestration,evidenceRegistry,usageRegistry,agentRegistry];let index=0;
-  globalThis.fetch=async()=>new Response(JSON.stringify({type:'file',sha:'sha',content:Buffer.from(JSON.stringify(files[index++])).toString('base64')}),{status:200});
+  globalThis.fetch=async(url)=>{
+    if(String(url).includes('/git/ref/heads/')) return new Response(JSON.stringify({object:{sha:'current-main-sha'}}),{status:200});
+    return new Response(JSON.stringify({type:'file',sha:'sha',content:Buffer.from(JSON.stringify(files[index++])).toString('base64')}),{status:200});
+  };
 }
 test('public endpoint is cache-free and accepts only GET',async()=>{
   installFetch();
   const env={GITHUB_TOKEN:'t',GITHUB_OWNER:'o',GITHUB_REPOSITORY:'r',GITHUB_BRANCH:'main',OPENAI_API_KEY:'configured'};
   const response=await handleCommandCenter(new Request('https://gateway.test/v1/public/command-center'),env,'/v1/public/command-center');
-  const body=await response.json(); assert.equal(response.status,200); assert.equal(body.readOnly,true); assert.match(response.headers.get('cache-control'),/no-store/);
+  const body=await response.json(); assert.equal(response.status,200); assert.equal(body.readOnly,true); assert.equal(body.repository.latestCommit,'current-main-sha'); assert.equal(body.repository.status,'current'); assert.match(response.headers.get('cache-control'),/no-store/);
   const rejected=await handleCommandCenter(new Request('https://gateway.test/v1/public/command-center',{method:'POST'}),env,'/v1/public/command-center');
   assert.equal(rejected.status,405);
 });

@@ -38,6 +38,8 @@ function statusRow(title,detail,status,target) {
 }
 function renderCommandCenter(data,errorMessage) {
   const surface=ensureMissionSurface(); if(!surface)return;
+  const summaryPanel=surface.cards.closest('.glass-panel');
+  if(summaryPanel){const eyebrow=summaryPanel.querySelector('.eyebrow');const title=summaryPanel.querySelector('.section-title');if(eyebrow)eyebrow.textContent='Live Portfolio';if(title)title.textContent='Current operational summary';}
   const summary=data.summary||{};
   const liveLabel=data.live?`Live · updated ${new Date(data.generatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})}`:'Repository snapshot';
   surface.cards.className='command-center-summary';
@@ -53,7 +55,8 @@ function renderCommandCenter(data,errorMessage) {
     ...(data.risks||[]).map((item)=>({title:item.title,detail:item.reason,status:'Blocked',target:'repo'})),
     ...((data.usage&&data.usage.alerts)||[]).map((item)=>({title:item.title,detail:item.message,status:item.severity,target:'analytics'}))];
   const attentionRows=attention.length?attention.slice(0,6).map((item)=>statusRow(item.title,item.detail,item.status,item.target)).join(''):'<div class="command-center-empty"><strong>No current exceptions</strong><span>Approvals, blockers, and usage alerts are within measured limits.</span></div>';
-  const roadmapRows=(data.workspaces||[]).map((item)=>statusRow(item.name,`${item.currentMilestone} · ${item.progress||0}% · Next: ${item.nextAction}`,item.status,item.workspaceId==='founder-os'?'mission':'build')).join('');
+  const nameCounts=(data.workspaces||[]).reduce((counts,item)=>{counts[item.name]=(counts[item.name]||0)+1;return counts;},{});
+  const roadmapRows=(data.workspaces||[]).map((item)=>{const label=nameCounts[item.name]>1?`${item.name} · ${item.workspaceKey||item.workspaceId}`:item.name;return statusRow(label,`${item.currentMilestone} · ${item.progress||0}% · Next: ${item.nextAction}`,item.status,item.workspaceId==='founder-os'?'mission':'build');}).join('');
   const recentRows=(data.evidence?.recent||[]).map((item)=>statusRow(item.title,`${item.workspaceId} · ${item.summary||item.eventType}`,item.status,'knowledge')).join('')||'<div class="command-center-empty"><strong>No recent evidence in this response</strong><span>Open System Records for repository-backed history.</span></div>';
   const repo=data.repository||{}; const providerReady=(data.providers||[]).filter((item)=>item.ready).length;
   surface.queue.innerHTML=`<section class="command-center-header"><div><div class="eyebrow">Founder OS</div><h2>Founder Command Center</h2><p>Current work, decisions, risk, roadmap, providers, repository evidence, and cost in one read-only overview.</p></div><div class="command-center-live"><span>${escapeHtml(liveLabel)}</span><button class="btn small" type="button" data-command-center-refresh>Refresh now</button></div></section>

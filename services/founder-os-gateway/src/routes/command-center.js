@@ -1,4 +1,4 @@
-import { readRepositoryJson } from "../lib/github.js";
+import { githubRequest, readRepositoryJson } from "../lib/github.js";
 import { errorResponse, json } from "../lib/http.js";
 import { providerReadiness } from "../lib/ai-provider-adapters.js";
 import { activeUsage, detectUsageAlerts, summarizeUsage } from "./usage-analytics.js";
@@ -17,7 +17,7 @@ function safeWorkspacePortfolio(management, canonical) {
   const workspaces = new Map();
   for (const item of management.workspaces || []) {
     workspaces.set(item.id, {
-      workspaceId: item.id, name: item.name, status: item.status || "unknown",
+      workspaceId: item.id, workspaceKey: item.workspaceKey || item.id, name: item.name, status: item.status || "unknown",
       health: item.health || "Not reported", currentMilestone: item.stage || "Not reported",
       progress: Number(item.progress || 0), nextAction: item.nextAction || "Review workspace status"
     });
@@ -25,7 +25,8 @@ function safeWorkspacePortfolio(management, canonical) {
   for (const item of canonical.workspaces || []) {
     const current = workspaces.get(item.workspaceId) || {};
     workspaces.set(item.workspaceId, {
-      workspaceId: item.workspaceId, name: current.name || item.displayName || item.workspaceId,
+      workspaceId: item.workspaceId, workspaceKey: current.workspaceKey || item.workspaceKey || item.workspaceId,
+      name: current.name || item.displayName || item.workspaceId,
       status: current.status || item.status || item.lifecycleStatus || "unknown",
       health: current.health || item.health?.summary || item.health?.state || "Not reported",
       currentMilestone: current.currentMilestone || item.roadmap?.[0] || item.lifecycleStatus || item.status || "Not reported",
@@ -82,7 +83,7 @@ function historyForAlerts(records) {
   return [...days.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function buildCommandCenter({ management, canonical, orchestration, evidenceRegistry, usageRegistry, agentRegistry, readiness, now = new Date() }) {
+export function buildCommandCenter({ management, canonical, orchestration, evidenceRegistry, usageRegistry, agentRegistry, readiness, repositoryHead = null, now = new Date() }) {
   const evidenceRecords = Array.isArray(evidenceRegistry.records) ? evidenceRegistry.records : [];
   const usageRecords = Array.isArray(usageRegistry.records) ? usageRegistry.records : [];
   const workspaces = safeWorkspacePortfolio(management, canonical);
@@ -106,7 +107,7 @@ export function buildCommandCenter({ management, canonical, orchestration, evide
       currency: usage.currency
     },
     workspaces, activeWork, approvals, risks, providers,
-    repository: latest ? { status: "synchronized", latestCommit: latest.commit, latestRef: latest.repositoryRef, updatedAt: latest.occurredAt } : { status: "unrecorded", latestCommit: null, latestRef: null, updatedAt: null },
+    repository: repositoryHead || (latest ? { status: "evidence snapshot", latestCommit: latest.commit, latestRef: latest.repositoryRef, updatedAt: latest.occurredAt } : { status: "unrecorded", latestCommit: null, latestRef: null, updatedAt: null }),
     evidence, usage: { requests: usage.requests, tokens: usage.tokens, retries: usage.retries, cacheRate: usage.cacheRate, recordedCost: usage.recordedCost, currency: usage.currency, alerts }
   };
 }
@@ -114,8 +115,11 @@ export function buildCommandCenter({ management, canonical, orchestration, evide
 export async function handleCommandCenter(request, env, pathname) {
   if (pathname !== "/v1/public/command-center") return null;
   if (request.method !== "GET") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "The Founder Command Center is read-only.");
+  const branch = env.GITHUB_BRANCH || "main";
   const sources = await Promise.all(Object.values(PATHS).map((path) => readRepositoryJson(env, path)));
   const [management, canonical, orchestration, evidenceRegistry, usageRegistry, agentRegistry] = sources.map(({ content }) => content);
-  const body = buildCommandCenter({ management, canonical, orchestration, evidenceRegistry, usageRegistry, agentRegistry, readiness: providerReadiness(env) });
+  const ref = await githubRequest(env, `/repos/${encodeURIComponent(env.GITHUB_OWNER)}/${encodeURIComponent(env.GITHUB_REPOSITORY)}/git/ref/heads/${branch.split("/").map(encodeURIComponent).join("/")}`);
+  const repositoryHead = { status: "current", latestCommit: ref.object.sha, latestRef: branch, updatedAt: null };
+  const body = buildCommandCenter({ management, canonical, orchestration, evidenceRegistry, usageRegistry, agentRegistry, readiness: providerReadiness(env), repositoryHead });
   return json(request, body, 200, { "cache-control": "no-store" });
 }
