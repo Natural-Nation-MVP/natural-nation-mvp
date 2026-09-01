@@ -2,7 +2,7 @@ import { authenticateAgentCallback, authenticateFounder } from "../lib/auth.js";
 import { completeTask, dispatchTask, readOrchestrationState } from "../lib/ai-orchestration.js";
 import { providerReadiness } from "../lib/ai-provider-adapters.js";
 import { commitFilesAtomically, readRepositoryJson } from "../lib/github.js";
-import { executeRepositoryPlan } from "../lib/repository-execution.js";
+import { classifyRepositoryPlan, executeRepositoryPlan } from "../lib/repository-execution.js";
 import { errorResponse, json } from "../lib/http.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
@@ -40,6 +40,23 @@ async function readJson(request) {
   } catch {
     return {};
   }
+}
+
+export function authenticateRepositoryPreparation(request, env, classification) {
+  let auth = authenticateFounder(request, env);
+  if (!auth.ok && !classification.founderRequired) auth = authenticateAgentCallback(request, env);
+  if (auth.ok && auth.actor.role !== "founder" && !auth.actor.permissions.includes("repository:prepare")) {
+    return { ok: false, status: 403, code: "REPOSITORY_PREPARATION_FORBIDDEN", message: "This AI credential cannot prepare repository work." };
+  }
+  if (!auth.ok && classification.founderRequired) {
+    return {
+      ok: false,
+      status: 403,
+      code: "FOUNDER_APPROVAL_REQUIRED",
+      message: "This repository plan affects a consequential or sensitive area and requires Founder approval."
+    };
+  }
+  return auth;
 }
 
 function validateCompletionEvidence(task, result) {
@@ -501,10 +518,18 @@ export async function handleAiOrchestration(request, env, pathname) {
 
   if (repositoryExecutionRoute) {
     if (request.method !== "POST") return errorResponse(request, 405, "METHOD_NOT_ALLOWED", "Use POST to execute approved repository work.");
-    const auth = authenticateFounder(request, env);
-    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
     if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPOSITORY) return errorResponse(request, 503, "CANONICAL_REPOSITORY_NOT_CONFIGURED", "The repository connection is not configured.");
     const body = await readJson(request);
+    let classification;
+    try {
+      classification = classifyRepositoryPlan({ ...repositoryExecutionRoute, plan: body.plan });
+    } catch (error) {
+      return errorResponse(request, 422, "REPOSITORY_PLAN_INVALID", error.message || "The repository plan could not be classified.");
+    }
+    const auth = authenticateRepositoryPreparation(request, env, classification);
+    if (!auth.ok) {
+      return errorResponse(request, auth.status, auth.code, auth.message);
+    }
     try {
       const execution = await executeRepositoryPlan({ env, ...repositoryExecutionRoute, plan: body.plan, actor: auth.actor });
       return json(request, { ok: true, status: "pull-request-created", execution });

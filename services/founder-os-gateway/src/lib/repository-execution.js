@@ -15,6 +15,23 @@ const ALLOWED_ROOTS = [
   "services/"
 ];
 
+// Post-beta policy: routine preparation may be delegated, while these areas
+// still require the Founder because they can change access, money, or release behavior.
+const SENSITIVE_PATH_PATTERNS = [
+  /(^|\/)(auth|authentication|authorization|security|secrets?)([._\/-]|$)/i,
+  /(^|\/)(billing|payments?|subscriptions?)([._\/-]|$)/i,
+  /(^|\/)(deploy|deployment|release|production)([._\/-]|$)/i,
+  /(^|\/)wrangler(?:\.|\/|$)/i
+];
+
+const FOUNDER_ONLY_CONSEQUENCES = new Set([
+  "major",
+  "security-sensitive",
+  "destructive",
+  "external",
+  "production"
+]);
+
 function safeSlug(value) {
   return String(value || "task")
     .toLowerCase()
@@ -59,8 +76,36 @@ function validatePlan({ workspaceId, packageId, taskId, plan }) {
   };
 }
 
+export function classifyRepositoryPlan({ workspaceId, packageId, taskId, plan }) {
+  const approvedPlan = validatePlan({ workspaceId, packageId, taskId, plan });
+  const consequence = String(plan.consequence || "routine").trim().toLowerCase();
+  const sensitivePaths = approvedPlan.files
+    .map((file) => file.path)
+    .filter((path) => SENSITIVE_PATH_PATTERNS.some((pattern) => pattern.test(path)));
+  const founderRequired = consequence !== "routine"
+    || FOUNDER_ONLY_CONSEQUENCES.has(consequence)
+    || sensitivePaths.length > 0;
+
+  return {
+    actionId: "github.prepare-pull-request",
+    policyMode: "post-beta-lightweight",
+    consequence,
+    approvalClass: founderRequired ? "founder-required" : "delegated-routine",
+    founderRequired,
+    sensitivePaths,
+    allowedActions: ["branch:create", "commit:create", "pull-request:create"],
+    founderOnlyActions: ["pull-request:merge", "deployment:production", "release:publish", "repository:delete"]
+  };
+}
+
 export async function executeRepositoryPlan({ env, workspaceId, packageId, taskId, plan, actor }) {
   const approvedPlan = validatePlan({ workspaceId, packageId, taskId, plan });
+  const governance = classifyRepositoryPlan({ workspaceId, packageId, taskId, plan });
+  if (governance.founderRequired && actor?.role !== "founder" && actor?.id !== "founder") {
+    const error = new Error("This repository plan affects a consequential or sensitive area and requires Founder approval.");
+    error.status = 403;
+    throw error;
+  }
   const branch = `codex/${safeSlug(taskId)}-${crypto.randomUUID().slice(0, 8)}`;
 
   structuredLog("repository_execution.started", {
@@ -68,6 +113,7 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
     packageId,
     taskId,
     requestedBy: actor.id,
+    approvalClass: governance.approvalClass,
     branch,
     changedFiles: approvedPlan.files.map((file) => file.path)
   });
@@ -87,6 +133,8 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
       `- Package: \`${packageId}\``,
       `- Task: \`${taskId}\``,
       `- Requested by: \`${actor.id}\``,
+      `- Action class: \`${governance.approvalClass}\``,
+      `- Consequence: \`${governance.consequence}\``,
       "",
       "## Implementation summary",
       approvedPlan.summary,
@@ -109,6 +157,7 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
     packageId,
     taskId,
     requestedBy: actor.id,
+    approvalClass: governance.approvalClass,
     pullRequestNumber: evidence.number,
     pullRequestUrl: evidence.url,
     branch: evidence.branch,
@@ -117,11 +166,12 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
   });
 
   return {
-    executionVersion: "1.0.0",
+    executionVersion: "1.1.0",
     workspaceId,
     packageId,
     taskId,
     requestedBy: actor.id,
+    governance,
     branch: branchRecord,
     commit,
     pullRequest: evidence,
