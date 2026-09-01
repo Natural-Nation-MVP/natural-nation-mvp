@@ -27,7 +27,7 @@ assert.match(route, /METHOD_NOT_ALLOWED/);
 assert.doesNotMatch(route, /authorization|password|secret/i);
 assert.match(gateway, /handleCommandCenter/);
 assert.match(gateway, /liveCommandCenter: "read-only-aggregate"/);
-assert.match(loader, /fos-phase-5-command-center-001/);
+assert.match(loader, /fos-phase-6-live-backlog-001/);
 assert.match(css, /command-center-summary/);
 assert.match(css, /@media \(max-width:560px\)/);
 assert.match(html, /data-mission-cards/);
