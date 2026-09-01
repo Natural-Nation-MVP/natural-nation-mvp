@@ -38,6 +38,11 @@ function statusRow(title,detail,status,target) {
   return `<button class="command-center-row" type="button" data-mission-view="${target}"><span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></span><span class="status">${escapeHtml(status)}</span></button>`;
 }
 function backlogLabel(value){return String(value||'').replace(/-/g,' ').replace(/\b\w/g,(letter)=>letter.toUpperCase());}
+function backlogSnapshot(registry){
+  const items=[...(registry.items||[])].sort((left,right)=>(left.order||0)-(right.order||0));
+  const count=(status)=>items.filter((item)=>item.status===status).length;
+  return {ok:true,readOnly:true,live:false,workspaceId:registry.workspaceId,workspaceNumber:registry.workspaceNumber,updatedAt:registry.updatedAt,releaseTarget:registry.releaseTarget,summary:{total:items.length,ready:count('ready'),inProgress:count('in-progress'),needsReconciliation:count('needs-reconciliation'),founderDecisions:count('awaiting-founder'),planned:count('planned'),blocked:count('blocked')},items};
+}
 function renderBacklog(data,errorMessage){
   const surface=ensureMissionSurface();if(!surface)return;
   const summaryPanel=surface.cards.closest('.glass-panel');
@@ -83,7 +88,7 @@ function renderCommandCenter(data,errorMessage) {
 function missionIsVisible(){const view=document.querySelector('[data-workspace="mission"]');return Boolean(view&&!view.hidden&&document.visibilityState!=='hidden');}
 function currentWorkspaceId(){return window.NNOSActiveWorkspace?.id||document.body.getAttribute('data-active-workspace')||'founder-os';}
 async function refreshCommandCenter(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(COMMAND_CENTER_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderCommandCenter(await response.json());}catch(error){renderCommandCenter(snapshotFallback(),error.message);}finally{commandCenterLoading=false;}}
-async function refreshBacklog(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(NATURAL_NATION_BACKLOG_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderBacklog(await response.json());}catch(error){renderBacklog({live:false,summary:{},items:[]},error.message);}finally{commandCenterLoading=false;}}
+async function refreshBacklog(){if(commandCenterLoading||!missionIsVisible())return;commandCenterLoading=true;try{const response=await fetch(NATURAL_NATION_BACKLOG_ENDPOINT,{cache:'no-store'});if(!response.ok)throw new Error(`Gateway returned ${response.status}.`);renderBacklog(await response.json());}catch(error){try{const snapshotResponse=await fetch(window.NNOSPaths.asset('registry/natural-nation-backlog.json'),{cache:'no-store'});if(!snapshotResponse.ok)throw new Error(`Repository snapshot returned ${snapshotResponse.status}.`);renderBacklog(backlogSnapshot(await snapshotResponse.json()),`${error.message} Showing the repository snapshot.`);}catch(snapshotError){renderBacklog({live:false,summary:{},items:[]},`${error.message} ${snapshotError.message}`);}}finally{commandCenterLoading=false;}}
 function refreshMissionData(){return currentWorkspaceId()==='natural-nation'?refreshBacklog():refreshCommandCenter();}
 function scheduleRefresh(){window.clearInterval(commandCenterTimer);commandCenterTimer=window.setInterval(()=>{if(missionIsVisible())refreshMissionData();},REFRESH_MS);}
 document.addEventListener('click',(event)=>{const refresh=event.target.closest('[data-command-center-refresh]');if(refresh){event.preventDefault();refreshMissionData();return;}const view=event.target.closest('[data-mission-view]');if(view){event.preventDefault();openView(view.dataset.missionView);}});

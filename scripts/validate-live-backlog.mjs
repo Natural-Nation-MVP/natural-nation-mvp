@@ -16,6 +16,7 @@ assert(registry.items.every((item)=>item.issueNumber&&item.issueUrl&&item.ownerR
 assert(registry.items.some((item)=>item.status==='needs-reconciliation'&&item.backlogId==='NN-BACKLOG-001'));
 assert.equal(schema.additionalProperties,false);
 assert.match(controller,/NATURAL_NATION_BACKLOG_ENDPOINT/);assert.match(controller,/currentWorkspaceId\(\)==='natural-nation'/);assert.match(controller,/Workspace #1 only/);assert.match(controller,/backlog-issue-link/);
+assert.match(controller,/registry\/natural-nation-backlog\.json/);assert.match(controller,/Showing the repository snapshot/);
 assert.match(route,/BACKLOG_SCOPE_INVALID/);assert.match(route,/cache-control.*no-store/);assert.match(route,/readOnly: true/);
 assert.match(gateway,/handleBacklog/);assert.match(gateway,/liveWorkspaceBacklog/);assert.match(css,/backlog-summary/);assert.match(css,/@media\(max-width:560px\)/);
 assert(!JSON.stringify(registry).match(/api[_-]?key|authorization|password|secret/i));
