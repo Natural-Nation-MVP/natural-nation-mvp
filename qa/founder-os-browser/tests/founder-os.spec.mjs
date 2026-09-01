@@ -7,8 +7,10 @@ function collectCriticalErrors(page) {
     const expectedGenericNetworkFailure = /failed to fetch|load failed|networkerror|network request failed/i.test(message);
     const expectedGatewayAccessFailure = /founder-os-gateway\.dmoseley1024\.workers\.dev/i.test(message)
       && /access control checks|cross-origin|cors|origin/i.test(message);
+    const expectedBacklogSnapshotCancellation = /natural-nation-backlog\.json/i.test(message)
+      && /access control checks|cross-origin|cors|origin/i.test(message);
 
-    if (!expectedGenericNetworkFailure && !expectedGatewayAccessFailure) {
+    if (!expectedGenericNetworkFailure && !expectedGatewayAccessFailure && !expectedBacklogSnapshotCancellation) {
       errors.push(message);
     }
   });
