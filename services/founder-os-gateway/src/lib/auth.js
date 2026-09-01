@@ -47,7 +47,7 @@ export function authenticateAgentCallback(request, env) {
     actor: {
       id: "ai-provider",
       role: "provider-callback",
-      permissions: ["ai:result:create"]
+      permissions: ["ai:result:create", "repository:prepare"]
     }
   };
 }

@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { executeRepositoryPlan } from "../src/lib/repository-execution.js";
+import { classifyRepositoryPlan, executeRepositoryPlan } from "../src/lib/repository-execution.js";
+import { authenticateRepositoryPreparation } from "../src/routes/ai-orchestration.js";
 
 const env = {
   GITHUB_TOKEN: "test-token",
   GITHUB_OWNER: "Natural-Nation-MVP",
   GITHUB_REPOSITORY: "natural-nation-mvp",
-  GITHUB_BRANCH: "main"
+  GITHUB_BRANCH: "main",
+  FOUNDER_API_KEY: "founder-key",
+  AI_CALLBACK_TOKEN: "callback-key"
 };
 
 function jsonResponse(data, status = 200) {
@@ -74,7 +77,7 @@ test("Codex repository execution creates real branch, commit, PR, and evidence",
       workspaceId: "natural-nation",
       packageId: "NN-BUILD-001",
       taskId: "AI-TASK-002",
-      actor: { id: "founder" },
+      actor: { id: "ai-provider", role: "provider-callback" },
       plan: {
         title: "Implement repository execution adapter",
         summary: "Adds guarded GitHub branch, commit, and pull-request execution.",
@@ -89,12 +92,78 @@ test("Codex repository execution creates real branch, commit, PR, and evidence",
     assert.equal(result.pullRequest.headSha, "head-sha");
     assert.deepEqual(result.pullRequest.changedFiles, ["services/founder-os-gateway/src/lib/repository-execution.js"]);
     assert.equal(result.verification.realPullRequest, true);
+    assert.equal(result.governance.approvalClass, "delegated-routine");
+    assert.equal(result.governance.founderRequired, false);
     assert.equal(result.verification.founderMergeRequired, true);
     assert.equal(result.verification.productionDeploymentAuthorized, false);
     assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/pulls")));
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("sensitive repository preparation stops for Founder approval before GitHub writes", async () => {
+  await assert.rejects(
+    executeRepositoryPlan({
+      env,
+      workspaceId: "natural-nation",
+      packageId: "NN-BUILD-001",
+      taskId: "AI-TASK-002",
+      actor: { id: "ai-provider", role: "provider-callback" },
+      plan: {
+        title: "Change authentication",
+        summary: "A protected authentication change must stop for Founder review.",
+        files: [{ path: "services/founder-os-gateway/src/lib/auth.js", content: "export const changed = true;\n" }]
+      }
+    }),
+    /requires Founder approval/
+  );
+});
+
+test("major scope is Founder-required even when paths are otherwise routine", () => {
+  const classification = classifyRepositoryPlan({
+    workspaceId: "natural-nation",
+    packageId: "NN-BUILD-001",
+    taskId: "AI-TASK-002",
+    plan: {
+      title: "Major product scope",
+      summary: "The plan explicitly identifies a major product change.",
+      consequence: "major",
+      files: [{ path: "app/frontend/major-scope.md", content: "Founder review required.\n" }]
+    }
+  });
+  assert.equal(classification.approvalClass, "founder-required");
+  assert.equal(classification.founderRequired, true);
+});
+
+test("visual changes remain delegated for preparation but require Founder visual review", () => {
+  const classification = classifyRepositoryPlan({
+    workspaceId: "natural-nation",
+    packageId: "NN-BUILD-001",
+    taskId: "AI-TASK-002",
+    plan: {
+      title: "Refine dashboard layout",
+      summary: "Prepare a reviewable responsive layout change.",
+      files: [{ path: "app/components/dashboard.css", content: ".dashboard { display: grid; }\n" }]
+    }
+  });
+  assert.equal(classification.approvalClass, "delegated-routine");
+  assert.equal(classification.founderRequired, false);
+  assert.equal(classification.visualReviewRequired, true);
+  assert.deepEqual(classification.visualReviewEvidence, ["desktop", "mobile"]);
+});
+
+test("governed AI credential may prepare routine work but cannot authorize protected work", () => {
+  const request = new Request("https://gateway.test/repository-execution", {
+    headers: { authorization: "Bearer callback-key" }
+  });
+  const routine = authenticateRepositoryPreparation(request, env, { founderRequired: false });
+  const protectedAction = authenticateRepositoryPreparation(request, env, { founderRequired: true });
+  assert.equal(routine.ok, true);
+  assert.equal(routine.actor.role, "provider-callback");
+  assert(routine.actor.permissions.includes("repository:prepare"));
+  assert.equal(protectedAction.ok, false);
+  assert.equal(protectedAction.code, "FOUNDER_APPROVAL_REQUIRED");
 });
 
 test("repository execution rejects paths outside approved roots", async () => {

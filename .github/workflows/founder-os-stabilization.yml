@@ -8,6 +8,7 @@ on:
       - 'scripts/validate-founder-os.mjs'
       - 'scripts/validate-command-center.mjs'
       - 'scripts/validate-live-backlog.mjs'
+      - 'scripts/validate-governed-repository-actions.mjs'
       - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-action-inventory.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
@@ -29,6 +30,7 @@ on:
       - 'scripts/validate-founder-os.mjs'
       - 'scripts/validate-command-center.mjs'
       - 'scripts/validate-live-backlog.mjs'
+      - 'scripts/validate-governed-repository-actions.mjs'
       - 'scripts/validate-founder-runtime-controllers.mjs'
       - 'scripts/validate-founder-action-inventory.mjs'
       - 'scripts/validate-founder-approval-inbox.mjs'
@@ -66,6 +68,7 @@ jobs:
             scripts/validate-founder-os.mjs
             scripts/validate-command-center.mjs
             scripts/validate-live-backlog.mjs
+            scripts/validate-governed-repository-actions.mjs
             scripts/validate-founder-runtime-controllers.mjs
             scripts/validate-founder-action-inventory.mjs
             scripts/validate-founder-approval-inbox.mjs
