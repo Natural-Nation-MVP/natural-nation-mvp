@@ -10,12 +10,15 @@ Founder OS uses lightweight repository governance during post-beta development. 
 
 Founder approval remains required for merges, production deployments, public releases, destructive operations, major product or architecture changes, and changes involving authentication, authorization, secrets, billing, payments, or release infrastructure.
 
+Founder-facing visual changes may be prepared in a draft pull request, but they must be presented with desktop and mobile visual evidence and receive explicit Founder visual approval before the pull request advances toward merge.
+
 ## Implemented boundary
 
 - Every repository plan is classified before a GitHub write.
 - Routine preparation is labeled `delegated-routine` and may use the `repository:prepare` permission.
 - Consequential or sensitive preparation is labeled `founder-required` and stops before mutation without Founder authentication.
 - Pull-request merge, production deployment, publication, and repository deletion are outside the delegated capability.
+- Visual paths are marked `visualReviewRequired`; desktop and mobile evidence must be presented for Founder approval before advancement.
 - The action class, consequence, actor, changed files, branch, commit, and pull request remain in the execution evidence.
 
 ## Preserved controls
@@ -24,4 +27,5 @@ Founder approval remains required for merges, production deployments, public rel
 - Path traversal and unapproved repository roots remain blocked.
 - CI must pass before merge.
 - Merge and production deployment remain Founder-controlled.
+- Founder-facing visual changes never bypass visual review and approval.
 - No secret value is written to repository evidence.

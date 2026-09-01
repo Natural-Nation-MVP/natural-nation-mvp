@@ -136,6 +136,23 @@ test("major scope is Founder-required even when paths are otherwise routine", ()
   assert.equal(classification.founderRequired, true);
 });
 
+test("visual changes remain delegated for preparation but require Founder visual review", () => {
+  const classification = classifyRepositoryPlan({
+    workspaceId: "natural-nation",
+    packageId: "NN-BUILD-001",
+    taskId: "AI-TASK-002",
+    plan: {
+      title: "Refine dashboard layout",
+      summary: "Prepare a reviewable responsive layout change.",
+      files: [{ path: "app/components/dashboard.css", content: ".dashboard { display: grid; }\n" }]
+    }
+  });
+  assert.equal(classification.approvalClass, "delegated-routine");
+  assert.equal(classification.founderRequired, false);
+  assert.equal(classification.visualReviewRequired, true);
+  assert.deepEqual(classification.visualReviewEvidence, ["desktop", "mobile"]);
+});
+
 test("governed AI credential may prepare routine work but cannot authorize protected work", () => {
   const request = new Request("https://gateway.test/repository-execution", {
     headers: { authorization: "Bearer callback-key" }

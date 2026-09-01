@@ -32,6 +32,15 @@ const FOUNDER_ONLY_CONSEQUENCES = new Set([
   "production"
 ]);
 
+// Visual work may be prepared by governed AI, but it must be shown to the
+// Founder in desktop and mobile review before the pull request can advance.
+const VISUAL_PATH_PATTERNS = [
+  /\.(css|scss|sass|less|html?|svg)$/i,
+  /(^|\/)(ui|components?|screens?|views?)(\/|$)/i,
+  /^app\//i,
+  /^docs\/founder-os\/(js|css)\//i
+];
+
 function safeSlug(value) {
   return String(value || "task")
     .toLowerCase()
@@ -82,6 +91,10 @@ export function classifyRepositoryPlan({ workspaceId, packageId, taskId, plan })
   const sensitivePaths = approvedPlan.files
     .map((file) => file.path)
     .filter((path) => SENSITIVE_PATH_PATTERNS.some((pattern) => pattern.test(path)));
+  const visualPaths = approvedPlan.files
+    .map((file) => file.path)
+    .filter((path) => VISUAL_PATH_PATTERNS.some((pattern) => pattern.test(path)));
+  const visualReviewRequired = Boolean(plan.visualChange) || visualPaths.length > 0;
   const founderRequired = consequence !== "routine"
     || FOUNDER_ONLY_CONSEQUENCES.has(consequence)
     || sensitivePaths.length > 0;
@@ -93,6 +106,9 @@ export function classifyRepositoryPlan({ workspaceId, packageId, taskId, plan })
     approvalClass: founderRequired ? "founder-required" : "delegated-routine",
     founderRequired,
     sensitivePaths,
+    visualPaths,
+    visualReviewRequired,
+    visualReviewEvidence: visualReviewRequired ? ["desktop", "mobile"] : [],
     allowedActions: ["branch:create", "commit:create", "pull-request:create"],
     founderOnlyActions: ["pull-request:merge", "deployment:production", "release:publish", "repository:delete"]
   };
@@ -135,6 +151,7 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
       `- Requested by: \`${actor.id}\``,
       `- Action class: \`${governance.approvalClass}\``,
       `- Consequence: \`${governance.consequence}\``,
+      `- Founder visual review required: \`${governance.visualReviewRequired ? "yes" : "no"}\``,
       "",
       "## Implementation summary",
       approvedPlan.summary,
@@ -143,6 +160,7 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
       "- Real repository branch created",
       "- Real commit recorded",
       "- CI must pass before Founder approval",
+      ...(governance.visualReviewRequired ? ["- Desktop and mobile visual evidence must be presented for Founder approval"] : []),
       "- Merge and deployment remain Founder-controlled"
     ].join("\n")
   });
@@ -181,6 +199,7 @@ export async function executeRepositoryPlan({ env, workspaceId, packageId, taskI
       realPullRequest: true,
       changedFilesRecorded: true,
       founderMergeRequired: true,
+      founderVisualReviewRequired: governance.visualReviewRequired,
       productionDeploymentAuthorized: false
     }
   };
