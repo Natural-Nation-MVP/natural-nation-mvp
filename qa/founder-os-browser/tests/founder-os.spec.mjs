@@ -711,6 +711,7 @@ test('Usage Analytics shows live status, history, and high-usage detection with 
   await expect(analytics).toContainText('Historical usage is preserved but unmetered');
   await expect(analytics.locator('.usage-bars')).toBeVisible();
   await expect(analytics.locator('.usage-pie')).toBeVisible();
+  await analytics.locator('[data-usage-range="all"]').click();
   await expect(analytics.locator('.usage-trend, .usage-single-point').first()).toBeVisible();
   await expect(analytics.locator('[data-analytics-highest]')).toContainText('recorded cost');
 
