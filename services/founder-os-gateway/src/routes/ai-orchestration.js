@@ -4,6 +4,7 @@ import { providerReadiness } from "../lib/ai-provider-adapters.js";
 import { commitFilesAtomically, readRepositoryJson } from "../lib/github.js";
 import { classifyRepositoryPlan, executeRepositoryPlan } from "../lib/repository-execution.js";
 import { errorResponse, json } from "../lib/http.js";
+import { appendExecutionLedgerRecord } from "../lib/execution-ledger.js";
 
 const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 
@@ -39,6 +40,14 @@ async function readJson(request) {
     return await request.json();
   } catch {
     return {};
+  }
+}
+
+async function recordLedger(env, record) {
+  try {
+    return await appendExecutionLedgerRecord(env, record);
+  } catch {
+    return { persisted: false, error: true };
   }
 }
 
@@ -404,8 +413,19 @@ async function recordFounderDecision(env, route, actor, body) {
       { path: resultRecordPath(route), content: decisionRecord }
     ]
   });
+  const ledger = await recordLedger(env, {
+    workspaceId: route.workspaceId,
+    packageId: route.packageId,
+    taskId: route.taskId,
+    type: "founder-decision",
+    status: decision === "approve" ? "approved" : "changes-requested",
+    title: `Founder ${decision === "approve" ? "approval" : "change request"}`,
+    actor: actor.id,
+    outcome: { decision, note },
+    references: { pullRequestUrl: decisionRecord.pullRequestUrl, repositoryCommit: repository.commit?.sha || null }
+  });
 
-  return { state: nextState, decision: decisionRecord, repository };
+  return { state: nextState, decision: decisionRecord, repository, ledger };
 }
 
 export async function handleAiOrchestration(request, env, pathname) {
@@ -532,7 +552,22 @@ export async function handleAiOrchestration(request, env, pathname) {
     }
     try {
       const execution = await executeRepositoryPlan({ env, ...repositoryExecutionRoute, plan: body.plan, actor: auth.actor });
-      return json(request, { ok: true, status: "pull-request-created", execution });
+      const ledger = await recordLedger(env, {
+        workspaceId: repositoryExecutionRoute.workspaceId,
+        packageId: repositoryExecutionRoute.packageId,
+        taskId: repositoryExecutionRoute.taskId,
+        type: "repository-action",
+        status: "pull-request-created",
+        title: body.plan?.title || "Repository preparation",
+        actor: auth.actor.id,
+        outcome: { approvalClass: execution.governance.approvalClass },
+        references: {
+          pullRequestUrl: execution.pullRequest.url,
+          branch: execution.pullRequest.branch,
+          headSha: execution.pullRequest.headSha
+        }
+      });
+      return json(request, { ok: true, status: "pull-request-created", execution, ledger });
     } catch (error) {
       const conflict = error.status === 409 || error.status === 422;
       return errorResponse(request, conflict ? 409 : 422, conflict ? "REPOSITORY_EXECUTION_CONFLICT" : "REPOSITORY_EXECUTION_REJECTED", error.message || "The approved repository work could not be executed.");
