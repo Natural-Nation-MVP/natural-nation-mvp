@@ -5,6 +5,7 @@ import {
 } from "./github.js";
 import { deliverToProvider } from "./ai-provider-adapters.js";
 import { executeCodexRepositoryResult } from "./codex-repository-bridge.js";
+import { appendExecutionLedgerRecord } from "./execution-ledger.js";
 import { structuredLog } from "./structured-log.js";
 import { buildUsageRecord, mergeUsageRecord } from "./usage-telemetry.js";
 import { verifyTaskResult } from "./result-verification.js";
@@ -13,6 +14,19 @@ const STATE_PATH = "docs/founder-os/config/ai-orchestration-state.json";
 const AGENT_PATH = "docs/founder-os/config/ai-agent-registry.json";
 const USAGE_PATH = "docs/founder-os/registry/usage-records.json";
 const CANONICAL_STATE_URL = "https://natural-nation-mvp.github.io/natural-nation-mvp/founder-os/config/ai-orchestration-state.json";
+
+async function recordLedger(env, record) {
+  try {
+    return await appendExecutionLedgerRecord(env, record);
+  } catch (error) {
+    structuredLog("execution_ledger.write_failed", {
+      workspaceId: record.workspaceId,
+      taskId: record.taskId || null,
+      message: error instanceof Error ? error.message : "Unknown execution ledger error"
+    });
+    return { persisted: false, error: true };
+  }
+}
 
 function taskPath(workspaceId, packageId, taskId) {
   return `docs/orchestration/${workspaceId}/${packageId}/${taskId}.json`;
@@ -216,12 +230,26 @@ async function recordSynchronousOutcome({ env, state, task, dispatchRecord, deli
         { path: USAGE_PATH, content: meteredRegistry }
       ]
     });
+    const ledger = await recordLedger(env, {
+      workspaceId: state.workspaceId,
+      packageId: state.packageId,
+      taskId: task.id,
+      type: "governed-run",
+      status: "verification-failed",
+      title: task.title,
+      actor: actor.id,
+      provider: delivery.provider || task.owner,
+      cost: usage.cost,
+      outcome: { verificationStatus: "failed", reason: verification.reason },
+      references: { dispatchId: result.dispatchId, repositoryCommit: repository.commit?.sha || null }
+    });
     return {
       state: failedState,
       result: failedResult,
       repository,
       verificationFailed: true,
-      dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false }
+      dispatch: { ...deliveredRecord, status: "verification-failed", executionConfirmed: false },
+      ledger
     };
   }
 
@@ -236,12 +264,30 @@ async function recordSynchronousOutcome({ env, state, task, dispatchRecord, deli
       { path: USAGE_PATH, content: meteredRegistry }
     ]
   });
+  const ledger = await recordLedger(env, {
+    workspaceId: state.workspaceId,
+    packageId: state.packageId,
+    taskId: task.id,
+    type: "governed-run",
+    status: "completed",
+    title: task.title,
+    actor: actor.id,
+    provider: delivery.provider || task.owner,
+    cost: usage.cost,
+    outcome: { verificationStatus: "passed", summary: result.summary },
+    references: {
+      dispatchId: result.dispatchId,
+      pullRequestUrl: result.pullRequestUrl || result.repositoryEvidence?.pullRequestUrl || null,
+      repositoryCommit: repository.commit?.sha || null
+    }
+  });
   return {
     state: passedState,
     result: passedResult,
     repository,
     verificationFailed: false,
-    dispatch: { ...deliveredRecord, status: "completed", executionConfirmed: true }
+    dispatch: { ...deliveredRecord, status: "completed", executionConfirmed: true },
+    ledger
   };
 }
 
@@ -299,6 +345,17 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       { path: taskPath(workspaceId, packageId, taskId), content: dispatchRecord }
     ]
   });
+  const queuedLedger = await recordLedger(env, {
+    workspaceId,
+    packageId,
+    taskId,
+    type: "governed-run",
+    status: "dispatching",
+    title: task.title,
+    actor: actor.id,
+    provider: dispatchRecord.provider,
+    references: { dispatchId, repositoryCommit: queuedRepository.commit?.sha || null }
+  });
 
   const delivery = await deliverToProvider({ env, agent, dispatch: dispatchRecord });
   for (const attempt of delivery.attempts || []) {
@@ -336,6 +393,8 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
         state: failure.state,
         result: failure.result,
         repository: failure.repository,
+        ledger: failure.ledger,
+        queuedLedger,
         queuedRepository,
         message: `The provider returned a result, but protected repository execution rejected it: ${error.message}`
       };
@@ -357,6 +416,8 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       state: outcome.state,
       result: outcome.result,
       repository: outcome.repository,
+      ledger: outcome.ledger,
+      queuedLedger,
       queuedRepository,
       message: outcome.verificationFailed
         ? `The provider returned a result, but verification rejected it: ${outcome.result.verificationReason}`
@@ -380,6 +441,18 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
       { path: taskPath(workspaceId, packageId, taskId), content: deliveredRecord }
     ]
   });
+  const ledger = await recordLedger(env, {
+    workspaceId,
+    packageId,
+    taskId,
+    type: "governed-run",
+    status: delivery.delivered ? "delivered" : "blocked",
+    title: task.title,
+    actor: actor.id,
+    provider: delivery.provider || dispatchRecord.provider,
+    outcome: { providerStatus: delivery.status, delivered: delivery.delivered === true },
+    references: { dispatchId, repositoryCommit: deliveryRepository.commit?.sha || null }
+  });
   return {
     dryRun: false,
     writesPerformed: true,
@@ -387,6 +460,8 @@ export async function dispatchTask({ env, workspaceId, packageId, taskId, actor,
     state: finalState,
     repository: deliveryRepository,
     queuedRepository,
+    queuedLedger,
+    ledger,
     message: delivery.delivered
       ? "The handoff was recorded and the provider accepted the asynchronous task."
       : "The handoff was recorded, but the provider did not accept the task. The task is blocked and has not started execution."
@@ -421,6 +496,7 @@ export async function completeTask({ env, workspaceId, packageId, taskId, result
     state: outcome.state,
     result: outcome.result,
     repository: outcome.repository,
+    ledger: outcome.ledger,
     verificationFailed: outcome.verificationFailed
   };
 }

@@ -13,6 +13,7 @@ import { handleFounderApprovalActions } from "./routes/founder-approval-actions.
 import { handleLivePilot } from "./routes/live-pilot.js";
 import { handleKnowledgeRecords } from "./routes/knowledge-records.js";
 import { handleEvidenceRecords } from "./routes/evidence-records.js";
+import { handleExecutionLedger } from "./routes/execution-ledger.js";
 import { handleUsageAnalytics } from "./routes/usage-analytics.js";
 import { handleCommandCenter } from "./routes/command-center.js";
 import { handleBacklog } from "./routes/backlog.js";
@@ -125,7 +126,8 @@ function systemRoute(request, env, pathname) {
         providerUsageTelemetry: "enabled",
         liveCommandCenter: "read-only-aggregate",
         portfolioOperationalIntelligence: "enabled",
-        liveWorkspaceBacklog: "read-only-repository-backed"
+        liveWorkspaceBacklog: "read-only-repository-backed",
+        persistentExecutionLedger: "runtime-store-backed"
       }
     });
   }
@@ -169,6 +171,9 @@ export default {
 
       const evidenceRecordsResponse = await handleEvidenceRecords(request, env, pathname);
       if (evidenceRecordsResponse) return evidenceRecordsResponse;
+
+      const executionLedgerResponse = await handleExecutionLedger(request, env, pathname);
+      if (executionLedgerResponse) return executionLedgerResponse;
 
       const commandCenterResponse = await handleCommandCenter(request, env, pathname);
       if (commandCenterResponse) return commandCenterResponse;
