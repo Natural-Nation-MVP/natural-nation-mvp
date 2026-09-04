@@ -65,6 +65,19 @@ test("keeps queue records isolated by workspace", async () => {
   assert.equal(naturalNation.body.summary.ready, 1);
 });
 
+test("rejects assignments outside a role capability", async () => {
+  const env = bindings();
+  const result = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    itemId: "WORK-CAPABILITY-1",
+    title: "Implement protected runtime code",
+    ownerRole: "gpose",
+    requiredAction: "implement",
+    nextAction: "Change the gateway"
+  });
+  assert.equal(result.response.status, 422);
+  assert.match(result.body.error.message, /required capability/i);
+});
+
 test("allows only the assigned role to claim ready work and rejects a duplicate claim", async () => {
   const env = bindings();
   const created = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
