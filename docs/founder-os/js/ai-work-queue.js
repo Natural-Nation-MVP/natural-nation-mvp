@@ -55,6 +55,7 @@
       <div class="ai-queue-detail-grid">
         <div><span>Workspace</span><strong>${escapeHtml(item.workspaceId)}</strong></div>
         <div><span>Owner</span><strong>${escapeHtml(roleLabel(item.ownerRole))}</strong></div>
+        <div><span>Capability</span><strong>${escapeHtml(item.requiredAction || "Not recorded")}</strong></div>
         <div><span>Next action</span><strong>${escapeHtml(item.nextAction)}</strong></div>
         <div><span>Evidence</span><strong>${evidence.length ? `${evidence.length} submitted` : "Not submitted"}</strong></div>
       </div>
