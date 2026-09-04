@@ -27,6 +27,8 @@ assert.match(queue, /founder-os:ai-work-queue/, "Queue must use a workspace-scop
 assert.match(queue, /MAX_ITEMS\s*=\s*200/, "Queue must enforce a bounded history.");
 assert.match(queue, /expectedRevision/, "Queue must enforce optimistic concurrency.");
 assert.match(queue, /ownerRole/, "Queue must enforce role ownership.");
+assert.match(queue, /ROLE_CAPABILITIES/, "Queue must enforce registered role capabilities.");
+assert.match(queue, /requiredAction/, "Queue assignments must declare the required capability.");
 assert.match(queue, /submitQueueEvidence/, "Queue must accept governed evidence.");
 assert.match(queue, /appendExecutionLedgerRecord/, "Queue events must feed the Phase 8 ledger.");
 
