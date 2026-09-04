@@ -34,6 +34,7 @@ const expectedStaticControllers = [
   'workspace-knowledge-scope.js',
   'knowledge-engine.js',
   'ai-orchestration.js',
+  'ai-work-queue.js',
   'evidence-audit.js',
   'usage-analytics.js',
   'navigation-manager-035.js'
