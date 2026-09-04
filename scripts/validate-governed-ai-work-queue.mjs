@@ -57,9 +57,11 @@ assert.match(css, /overflow-x:\s*clip/, "Mobile queue must prevent page overflow
 assert.match(index, /ai-work-queue\.css\?v=fos-actions-014/, "Queue stylesheet must use the canonical build marker.");
 assert.match(index, /ai-work-queue\.js\?v=fos-actions-014/, "Queue controller must use the canonical build marker.");
 
-for (const marker of ["workspace isolation", "duplicate claim", "evidence", "Founder"]) {
-  assert.match(tests, new RegExp(marker, "i"), `Queue tests must cover ${marker}.`);
-}
+assert.match(tests, /isolated by workspace|workspace isolation/i, "Queue tests must cover workspace isolation.");
+assert.match(tests, /duplicate claim/i, "Queue tests must cover duplicate claims.");
+assert.match(tests, /evidence/i, "Queue tests must cover evidence.");
+assert.match(tests, /Founder/i, "Queue tests must cover Founder decisions.");
+assert.match(tests, /outside a role capability/i, "Queue tests must cover capability escalation.");
 assert.match(release, /sanitized read-only/i, "Release boundary must describe queue read access.");
 assert.match(release, /authenticated mutations/i, "Release boundary must describe mutation authentication.");
 
