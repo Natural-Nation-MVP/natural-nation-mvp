@@ -46,6 +46,7 @@ test("keeps queue records isolated by workspace", async () => {
     itemId: "WORK-NN-1",
     title: "Review protocol safety",
     ownerRole: "duey",
+    requiredAction: "review-wellness-guidance",
     nextAction: "Complete safety review",
     approvalClass: "founder"
   });
@@ -53,6 +54,7 @@ test("keeps queue records isolated by workspace", async () => {
     itemId: "WORK-FOS-1",
     title: "Review platform contract",
     ownerRole: "art",
+    requiredAction: "plan",
     nextAction: "Report architecture findings"
   });
 
@@ -69,6 +71,7 @@ test("allows only the assigned role to claim ready work and rejects a duplicate 
     itemId: "WORK-CLAIM-1",
     title: "Review protocol safety",
     ownerRole: "duey",
+    requiredAction: "review-wellness-guidance",
     nextAction: "Complete safety review"
   });
   assert.equal(created.response.status, 201);
@@ -97,6 +100,7 @@ test("requires evidence before protected work can request Founder approval", asy
     itemId: "WORK-APPROVAL-1",
     title: "Prepare release evidence",
     ownerRole: "gpose",
+    requiredAction: "update-documentation",
     nextAction: "Submit verified evidence",
     approvalClass: "founder"
   });
@@ -137,6 +141,7 @@ test("routine work completes only after evidence is submitted", async () => {
     itemId: "WORK-ROUTINE-1",
     title: "Update documentation",
     ownerRole: "gpose",
+    requiredAction: "update-documentation",
     nextAction: "Record the updated file"
   });
   await call(env, "/v1/workspaces/founder-os/ai-work-queue/WORK-ROUTINE-1/claim", "agent-test", {
