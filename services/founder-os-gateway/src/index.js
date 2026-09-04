@@ -8,6 +8,7 @@
 import { emptyResponse, errorResponse, json } from "./lib/http.js";
 import { handleApproveBlueprint } from "./routes/approve-blueprint.js";
 import { handleAiOrchestration } from "./routes/ai-orchestration.js";
+import { handleAiWorkQueue } from "./routes/ai-work-queue.js";
 import { handleCreateWorkspaceV2 } from "./routes/create-workspace-v2.js";
 import { handleFounderApprovalActions } from "./routes/founder-approval-actions.js";
 import { handleLivePilot } from "./routes/live-pilot.js";
@@ -127,7 +128,8 @@ function systemRoute(request, env, pathname) {
         liveCommandCenter: "read-only-aggregate",
         portfolioOperationalIntelligence: "enabled",
         liveWorkspaceBacklog: "read-only-repository-backed",
-        persistentExecutionLedger: "runtime-store-backed"
+        persistentExecutionLedger: "runtime-store-backed",
+        governedAiWorkQueue: "runtime-store-backed"
       }
     });
   }
@@ -174,6 +176,9 @@ export default {
 
       const executionLedgerResponse = await handleExecutionLedger(request, env, pathname);
       if (executionLedgerResponse) return executionLedgerResponse;
+
+      const aiWorkQueueResponse = await handleAiWorkQueue(request, env, pathname);
+      if (aiWorkQueueResponse) return aiWorkQueueResponse;
 
       const commandCenterResponse = await handleCommandCenter(request, env, pathname);
       if (commandCenterResponse) return commandCenterResponse;
