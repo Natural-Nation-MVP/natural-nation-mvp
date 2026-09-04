@@ -5,6 +5,13 @@ const MAX_ITEMS = 200;
 const STATUSES = new Set(["ready", "active", "blocked", "needs-approval", "complete"]);
 const PRIORITIES = new Set(["low", "medium", "high", "critical"]);
 const SENSITIVE_KEY = /(authorization|cookie|token|secret|password|api[-_]?key|founder[-_]?key)/i;
+const ROLE_CAPABILITIES = Object.freeze({
+  art: new Set(["plan", "review-architecture", "prepare-handoff"]),
+  codex: new Set(["implement", "test", "prepare-pull-request"]),
+  gemini: new Set(["review-design", "report-findings", "prepare-handoff"]),
+  gpose: new Set(["prepare-prompt", "update-documentation", "summarize"]),
+  duey: new Set(["review-wellness-guidance", "validate-protocol-logic", "report-safety-boundaries"])
+});
 
 function runtimeStore(env) {
   return env.FOUNDER_OS_RUNTIME_STORE?.get && env.FOUNDER_OS_RUNTIME_STORE?.put
@@ -67,10 +74,13 @@ function normalizeNewItem(workspaceId, input, actor) {
   const title = String(input?.title || "").trim();
   const ownerRole = String(input?.ownerRole || "").trim().toLowerCase();
   const nextAction = String(input?.nextAction || "").trim();
+  const requiredAction = String(input?.requiredAction || "").trim().toLowerCase();
   const priority = String(input?.priority || "medium").trim().toLowerCase();
   const approvalClass = String(input?.approvalClass || "routine").trim().toLowerCase();
-  if (!title || !ownerRole || !nextAction) throw new Error("Queue items require a title, owner role, and next action.");
+  if (!title || !ownerRole || !requiredAction || !nextAction) throw new Error("Queue items require a title, owner role, required action, and next action.");
   if (!/^[a-z][a-z0-9-]{1,47}$/.test(ownerRole)) throw new Error("Queue owner roles must use a stable lowercase role ID.");
+  if (!ROLE_CAPABILITIES[ownerRole]) throw new Error("The assigned AI role is not registered for governed queue work.");
+  if (!ROLE_CAPABILITIES[ownerRole].has(requiredAction)) throw new Error("The assigned AI role does not have the required capability.");
   if (!PRIORITIES.has(priority)) throw new Error("Queue priority must be low, medium, high, or critical.");
   if (!["routine", "founder"].includes(approvalClass)) throw new Error("Approval class must be routine or founder.");
   const createdAt = now();
@@ -82,6 +92,7 @@ function normalizeNewItem(workspaceId, input, actor) {
     title,
     description: String(input.description || "").trim(),
     ownerRole,
+    requiredAction,
     priority,
     approvalClass,
     status: "ready",
