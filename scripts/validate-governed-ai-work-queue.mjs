@@ -23,12 +23,12 @@ const [
   read("docs/releases/FOS-PHASE-009-GOVERNED-AI-WORK-QUEUE.md")
 ]);
 
-assert.match(queue, /founder-os:ai-work-queue:/, "Queue must use a workspace-scoped durable key.");
+assert.match(queue, /founder-os:ai-work-queue/, "Queue must use a workspace-scoped durable key.");
 assert.match(queue, /MAX_ITEMS\s*=\s*200/, "Queue must enforce a bounded history.");
 assert.match(queue, /expectedRevision/, "Queue must enforce optimistic concurrency.");
 assert.match(queue, /ownerRole/, "Queue must enforce role ownership.");
 assert.match(queue, /submitQueueEvidence/, "Queue must accept governed evidence.");
-assert.match(queue, /appendExecutionEvent/, "Queue events must feed the Phase 8 ledger.");
+assert.match(queue, /appendExecutionLedgerRecord/, "Queue events must feed the Phase 8 ledger.");
 
 for (const action of ["claim", "progress", "evidence", "request-approval", "complete", "decision"]) {
   assert.match(route, new RegExp(`/${action}`), `Queue route must expose ${action}.`);
