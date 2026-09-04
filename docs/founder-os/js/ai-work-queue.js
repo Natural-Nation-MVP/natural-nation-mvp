@@ -155,7 +155,14 @@
     const root = queueRoot();
     const workspace = window.NNOSActiveWorkspace;
     if (!root || !workspace) return null;
-    root.innerHTML = '<section class="ai-work-queue"><p class="muted">Loading the governed AI work queue…</p></section>';
+    currentQueue = {
+      ok: true,
+      workspaceId: workspace.id,
+      items: [],
+      summary: { active: 0, ready: 0, needsApproval: 0, blocked: 0, complete: 0 },
+      persisted: false
+    };
+    renderQueue(currentQueue);
     try {
       const response = await fetch(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/ai-work-queue?v=${Date.now()}`, { cache: "no-store" });
       const body = await response.json();
@@ -165,8 +172,12 @@
       renderQueue(body);
       return body;
     } catch (error) {
-      root.innerHTML = `<section class="ai-work-queue"><div class="ai-queue-empty"><strong>Queue unavailable</strong><span>${escapeHtml(error.message)}</span></div></section>`;
-      throw error;
+      const notice = document.createElement("div");
+      notice.className = "ai-queue-empty";
+      notice.setAttribute("role", "status");
+      notice.innerHTML = `<strong>Live queue temporarily unavailable</strong><span>${escapeHtml(error.message)}</span>`;
+      root.querySelector(".ai-work-queue")?.prepend(notice);
+      return null;
     }
   }
 
