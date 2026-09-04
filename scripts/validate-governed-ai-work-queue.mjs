@@ -36,7 +36,7 @@ for (const action of ["claim", "progress", "evidence", "request-approval", "comp
   assert.match(route, new RegExp(`/${action}`), `Queue route must expose ${action}.`);
 }
 assert.match(route, /x-founder-os-agent/i, "Agent callbacks must identify their governed role.");
-assert.match(route, /requireFounderAuth|isFounder/i, "Founder decisions must remain authenticated.");
+assert.match(route, /authenticateFounder/, "Founder decisions must remain authenticated.");
 assert.match(gateway, /governedAiWorkQueue:\s*"runtime-store-backed"/, "Gateway must advertise the durable queue.");
 assert.match(gateway, /handleAiWorkQueue/, "Gateway must route queue requests.");
 
