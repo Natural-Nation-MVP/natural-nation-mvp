@@ -105,7 +105,7 @@
     const nextHandoff = nextAgent?.name || (assignedTask ? 'Founder review' : 'None until assigned');
     return `<dialog class="ai-role-dialog" data-ai-role-dialog aria-labelledby="ai-role-dialog-title">
       <form method="dialog" class="ai-role-dialog-shell">
-        <header><span class="ai-role-avatar" aria-hidden="true">${escapeHtml(roleInitial(agent))}</span><div><h3 id="ai-role-dialog-title">${escapeHtml(agent.name)}</h3><p>${escapeHtml(agent.role)}</p></div><button value="close" aria-label="Close role details">×</button></header>
+        <header><span class="ai-role-avatar" aria-hidden="true">${escapeHtml(roleInitial(agent))}</span><div><h3 id="ai-role-dialog-title">${escapeHtml(agent.name)}</h3><p>${escapeHtml(agent.role)}</p></div><button type="button" data-ai-role-close aria-label="Close role details">×</button></header>
         <div class="ai-role-founder-view">
           <div><span>Current responsibility</span><strong>${escapeHtml(assignedTask?.title || agent.purpose)}</strong></div>
           <div><span>Status</span><strong>${escapeHtml(status)}</strong></div>
@@ -371,7 +371,9 @@
         if (!agent) return;
         roles.closest('article')?.querySelector('[data-ai-role-dialog]')?.remove();
         roles.closest('article')?.insertAdjacentHTML('beforeend', roleDialog(agent, state, registry));
-        roles.closest('article')?.querySelector('[data-ai-role-dialog]')?.showModal();
+        const dialog = roles.closest('article')?.querySelector('[data-ai-role-dialog]');
+        dialog?.querySelector('[data-ai-role-close]')?.addEventListener('click', () => dialog.close());
+        dialog?.showModal();
       });
     });
   }
