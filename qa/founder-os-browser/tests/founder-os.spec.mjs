@@ -387,6 +387,19 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
 
   await openView(page, 'ai');
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
+  const queue = page.locator('[data-ai-work-queue-app]');
+  await expect(queue).toBeVisible();
+  await expect(queue).toContainText('AI Work Queue');
+  await expect(queue).toContainText('What Needs Your Attention');
+  await expect(queue.locator('.ai-queue-metric')).toHaveCount(4);
+  await expect(queue.locator('[data-ai-queue-filter]')).toHaveCount(5);
+  await expect(queue.locator('.ai-queue-persistence')).toBeVisible();
+  if (testInfo.project.use.hasTouch) {
+    const queueColumns = await queue.locator('.ai-queue-metrics').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+    expect(queueColumns).toBeLessThanOrEqual(2);
+    const queueOverflow = await queue.evaluate((node) => node.scrollWidth - node.clientWidth);
+    expect(queueOverflow).toBeLessThanOrEqual(1);
+  }
   const monitor = page.locator('[data-ai-monitor-summary]');
   await expect(monitor).toBeVisible();
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
