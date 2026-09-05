@@ -83,36 +83,43 @@
     const expectedResult = assignedTask?.expectedOutput || (ownsCurrentWork ? 'Complete the current approved assignment.' : 'Ready when the workspace plan assigns work.');
     const nextHandoff = nextAgent?.name || (assignedTask ? 'Founder review' : 'None until assigned');
 
-    return `<article class="ai-role-card ${ownsCurrentWork ? 'active-agent-card' : ''}" data-ai-agent="${escapeHtml(agent.id)}" data-current-owner="${ownsCurrentWork}">
-      <div class="ai-role-summary">
+    return `<button class="ai-role-card ${ownsCurrentWork ? 'active-agent-card' : ''}" type="button" data-ai-agent="${escapeHtml(agent.id)}" data-current-owner="${ownsCurrentWork}" aria-haspopup="dialog">
+      <span class="ai-role-summary">
         <span class="ai-role-avatar" aria-hidden="true">${escapeHtml(roleInitial(agent))}</span>
-        <div class="ai-role-copy">
+        <span class="ai-role-copy">
           <strong>${escapeHtml(agent.name)}</strong>
           <span>${escapeHtml(agent.role)}</span>
-          <p>${escapeHtml(agent.purpose)}</p>
           <span class="ai-role-status ai-role-status--${escapeHtml(status.toLowerCase().replaceAll(' ', '-'))}">${escapeHtml(status)}</span>
-        </div>
-        <span class="ai-role-chevron" aria-hidden="true">›</span>
-      </div>
-      <button class="ai-role-toggle" type="button" data-ai-role-toggle aria-expanded="false" aria-controls="ai-role-details-${escapeHtml(agent.id)}">
-        <span>View role</span><span aria-hidden="true">⌄</span>
-      </button>
-      <div class="ai-role-details" id="ai-role-details-${escapeHtml(agent.id)}" data-ai-role-details hidden>
+        </span>
+      </span>
+      <span class="ai-role-view">View role <span aria-hidden="true">→</span></span>
+    </button>`;
+  }
+
+  function roleDialog(agent, state, registry) {
+    const ownsCurrentWork = state.currentOwner === agent.id;
+    const status = roleStatus(agent, ownsCurrentWork);
+    const assignedTask = (state.tasks || []).find((task) => task.owner === agent.id);
+    const nextAgent = registry.agents.find((item) => item.id === assignedTask?.nextRole);
+    const expectedResult = assignedTask?.expectedOutput || (ownsCurrentWork ? 'Complete the current approved assignment.' : 'Ready when the workspace plan assigns work.');
+    const nextHandoff = nextAgent?.name || (assignedTask ? 'Founder review' : 'None until assigned');
+    return `<dialog class="ai-role-dialog" data-ai-role-dialog aria-labelledby="ai-role-dialog-title">
+      <form method="dialog" class="ai-role-dialog-shell">
+        <header><span class="ai-role-avatar" aria-hidden="true">${escapeHtml(roleInitial(agent))}</span><div><h3 id="ai-role-dialog-title">${escapeHtml(agent.name)}</h3><p>${escapeHtml(agent.role)}</p></div><button value="close" aria-label="Close role details">×</button></header>
         <div class="ai-role-founder-view">
           <div><span>Current responsibility</span><strong>${escapeHtml(assignedTask?.title || agent.purpose)}</strong></div>
           <div><span>Status</span><strong>${escapeHtml(status)}</strong></div>
           <div><span>Expected result</span><strong>${escapeHtml(expectedResult)}</strong></div>
           <div><span>Next handoff</span><strong>${escapeHtml(nextHandoff)}</strong></div>
         </div>
-        <details class="ai-technical-details">
-          <summary>Technical details</summary>
+        <details class="ai-technical-details"><summary>Technical details</summary>
           <div class="record-row"><span>Role identity</span><strong>Workspace-scoped</strong></div>
           <div class="record-row"><span>Execution provider</span><strong>${escapeHtml(agent.provider === 'manual' ? 'Founder' : agent.provider)}</strong></div>
           <p class="muted"><strong>Allowed actions:</strong> ${escapeHtml(agent.allowedActions.join(', ') || 'Assigned by the workspace team plan')}</p>
           <p class="muted"><strong>Founder gates:</strong> ${escapeHtml((agent.requiresFounderApprovalFor || []).join(', ') || 'None')}</p>
         </details>
-      </div>
-    </article>`;
+      </form>
+    </dialog>`;
   }
 
   function renderTask(task, registry, position) {
@@ -357,17 +364,14 @@
     }
   }
 
-  function bindRoleAccordions(roles) {
-    roles.querySelectorAll('[data-ai-role-toggle]').forEach((roleToggle) => {
-      roleToggle.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const roleDetails = document.getElementById(roleToggle.getAttribute('aria-controls'));
-        if (!roleDetails) return;
-        const expanded = roleToggle.getAttribute('aria-expanded') === 'true';
-        roleToggle.setAttribute('aria-expanded', String(!expanded));
-        roleDetails.hidden = expanded;
-        roleToggle.closest('.ai-role-card')?.setAttribute('data-role-expanded', String(!expanded));
+  function bindRoleDialogs(roles, state, registry) {
+    roles.querySelectorAll('[data-ai-agent]').forEach((roleButton) => {
+      roleButton.addEventListener('click', () => {
+        const agent = registry.agents.find((item) => item.id === roleButton.dataset.aiAgent);
+        if (!agent) return;
+        roles.closest('article')?.querySelector('[data-ai-role-dialog]')?.remove();
+        roles.closest('article')?.insertAdjacentHTML('beforeend', roleDialog(agent, state, registry));
+        roles.closest('article')?.querySelector('[data-ai-role-dialog]')?.showModal();
       });
     });
   }
@@ -401,7 +405,7 @@
       currentRegistry = teamRegistry; currentState = state; providerStatus = providersResponse?.providers || null;
       planPanel.innerHTML = teamControlPanel(state, teamRegistry);
       roles.innerHTML = team.map((agent) => renderAgent(agent, state, teamRegistry)).join('');
-      bindRoleAccordions(roles);
+      bindRoleDialogs(roles, state, teamRegistry);
       handoffs.innerHTML = `${monitorSummary(state, teamRegistry)}<article class="glass-panel orchestration-summary"><div class="eyebrow">Current Build</div><div class="section-title">${escapeHtml(state.packageId)}</div><p>${escapeHtml(team.find((agent) => agent.id === state.currentOwner)?.name || state.currentOwner)} owns the current canonical step.</p><div class="record-row"><span>Workflow status</span><strong>${escapeHtml(statusLabel(state.status))}</strong></div><div class="record-row"><span>Next handoff</span><strong>${escapeHtml(team.find((agent) => agent.id === state.nextOwner)?.name || state.nextOwner || 'None')}</strong></div></article><div class="orchestration-task-list">${state.tasks.map((task, index) => renderTask(task, teamRegistry, index)).join('')}</div>`;
       return state;
     } catch (error) {
