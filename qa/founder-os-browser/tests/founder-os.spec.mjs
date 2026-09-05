@@ -448,7 +448,9 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(workflowSteps.first().locator('.ai-task-evidence')).not.toHaveAttribute('open', '');
   if (testInfo.project.use.hasTouch) {
     const roleColumns = await page.locator('[data-ai-roles]').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
-    expect(roleColumns).toBe(1);
+    expect(roleColumns).toBe(5);
+    const roleRailOverflow = await page.locator('[data-ai-roles]').evaluate((node) => node.closest('[data-workspace="ai"]').scrollWidth - node.closest('[data-workspace="ai"]').clientWidth);
+    expect(roleRailOverflow).toBeLessThanOrEqual(1);
   }
   const activeTasks = await page.locator('.orchestration-task:not([data-task-status="complete"]):not([data-task-status="completed"])').count();
   if (activeTasks === 0) await expect(teamControls.locator('[data-ai-control="submit_review"]')).toBeDisabled();
