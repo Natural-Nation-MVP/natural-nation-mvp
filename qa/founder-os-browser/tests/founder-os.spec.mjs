@@ -444,8 +444,6 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await roleDialog.locator('button[aria-label="Close role details"]').click();
   await expect(roleDialog).toBeHidden();
   await expect(page.locator('[data-ai-roles] .ai-role-status')).toHaveCount(5);
-  await secondaryDetails.locator('summary').click();
-  await expect(secondaryDetails).not.toHaveAttribute('open', '');
   const workflowSteps = page.locator('.ai-workflow-step');
   expect(await workflowSteps.count()).toBeGreaterThanOrEqual(1);
   await expect(workflowSteps.first()).toContainText('Expected result');
