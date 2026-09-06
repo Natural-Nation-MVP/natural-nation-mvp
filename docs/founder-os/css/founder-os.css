@@ -331,6 +331,42 @@ button,.generate{min-height:44px;padding:10px 14px;border:1px solid var(--fos-li
   gap:10px;
   padding:14px;
 }
+
+/* AI Team action canvas — approved compact role rail and temporary role drawer. */
+[data-workspace="ai"] > .glass-panel:has([data-ai-roles]){padding:18px 20px}
+[data-workspace="ai"] > .glass-panel:has([data-ai-roles]) > .muted{margin:.2rem 0 .9rem}
+.ai-role-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border-block:1px solid var(--fos-line)}
+.ai-role-grid>*{padding:0}
+.ai-role-card{display:grid;justify-items:center;gap:8px;min-width:0;padding:14px 8px;border:0;border-right:1px solid var(--fos-line);border-radius:0;background:transparent;box-shadow:none;color:var(--fos-ink);font:inherit;text-align:center;cursor:pointer}
+.ai-role-card:last-child{border-right:0}
+.ai-role-card:hover,.ai-role-card:focus-visible{position:relative;background:var(--fos-surface-soft);outline:3px solid rgba(47,114,216,.18);outline-offset:-3px}
+.ai-role-card.active-agent-card{border-color:var(--fos-line);background:linear-gradient(180deg,rgba(226,249,237,.7),transparent);box-shadow:none}
+.ai-role-summary{display:grid;grid-template-columns:1fr;justify-items:center;gap:7px;padding:0}
+.ai-role-avatar{width:44px;height:44px}
+.ai-role-copy{display:grid;justify-items:center;gap:2px}
+.ai-role-copy>strong{font-size:.96rem}
+.ai-role-copy>span:not(.ai-role-status){font-size:.76rem;line-height:1.25}
+.ai-role-status{justify-self:center;margin-top:3px}
+.ai-role-view{color:var(--fos-blue);font-size:.76rem;font-weight:800}
+.ai-role-dialog{width:min(720px,calc(100vw - 32px));max-height:min(720px,calc(100dvh - 32px));padding:0;border:1px solid var(--fos-line);border-radius:22px;background:#fff;box-shadow:0 30px 80px rgba(12,30,58,.28)}
+.ai-role-dialog::backdrop{background:rgba(5,18,38,.55);backdrop-filter:blur(3px)}
+.ai-role-dialog-shell{display:grid;gap:0;max-height:inherit;overflow:auto}
+.ai-role-dialog header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--fos-line)}
+.ai-role-dialog h3,.ai-role-dialog p{margin:0}
+.ai-role-dialog header p{color:var(--fos-muted)}
+.ai-role-dialog header button{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid var(--fos-line);border-radius:50%;background:#fff;color:var(--fos-ink);font-size:1.5rem;cursor:pointer}
+.ai-role-dialog .ai-role-founder-view{padding:20px}
+.ai-role-dialog .ai-technical-details{margin:0 20px 20px}
+
+@media(max-width:760px){
+  .ai-role-grid{grid-template-columns:repeat(5,minmax(72px,1fr));overflow-x:auto;scrollbar-width:thin}
+  .ai-role-card{min-height:128px;padding:12px 6px}
+  .ai-role-copy>span:not(.ai-role-status){display:none}
+  .ai-role-view{display:none}
+  .ai-role-dialog{width:100%;max-width:none;max-height:82dvh;margin:auto 0 0;border-radius:22px 22px 0 0}
+  .ai-role-dialog .ai-role-founder-view{grid-template-columns:1fr;padding:16px}
+  .ai-role-dialog .ai-technical-details{margin:0 16px 16px}
+}
 .ai-role-founder-view>div{
   display:grid;
   gap:5px;
