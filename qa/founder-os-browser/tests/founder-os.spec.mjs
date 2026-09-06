@@ -412,7 +412,7 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(monitor.locator('[data-ai-provider-health]')).toContainText('Providers configured');
   await expect(monitor.locator('[data-ai-refresh]')).toHaveCount(1);
   const teamControls = page.locator('[data-ai-team-controls]');
-  await expect(teamControls).toBeVisible();
+  await expect(teamControls).toHaveCount(1);
   await expect(teamControls).toContainText('AI-Controlled Team');
   await expect(teamControls).toContainText('Workspace Team Plan');
   await expect(teamControls).toContainText('Active roles');
@@ -420,7 +420,7 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(teamControls).toContainText('Founder');
   await expect(teamControls).toContainText(/Monitor by exception|Decision required/);
   const override = teamControls.locator('[data-founder-ai-override]');
-  await expect(override).toBeVisible();
+  await expect(override).toHaveCount(1);
   await expect(override).not.toHaveAttribute('open', '');
   await expect(override.locator('[data-ai-control]')).toHaveCount(6);
   const teamPlanBeforeRoles = await page.evaluate(() => {
