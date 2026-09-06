@@ -403,7 +403,7 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   }
   const secondaryDetails = page.locator('[data-ai-secondary-details]');
   await expect(secondaryDetails).not.toHaveAttribute('open', '');
-  await secondaryDetails.locator('summary').click();
+  await secondaryDetails.locator(':scope > summary').click();
   const monitor = page.locator('[data-ai-monitor-summary]');
   await expect(monitor).toBeVisible();
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
@@ -579,7 +579,7 @@ test('global and workspace mobile navigation expose governed destinations', asyn
   await expect(overview).not.toHaveAttribute('aria-current', 'page');
   const mobileSecondaryDetails = page.locator('[data-ai-secondary-details]');
   await expect(mobileSecondaryDetails).not.toHaveAttribute('open', '');
-  await mobileSecondaryDetails.locator('summary').click();
+  await mobileSecondaryDetails.locator(':scope > summary').click();
   await expect(page.locator('[data-ai-monitor-summary]')).toBeVisible();
   const monitorBeforeRoles = await page.evaluate(() => {
     const monitorPanel = document.querySelector('[data-ai-monitor-summary]')?.closest('article');
