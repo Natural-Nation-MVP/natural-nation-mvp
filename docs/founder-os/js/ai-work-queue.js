@@ -21,6 +21,20 @@
     return root;
   }
 
+  function compactSecondaryControls() {
+    const view = document.querySelector('[data-workspace="ai"]');
+    const plan = view?.querySelector('[data-ai-team-plan]');
+    const rolesPanel = view?.querySelector('[data-ai-roles]')?.closest('article');
+    const handoffsPanel = view?.querySelector('[data-ai-handoffs]')?.closest('article');
+    if (!view || !plan || !rolesPanel || !handoffsPanel || view.querySelector('[data-ai-secondary-details]')) return;
+    const details = document.createElement('details');
+    details.className = 'glass-panel ai-secondary-details';
+    details.setAttribute('data-ai-secondary-details', '');
+    details.innerHTML = '<summary>More team controls and assignment details</summary>';
+    view.insertBefore(details, rolesPanel);
+    details.append(plan, handoffsPanel);
+  }
+
   function statusLabel(status) {
     return ({
       active: "In progress",
@@ -45,6 +59,14 @@
   function summaryCard(label, value, tone) {
     return `<article class="ai-queue-metric ai-queue-metric--${tone}">
       <span>${escapeHtml(label)}</span><strong>${Number(value || 0)}</strong>
+    </article>`;
+  }
+
+  function gatewayCard() {
+    const status = document.querySelector('[data-system-status]')?.textContent?.trim() || 'Checking';
+    const online = /online|available|ready/i.test(status);
+    return `<article class="ai-queue-metric ai-queue-metric--gateway">
+      <span>Gateway</span><strong>${online ? 'Online' : escapeHtml(status)}</strong>
     </article>`;
   }
 
@@ -92,7 +114,7 @@
         <p>${escapeHtml(item.nextAction)}</p>
         <small>Source: ${escapeHtml(roleLabel(item.ownerRole))} · ${item.evidence?.length || 0} evidence record(s)</small>
       </div>
-      <button type="button" data-ai-queue-toggle="${escapeHtml(item.itemId)}">Review decision</button>
+      <div class="ai-queue-row-actions"><button type="button" data-ai-queue-toggle="${escapeHtml(item.itemId)}">Review</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Open approval</button></div>
       ${evidenceDetails(item)}
     </article>`;
   }
@@ -104,7 +126,7 @@
       <span class="ai-queue-priority ai-queue-priority--${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span>
       <span class="status">${escapeHtml(statusLabel(item.status))}</span>
       <span>${escapeHtml(item.nextAction)}</span>
-      <button type="button" data-ai-queue-toggle="${escapeHtml(item.itemId)}">View details</button>
+      <div class="ai-queue-row-actions"><button type="button" data-ai-queue-toggle="${escapeHtml(item.itemId)}">View details</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Open task</button></div>
       ${evidenceDetails(item)}
     </article>`;
   }
@@ -126,13 +148,14 @@
       <header class="ai-work-queue-header">
         <div><div class="eyebrow">Governed AI operations</div><h2 id="ai-work-queue-title">AI Work Queue</h2>
         <p>See who is working, what is next, and what needs your decision.</p></div>
-        <button type="button" data-ai-queue-refresh>Refresh now</button>
+        <div class="ai-queue-header-actions"><button type="button" data-ai-queue-refresh>Refresh now</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Create work item</button></div>
       </header>
       <div class="ai-queue-metrics">
         ${summaryCard("Active", queue.summary?.active, "active")}
         ${summaryCard("Ready", queue.summary?.ready, "ready")}
         ${summaryCard("Needs approval", queue.summary?.needsApproval, "approval")}
         ${summaryCard("Blocked", queue.summary?.blocked, "blocked")}
+        ${gatewayCard()}
       </div>
       <nav class="ai-queue-filters" aria-label="AI work queue filters">
         ${FILTERS.map((filter) => `<button type="button" data-ai-queue-filter="${filter}" aria-pressed="${filter === currentFilter}">${filter === "all" ? "All" : statusLabel(filter)}</button>`).join("")}
@@ -141,10 +164,10 @@
         <div class="eyebrow">Your next actions</div><h3>What Needs Your Attention</h3>
         ${decisions.length ? decisions.map(decisionCard).join("") : '<div class="ai-queue-empty ai-queue-empty--safe"><strong>No Founder decisions waiting</strong><span>Protected work will appear here with its evidence when your approval is required.</span></div>'}
       </section>
-      <section class="ai-queue-section"><div class="eyebrow">Active assignments</div><h3>Who is working now</h3>
+      <section class="ai-queue-section ai-queue-active"><div class="eyebrow">Active assignments</div><h3>Who is working now</h3>
         <div class="ai-queue-assignment-list">${active.length ? active.map(assignmentCard).join("") : '<div class="ai-queue-empty"><strong>No active assignments</strong><span>Ready work will appear here when a governed AI role claims it.</span></div>'}</div>
       </section>
-      <section class="ai-queue-section"><div class="eyebrow">Up next</div><h3>Ready queue</h3>
+      <section class="ai-queue-section ai-queue-ready"><div class="eyebrow">Up next</div><h3>Ready queue</h3>
         <div class="ai-queue-ready-list">${next.length ? next.map(readyRow).join("") : '<div class="ai-queue-empty"><strong>No work waiting</strong><span>The selected workspace has no ready assignments.</span></div>'}</div>
       </section>
       ${completed.length ? `<details class="ai-queue-completed"><summary>Completed work (${completed.length})</summary><div class="ai-queue-ready-list">${completed.map(readyRow).join("")}</div></details>` : ""}
@@ -203,11 +226,14 @@
         details.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     }
+    const open = event.target.closest('[data-ai-queue-open]');
+    if (open) window.NNOSNavigationManager?.openView(open.dataset.aiQueueOpen, 'ai-queue-action') || window.setWorkspace?.(open.dataset.aiQueueOpen);
   });
 
   window.addEventListener("founder-os:workspace-view-changed", (event) => {
     if (event.detail?.target === "ai") loadQueue().catch(console.error);
   });
   window.NNOSAIWorkQueue = { reload: loadQueue, get state() { return currentQueue; } };
+  compactSecondaryControls();
   if (document.body.dataset.activeView === "ai") loadQueue().catch(console.error);
 })();
