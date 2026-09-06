@@ -71,7 +71,7 @@
 
 .ai-queue-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.8rem;
   min-width: 0;
 }
@@ -102,6 +102,84 @@
 .ai-queue-metric--ready { border-left-color: #246ed1; background: linear-gradient(135deg, #fff, #eef6ff); }
 .ai-queue-metric--approval { border-left-color: #f59e0b; background: linear-gradient(135deg, #fff, #fff7df); }
 .ai-queue-metric--blocked { border-left-color: #dc3d4d; background: linear-gradient(135deg, #fff, #fff0f1); }
+.ai-queue-metric--gateway { border-left-color: #1a9a68; background: linear-gradient(135deg, #fff, #edf9f2); }
+.ai-queue-metric--gateway strong { font-size: clamp(1.25rem, 2vw, 1.75rem); }
+
+.ai-queue-header-actions,
+.ai-queue-row-actions {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.ai-work-queue button.ai-queue-primary {
+  border-color: #176f4a;
+  background: #168258;
+  color: #fff;
+}
+
+.ai-secondary-details { margin-bottom: 1rem; }
+.ai-secondary-details > summary { cursor: pointer; font-weight: 800; }
+.ai-secondary-details > [data-ai-team-plan] { margin-top: 1rem; }
+.ai-secondary-details > article { margin-top: 1rem; }
+
+@media (min-width: 761px) and (max-width: 1366px) {
+  body[data-active-view="ai"] .hero { margin-bottom: .65rem; padding-block: .3rem; }
+  body[data-active-view="ai"] .hero h1 { font-size: clamp(2rem, 4vw, 3rem); }
+  body[data-active-view="ai"] > .app-shell > .main > .compact-metrics { display: none; }
+
+  [data-workspace="ai"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "queue-header queue-header"
+      "queue-metrics queue-metrics"
+      "attention ready"
+      "active team"
+      "filters filters"
+      "completed completed"
+      "secondary secondary"
+      "persistence persistence";
+    gap: .8rem;
+    align-items: start;
+  }
+
+  [data-ai-work-queue-app],
+  .ai-work-queue { display: contents; }
+  .ai-work-queue-header { grid-area: queue-header; }
+  .ai-queue-metrics { grid-area: queue-metrics; }
+  .ai-queue-filters { grid-area: filters; justify-content: center; }
+  .ai-queue-attention { grid-area: attention; }
+  .ai-queue-active { grid-area: active; }
+  .ai-queue-ready { grid-area: ready; }
+  .ai-queue-completed { grid-area: completed; }
+  .ai-queue-persistence { grid-area: persistence; }
+  [data-workspace="ai"] > article:has([data-ai-roles]) { grid-area: team; }
+  [data-workspace="ai"] > .ai-secondary-details { grid-area: secondary; }
+
+  .ai-work-queue-header,
+  .ai-queue-section,
+  [data-workspace="ai"] > article:has([data-ai-roles]) {
+    padding: .9rem 1rem;
+    border-radius: 17px;
+  }
+
+  .ai-work-queue h2 { font-size: 1.65rem; }
+  .ai-work-queue h3 { margin-bottom: .55rem; font-size: 1.2rem; }
+  .ai-work-queue-header p { font-size: .92rem; }
+  .ai-queue-metric { min-height: 72px; padding: .65rem .8rem; border-radius: 14px; }
+  .ai-queue-metric strong { display: inline-block; margin: .2rem 0 0 .35rem; font-size: 1.45rem; }
+  .ai-queue-empty { padding: .7rem .8rem; }
+  .ai-queue-empty span { font-size: .86rem; }
+  .ai-queue-assignment { padding: .7rem; }
+  .ai-queue-row { padding: .65rem .75rem; }
+
+  [data-workspace="ai"] > article:has([data-ai-roles]) > .muted { display: none; }
+  [data-workspace="ai"] > article:has([data-ai-roles]) .section-title { margin-bottom: .6rem; font-size: 1.2rem; }
+  [data-workspace="ai"] > article:has([data-ai-roles]) [data-ai-roles] { gap: .45rem; }
+  [data-workspace="ai"] > article:has([data-ai-roles]) .ai-role-card { min-height: 96px; padding: .55rem; }
+  [data-workspace="ai"] > article:has([data-ai-roles]) .ai-role-view { font-size: .75rem; }
+}
 
 .ai-queue-filters {
   display: flex;

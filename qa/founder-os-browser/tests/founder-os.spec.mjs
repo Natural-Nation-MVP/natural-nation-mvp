@@ -391,7 +391,8 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(queue).toBeVisible();
   await expect(queue).toContainText('AI Work Queue');
   await expect(queue).toContainText('What Needs Your Attention');
-  await expect(queue.locator('.ai-queue-metric')).toHaveCount(4);
+  await expect(queue.locator('.ai-queue-metric')).toHaveCount(5);
+  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveCount(1);
   await expect(queue.locator('[data-ai-queue-filter]')).toHaveCount(5);
   await expect(queue.locator('.ai-queue-persistence')).toBeVisible();
   if (testInfo.project.use.hasTouch) {
@@ -400,16 +401,18 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
     const queueOverflow = await queue.evaluate((node) => node.scrollWidth - node.clientWidth);
     expect(queueOverflow).toBeLessThanOrEqual(1);
   }
-  const monitor = page.locator('[data-ai-monitor-summary]');
-  await expect(monitor).toBeVisible();
+  const secondaryDetails = page.locator('[data-ai-secondary-details]');
+  await expect(secondaryDetails).not.toHaveAttribute('open', '');
+  const monitor = secondaryDetails.locator('[data-ai-monitor-summary]');
+  await expect(monitor).toHaveCount(1);
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
   await expect(monitor.locator('[data-ai-current-task]')).not.toBeEmpty();
   await expect(monitor.locator('[data-ai-blocked-count]')).toHaveText(/^\d+ blocked$/);
   await expect(monitor.locator('[data-ai-approval-count]')).toHaveText(/^\d+ Founder decisions$/);
   await expect(monitor.locator('[data-ai-provider-health]')).toContainText('Providers configured');
-  await expect(monitor.locator('[data-ai-refresh]')).toBeVisible();
+  await expect(monitor.locator('[data-ai-refresh]')).toHaveCount(1);
   const teamControls = page.locator('[data-ai-team-controls]');
-  await expect(teamControls).toBeVisible();
+  await expect(teamControls).toHaveCount(1);
   await expect(teamControls).toContainText('AI-Controlled Team');
   await expect(teamControls).toContainText('Workspace Team Plan');
   await expect(teamControls).toContainText('Active roles');
@@ -417,7 +420,7 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(teamControls).toContainText('Founder');
   await expect(teamControls).toContainText(/Monitor by exception|Decision required/);
   const override = teamControls.locator('[data-founder-ai-override]');
-  await expect(override).toBeVisible();
+  await expect(override).toHaveCount(1);
   await expect(override).not.toHaveAttribute('open', '');
   await expect(override.locator('[data-ai-control]')).toHaveCount(6);
   const teamPlanBeforeRoles = await page.evaluate(() => {
@@ -571,7 +574,9 @@ test('global and workspace mobile navigation expose governed destinations', asyn
   await expect(page.locator('[data-workspace="ai"]')).toBeVisible();
   await expect(team).toHaveAttribute('aria-current', 'page');
   await expect(overview).not.toHaveAttribute('aria-current', 'page');
-  await expect(page.locator('[data-ai-monitor-summary]')).toBeVisible();
+  const mobileSecondaryDetails = page.locator('[data-ai-secondary-details]');
+  await expect(mobileSecondaryDetails).not.toHaveAttribute('open', '');
+  await expect(mobileSecondaryDetails.locator('[data-ai-monitor-summary]')).toHaveCount(1);
   const monitorBeforeRoles = await page.evaluate(() => {
     const monitorPanel = document.querySelector('[data-ai-monitor-summary]')?.closest('article');
     const rolesPanel = document.querySelector('[data-ai-roles]')?.closest('article');
