@@ -433,12 +433,12 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(override).toHaveCount(1);
   await expect(override).not.toHaveAttribute('open', '');
   await expect(override.locator('[data-ai-control]')).toHaveCount(6);
-  const rolesBeforeTeamPlan = await page.evaluate(() => {
+  const teamPlanBeforeRoles = await page.evaluate(() => {
     const teamPlan = document.querySelector('[data-ai-team-controls]');
     const rolesPanel = document.querySelector('[data-ai-roles]')?.closest('article');
-    return Boolean(teamPlan && rolesPanel && (rolesPanel.compareDocumentPosition(teamPlan) & Node.DOCUMENT_POSITION_FOLLOWING));
+    return Boolean(teamPlan && rolesPanel && (teamPlan.compareDocumentPosition(rolesPanel) & Node.DOCUMENT_POSITION_FOLLOWING));
   });
-  expect(rolesBeforeTeamPlan).toBe(true);
+  expect(teamPlanBeforeRoles).toBe(true);
   await expect(page.locator('[data-ai-roles] [data-ai-agent]')).toHaveCount(5);
   const firstRoleCard = page.locator('[data-ai-roles] .ai-role-card').first();
   await expect(firstRoleCard).toHaveAttribute('aria-haspopup', 'dialog');

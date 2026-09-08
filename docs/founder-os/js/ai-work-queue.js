@@ -178,8 +178,8 @@
       <p class="ai-queue-persistence">${queue.persisted ? "Live · queue history is preserved across devices" : "Queue storage is unavailable · no assignments can be changed"}</p>
     </section>`;
     const canvas = root.querySelector(".ai-work-queue");
-    if (rolesPanel) canvas?.append(rolesPanel);
     if (secondaryDetails) canvas?.append(secondaryDetails);
+    if (rolesPanel) canvas?.append(rolesPanel);
   }
 
   async function loadQueue() {
