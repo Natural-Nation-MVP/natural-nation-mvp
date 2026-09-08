@@ -144,6 +144,10 @@
     const next = items.filter((item) => item.status === "ready");
     const completed = items.filter((item) => item.status === "complete");
 
+    const view = document.querySelector('[data-workspace="ai"]');
+    const rolesPanel = view?.querySelector('[data-ai-roles]')?.closest('article');
+    const secondaryDetails = view?.querySelector('[data-ai-secondary-details]');
+
     root.innerHTML = `<section class="ai-work-queue" aria-labelledby="ai-work-queue-title">
       <header class="ai-work-queue-header">
         <div><div class="eyebrow">Governed AI operations</div><h2 id="ai-work-queue-title">AI Work Queue</h2>
@@ -173,6 +177,9 @@
       ${completed.length ? `<details class="ai-queue-completed"><summary>Completed work (${completed.length})</summary><div class="ai-queue-ready-list">${completed.map(readyRow).join("")}</div></details>` : ""}
       <p class="ai-queue-persistence">${queue.persisted ? "Live · queue history is preserved across devices" : "Queue storage is unavailable · no assignments can be changed"}</p>
     </section>`;
+    const canvas = root.querySelector(".ai-work-queue");
+    if (rolesPanel) canvas?.append(rolesPanel);
+    if (secondaryDetails) canvas?.append(secondaryDetails);
   }
 
   async function loadQueue() {

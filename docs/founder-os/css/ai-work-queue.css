@@ -128,15 +128,17 @@
   body[data-active-view="ai"] .hero h1 { font-size: clamp(2rem, 4vw, 3rem); }
   body[data-active-view="ai"] > .app-shell > .main > .compact-metrics { display: none; }
 
-  [data-workspace="ai"].active {
+  [data-workspace="ai"].active { display: block; }
+  [data-ai-work-queue-app] { display: block; }
+  .ai-work-queue {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "queue-header queue-header"
       "queue-metrics queue-metrics"
+      "filters filters"
       "attention ready"
       "active team"
-      "filters filters"
       "completed completed"
       "secondary secondary"
       "persistence persistence";
@@ -144,8 +146,6 @@
     align-items: start;
   }
 
-  [data-ai-work-queue-app],
-  .ai-work-queue { display: contents; }
   .ai-work-queue-header { grid-area: queue-header; }
   .ai-queue-metrics { grid-area: queue-metrics; }
   .ai-queue-filters { grid-area: filters; justify-content: center; }
@@ -154,12 +154,13 @@
   .ai-queue-ready { grid-area: ready; }
   .ai-queue-completed { grid-area: completed; }
   .ai-queue-persistence { grid-area: persistence; }
-  [data-workspace="ai"] > article:has([data-ai-roles]) { grid-area: team; }
-  [data-workspace="ai"] > .ai-secondary-details { grid-area: secondary; }
+  .ai-work-queue > article:has([data-ai-roles]) { grid-area: team; }
+  .ai-work-queue > .ai-secondary-details { grid-area: secondary; }
 
   .ai-work-queue-header,
   .ai-queue-section,
-  [data-workspace="ai"] > article:has([data-ai-roles]) {
+  .ai-work-queue > article:has([data-ai-roles]) {
+    margin: 0;
     padding: .9rem 1rem;
     border-radius: 17px;
   }
@@ -174,11 +175,11 @@
   .ai-queue-assignment { padding: .7rem; }
   .ai-queue-row { padding: .65rem .75rem; }
 
-  [data-workspace="ai"] > article:has([data-ai-roles]) > .muted { display: none; }
-  [data-workspace="ai"] > article:has([data-ai-roles]) .section-title { margin-bottom: .6rem; font-size: 1.2rem; }
-  [data-workspace="ai"] > article:has([data-ai-roles]) [data-ai-roles] { gap: .45rem; }
-  [data-workspace="ai"] > article:has([data-ai-roles]) .ai-role-card { min-height: 96px; padding: .55rem; }
-  [data-workspace="ai"] > article:has([data-ai-roles]) .ai-role-view { font-size: .75rem; }
+  .ai-work-queue > article:has([data-ai-roles]) > .muted { display: none; }
+  .ai-work-queue > article:has([data-ai-roles]) .section-title { margin-bottom: .6rem; font-size: 1.2rem; }
+  .ai-work-queue > article:has([data-ai-roles]) [data-ai-roles] { gap: .45rem; }
+  .ai-work-queue > article:has([data-ai-roles]) .ai-role-card { min-height: 96px; padding: .55rem; }
+  .ai-work-queue > article:has([data-ai-roles]) .ai-role-view { font-size: .75rem; }
 }
 
 .ai-queue-filters {
