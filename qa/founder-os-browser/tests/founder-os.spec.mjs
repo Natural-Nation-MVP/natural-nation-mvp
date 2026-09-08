@@ -403,6 +403,16 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   }
   const secondaryDetails = page.locator('[data-ai-secondary-details]');
   await expect(secondaryDetails).not.toHaveAttribute('open', '');
+  await expect(page.locator('[data-workspace="ai"] [data-workspace-settings-panel]')).toHaveCount(0);
+  const viewport = page.viewportSize();
+  if (viewport && viewport.width > 760 && viewport.width <= 1600) {
+    const attentionBox = await page.locator('.ai-queue-attention').boundingBox();
+    const readyBox = await page.locator('.ai-queue-ready').boundingBox();
+    expect(attentionBox).not.toBeNull();
+    expect(readyBox).not.toBeNull();
+    expect(Math.abs(attentionBox.y - readyBox.y)).toBeLessThanOrEqual(2);
+    expect(readyBox.x).toBeGreaterThan(attentionBox.x);
+  }
   const monitor = secondaryDetails.locator('[data-ai-monitor-summary]');
   await expect(monitor).toHaveCount(1);
   await expect(monitor.locator('[data-ai-current-owner]')).not.toBeEmpty();
