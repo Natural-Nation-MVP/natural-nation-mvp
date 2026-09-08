@@ -1,7 +1,7 @@
 (() => {
   const REGISTRY_URL = './config/ai-agent-registry.json';
   const STATE_URL = './config/ai-orchestration-state.json';
-  const GATEWAY_URL = 'https://founder-os-gateway.dmoseley1024.workers.dev';
+  const GATEWAY_URL = window.NNOSPaths?.gatewayOrigin || 'https://founder-os-gateway.dmoseley1024.workers.dev';
 
   let currentRegistry = null;
   let currentState = null;

@@ -123,7 +123,7 @@
 .ai-secondary-details > [data-ai-team-plan] { margin-top: 1rem; }
 .ai-secondary-details > article { margin-top: 1rem; }
 
-@media (min-width: 761px) and (max-width: 1366px) {
+@media (min-width: 761px) and (max-width: 1600px) {
   body[data-active-view="ai"] .hero { margin-bottom: .65rem; padding-block: .3rem; }
   body[data-active-view="ai"] .hero h1 { font-size: clamp(2rem, 4vw, 3rem); }
   body[data-active-view="ai"] > .app-shell > .main > .compact-metrics { display: none; }

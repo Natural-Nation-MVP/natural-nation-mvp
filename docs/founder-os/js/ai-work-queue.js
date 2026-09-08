@@ -1,6 +1,6 @@
 (() => {
   // FOS-ACTIONS-014: Phase 9 owns the read-only Founder queue presentation.
-  const GATEWAY_URL = "https://founder-os-gateway.dmoseley1024.workers.dev";
+  const GATEWAY_URL = window.NNOSPaths?.gatewayOrigin || "https://founder-os-gateway.dmoseley1024.workers.dev";
   const FILTERS = ["all", "active", "ready", "needs-approval", "complete"];
   let currentQueue = null;
   let currentFilter = "all";
@@ -199,8 +199,9 @@
       const notice = document.createElement("div");
       notice.className = "ai-queue-empty";
       notice.setAttribute("role", "status");
+      notice.setAttribute("data-ai-queue-load-error", "");
       notice.innerHTML = `<strong>Live queue temporarily unavailable</strong><span>${escapeHtml(error.message)}</span>`;
-      root.querySelector(".ai-work-queue")?.prepend(notice);
+      if (!root.querySelector("[data-ai-queue-load-error]")) root.querySelector(".ai-work-queue")?.prepend(notice);
       return null;
     }
   }
