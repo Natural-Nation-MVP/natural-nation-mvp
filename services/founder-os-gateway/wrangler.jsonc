@@ -12,10 +12,5 @@
   },
   "observability": {
     "enabled": true
-  },
-  "assets": {
-    "directory": "../../docs",
-    "binding": "ASSETS",
-    "run_worker_first": true
   }
 }

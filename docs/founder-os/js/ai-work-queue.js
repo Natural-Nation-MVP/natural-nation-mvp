@@ -1,6 +1,6 @@
 (() => {
   // FOS-ACTIONS-014: Phase 9 owns the read-only Founder queue presentation.
-  const GATEWAY_URL = window.NNOSPaths?.gatewayOrigin || "https://founder-os-gateway.dmoseley1024.workers.dev";
+  const GATEWAY_URL = "https://founder-os-gateway.dmoseley1024.workers.dev";
   const FILTERS = ["all", "active", "ready", "needs-approval", "complete"];
   let currentQueue = null;
   let currentFilter = "all";

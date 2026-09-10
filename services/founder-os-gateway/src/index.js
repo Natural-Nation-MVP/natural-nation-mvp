@@ -153,13 +153,6 @@ export default {
     if (request.method === "OPTIONS") return emptyResponse(request, 204);
 
     try {
-      // PR preview assets are served only from explicit static paths; Gateway API routes stay authoritative.
-      const previewAssetPath = ["/founder-os", "/execution-packages", "/orchestration"]
-        .some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-      if ((request.method === "GET" || request.method === "HEAD") && previewAssetPath && env.ASSETS?.fetch) {
-        return env.ASSETS.fetch(request);
-      }
-
       const systemResponse = systemRoute(request, env, pathname);
       if (systemResponse) return systemResponse;
 

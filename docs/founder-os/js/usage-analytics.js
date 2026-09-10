@@ -4,7 +4,7 @@
   var root = document.querySelector('[data-usage-analytics-app]');
   if (!root) return;
 
-  var GATEWAY = window.NNOSPaths?.gatewayOrigin || 'https://founder-os-gateway.dmoseley1024.workers.dev';
+  var GATEWAY = 'https://founder-os-gateway.dmoseley1024.workers.dev';
   var REFRESH_MS = 30000;
   var localData = null;
   var liveData = null;
