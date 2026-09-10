@@ -51,7 +51,9 @@ for (const marker of [
   assert.ok(ui.includes(marker), `Queue UI is missing: ${marker}`);
 }
 assert.match(ui, /workspaceId !== workspace\.id/, "UI must reject cross-workspace responses.");
-assert.match(css, /grid-template-columns:\s*repeat\(4/, "Desktop must show four queue metrics.");
+assert.match(css, /grid-template-columns:\s*repeat\(5/, "Desktop must show the four queue metrics and Gateway health.");
+assert.match(css, /@media \(min-width: 761px\) and \(max-width: 1600px\)/, "Queue must define the approved iPad landscape range.");
+assert.match(css, /\.ai-work-queue\s*\{[\s\S]*grid-template-areas:/, "The approved iPad composition must use one explicit queue and Team canvas.");
 assert.match(css, /@media \(max-width: 760px\)/, "Queue must define the approved mobile layout.");
 assert.match(css, /overflow-x:\s*clip/, "Mobile queue must prevent page overflow.");
 assert.match(index, /ai-work-queue\.css\?v=fos-actions-014/, "Queue stylesheet must use the canonical build marker.");

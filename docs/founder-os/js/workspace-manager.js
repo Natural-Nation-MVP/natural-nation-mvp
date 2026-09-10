@@ -84,7 +84,7 @@
     if (!activeView) return;
     // Product Records owns an isolated information architecture. Workspace
     // lifecycle controls belong outside this record-browsing surface.
-    if (activeView.dataset.workspace === 'knowledge') return;
+    if (activeView.dataset.workspace === 'knowledge' || activeView.dataset.workspace === 'ai') return;
     activeView.insertAdjacentHTML('beforeend', workspaceManagementMarkup(workspace));
   }
 
