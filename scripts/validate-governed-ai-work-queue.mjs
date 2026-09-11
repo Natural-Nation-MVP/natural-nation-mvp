@@ -45,12 +45,15 @@ for (const marker of [
   "What Needs Your Attention",
   "Active assignments",
   "Up next",
+  "Open Build Work",
+  "data-ai-queue-feedback",
   "data-ai-queue-filter",
   "queue history is preserved"
 ]) {
   assert.ok(ui.includes(marker), `Queue UI is missing: ${marker}`);
 }
 assert.match(ui, /workspaceId !== workspace\.id/, "UI must reject cross-workspace responses.");
+assert.match(ui, /filterCount/, "Empty filters must expose a disabled state instead of appearing unresponsive.");
 assert.match(css, /grid-template-columns:\s*repeat\(5/, "Desktop must show the four queue metrics and Gateway health.");
 assert.match(css, /@media \(min-width: 761px\) and \(max-width: 1600px\)/, "Queue must define the approved iPad landscape range.");
 assert.match(css, /\.ai-work-queue\s*\{[\s\S]*grid-template-areas:/, "The approved iPad composition must use one explicit queue and Team canvas.");
