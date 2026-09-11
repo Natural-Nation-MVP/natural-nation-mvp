@@ -393,7 +393,10 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(queue).toContainText('What Needs Your Attention');
   await expect(queue.locator('.ai-queue-metric')).toHaveCount(5);
   await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveCount(1);
+  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveText('Open Build Work');
+  await expect(queue.locator('[data-ai-queue-feedback]')).toHaveAttribute('aria-live', 'polite');
   await expect(queue.locator('[data-ai-queue-filter]')).toHaveCount(5);
+  await expect(queue.locator('[data-ai-queue-filter]:disabled')).toHaveCount(4);
   await expect(queue.locator('.ai-queue-persistence')).toBeVisible();
   if (testInfo.project.use.hasTouch) {
     const queueColumns = await queue.locator('.ai-queue-metrics').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
