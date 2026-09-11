@@ -4,6 +4,8 @@
   const FILTERS = ["all", "active", "ready", "needs-approval", "complete"];
   let currentQueue = null;
   let currentFilter = "all";
+  let isRefreshing = false;
+  let queueFeedback = "";
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -68,6 +70,12 @@
     return `<article class="ai-queue-metric ai-queue-metric--gateway">
       <span>Gateway</span><strong>${online ? 'Online' : escapeHtml(status)}</strong>
     </article>`;
+  }
+
+  function filterCount(filter, summary = {}) {
+    if (filter === "active") return Number(summary.active || 0) + Number(summary.blocked || 0);
+    if (filter === "needs-approval") return Number(summary.needsApproval || 0);
+    return Number(summary[filter] || 0);
   }
 
   function evidenceDetails(item) {
@@ -152,7 +160,10 @@
       <header class="ai-work-queue-header">
         <div><div class="eyebrow">Governed AI operations</div><h2 id="ai-work-queue-title">AI Work Queue</h2>
         <p>See who is working, what is next, and what needs your decision.</p></div>
-        <div class="ai-queue-header-actions"><button type="button" data-ai-queue-refresh>Refresh now</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Create work item</button></div>
+        <div class="ai-queue-action-panel">
+          <div class="ai-queue-header-actions"><button type="button" data-ai-queue-refresh ${isRefreshing ? 'disabled aria-busy="true"' : ''}>${isRefreshing ? "Refreshing…" : "Refresh now"}</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Open Build Work</button></div>
+          <span class="ai-queue-feedback" data-ai-queue-feedback role="status" aria-live="polite">${escapeHtml(queueFeedback)}</span>
+        </div>
       </header>
       <div class="ai-queue-metrics">
         ${summaryCard("Active", queue.summary?.active, "active")}
@@ -162,7 +173,10 @@
         ${gatewayCard()}
       </div>
       <nav class="ai-queue-filters" aria-label="AI work queue filters">
-        ${FILTERS.map((filter) => `<button type="button" data-ai-queue-filter="${filter}" aria-pressed="${filter === currentFilter}">${filter === "all" ? "All" : statusLabel(filter)}</button>`).join("")}
+        ${FILTERS.map((filter) => {
+          const empty = filter !== "all" && filterCount(filter, queue.summary) === 0;
+          return `<button type="button" data-ai-queue-filter="${filter}" aria-pressed="${filter === currentFilter}" ${empty ? 'disabled aria-disabled="true" title="No matching work"' : ''}>${filter === "all" ? "All" : statusLabel(filter)}</button>`;
+        }).join("")}
       </nav>
       <section class="ai-queue-section ai-queue-attention">
         <div class="eyebrow">Your next actions</div><h3>What Needs Your Attention</h3>
@@ -186,29 +200,29 @@
     const root = queueRoot();
     const workspace = window.NNOSActiveWorkspace;
     if (!root || !workspace) return null;
-    currentQueue = {
+    const emptyQueue = {
       ok: true,
       workspaceId: workspace.id,
       items: [],
       summary: { active: 0, ready: 0, needsApproval: 0, blocked: 0, complete: 0 },
       persisted: false
     };
-    renderQueue(currentQueue);
+    if (!currentQueue || currentQueue.workspaceId !== workspace.id) {
+      currentQueue = emptyQueue;
+      renderQueue(currentQueue);
+    }
     try {
       const response = await fetch(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/ai-work-queue?v=${Date.now()}`, { cache: "no-store" });
       const body = await response.json();
       if (!response.ok || !body.ok) throw new Error(body?.error?.message || "The queue could not be loaded.");
       if (body.workspaceId !== workspace.id) throw new Error("The queue response belongs to another workspace.");
       currentQueue = body;
+      if (currentFilter !== "all" && filterCount(currentFilter, body.summary) === 0) currentFilter = "all";
       renderQueue(body);
       return body;
     } catch (error) {
-      const notice = document.createElement("div");
-      notice.className = "ai-queue-empty";
-      notice.setAttribute("role", "status");
-      notice.setAttribute("data-ai-queue-load-error", "");
-      notice.innerHTML = `<strong>Live queue temporarily unavailable</strong><span>${escapeHtml(error.message)}</span>`;
-      if (!root.querySelector("[data-ai-queue-load-error]")) root.querySelector(".ai-work-queue")?.prepend(notice);
+      queueFeedback = `Refresh failed: ${error.message}`;
+      renderQueue(currentQueue || emptyQueue);
       return null;
     }
   }
@@ -216,8 +230,18 @@
   document.addEventListener("click", (event) => {
     const refresh = event.target.closest("[data-ai-queue-refresh]");
     if (refresh) {
-      refresh.disabled = true;
-      loadQueue().catch(console.error).finally(() => { refresh.disabled = false; });
+      if (isRefreshing) return;
+      isRefreshing = true;
+      queueFeedback = "Refreshing queue…";
+      renderQueue(currentQueue);
+      loadQueue().then((queue) => {
+        if (queue) queueFeedback = "Updated just now";
+      }).catch((error) => {
+        queueFeedback = `Refresh failed: ${error.message}`;
+      }).finally(() => {
+        isRefreshing = false;
+        renderQueue(currentQueue);
+      });
       return;
     }
     const filter = event.target.closest("[data-ai-queue-filter]");
