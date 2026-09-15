@@ -112,6 +112,28 @@
   gap: .55rem;
 }
 
+.ai-queue-action-panel {
+  display: grid;
+  justify-items: end;
+  gap: .35rem;
+}
+
+.ai-queue-feedback {
+  min-height: 1.1rem;
+  color: #667085;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.ai-work-queue button:disabled {
+  border-color: #d7dee8;
+  background: #eef1f5;
+  color: #8a94a4;
+  cursor: not-allowed;
+  outline: none;
+  opacity: .78;
+}
+
 .ai-work-queue button.ai-queue-primary {
   border-color: #176f4a;
   background: #168258;
@@ -442,6 +464,10 @@
   .ai-work-queue-header {
     display: grid;
   }
+
+  .ai-queue-action-panel { justify-items: stretch; }
+  .ai-queue-header-actions { flex-wrap: wrap; }
+  .ai-queue-header-actions > button { flex: 1 1 180px; }
 
   .ai-work-queue-header button,
   .ai-queue-detail-button,
