@@ -19,6 +19,10 @@ The AI Team screen now begins with a compact work queue showing:
 
 The screen is read-only. It does not let the browser impersonate an AI role or make protected decisions.
 
+## Founder-created builds
+
+The Founder can create a governed work order from Build Work or the AI Work Queue. Founder OS checks Workspace Readiness and Package Readiness separately, identifies missing information as **Needs clarification**, and enables assignment only after both gates pass. Submitted work is limited to a draft preview or review package until a later explicit Founder approval; creating work never merges or deploys it.
+
 ## Governance boundaries
 
 - Queue storage is isolated by immutable workspace ID.

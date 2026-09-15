@@ -21,6 +21,7 @@ const expectedStaticControllers = [
   'gateway-status.js',
   'workspace-discovery.js',
   'gateway-client-v2.js',
+  'build-request-composer.js',
   'live-approval-controller.js',
   'blueprint-renderer.js',
   'workspace-registry.js',
@@ -55,12 +56,12 @@ assert.deepEqual(
   'The canonical shell must load the approved runtime controllers once and in deterministic order.'
 );
 assert.equal(new Set(staticScripts.map(({ file }) => file)).size, staticScripts.length, 'A static runtime controller may load only once.');
-assert(staticScripts.every(({ version }) => version === 'fos-actions-014'), 'Every static runtime controller must use the FOS-ACTIONS-014 source version.');
-assert(html.includes('<meta name="founder-os-build" content="fos-actions-014" />'), 'The canonical source build marker must match FOS-ACTIONS-014.');
+assert(staticScripts.every(({ version }) => version === 'fos-actions-015'), 'Every static runtime controller must use the FOS-ACTIONS-015 source version.');
+assert(html.includes('<meta name="founder-os-build" content="fos-actions-015" />'), 'The canonical source build marker must match FOS-ACTIONS-015.');
 
 const staticStyles = [...html.matchAll(/<link\s+rel="stylesheet"\s+href="[^"]+\?v=([^"]+)"/g)].map((match) => match[1]);
 assert(staticStyles.length >= 4, 'The canonical shell must retain its required static stylesheets.');
-assert(staticStyles.every((version) => version === 'fos-actions-014'), 'Every static stylesheet must use the FOS-ACTIONS-014 source version.');
+assert(staticStyles.every((version) => version === 'fos-actions-015'), 'Every static stylesheet must use the FOS-ACTIONS-015 source version.');
 
 for (const file of retiredControllers) {
   assert(!html.includes(file), `Retired controller remains loaded: ${file}`);

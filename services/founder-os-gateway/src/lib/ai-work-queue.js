@@ -4,6 +4,7 @@ const QUEUE_PREFIX = "founder-os:ai-work-queue";
 const MAX_ITEMS = 200;
 const STATUSES = new Set(["ready", "active", "blocked", "needs-approval", "complete"]);
 const PRIORITIES = new Set(["low", "medium", "high", "critical"]);
+const DELIVERY_TARGETS = new Set(["draft-preview", "review-package", "record-only"]);
 const SENSITIVE_KEY = /(authorization|cookie|token|secret|password|api[-_]?key|founder[-_]?key)/i;
 const ROLE_CAPABILITIES = Object.freeze({
   art: new Set(["plan", "review-architecture", "prepare-handoff"]),
@@ -70,6 +71,57 @@ function normalizeEvidence(value, actor) {
   });
 }
 
+function stringList(value) {
+  return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 50) : [];
+}
+
+function normalizeWorkOrder(workspaceId, value) {
+  if (value == null) return null;
+  if (!value || typeof value !== "object") throw new Error("The work order must be a structured object.");
+  if (String(value.workspaceId || "") !== workspaceId) throw new Error("The work order must belong to the selected workspace.");
+  const workspaceReadiness = sanitize(value.workspaceReadiness || {});
+  const packageReadiness = sanitize(value.packageReadiness || {});
+  if (workspaceReadiness.status !== "ready") throw new Error("Workspace Readiness must be ready before work can be assigned.");
+  if (packageReadiness.status !== "ready") throw new Error("Package Readiness must be ready before work can be assigned.");
+
+  const outcome = String(value.outcome || "").trim();
+  const title = String(value.title || "").trim();
+  const intendedUser = String(value.intendedUser || "").trim();
+  const included = stringList(value.scope?.included);
+  const excluded = stringList(value.scope?.excluded);
+  const acceptanceCriteria = stringList(value.acceptanceCriteria);
+  const protectedBoundaries = stringList(value.protectedBoundaries);
+  const validationRequirements = stringList(value.validationRequirements);
+  const deliveryTarget = String(value.deliveryTarget || "").trim();
+  const unresolvedQuestions = stringList(value.unresolvedQuestions);
+  if (!title || !outcome || !intendedUser || !included.length || !excluded.length || !acceptanceCriteria.length || !protectedBoundaries.length || !validationRequirements.length) {
+    throw new Error("Package Readiness requires an outcome, intended user, scope, exclusions, acceptance criteria, protected boundaries, and validation requirements.");
+  }
+  if (!DELIVERY_TARGETS.has(deliveryTarget)) throw new Error("The work order must use an approved delivery target.");
+  if (unresolvedQuestions.length) throw new Error("Resolve consequential questions before assigning the work order.");
+  return sanitize({
+    workOrderVersion: "1.0.0",
+    workspaceId,
+    title,
+    requestType: String(value.requestType || "feature").trim(),
+    outcome,
+    intendedUser,
+    scope: { included, excluded },
+    acceptanceCriteria,
+    designReferences: stringList(value.designReferences),
+    protectedBoundaries,
+    dependencies: stringList(value.dependencies),
+    validationRequirements,
+    deliveryTarget,
+    assumptions: stringList(value.assumptions),
+    unresolvedQuestions,
+    workspaceReadiness,
+    packageReadiness,
+    approvedBy: "founder",
+    approvedAt: String(value.approvedAt || now())
+  });
+}
+
 function normalizeNewItem(workspaceId, input, actor) {
   const title = String(input?.title || "").trim();
   const ownerRole = String(input?.ownerRole || "").trim().toLowerCase();
@@ -77,6 +129,7 @@ function normalizeNewItem(workspaceId, input, actor) {
   const requiredAction = String(input?.requiredAction || "").trim().toLowerCase();
   const priority = String(input?.priority || "medium").trim().toLowerCase();
   const approvalClass = String(input?.approvalClass || "routine").trim().toLowerCase();
+  const workOrder = normalizeWorkOrder(workspaceId, input?.workOrder);
   if (!title || !ownerRole || !requiredAction || !nextAction) throw new Error("Queue items require a title, owner role, required action, and next action.");
   if (!/^[a-z][a-z0-9-]{1,47}$/.test(ownerRole)) throw new Error("Queue owner roles must use a stable lowercase role ID.");
   if (!ROLE_CAPABILITIES[ownerRole]) throw new Error("The assigned AI role is not registered for governed queue work.");
@@ -91,6 +144,7 @@ function normalizeNewItem(workspaceId, input, actor) {
     packageId: input.packageId ? String(input.packageId) : null,
     title,
     description: String(input.description || "").trim(),
+    workOrder,
     ownerRole,
     requiredAction,
     priority,

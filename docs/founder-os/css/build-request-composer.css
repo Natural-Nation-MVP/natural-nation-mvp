@@ -1,0 +1,31 @@
+.build-request-dialog { width: min(940px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); padding: 0; border: 0; border-radius: 24px; color: #101827; box-shadow: 0 24px 80px rgba(10, 24, 47, .28); }
+.build-request-dialog::backdrop { background: rgba(7, 18, 37, .62); backdrop-filter: blur(5px); }
+.build-request-composer { display: grid; gap: 1rem; padding: clamp(1rem, 3vw, 2rem); }
+.build-request-composer header, .build-request-composer footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.build-request-composer h2, .build-request-composer h3, .build-request-composer p { margin-top: 0; }
+.build-request-composer h2 { margin-bottom: .25rem; font-size: 2rem; }
+.build-request-composer label { display: grid; gap: .4rem; margin-bottom: .9rem; color: #344054; font-weight: 750; }
+.build-request-composer input, .build-request-composer textarea, .build-request-composer select { width: 100%; box-sizing: border-box; border: 1px solid #bac7d8; border-radius: 12px; padding: .75rem; background: #fff; color: #101827; font: inherit; }
+.build-request-composer textarea { min-height: 88px; resize: vertical; }
+.build-request-composer button { min-height: 44px; border: 1px solid #b8c5d6; border-radius: 12px; padding: .65rem 1rem; background: #fff; font: inherit; font-weight: 800; }
+.build-request-composer .build-dialog-close { min-width: 44px; font-size: 1.5rem; }
+.build-request-composer .build-submit { margin-left: auto; border-color: #176f4a; background: #168258; color: #fff; }
+.build-request-composer button:disabled { background: #e9edf2; color: #8993a2; cursor: not-allowed; }
+.build-step-label { color: #176f4a; font-weight: 850; }
+.build-field-grid, .build-readiness-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.build-readiness-grid > section, .build-work-order { border: 1px solid #d4dde8; border-radius: 16px; padding: 1rem; background: #f8fafc; }
+.build-readiness { margin-top: .55rem; }
+.build-readiness.is-ready > strong { color: #16734d; }
+.build-readiness.needs-clarification > strong { color: #a56105; }
+.build-readiness ul { margin: .65rem 0 0; padding: 0; list-style: none; }
+.build-readiness li { margin: .35rem 0; }
+.build-readiness .pass { color: #176f4a; }
+.build-readiness .missing { color: #8b5a10; }
+.build-work-order { margin-top: 1rem; }
+.build-work-order dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.build-work-order dt { color: #667085; font-size: .8rem; font-weight: 800; text-transform: uppercase; }
+.build-work-order dd { margin: .2rem 0 0; }
+.build-confirm { grid-template-columns: auto 1fr !important; align-items: center; margin-top: 1rem; }
+.build-confirm input { width: 22px; height: 22px; }
+.build-request-feedback { min-height: 1.4rem; color: #5f6b7d; font-weight: 750; }
+@media (max-width: 760px) { .build-field-grid, .build-readiness-grid, .build-work-order dl { grid-template-columns: 1fr; } .build-request-composer footer { flex-wrap: wrap; } .build-request-composer .build-submit { width: 100%; } }

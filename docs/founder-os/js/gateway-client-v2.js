@@ -134,10 +134,36 @@
     return payload;
   }
 
+  async function createAiWorkItem({ workspaceId, workOrder }) {
+    if (!workspaceId || !workOrder) throw new Error('A workspace and approved work order are required.');
+    const roleByType = {
+      architecture: ['art', 'plan'],
+      documentation: ['gpose', 'update-documentation']
+    };
+    const assignment = roleByType[workOrder.requestType] || ['codex', 'implement'];
+    const payload = await request(`/v1/workspaces/${encodeURIComponent(workspaceId)}/ai-work-queue`, {
+      method: 'POST',
+      headers: { 'x-founder-os-workspace': workspaceId },
+      body: JSON.stringify({
+        title: workOrder.title,
+        description: workOrder.outcome,
+        ownerRole: assignment[0],
+        requiredAction: assignment[1],
+        nextAction: `Prepare a ${workOrder.deliveryTarget} for Founder review`,
+        priority: workOrder.priority || 'medium',
+        approvalClass: 'founder',
+        workOrder
+      })
+    });
+    founderKey = '';
+    return payload;
+  }
+
   window.FounderOSGateway = {
     approveBlueprint,
     createWorkspace,
     manageWorkspaceLifecycle,
+    createAiWorkItem,
     createClientRequestId,
     requestFounderKey: getFounderKey,
     clearSessionCredential() { founderKey = ''; },
