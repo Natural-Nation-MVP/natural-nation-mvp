@@ -153,6 +153,13 @@ export default {
     if (request.method === "OPTIONS") return emptyResponse(request, 204);
 
     try {
+      // PR previews serve repository-owned frontend assets from explicit static paths only.
+      const previewAssetPath = ["/founder-os", "/execution-packages", "/orchestration"]
+        .some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+      if ((request.method === "GET" || request.method === "HEAD") && previewAssetPath && env.ASSETS?.fetch) {
+        return env.ASSETS.fetch(request);
+      }
+
       const systemResponse = systemRoute(request, env, pathname);
       if (systemResponse) return systemResponse;
 

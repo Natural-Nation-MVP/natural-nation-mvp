@@ -1,5 +1,5 @@
 (() => {
-  const GATEWAY_ORIGIN = 'https://founder-os-gateway.dmoseley1024.workers.dev';
+  const GATEWAY_ORIGIN = window.NNOSPaths?.gatewayOrigin || 'https://founder-os-gateway.dmoseley1024.workers.dev';
   const BLUEPRINT_URL = './config/natural-nation-blueprint.json';
   const PACKAGE_URL = '../execution-packages/NN-BUILD-001.json';
   const BILLING_KEY = 'nnos_billing_resolution';
