@@ -13,6 +13,7 @@
   function workspace() { return window.NNOSActiveWorkspace || null; }
   function field(name) { return dialog?.querySelector(`[name="${name}"]`); }
   function value(name) { return field(name)?.value.trim() || ''; }
+  function isConfirmed() { return dialog?.querySelector('[data-build-confirm]')?.getAttribute('aria-checked') === 'true'; }
 
   function workspaceChecks(current) {
     const modules = Array.isArray(current?.modules) ? current.modules.map((item) => item.target) : [];
@@ -72,7 +73,7 @@
     <section class="build-work-order"><span class="eyebrow">Review Work Order</span><h3>${escapeHtml(order.title || 'Untitled build')}</h3>
       <dl><div><dt>Outcome</dt><dd>${escapeHtml(order.outcome || 'Not provided')}</dd></div><div><dt>For</dt><dd>${escapeHtml(order.intendedUser || 'Not provided')}</dd></div><div><dt>Delivery boundary</dt><dd>Draft preview only · no merge or production change</dd></div><div><dt>Included</dt><dd>${escapeHtml(order.scope.included.join('; ') || 'Not provided')}</dd></div><div><dt>Excluded</dt><dd>${escapeHtml(order.scope.excluded.join('; ') || 'Not provided')}</dd></div></dl>
     </section>
-    <label class="build-confirm"><input type="checkbox" name="confirmed"> I approve this work order and its protected boundaries.</label>`;
+    <button type="button" class="build-confirm" role="checkbox" aria-checked="false" data-build-confirm><span aria-hidden="true">○</span> I approve this work order and its protected boundaries.</button>`;
   }
 
   function render() {
@@ -86,7 +87,7 @@
       const order = workOrder();
       dialog.querySelector('[data-build-review]').innerHTML = reviewMarkup(order);
       const submit = dialog.querySelector('[data-build-submit]');
-      submit.disabled = order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready' || !field('confirmed')?.checked;
+      submit.disabled = order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready' || !isConfirmed();
     }
   }
 
@@ -138,12 +139,18 @@
       if (invalid) { invalid.reportValidity(); return; }
       step = Math.min(3, step + 1); render(); return;
     }
-    const confirm = event.target.closest('[name="confirmed"]');
-    if (confirm) dialog.querySelector('[data-build-submit]').disabled = !confirm.checked;
+    const confirm = event.target.closest('[data-build-confirm]');
+    if (confirm) {
+      const checked = confirm.getAttribute('aria-checked') !== 'true';
+      confirm.setAttribute('aria-checked', String(checked));
+      confirm.querySelector('span').textContent = checked ? '✓' : '○';
+      dialog.querySelector('[data-build-submit]').disabled = !checked;
+      return;
+    }
     const submit = event.target.closest('[data-build-submit]');
     if (submit) {
       const order = workOrder();
-      if (order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready' || !field('confirmed')?.checked) return;
+      if (order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready' || !isConfirmed()) return;
       const feedback = dialog.querySelector('[data-build-feedback]');
       submit.disabled = true; feedback.textContent = 'Creating governed assignment…';
       try {

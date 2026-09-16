@@ -416,7 +416,8 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(composer).toContainText('Workspace Readiness');
   await expect(composer).toContainText('Package Readiness');
   await expect(composer.locator('[data-build-submit]')).toBeDisabled();
-  await composer.locator('[name="confirmed"]').check();
+  await composer.locator('[data-build-confirm]').click();
+  await expect(composer.locator('[data-build-confirm]')).toHaveAttribute('aria-checked', 'true');
   await expect(composer.locator('[data-build-submit]')).toBeEnabled();
   await composer.locator('[data-build-close]').click();
   if (testInfo.project.use.hasTouch) {
