@@ -86,7 +86,7 @@
       const order = workOrder();
       dialog.querySelector('[data-build-review]').innerHTML = reviewMarkup(order);
       const submit = dialog.querySelector('[data-build-submit]');
-      submit.disabled = order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready';
+      submit.disabled = order.workspaceReadiness.status !== 'ready' || order.packageReadiness.status !== 'ready' || !field('confirmed')?.checked;
     }
   }
 
