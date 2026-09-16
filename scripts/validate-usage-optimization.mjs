@@ -53,8 +53,8 @@ for (const record of registry.records) {
 const founderWorkspace = workspaceRegistry.workspaces.find((workspace) => workspace.id === 'founder-os');
 assert.ok(founderWorkspace.modules.some((module) => module.target === 'analytics' && module.label === 'Usage Analytics'));
 assert(html.includes('data-workspace="analytics"'));
-assert(html.includes('usage-analytics.js?v=fos-actions-014'));
-assert(html.includes('usage-analytics.css?v=fos-actions-014'));
+assert(html.includes('usage-analytics.js?v=fos-actions-015'));
+assert(html.includes('usage-analytics.css?v=fos-actions-015'));
 for (const required of ['Live usage, history, and high-usage problems', 'Highest measured usage', 'usage-pie', 'usage-trend', 'High-usage problems', 'Historical usage is preserved but unmetered']) assert(analytics.includes(required));
 assert(gateway.includes('handleUsageAnalytics'));
 assert(gateway.includes('liveUsageAnalytics: "read-only-aggregate"'));
