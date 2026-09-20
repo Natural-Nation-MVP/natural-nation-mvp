@@ -392,14 +392,22 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(queue).toContainText('AI Work Queue');
   await expect(queue).toContainText('What Needs Your Attention');
   await expect(queue.locator('.ai-queue-metric')).toHaveCount(5);
-  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveCount(1);
-  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveText('Open Build Work');
-  await expect(queue.locator('.ai-work-queue-header [data-create-build]')).toHaveText('Create Build');
+  const openBuildWork = queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]');
+  await expect(openBuildWork).toHaveCount(1);
+  await expect(openBuildWork).toHaveText('Open Build Work');
+  await expect(queue.locator('.ai-work-queue-header [data-create-build]')).toHaveCount(0);
   await expect(queue.locator('[data-ai-queue-feedback]')).toHaveAttribute('aria-live', 'polite');
   await expect(queue.locator('[data-ai-queue-filter]')).toHaveCount(5);
   await expect(queue.locator('[data-ai-queue-filter]:disabled')).toHaveCount(4);
   await expect(queue.locator('.ai-queue-persistence')).toBeVisible();
-  await queue.locator('.ai-work-queue-header [data-create-build]').click();
+  await openBuildWork.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
+  const buildView = page.locator('[data-workspace="build"]');
+  await expect(buildView).toBeVisible();
+  const createBuild = buildView.locator('[data-create-build]');
+  await expect(createBuild).toHaveCount(1);
+  await expect(createBuild).toHaveText('Create Build');
+  await createBuild.click();
   const composer = page.locator('.build-request-dialog');
   await expect(composer).toBeVisible();
   await expect(composer).toContainText('Step 1 of 3');
@@ -420,6 +428,8 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(composer.locator('[data-build-confirm]')).toHaveAttribute('aria-checked', 'true');
   await expect(composer.locator('[data-build-submit]')).toBeEnabled();
   await composer.locator('[data-build-close]').click();
+  await openView(page, 'ai');
+  await expect(queue).toBeVisible();
   if (testInfo.project.use.hasTouch) {
     const queueColumns = await queue.locator('.ai-queue-metrics').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
     expect(queueColumns).toBeLessThanOrEqual(2);
