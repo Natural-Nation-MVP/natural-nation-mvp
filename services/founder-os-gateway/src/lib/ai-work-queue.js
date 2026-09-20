@@ -75,6 +75,33 @@ function stringList(value) {
   return Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 50) : [];
 }
 
+function words(value) {
+  return new Set(String(value || "").toLowerCase().replace(/[^a-z0-9\s-]/g, " ").split(/\s+/)
+    .filter((word) => word.length > 2 && !["the", "and", "for", "with", "that", "this", "from"].includes(word)));
+}
+
+function similarity(left, right) {
+  const a = words(left);
+  const b = words(right);
+  if (!a.size || !b.size) return 0;
+  return [...a].filter((word) => b.has(word)).length / Math.min(a.size, b.size);
+}
+
+function comparableText(item) {
+  return [item?.title, item?.description, item?.workOrder?.outcome, ...(item?.workOrder?.scope?.included || [])].filter(Boolean).join(" ");
+}
+
+function normalizeExistingWorkReview(value) {
+  if (!value || typeof value !== "object") throw new Error("Check existing work before assigning the work order.");
+  const status = String(value.status || "").trim();
+  const decision = String(value.decision || "").trim();
+  const matchIds = stringList(value.matchIds);
+  if (!["no-match", "potential-match"].includes(status)) throw new Error("The existing-work check must complete before assignment.");
+  if (!["create-new", "improve", "fix", "distinct-version"].includes(decision)) throw new Error("Choose how to handle existing work before assignment.");
+  if (status === "potential-match" && !["improve", "fix", "distinct-version"].includes(decision)) throw new Error("A possible duplicate must be improved, fixed, or intentionally separated.");
+  return sanitize({ status, decision, matchIds, checkedAt: String(value.checkedAt || now()) });
+}
+
 function normalizeWorkOrder(workspaceId, value) {
   if (value == null) return null;
   if (!value || typeof value !== "object") throw new Error("The work order must be a structured object.");
@@ -94,6 +121,7 @@ function normalizeWorkOrder(workspaceId, value) {
   const validationRequirements = stringList(value.validationRequirements);
   const deliveryTarget = String(value.deliveryTarget || "").trim();
   const unresolvedQuestions = stringList(value.unresolvedQuestions);
+  const existingWorkReview = normalizeExistingWorkReview(value.existingWorkReview);
   if (!title || !outcome || !intendedUser || !included.length || !excluded.length || !acceptanceCriteria.length || !protectedBoundaries.length || !validationRequirements.length) {
     throw new Error("Package Readiness requires an outcome, intended user, scope, exclusions, acceptance criteria, protected boundaries, and validation requirements.");
   }
@@ -115,6 +143,7 @@ function normalizeWorkOrder(workspaceId, value) {
     deliveryTarget,
     assumptions: stringList(value.assumptions),
     unresolvedQuestions,
+    existingWorkReview,
     workspaceReadiness,
     packageReadiness,
     approvedBy: "founder",
@@ -241,6 +270,19 @@ export async function createQueueItem(env, workspaceId, input, actor) {
   const state = await readState(env, workspaceId);
   if (!state.persisted) throw new Error("The persistent runtime store is unavailable.");
   const item = normalizeNewItem(workspaceId, input, actor);
+  const duplicateMatches = state.items.filter((current) => similarity(comparableText(item), comparableText(current)) >= 0.5);
+  if (duplicateMatches.length) {
+    const review = item.workOrder?.existingWorkReview;
+    const related = new Set(review?.matchIds || []);
+    const acknowledged = ["improve", "fix", "distinct-version"].includes(review?.decision)
+      && duplicateMatches.some((current) => related.has(current.itemId));
+    if (!acknowledged) {
+      const error = new Error("Similar work already exists. Review it before creating another work order.");
+      error.status = 409;
+      error.matches = duplicateMatches.slice(0, 5).map((current) => ({ itemId: current.itemId, title: current.title, status: current.status }));
+      throw error;
+    }
+  }
   if (state.items.some((current) => current.itemId === item.itemId)) {
     const error = new Error("A queue item with this ID already exists.");
     error.status = 409;
