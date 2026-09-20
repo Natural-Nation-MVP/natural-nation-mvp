@@ -407,6 +407,13 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   const createBuild = buildView.locator('[data-create-build]');
   await expect(createBuild).toHaveCount(1);
   await expect(createBuild).toHaveText('Create Build');
+  await page.route(/\/v1\/workspaces\/natural-nation\/ai-work-queue\?/, async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, items: [] }) });
+      return;
+    }
+    await route.continue();
+  });
   await createBuild.click();
   const composer = page.locator('.build-request-dialog');
   await expect(composer).toBeVisible();
