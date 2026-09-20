@@ -392,12 +392,59 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(queue).toContainText('AI Work Queue');
   await expect(queue).toContainText('What Needs Your Attention');
   await expect(queue.locator('.ai-queue-metric')).toHaveCount(5);
-  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveCount(1);
-  await expect(queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]')).toHaveText('Open Build Work');
+  const openBuildWork = queue.locator('.ai-work-queue-header [data-ai-queue-open="build"]');
+  await expect(openBuildWork).toHaveCount(1);
+  await expect(openBuildWork).toHaveText('Open Build Work');
+  await expect(queue.locator('.ai-work-queue-header [data-create-build]')).toHaveCount(0);
   await expect(queue.locator('[data-ai-queue-feedback]')).toHaveAttribute('aria-live', 'polite');
   await expect(queue.locator('[data-ai-queue-filter]')).toHaveCount(5);
   await expect(queue.locator('[data-ai-queue-filter]:disabled')).toHaveCount(4);
   await expect(queue.locator('.ai-queue-persistence')).toBeVisible();
+  await openBuildWork.click();
+  await expect(page.locator('body')).toHaveAttribute('data-active-view', 'build');
+  const buildView = page.locator('[data-workspace="build"]');
+  await expect(buildView).toBeVisible();
+  const createBuild = buildView.locator('[data-create-build]');
+  await expect(createBuild).toHaveCount(1);
+  await expect(createBuild).toHaveText('Create Build');
+  await page.route(/\/v1\/workspaces\/natural-nation\/ai-work-queue\?/, async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, items: [] }) });
+      return;
+    }
+    await route.continue();
+  });
+  await createBuild.click();
+  const composer = page.locator('.build-request-dialog');
+  await expect(composer).toBeVisible();
+  await expect(composer).toContainText('Step 1 of 4');
+  await composer.locator('[name="title"]').fill('Add member check-in');
+  await composer.locator('[name="outcome"]').fill('Members can record a daily check-in and see confirmation.');
+  await composer.locator('[name="intendedUser"]').fill('Natural Nation member');
+  await composer.locator('[data-build-next]').click();
+  await expect(composer).toContainText('Step 2 of 4');
+  const existingWorkReview = composer.locator('[data-existing-work-review]');
+  await expect(existingWorkReview.locator('.existing-work-state')).toContainText(/No matching work found|We may have already built this/);
+  const distinctVersion = existingWorkReview.locator('[data-existing-work-decision="distinct-version"]');
+  if (await distinctVersion.count()) await distinctVersion.click();
+  await composer.locator('[data-build-next]').click();
+  await expect(composer).toContainText('Step 3 of 4');
+  await composer.locator('[name="included"]').fill('Daily check-in form');
+  await composer.locator('[name="excluded"]').fill('Billing');
+  await composer.locator('[name="acceptanceCriteria"]').fill('A member can submit one check-in');
+  await composer.locator('[name="protectedBoundaries"]').fill('No production deployment without Founder approval');
+  await composer.locator('[name="validationRequirements"]').fill('Cross-browser tests pass');
+  await composer.locator('[data-build-next]').click();
+  await expect(composer).toContainText('Step 4 of 4');
+  await expect(composer).toContainText('Workspace Readiness');
+  await expect(composer).toContainText('Package Readiness');
+  await expect(composer.locator('[data-build-submit]')).toBeDisabled();
+  await composer.locator('[data-build-confirm]').click();
+  await expect(composer.locator('[data-build-confirm]')).toHaveAttribute('aria-checked', 'true');
+  await expect(composer.locator('[data-build-submit]')).toBeEnabled();
+  await composer.locator('[data-build-close]').click();
+  await openView(page, 'ai');
+  await expect(queue).toBeVisible();
   if (testInfo.project.use.hasTouch) {
     const queueColumns = await queue.locator('.ai-queue-metrics').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length);
     expect(queueColumns).toBeLessThanOrEqual(2);
@@ -409,11 +456,18 @@ test('Approval Inbox and AI Team Monitor expose founder decision status', async 
   await expect(page.locator('[data-workspace="ai"] [data-workspace-settings-panel]')).toHaveCount(0);
   const viewport = page.viewportSize();
   if (viewport && viewport.width > 760 && viewport.width <= 1600) {
+    await expect.poll(async () => {
+      const [attentionBox, readyBox] = await Promise.all([
+        page.locator('.ai-queue-attention').boundingBox(),
+        page.locator('.ai-queue-ready').boundingBox()
+      ]);
+      if (!attentionBox || !readyBox) return Number.POSITIVE_INFINITY;
+      return Math.abs(attentionBox.y - readyBox.y);
+    }).toBeLessThanOrEqual(2);
     const attentionBox = await page.locator('.ai-queue-attention').boundingBox();
     const readyBox = await page.locator('.ai-queue-ready').boundingBox();
     expect(attentionBox).not.toBeNull();
     expect(readyBox).not.toBeNull();
-    expect(Math.abs(attentionBox.y - readyBox.y)).toBeLessThanOrEqual(2);
     expect(readyBox.x).toBeGreaterThan(attentionBox.x);
   }
   const monitor = secondaryDetails.locator('[data-ai-monitor-summary]');

@@ -34,9 +34,13 @@
     ];
     return [
       { target: 'mission', label: 'Overview', group: 'Start' },
-      { target: 'ai', label: 'AI Team', group: 'Execution' },
+      { target: 'discovery', label: 'Confirmed Direction', group: 'Planning' },
+      { target: 'blueprint', label: 'Approved Plan', group: 'Planning' },
+      { target: 'build', label: 'Build Work', group: 'Execution' },
+      { target: 'ai', label: 'Assigned AI Team', group: 'Execution' },
       { target: 'repo', label: 'Code Status', group: 'Execution' },
-      { target: 'knowledge', label: 'Workspace Records', group: 'Records' }
+      { target: 'knowledge', label: 'Workspace Records', group: 'Records' },
+      { target: 'evidence', label: 'Evidence & Audit', group: 'Records' }
     ];
   }
 

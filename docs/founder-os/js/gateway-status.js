@@ -1,5 +1,5 @@
 (() => {
-  const gatewayUrl = 'https://founder-os-gateway.dmoseley1024.workers.dev/';
+  const gatewayUrl = `${window.NNOSPaths?.gatewayOrigin || 'https://founder-os-gateway.dmoseley1024.workers.dev'}/`;
   const statusNode = document.querySelector('[data-system-status]');
 
   async function checkGateway() {

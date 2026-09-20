@@ -78,6 +78,57 @@ test("rejects assignments outside a role capability", async () => {
   assert.match(result.body.error.message, /required capability/i);
 });
 
+test("accepts only readiness-complete Founder work orders", async () => {
+  const env = bindings();
+  const workOrder = {
+    workOrderVersion: "1.0.0", workspaceId: "natural-nation", title: "Add daily check-in", requestType: "feature",
+    outcome: "Members can record a daily check-in.", intendedUser: "Natural Nation member",
+    scope: { included: ["Daily check-in form"], excluded: ["Billing"] },
+    acceptanceCriteria: ["A member can submit once per day"],
+    protectedBoundaries: ["No production deployment without Founder approval"],
+    validationRequirements: ["Cross-browser tests pass"], deliveryTarget: "draft-preview",
+    unresolvedQuestions: [],
+    existingWorkReview: { status: "no-match", decision: "create-new", matchIds: [], checkedAt: "2026-09-20T00:00:00.000Z" },
+    workspaceReadiness: { status: "ready", passed: 3, total: 3 },
+    packageReadiness: { status: "ready", passed: 5, total: 5 }
+  };
+  const created = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    title: "Add daily check-in", ownerRole: "codex", requiredAction: "implement",
+    nextAction: "Prepare a draft preview", approvalClass: "founder", workOrder
+  });
+  assert.equal(created.response.status, 201);
+  assert.equal(created.body.item.workOrder.deliveryTarget, "draft-preview");
+  assert.equal(created.body.item.workOrder.approvedBy, "founder");
+  assert.equal(created.body.item.workOrder.existingWorkReview.decision, "create-new");
+
+  const duplicate = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    title: "Add daily check-in", ownerRole: "codex", requiredAction: "implement",
+    nextAction: "Prepare another draft preview", approvalClass: "founder", workOrder
+  });
+  assert.equal(duplicate.response.status, 409);
+  assert.match(duplicate.body.error.message, /Similar work already exists/i);
+
+  const improvement = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    title: "Improve daily check-in", ownerRole: "codex", requiredAction: "implement",
+    nextAction: "Prepare an improved draft preview", approvalClass: "founder",
+    workOrder: {
+      ...workOrder,
+      title: "Improve daily check-in",
+      outcome: "Members can use an improved daily check-in.",
+      existingWorkReview: { status: "potential-match", decision: "improve", matchIds: [created.body.item.itemId] }
+    }
+  });
+  assert.equal(improvement.response.status, 201);
+  assert.equal(improvement.body.item.workOrder.existingWorkReview.decision, "improve");
+
+  const rejected = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    title: "Ambiguous build", ownerRole: "codex", requiredAction: "implement", nextAction: "Start work",
+    workOrder: { ...workOrder, packageReadiness: { status: "needs-clarification" } }
+  });
+  assert.equal(rejected.response.status, 422);
+  assert.match(rejected.body.error.message, /Package Readiness/i);
+});
+
 test("allows only the assigned role to claim ready work and rejects a duplicate claim", async () => {
   const env = bindings();
   const created = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {

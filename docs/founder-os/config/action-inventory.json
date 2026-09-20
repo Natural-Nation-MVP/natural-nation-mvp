@@ -390,6 +390,15 @@
       "availability": "collapsed by default; enabled only when an eligible canonical task exists",
       "outcome": "Allow the Founder to override AI-composed ownership, recovery, provider, or review routing only when necessary",
       "browserTest": "Approval Inbox and AI Team Monitor expose founder decision status"
+    },
+    {
+      "id": "workspace.build.create",
+      "selector": "[data-create-build]",
+      "surface": "Build Work and Assigned AI Team",
+      "owner": "build-request-composer.js",
+      "availability": "enabled inside a registered product workspace",
+      "outcome": "Review Workspace Readiness and Package Readiness, then create an authenticated governed AI work order",
+      "browserTest": "Approval Inbox and AI Team Monitor expose founder decision status"
     }
   ]
 }
