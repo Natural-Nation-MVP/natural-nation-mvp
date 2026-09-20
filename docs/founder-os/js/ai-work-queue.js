@@ -161,7 +161,7 @@
         <div><div class="eyebrow">Governed AI operations</div><h2 id="ai-work-queue-title">AI Work Queue</h2>
         <p>See who is working, what is next, and what needs your decision.</p></div>
         <div class="ai-queue-action-panel">
-          <div class="ai-queue-header-actions"><button type="button" data-ai-queue-refresh ${isRefreshing ? 'disabled aria-busy="true"' : ''}>${isRefreshing ? "Refreshing…" : "Refresh now"}</button><button type="button" data-ai-queue-open="build">Open Build Work</button><button type="button" class="ai-queue-primary" data-create-build>Create Build</button></div>
+          <div class="ai-queue-header-actions"><button type="button" data-ai-queue-refresh ${isRefreshing ? 'disabled aria-busy="true"' : ''}>${isRefreshing ? "Refreshing…" : "Refresh now"}</button><button type="button" class="ai-queue-primary" data-ai-queue-open="build">Open Build Work</button></div>
           <span class="ai-queue-feedback" data-ai-queue-feedback role="status" aria-live="polite">${escapeHtml(queueFeedback)}</span>
         </div>
       </header>
