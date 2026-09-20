@@ -57,14 +57,13 @@ for (const marker of [
   "Active assignments",
   "Up next",
   "Open Build Work",
-  "Create Build",
-  "data-create-build",
   "data-ai-queue-feedback",
   "data-ai-queue-filter",
   "queue history is preserved"
 ]) {
   assert.ok(ui.includes(marker), `Queue UI is missing: ${marker}`);
 }
+assert.ok(!ui.includes("data-create-build"), "AI Work Queue must route creation through the canonical Build Work page.");
 assert.match(ui, /workspaceId !== workspace\.id/, "UI must reject cross-workspace responses.");
 assert.match(ui, /filterCount/, "Empty filters must expose a disabled state instead of appearing unresponsive.");
 assert.match(css, /grid-template-columns:\s*repeat\(5/, "Desktop must show the four queue metrics and Gateway health.");
