@@ -1,4 +1,4 @@
-.build-request-dialog { width: min(940px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); padding: 0; border: 0; border-radius: 24px; color: #101827; box-shadow: 0 24px 80px rgba(10, 24, 47, .28); }
+.build-request-dialog { width: min(1040px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); padding: 0; border: 0; border-radius: 24px; color: #101827; box-shadow: 0 24px 80px rgba(10, 24, 47, .28); }
 .build-request-dialog::backdrop { background: rgba(7, 18, 37, .62); backdrop-filter: blur(5px); }
 .build-request-composer { display: grid; gap: 1rem; padding: clamp(1rem, 3vw, 2rem); }
 .build-request-composer header, .build-request-composer footer { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
@@ -13,6 +13,14 @@
 .build-request-composer button:disabled { background: #e9edf2; color: #8993a2; cursor: not-allowed; }
 .build-step-label { color: #176f4a; font-weight: 850; }
 .build-field-grid, .build-readiness-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.build-guided-field { min-width: 0; }
+.build-suggestions { margin: -.35rem 0 1rem; padding: .75rem; border: 1px solid #d9e5de; border-radius: 12px; background: #f4faf7; }
+.build-suggestion-heading { display: flex; justify-content: space-between; gap: .75rem; margin-bottom: .55rem; color: #176f4a; font-size: .82rem; }
+.build-suggestion-heading span { color: #667085; font-weight: 650; }
+.build-suggestion-options { display: grid; gap: .4rem; }
+.build-request-composer .build-suggestion { display: flex; align-items: flex-start; gap: .45rem; min-height: 36px; padding: .48rem .6rem; border-color: #cbd8d1; border-radius: 9px; text-align: left; font-size: .82rem; font-weight: 700; line-height: 1.25; }
+.build-request-composer .build-suggestion span { flex: 0 0 auto; color: #168258; }
+.build-request-composer .build-suggestion.is-selected { border-color: #168258; background: #e5f6ec; color: #125d3f; }
 .build-readiness-grid > section, .build-work-order { border: 1px solid #d4dde8; border-radius: 16px; padding: 1rem; background: #f8fafc; }
 .build-readiness { margin-top: .55rem; }
 .build-readiness.is-ready > strong { color: #16734d; }
@@ -29,4 +37,4 @@
 .build-request-composer .build-confirm[aria-checked="true"] { border-color: #168258; background: #edf9f2; color: #176f4a; }
 .build-confirm span { font-size: 1.2rem; }
 .build-request-feedback { min-height: 1.4rem; color: #5f6b7d; font-weight: 750; }
-@media (max-width: 760px) { .build-field-grid, .build-readiness-grid, .build-work-order dl { grid-template-columns: 1fr; } .build-request-composer footer { flex-wrap: wrap; } .build-request-composer .build-submit { width: 100%; } }
+@media (max-width: 760px) { .build-field-grid, .build-readiness-grid, .build-work-order dl { grid-template-columns: 1fr; } .build-request-composer footer { flex-wrap: wrap; } .build-request-composer .build-submit { width: 100%; } .build-suggestion-heading { display: grid; gap: .15rem; } }
