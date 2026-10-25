@@ -3,6 +3,7 @@
   "lifecycleId": "founder-os-workspace-lifecycle",
   "states": [
     "draft",
+    "foundation",
     "active",
     "paused",
     "archived",
@@ -12,6 +13,7 @@
   ],
   "transitions": {
     "draft": ["active", "archived", "scheduled_for_deletion"],
+    "foundation": ["active", "archived", "scheduled_for_deletion"],
     "active": ["paused", "archived", "scheduled_for_deletion"],
     "paused": ["active", "archived", "scheduled_for_deletion"],
     "archived": ["restored", "scheduled_for_deletion"],

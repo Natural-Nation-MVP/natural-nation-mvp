@@ -55,11 +55,11 @@ export function createRuntimeRepository() {
     snapshot(workspaceId) {
       requireWorkspace(workspaceId);
       return {
-        runs: [...new Set([...runs.entries()].filter(([entryKey]) => entryKey.startsWith(`${workspaceId}:`) && !entryKey.includes(':idem:')).map(([, value]) => value))].map(structuredClone),
-        evidence: evidence.filter((item) => item.workspaceId === workspaceId).map(structuredClone),
-        events: events.filter((item) => item.workspaceId === workspaceId).map(structuredClone),
-        retries: retries.filter((item) => item.workspaceId === workspaceId).map(structuredClone),
-        checkpoints: checkpoints.filter((item) => item.workspaceId === workspaceId).map(structuredClone),
+        runs: [...new Set([...runs.entries()].filter(([entryKey]) => entryKey.startsWith(`${workspaceId}:`) && !entryKey.includes(':idem:')).map(([, value]) => value))].map((item) => structuredClone(item)),
+        evidence: evidence.filter((item) => item.workspaceId === workspaceId).map((item) => structuredClone(item)),
+        events: events.filter((item) => item.workspaceId === workspaceId).map((item) => structuredClone(item)),
+        retries: retries.filter((item) => item.workspaceId === workspaceId).map((item) => structuredClone(item)),
+        checkpoints: checkpoints.filter((item) => item.workspaceId === workspaceId).map((item) => structuredClone(item)),
       };
     },
   };

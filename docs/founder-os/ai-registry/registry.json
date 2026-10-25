@@ -33,7 +33,7 @@
   "workspaceTeams": [
     {"workspaceId":"natural-nation","assignments":[
       {"roleId":"product-architect","requiredCapabilities":["architecture.design","requirements.analysis"],"permittedTools":[],"routing":{"primaryModelId":"openai-general","fallbackModelIds":["google-general"],"preserveContract":true}},
-      {"roleId":"builder","requiredCapabilities":["code.implementation","evidence.production"],"permittedTools":["github"],"routing":{"primaryModelId":"openai-general","fallbackModelIds":["google-general"],"preserveContract":true}},
+      {"roleId":"builder","requiredCapabilities":["code.implementation","evidence.production"],"permittedTools":["github"],"routing":{"primaryModelId":"openai-general","fallbackModelIds":[],"preserveContract":true}},
       {"roleId":"experience-reviewer","requiredCapabilities":["experience.review","evidence.review"],"permittedTools":[],"routing":{"primaryModelId":"google-general","fallbackModelIds":["openai-general"],"preserveContract":true}}
     ]},
     {"workspaceId":"contractor-estimator","assignments":[

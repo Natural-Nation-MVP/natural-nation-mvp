@@ -10,8 +10,8 @@ const controller = read('docs/founder-os/js/founder-home-functionality.js');
 const availability = read('docs/founder-os/js/interaction-availability.js');
 const manager = read('docs/founder-os/js/workspace-manager.js');
 
-assert(html.includes('founder-home-functionality.css?v=founder-ux-021'), 'Functional readiness stylesheet is not loaded.');
-assert(html.includes('founder-home-functionality.js?v=founder-ux-021'), 'Functional readiness controller is not loaded.');
+assert(html.includes('founder-home-functionality.css?v=fos-actions-014'), 'Functional readiness stylesheet is not loaded.');
+assert(html.includes('founder-home-functionality.js?v=fos-actions-014'), 'Functional readiness controller is not loaded.');
 assert(html.indexOf('founder-home-functionality.js') > html.indexOf('interaction-availability.js'), 'Functional readiness controller must load after availability enforcement.');
 assert(controller.includes('data-open-founder-settings'), 'Founder settings route is missing.');
 assert(controller.includes('data-launch-action="health"'), 'Workspace Health route is missing.');

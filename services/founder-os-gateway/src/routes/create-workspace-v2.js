@@ -186,6 +186,7 @@ function makeRecord(body, registry, now, fingerprint, identityFingerprint) {
     locations: { source: `${root}app/`, knowledge: `${root}knowledge/`, assets: `${root}assets/`, deliverables: `workspace:${workspaceId}:deliverables` },
     governance: {
       approvalPolicyRef: "docs/founder-os/FOS-GOVERNANCE-001.md",
+      auditPolicyRef: "docs/founder-os/FOS-GOVERNANCE-001.md#audit-and-traceability",
       protectedBoundaryRef: "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary",
       workflow: "Art → Codex → Gemini → GPose → Founder"
     },
