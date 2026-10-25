@@ -133,6 +133,7 @@ function makeRecord(body, registry, now) {
     },
     governance: {
       approvalPolicyRef: "docs/founder-os/FOS-GOVERNANCE-001.md",
+      auditPolicyRef: "docs/founder-os/FOS-GOVERNANCE-001.md#audit-and-traceability",
       protectedBoundaryRef: "docs/founder-os/FOS-FOUNDATION-001.md#protected-security-boundary",
       workflow: "Art → Codex → Gemini → GPose → Founder"
     },

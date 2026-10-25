@@ -9,6 +9,7 @@ const fixture = await readJson("docs/founder-os/registry/fixtures/workspace-002-
 
 const STATES = new Set([
   "draft",
+  "foundation",
   "active",
   "paused",
   "archived",
@@ -30,7 +31,7 @@ const REQUIRED_LOCATIONS = ["source", "knowledge", "assets", "deliverables"];
 const REQUIRED_GOVERNANCE = ["approvalPolicyRef", "auditPolicyRef", "protectedBoundaryRef"];
 
 function validateWorkspace(workspace, label = workspace?.workspaceId || "workspace") {
-  assert.match(workspace.workspaceId, /^[a-z0-9]+(?:-[a-z0-9]+)*$/, `${label}: invalid workspaceId`);
+  assert.ok(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(workspace.workspaceId) || /^ws_[0-9a-f-]+$/.test(workspace.workspaceId), `${label}: invalid workspaceId`);
   assert.ok(workspace.displayName, `${label}: displayName is required`);
   assert.ok(Number.isInteger(workspace.sequence) && workspace.sequence > 0, `${label}: sequence must be a positive integer`);
   assert.match(workspace.workspaceType, /^[a-z0-9]+(?:_[a-z0-9]+)*$/, `${label}: invalid workspaceType`);
@@ -44,7 +45,7 @@ function validateWorkspace(workspace, label = workspace?.workspaceId || "workspa
 
   assert.ok(Array.isArray(workspace.capabilities), `${label}: capabilities must be an array`);
   assert.equal(new Set(workspace.capabilities).size, workspace.capabilities.length, `${label}: duplicate capabilities`);
-  assert.ok(["unknown", "healthy", "attention", "blocked", "inactive"].includes(workspace.health?.state), `${label}: invalid health state`);
+  assert.ok(["unknown", "healthy", "attention", "blocked", "inactive", "foundation"].includes(workspace.health?.state), `${label}: invalid health state`);
   assert.ok(workspace.health?.summary, `${label}: health summary is required`);
   assert.ok(!Number.isNaN(Date.parse(workspace.createdAt)), `${label}: createdAt must be a timestamp`);
   assert.ok(!Number.isNaN(Date.parse(workspace.updatedAt)), `${label}: updatedAt must be a timestamp`);
