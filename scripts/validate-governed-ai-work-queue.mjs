@@ -35,7 +35,10 @@ assert.match(queue, /appendExecutionLedgerRecord/, "Queue events must feed the P
 for (const action of ["claim", "progress", "evidence", "request-approval", "complete", "decision"]) {
   assert.ok(route.includes(action), `Queue route must expose ${action}.`);
 }
-assert.match(route, /x-founder-os-agent/i, "Agent callbacks must identify their governed role.");
+const getBlock = route.slice(route.indexOf('request.method === "GET"'));
+assert.ok(getBlock.includes("authenticateQueueActor(request, env)"), "Queue GET reads must authenticate the Founder or agent caller.");
+assert.match(ui, /requestFounderKey/, "Queue UI must use the in-memory Founder key for reads.");
+assert.match(ui, /authorization: `Bearer/, "Queue UI must send a Bearer token when loading the queue.");
 assert.match(route, /authenticateFounder/, "Founder decisions must remain authenticated.");
 assert.match(gateway, /governedAiWorkQueue:\s*"runtime-store-backed"/, "Gateway must advertise the durable queue.");
 assert.match(gateway, /handleAiWorkQueue/, "Gateway must route queue requests.");
