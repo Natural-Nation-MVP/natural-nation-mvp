@@ -22,8 +22,9 @@ The screen is read-only. It does not let the browser impersonate an AI role or m
 ## Governance boundaries
 
 - Queue storage is isolated by immutable workspace ID.
-- The browser receives a sanitized read-only queue.
+- The browser receives a sanitized read-only queue after Founder authentication.
 - All queue mutations require authenticated mutations through the Founder gateway.
+- Queue reads also require Founder or registered-agent authentication; unauthenticated reads are rejected.
 - AI callbacks must declare a registered agent role and may update only work they own.
 - Revision checks prevent duplicate or stale claims.
 - Protected work cannot complete without evidence and a Founder decision.

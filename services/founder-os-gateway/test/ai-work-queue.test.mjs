@@ -58,8 +58,8 @@ test("keeps queue records isolated by workspace", async () => {
     nextAction: "Report architecture findings"
   });
 
-  const naturalNation = await call(env, "/v1/workspaces/natural-nation/ai-work-queue");
-  const founderOs = await call(env, "/v1/workspaces/founder-os/ai-work-queue");
+  const naturalNation = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test");
+  const founderOs = await call(env, "/v1/workspaces/founder-os/ai-work-queue", "founder-test");
   assert.deepEqual(naturalNation.body.items.map((item) => item.itemId), ["WORK-NN-1"]);
   assert.deepEqual(founderOs.body.items.map((item) => item.itemId), ["WORK-FOS-1"]);
   assert.equal(naturalNation.body.summary.ready, 1);
@@ -175,4 +175,33 @@ test("routine work completes only after evidence is submitted", async () => {
     expectedRevision: 3
   }, "gpose");
   assert.equal(completed.body.item.status, "complete");
+});
+
+test("rejects unauthenticated and wrong-token queue reads", async () => {
+  const env = bindings();
+  await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    itemId: "WORK-READ-1",
+    title: "Review protocol safety",
+    ownerRole: "duey",
+    requiredAction: "review-wellness-guidance",
+    nextAction: "Complete safety review"
+  });
+
+  const noToken = await call(env, "/v1/workspaces/natural-nation/ai-work-queue");
+  assert.equal(noToken.response.status, 401);
+  assert.deepEqual(noToken.body.items, undefined);
+
+  const wrongToken = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "not-the-founder-key");
+  assert.equal(wrongToken.response.status, 403);
+
+  const agentWithoutRole = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "agent-test");
+  assert.equal(agentWithoutRole.response.status, 403);
+
+  const agentWithRole = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "agent-test", undefined, "duey");
+  assert.equal(agentWithRole.response.status, 200);
+  assert.deepEqual(agentWithRole.body.items.map((item) => item.itemId), ["WORK-READ-1"]);
+
+  const founderRead = await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test");
+  assert.equal(founderRead.response.status, 200);
+  assert.deepEqual(founderRead.body.items.map((item) => item.itemId), ["WORK-READ-1"]);
 });

@@ -196,7 +196,7 @@
     if (rolesPanel) canvas?.append(rolesPanel);
   }
 
-  async function loadQueue() {
+  async function loadQueue({ allowPrompt = false } = {}) {
     const root = queueRoot();
     const workspace = window.NNOSActiveWorkspace;
     if (!root || !workspace) return null;
@@ -211,10 +211,37 @@
       currentQueue = emptyQueue;
       renderQueue(currentQueue);
     }
+    // Queue reads now require Founder or agent authentication on the
+    // gateway. Reuse the existing in-memory Founder key (gateway-client-v2):
+    // it is prompted for, kept only in the open page, and never written to
+    // browser storage or GitHub. Automatic loads never prompt — they show
+    // a key-required message instead; an explicit Refresh may prompt.
+    const gatewayClient = window.FounderOSGateway;
+    let headers = {};
     try {
-      const response = await fetch(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/ai-work-queue?v=${Date.now()}`, { cache: "no-store" });
+      if (gatewayClient?.hasSessionCredential?.()) {
+        headers = { authorization: `Bearer ${gatewayClient.requestFounderKey()}` };
+      } else if (allowPrompt && gatewayClient?.requestFounderKey) {
+        headers = { authorization: `Bearer ${gatewayClient.requestFounderKey()}` };
+      } else {
+        queueFeedback = gatewayClient
+          ? "Founder key required to view the queue — press Refresh and enter the temporary Founder API key when prompted."
+          : "Queue reads now require Founder authentication; the protected Gateway client is unavailable. Refresh and try again.";
+        renderQueue(currentQueue || emptyQueue);
+        return null;
+      }
+    } catch (error) {
+      queueFeedback = error.message;
+      renderQueue(currentQueue || emptyQueue);
+      return null;
+    }
+    try {
+      const response = await fetch(`${GATEWAY_URL}/v1/workspaces/${encodeURIComponent(workspace.id)}/ai-work-queue?v=${Date.now()}`, { cache: "no-store", headers });
       const body = await response.json();
-      if (!response.ok || !body.ok) throw new Error(body?.error?.message || "The queue could not be loaded.");
+      if (!response.ok || !body.ok) {
+        if (response.status === 401 || response.status === 403) gatewayClient?.clearSessionCredential?.();
+        throw new Error(body?.error?.message || "The queue could not be loaded.");
+      }
       if (body.workspaceId !== workspace.id) throw new Error("The queue response belongs to another workspace.");
       currentQueue = body;
       if (currentFilter !== "all" && filterCount(currentFilter, body.summary) === 0) currentFilter = "all";
@@ -234,7 +261,7 @@
       isRefreshing = true;
       queueFeedback = "Refreshing queue…";
       renderQueue(currentQueue);
-      loadQueue().then((queue) => {
+      loadQueue({ allowPrompt: true }).then((queue) => {
         if (queue) queueFeedback = "Updated just now";
       }).catch((error) => {
         queueFeedback = `Refresh failed: ${error.message}`;

@@ -82,6 +82,14 @@ export async function handleAiWorkQueue(request, env, pathname) {
   if (!route) return null;
 
   if (!route.itemId && request.method === "GET") {
+    // Queue reads were previously unauthenticated: anyone who knew the
+    // gateway URL and a workspace ID could read titles, progress, and
+    // evidence references. Reads now use the same founder-or-agent
+    // authentication as queue mutations (founder-only creation and
+    // decisions are unchanged). The browser UI must send a Bearer token;
+    // see docs/founder-os/js/ai-work-queue.js.
+    const auth = authenticateQueueActor(request, env);
+    if (!auth.ok) return errorResponse(request, auth.status, auth.code, auth.message);
     const url = new URL(request.url);
     const queue = await listQueueItems(env, route.workspaceId, {
       status: String(url.searchParams.get("status") || "").trim(),
