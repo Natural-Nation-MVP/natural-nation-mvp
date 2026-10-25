@@ -40,6 +40,10 @@ assert.ok(getBlock.includes("authenticateQueueActor(request, env)"), "Queue GET 
 assert.match(ui, /requestFounderKey/, "Queue UI must use the in-memory Founder key for reads.");
 assert.match(ui, /authorization: `Bearer/, "Queue UI must send a Bearer token when loading the queue.");
 assert.match(route, /x-founder-os-agent/i, "Agent callbacks must identify their governed role.");
+assert.match(queue, /costImpact/, "Queue must record cost impact for the temporary non-token lift.");
+assert.match(queue, /nonTokenApprovalLiftActive/, "Queue must gate the temporary non-token lift on an explicit flag.");
+assert.match(queue, /completeNonTokenQueueItem/, "Queue must expose a non-token completion path.");
+assert.match(route, /complete-non-token/, "Queue route must expose complete-non-token.");
 assert.match(route, /authenticateFounder/, "Founder decisions must remain authenticated.");
 assert.match(gateway, /governedAiWorkQueue:\s*"runtime-store-backed"/, "Gateway must advertise the durable queue.");
 assert.match(gateway, /handleAiWorkQueue/, "Gateway must route queue requests.");

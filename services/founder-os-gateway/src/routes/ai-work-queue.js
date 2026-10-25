@@ -1,6 +1,7 @@
 import { authenticateAgentCallback, authenticateFounder } from "../lib/auth.js";
 import {
   claimQueueItem,
+  completeNonTokenQueueItem,
   completeRoutineQueueItem,
   createQueueItem,
   decideQueueItem,
@@ -14,7 +15,7 @@ import { errorResponse, json } from "../lib/http.js";
 function parseQueueRoute(pathname) {
   const root = pathname.match(/^\/v1\/workspaces\/([^/]+)\/ai-work-queue$/);
   if (root) return { workspaceId: decodeURIComponent(root[1]), itemId: null, action: null };
-  const item = pathname.match(/^\/v1\/workspaces\/([^/]+)\/ai-work-queue\/([^/]+)\/(claim|progress|evidence|request-approval|complete|decision)$/);
+  const item = pathname.match(/^\/v1\/workspaces\/([^/]+)\/ai-work-queue\/([^/]+)\/(claim|progress|evidence|request-approval|complete|complete-non-token|decision)$/);
   return item ? {
     workspaceId: decodeURIComponent(item[1]),
     itemId: decodeURIComponent(item[2]),
@@ -133,6 +134,7 @@ export async function handleAiWorkQueue(request, env, pathname) {
       evidence: () => submitQueueEvidence(env, route.workspaceId, route.itemId, auth.actor, expectedRevision, body),
       "request-approval": () => requestQueueApproval(env, route.workspaceId, route.itemId, auth.actor, expectedRevision),
       complete: () => completeRoutineQueueItem(env, route.workspaceId, route.itemId, auth.actor, expectedRevision),
+      "complete-non-token": () => completeNonTokenQueueItem(env, route.workspaceId, route.itemId, auth.actor, expectedRevision),
       decision: () => decideQueueItem(env, route.workspaceId, route.itemId, auth.actor, expectedRevision, body)
     };
     const result = await actions[route.action]();
