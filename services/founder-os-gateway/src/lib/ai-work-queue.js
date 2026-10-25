@@ -83,6 +83,16 @@ function normalizeNewItem(workspaceId, input, actor) {
   if (!ROLE_CAPABILITIES[ownerRole].has(requiredAction)) throw new Error("The assigned AI role does not have the required capability.");
   if (!PRIORITIES.has(priority)) throw new Error("Queue priority must be low, medium, high, or critical.");
   if (!["routine", "founder"].includes(approvalClass)) throw new Error("Approval class must be routine or founder.");
+  // Cost impact is declared by the Founder at creation, never inferred
+  // from a title or description. The field is named costImpact (not
+  // tokenImpact) because the queue sanitizer strips token-named keys.
+  // "token-consuming" means the work will
+  // call a paid AI provider / API — including redundant or repeated calls
+  // that drain tokens and cost money. "none" means no such call and no
+  // provider cost. Anything undeclared defaults to token-consuming, so
+  // older items and ambiguous work stay Founder-gated by default.
+  const costImpact = String(input?.costImpact || "token-consuming").trim().toLowerCase();
+  if (!["none", "token-consuming"].includes(costImpact)) throw new Error("Token impact must be none or token-consuming.");
   const createdAt = now();
   return sanitize({
     queueVersion: "1.0.0",
@@ -95,6 +105,7 @@ function normalizeNewItem(workspaceId, input, actor) {
     requiredAction,
     priority,
     approvalClass,
+    costImpact,
     status: "ready",
     progress: 0,
     nextAction,
@@ -237,6 +248,55 @@ export function requestQueueApproval(env, workspaceId, itemId, actor, expectedRe
     if (item.evidence.length === 0) throw new Error("Founder approval cannot be requested without evidence.");
     return { ...item, status: "needs-approval", progress: Math.max(item.progress, 99), nextAction: "Founder decision required" };
   }, "approval-requested");
+}
+
+// Temporary, reversible lift: while enabled, Founder-class work that is
+// explicitly declared costImpact "none" may complete without a Founder
+// decision. This is deliberately narrow:
+// - Token-consuming work (any paid AI/API call, including redundant calls)
+//   is never lifted, even when the flag is on.
+// - Items created before costImpact existed have no value and are treated
+//   as token-consuming, so they stay gated.
+// - Evidence is still required, and only active/blocked work can complete
+//   (ready work cannot jump straight to complete).
+// - The lift is audited: the completed item records approvalLift with the
+//   flag and expiry in force at completion time.
+// Enable with env FOUNDER_APPROVAL_LIFT_NON_TOKEN="true". If
+// FOUNDER_APPROVAL_LIFT_NON_TOKEN_UNTIL is set (ISO date), the lift stops
+// applying after that time. An invalid expiry disables the lift.
+export function nonTokenApprovalLiftActive(env) {
+  if (String(env?.FOUNDER_APPROVAL_LIFT_NON_TOKEN || "").trim().toLowerCase() !== "true") return false;
+  const untilRaw = String(env?.FOUNDER_APPROVAL_LIFT_NON_TOKEN_UNTIL || "").trim();
+  if (!untilRaw) return true;
+  const until = new Date(untilRaw);
+  if (Number.isNaN(until.getTime())) return false;
+  return new Date() < until;
+}
+
+export function completeNonTokenQueueItem(env, workspaceId, itemId, actor, expectedRevision) {
+  return updateItem(env, workspaceId, itemId, actor, expectedRevision, (item) => {
+    requireOwner(item, actor);
+    if (!nonTokenApprovalLiftActive(env)) throw new Error("The temporary non-token approval lift is not active.");
+    if (item.costImpact !== "none") throw new Error("Token-consuming work still requires a Founder decision.");
+    if (!["active", "blocked"].includes(item.status)) throw new Error("Only active or blocked work can complete under the temporary lift.");
+    if (item.evidence.length === 0) throw new Error("Work cannot complete without evidence, even under the temporary lift.");
+    return {
+      ...item,
+      status: "complete",
+      progress: 100,
+      nextAction: "Complete",
+      completedAt: now(),
+      completedBy: actor.id,
+      approvalLift: {
+        lifted: true,
+        scope: "non-token only",
+        liftFlag: String(env?.FOUNDER_APPROVAL_LIFT_NON_TOKEN || ""),
+        liftUntil: String(env?.FOUNDER_APPROVAL_LIFT_NON_TOKEN_UNTIL || "") || null,
+        completedAt: now(),
+        completedBy: actor.id
+      }
+    };
+  }, "completed-under-non-token-lift");
 }
 
 export function completeRoutineQueueItem(env, workspaceId, itemId, actor, expectedRevision) {

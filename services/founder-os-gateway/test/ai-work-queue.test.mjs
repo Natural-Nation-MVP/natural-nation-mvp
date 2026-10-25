@@ -205,3 +205,76 @@ test("rejects unauthenticated and wrong-token queue reads", async () => {
   assert.equal(founderRead.response.status, 200);
   assert.deepEqual(founderRead.body.items.map((item) => item.itemId), ["WORK-READ-1"]);
 });
+
+async function createAndClaim(env, itemId, extra = {}) {
+  await call(env, "/v1/workspaces/natural-nation/ai-work-queue", "founder-test", {
+    itemId,
+    title: extra.title || "Test work",
+    ownerRole: "gpose",
+    requiredAction: "update-documentation",
+    nextAction: "Submit verified evidence",
+    approvalClass: "founder",
+    ...extra
+  });
+  const claimed = await call(env, `/v1/workspaces/natural-nation/ai-work-queue/${itemId}/claim`, "agent-test", {
+    expectedRevision: 1
+  }, "gpose");
+  assert.equal(claimed.response.status, 200);
+  const evidence = await call(env, `/v1/workspaces/natural-nation/ai-work-queue/${itemId}/evidence`, "agent-test", {
+    expectedRevision: 2,
+    summary: "Work done, no provider call made.",
+    reference: "docs/example.md"
+  }, "gpose");
+  assert.equal(evidence.body.item.revision, 3);
+}
+
+test("temporary lift completes non-token founder work only when the lift is active", async () => {
+  const env = bindings();
+  env.FOUNDER_APPROVAL_LIFT_NON_TOKEN = "true";
+  await createAndClaim(env, "WORK-LIFT-1", { costImpact: "none" });
+  const completed = await call(env, "/v1/workspaces/natural-nation/ai-work-queue/WORK-LIFT-1/complete-non-token", "agent-test", {
+    expectedRevision: 3
+  }, "gpose");
+  assert.equal(completed.response.status, 200);
+  assert.equal(completed.body.item.status, "complete");
+  assert.equal(completed.body.item.approvalLift.lifted, true);
+});
+
+test("temporary lift never completes token-consuming founder work", async () => {
+  const env = bindings();
+  env.FOUNDER_APPROVAL_LIFT_NON_TOKEN = "true";
+  await createAndClaim(env, "WORK-LIFT-2", { costImpact: "token-consuming" });
+  const blocked = await call(env, "/v1/workspaces/natural-nation/ai-work-queue/WORK-LIFT-2/complete-non-token", "agent-test", {
+    expectedRevision: 3
+  }, "gpose");
+  assert.equal(blocked.response.status, 422);
+  assert.match(blocked.body.error.message, /Founder decision/i);
+});
+
+test("temporary lift is inactive without the flag, and expired lifts do not apply", async () => {
+  const noFlag = bindings();
+  await createAndClaim(noFlag, "WORK-LIFT-3", { costImpact: "none" });
+  const noFlagResult = await call(noFlag, "/v1/workspaces/natural-nation/ai-work-queue/WORK-LIFT-3/complete-non-token", "agent-test", {
+    expectedRevision: 3
+  }, "gpose");
+  assert.equal(noFlagResult.response.status, 422);
+
+  const expired = bindings();
+  expired.FOUNDER_APPROVAL_LIFT_NON_TOKEN = "true";
+  expired.FOUNDER_APPROVAL_LIFT_NON_TOKEN_UNTIL = "2020-01-01T00:00:00Z";
+  await createAndClaim(expired, "WORK-LIFT-4", { costImpact: "none" });
+  const expiredResult = await call(expired, "/v1/workspaces/natural-nation/ai-work-queue/WORK-LIFT-4/complete-non-token", "agent-test", {
+    expectedRevision: 3
+  }, "gpose");
+  assert.equal(expiredResult.response.status, 422);
+});
+
+test("non-token lift defaults undeclared work to token-consuming", async () => {
+  const env = bindings();
+  env.FOUNDER_APPROVAL_LIFT_NON_TOKEN = "true";
+  await createAndClaim(env, "WORK-LIFT-5", {});
+  const blocked = await call(env, "/v1/workspaces/natural-nation/ai-work-queue/WORK-LIFT-5/complete-non-token", "agent-test", {
+    expectedRevision: 3
+  }, "gpose");
+  assert.equal(blocked.response.status, 422);
+});
